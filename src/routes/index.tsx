@@ -79,7 +79,7 @@ function Hero() {
           transition={{ delay: 0.5, duration: 0.8 }}
         >
           <Link
-            to="/"
+            to="/login"
             className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-primary-foreground bg-primary rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95"
           >
             <Calendar className="mr-2 h-5 w-5" />
@@ -409,8 +409,8 @@ function Footer() {
         <div>
           <h4 className="text-primary font-bold mb-6 uppercase tracking-widest">Links Rápidos</h4>
           <ul className="space-y-4">
-            <li><Link to="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Login</Link></li>
-            <li><Link to="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Agendamento</Link></li>
+            <li><Link to="/login" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Login</Link></li>
+            <li><Link to="/login" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Agendamento</Link></li>
           </ul>
         </div>
 
