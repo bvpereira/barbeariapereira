@@ -132,7 +132,9 @@ function Login() {
         .maybeSingle();
 
       if (error || !data) {
-        toast.error("Usuário não encontrado", {
+        setAlertState({
+          open: true,
+          title: "Usuário não encontrado",
           description: "Esse número de usuário não foi encontrado no nosso banco de dados. Crie um novo usuário e cadastre sua senha",
         });
       } else {
@@ -151,8 +153,10 @@ function Login() {
           console.error("Webhook error:", webhookErr);
         }
 
-        toast.success("Recuperação enviada", {
-          description: "O link para redefinir sua senha será enviado pelo para o WhatsApp do seu telefone cadastrado",
+        setAlertState({
+          open: true,
+          title: "Recuperação enviada",
+          description: "O link para redefinir sua senha será enviado pelo WhatsApp do seu telefone cadastrado",
         });
       }
     } catch (err) {
