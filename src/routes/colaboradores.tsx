@@ -92,7 +92,7 @@ function CollaboratorsPage() {
         .order("created_at", { ascending: false });
 
       if (collaboratorsError) throw collaboratorsError;
-      setCollaborators(collaboratorsData || []);
+      setCollaborators((collaboratorsData as any) || []);
     } catch (error: any) {
       toast.error("Erro ao carregar dados: " + error.message);
     } finally {
@@ -118,7 +118,7 @@ function CollaboratorsPage() {
     setResumo(colab.resumo || "");
     setLogin(colab.login);
     setSenha(colab.senha);
-    setSalarioFixo(colab.salario_fixo.toString());
+    setSalarioFixo(colab.salario_fixo?.toString() || "");
     setFotoPreview(colab.foto_url);
     
     const services = colab.colaborador_servicos?.map(s => ({
