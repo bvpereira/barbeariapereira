@@ -62,9 +62,21 @@ function Hero() {
 
         <motion.h1 
           initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-2xl md:text-4xl font-bold tracking-wider mb-8 text-primary uppercase"
+          animate={{ 
+            y: 0, 
+            opacity: 1,
+            color: ["#FFD700", "#FFFFFF", "#FFD700"]
+          }}
+          transition={{ 
+            delay: 0.3, 
+            duration: 0.8,
+            color: {
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }
+          }}
+          className="text-2xl md:text-4xl font-bold tracking-wider mb-8 uppercase"
         >
           Tradição e Estilo em Cada Corte
         </motion.h1>
