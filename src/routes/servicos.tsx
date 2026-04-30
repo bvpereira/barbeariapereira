@@ -34,7 +34,7 @@ function ServicesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   // Form states
   const [name, setName] = useState("");
@@ -57,11 +57,7 @@ function ServicesPage() {
       if (error) throw error;
       setServices(data || []);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao carregar serviços",
-        description: error.message,
-      });
+      toast.error("Erro ao carregar serviços: " + error.message);
     } finally {
       setIsLoading(false);
     }
@@ -135,24 +131,20 @@ function ServicesPage() {
           .update(serviceData)
           .eq("id", editingService.id);
         if (error) throw error;
-        toast({ title: "Serviço atualizado com sucesso!" });
+        toast.success("Serviço atualizado com sucesso!");
       } else {
         const { error } = await supabase
           .from("services")
           .insert([serviceData]);
         if (error) throw error;
-        toast({ title: "Serviço criado com sucesso!" });
+        toast.success("Serviço criado com sucesso!");
       }
 
       setIsDialogOpen(false);
       resetForm();
       fetchServices();
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao salvar serviço",
-        description: error.message,
-      });
+      toast.error("Erro ao salvar serviço: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,14 +156,10 @@ function ServicesPage() {
     try {
       const { error } = await supabase.from("services").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Serviço excluído com sucesso!" });
+      toast.success("Serviço excluído com sucesso!");
       fetchServices();
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao excluir serviço",
-        description: error.message,
-      });
+      toast.error("Erro ao excluir serviço: " + error.message);
     }
   };
 
