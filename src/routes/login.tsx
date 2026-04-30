@@ -138,7 +138,7 @@ function Login() {
           description: "Esse número de usuário não foi encontrado no nosso banco de dados. Crie um novo usuário e cadastre sua senha",
         });
       } else {
-        const resetLink = `${window.location.origin}/reset-password?user=${cleanLogin}`;
+        const resetLink = `${window.location.origin}/recuperarsenha?user=${cleanLogin}`;
         
         try {
           await fetch("https://n8n.servidorpereira.shop/webhook-test/barbeariaoereira", {
