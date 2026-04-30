@@ -119,7 +119,7 @@ function SobreNos() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary border-l-4 border-primary pl-4">Sobre Nós</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary border-l-4 border-primary pl-4 uppercase tracking-wider">Sobre Nós</h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
               A Barbearia Pereira não é apenas um lugar para cortar o cabelo; é um espaço dedicado ao homem moderno que valoriza a tradição. Combinamos técnicas clássicas de barbearia com o que há de mais atual em tendências e cuidados masculinos, proporcionando uma experiência de relaxamento e renovação.
             </p>
