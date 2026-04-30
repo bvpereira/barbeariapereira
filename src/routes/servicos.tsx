@@ -126,14 +126,14 @@ function ServicesPage() {
 
       if (editingService) {
         const { error } = await supabase
-          .from("services")
+          .from("servicos")
           .update(serviceData)
           .eq("id", editingService.id);
         if (error) throw error;
         toast.success("Serviço atualizado com sucesso!");
       } else {
         const { error } = await supabase
-          .from("services")
+          .from("servicos")
           .insert([serviceData]);
         if (error) throw error;
         toast.success("Serviço criado com sucesso!");
