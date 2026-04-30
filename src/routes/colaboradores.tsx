@@ -170,6 +170,12 @@ function CollaboratorsPage() {
     
     setIsSubmitting(true);
 
+    if (senha.length < 6) {
+      toast.error("A senha precisa ter no mínimo 6 caracteres.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       let fotoUrl = fotoPreview;
 
