@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      services: {
+        Row: {
+          created_at: string
+          duration: number
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration: number
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration?: number
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       teste: {
         Row: {
           created_at: string

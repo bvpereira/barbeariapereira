@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RecuperarsenhaRouteImport } from './routes/recuperarsenha'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
@@ -17,6 +18,11 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ServicosRoute = ServicosRouteImport.update({
+  id: '/servicos',
+  path: '/servicos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecuperarsenhaRoute = RecuperarsenhaRouteImport.update({
   id: '/recuperarsenha',
   path: '/recuperarsenha',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/colaborador': typeof ColaboradorRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
+  '/servicos': typeof ServicosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/colaborador': typeof ColaboradorRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
+  '/servicos': typeof ServicosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/colaborador': typeof ColaboradorRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
+  '/servicos': typeof ServicosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/login'
     | '/recuperarsenha'
+    | '/servicos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/login'
     | '/recuperarsenha'
+    | '/servicos'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/login'
     | '/recuperarsenha'
+    | '/servicos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,10 +131,18 @@ export interface RootRouteChildren {
   ColaboradorRoute: typeof ColaboradorRoute
   LoginRoute: typeof LoginRoute
   RecuperarsenhaRoute: typeof RecuperarsenhaRoute
+  ServicosRoute: typeof ServicosRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/servicos': {
+      id: '/servicos'
+      path: '/servicos'
+      fullPath: '/servicos'
+      preLoaderRoute: typeof ServicosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recuperarsenha': {
       id: '/recuperarsenha'
       path: '/recuperarsenha'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradorRoute: ColaboradorRoute,
   LoginRoute: LoginRoute,
   RecuperarsenhaRoute: RecuperarsenhaRoute,
+  ServicosRoute: ServicosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
