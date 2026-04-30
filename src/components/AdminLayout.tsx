@@ -1,5 +1,5 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,11 @@ const menuItems = [
     title: "Serviços",
     icon: Scissors,
     href: "/servicos",
+  },
+  {
+    title: "Colaboradores",
+    icon: Users,
+    href: "/colaboradores",
   },
 ];
 
