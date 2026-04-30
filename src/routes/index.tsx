@@ -62,9 +62,21 @@ function Hero() {
 
         <motion.h1 
           initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-2xl md:text-4xl font-bold tracking-wider mb-8 text-primary uppercase"
+          animate={{ 
+            y: 0, 
+            opacity: 1,
+            color: ["#FFD700", "#FFFFFF", "#FFD700"]
+          }}
+          transition={{ 
+            delay: 0.3, 
+            duration: 0.8,
+            color: {
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }
+          }}
+          className="text-2xl md:text-4xl font-bold tracking-wider mb-8 uppercase"
         >
           Tradição e Estilo em Cada Corte
         </motion.h1>
@@ -75,7 +87,7 @@ function Hero() {
           transition={{ delay: 0.5, duration: 0.8 }}
         >
           <Link
-            to="/login"
+            to="/"
             className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-primary-foreground bg-primary rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95"
           >
             <Calendar className="mr-2 h-5 w-5" />
@@ -405,8 +417,8 @@ function Footer() {
         <div>
           <h4 className="text-primary font-bold mb-6 uppercase tracking-widest">Links Rápidos</h4>
           <ul className="space-y-4">
-            <li><Link to="/login" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Login</Link></li>
-            <li><Link to="/login" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Agendamento</Link></li>
+            <li><Link to="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Login</Link></li>
+            <li><Link to="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 group"><ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" /> Agendamento</Link></li>
           </ul>
         </div>
 
