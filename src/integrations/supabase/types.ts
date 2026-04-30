@@ -16,28 +16,28 @@ export type Database = {
     Tables: {
       colaborador_servicos: {
         Row: {
-          colaborador_id: string
+          colaborador_id: string | null
           created_at: string
           id: string
-          servico_id: string
-          tipo_comissao: string
-          valor_comissao: number
+          servico_id: string | null
+          tipo_comissao: string | null
+          valor_comissao: number | null
         }
         Insert: {
-          colaborador_id: string
+          colaborador_id?: string | null
           created_at?: string
           id?: string
-          servico_id: string
-          tipo_comissao: string
-          valor_comissao: number
+          servico_id?: string | null
+          tipo_comissao?: string | null
+          valor_comissao?: number | null
         }
         Update: {
-          colaborador_id?: string
+          colaborador_id?: string | null
           created_at?: string
           id?: string
-          servico_id?: string
-          tipo_comissao?: string
-          valor_comissao?: number
+          servico_id?: string | null
+          tipo_comissao?: string | null
+          valor_comissao?: number | null
         }
         Relationships: [
           {
