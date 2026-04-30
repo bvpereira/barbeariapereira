@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RecuperarsenhaRouteImport } from './routes/recuperarsenha'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
 import { Route as ClienteRouteImport } from './routes/cliente'
@@ -16,6 +17,11 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RecuperarsenhaRoute = RecuperarsenhaRouteImport.update({
+  id: '/recuperarsenha',
+  path: '/recuperarsenha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
   '/login': typeof LoginRoute
+  '/recuperarsenha': typeof RecuperarsenhaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
   '/login': typeof LoginRoute
+  '/recuperarsenha': typeof RecuperarsenhaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
   '/login': typeof LoginRoute
+  '/recuperarsenha': typeof RecuperarsenhaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +90,16 @@ export interface FileRouteTypes {
     | '/cliente'
     | '/colaborador'
     | '/login'
+    | '/recuperarsenha'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/cadastro' | '/cliente' | '/colaborador' | '/login'
+  to:
+    | '/'
+    | '/admin'
+    | '/cadastro'
+    | '/cliente'
+    | '/colaborador'
+    | '/login'
+    | '/recuperarsenha'
   id:
     | '__root__'
     | '/'
@@ -91,6 +108,7 @@ export interface FileRouteTypes {
     | '/cliente'
     | '/colaborador'
     | '/login'
+    | '/recuperarsenha'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,10 +118,18 @@ export interface RootRouteChildren {
   ClienteRoute: typeof ClienteRoute
   ColaboradorRoute: typeof ColaboradorRoute
   LoginRoute: typeof LoginRoute
+  RecuperarsenhaRoute: typeof RecuperarsenhaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/recuperarsenha': {
+      id: '/recuperarsenha'
+      path: '/recuperarsenha'
+      fullPath: '/recuperarsenha'
+      preLoaderRoute: typeof RecuperarsenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -156,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClienteRoute: ClienteRoute,
   ColaboradorRoute: ColaboradorRoute,
   LoginRoute: LoginRoute,
+  RecuperarsenhaRoute: RecuperarsenhaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
