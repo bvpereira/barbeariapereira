@@ -119,7 +119,7 @@ function SobreNos() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary border-l-4 border-primary pl-4 uppercase tracking-wider flex items-center gap-3">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary border-l-4 border-primary pl-4 uppercase tracking-wider flex flex-col gap-3">
               <User className="w-8 h-8" />
               Sobre Nós
             </h2>
@@ -175,7 +175,7 @@ function Localizacao() {
     <section className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary flex items-center justify-center gap-3">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary flex flex-col items-center justify-center gap-3">
             <MapPin className="w-8 h-8" />
             Nossa Localização
           </h2>
@@ -265,7 +265,7 @@ function Servicos() {
     <section className="py-20 bg-secondary/20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary flex items-center justify-center gap-3">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary flex flex-col items-center justify-center gap-3">
             <Scissors className="w-8 h-8" />
             Nossos Serviços
           </h2>
@@ -313,7 +313,7 @@ function Colaboradores() {
     <section className="py-20 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary uppercase tracking-widest flex items-center justify-center gap-3">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
             <User className="w-8 h-8" />
             Nossos Colaboradores
           </h2>
@@ -353,7 +353,7 @@ function Contato() {
   return (
     <section className="py-20 bg-primary/5 px-4">
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-3xl md:text-5xl font-bold mb-8 text-primary flex items-center justify-center gap-4">
+        <h2 className="text-3xl md:text-5xl font-bold mb-8 text-primary flex flex-col items-center justify-center gap-4">
           <Phone className="w-10 h-10" />
           Pronto para dar um trato no visual?
         </h2>
