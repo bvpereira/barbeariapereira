@@ -273,7 +273,7 @@ function ServicesPage() {
                   <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4 text-primary" />
-                      <span>R$ {Number(service.price).toFixed(2)}</span>
+                      <span>R$ {Number(service.price).toFixed(2).replace(".", ",")}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4 text-primary" />
