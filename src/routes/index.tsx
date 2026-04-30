@@ -49,15 +49,7 @@ function Hero() {
         <motion.img
           src="/logo.png"
           alt="Barbearia Pereira Logo"
-          className="w-48 md:w-64 mb-8 drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]"
-          animate={{ 
-            y: [0, -10, 0],
-          }}
-          transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
+          className="w-48 md:w-64 mb-8"
         />
 
         <motion.h1 
