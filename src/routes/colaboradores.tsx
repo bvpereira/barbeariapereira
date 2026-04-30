@@ -162,7 +162,8 @@ function CollaboratorsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login.length !== 11 || !/^\d+$/.test(login)) {
+    const cleanLogin = login.replace(/\D/g, "");
+    if (cleanLogin.length !== 11) {
       toast.error("O login deve ter exatamente 11 números.");
       return;
     }
@@ -193,7 +194,7 @@ function CollaboratorsPage() {
       const colabData = {
         nome,
         resumo,
-        login,
+        login: cleanLogin,
         senha,
         salario_fixo: parseFloat(salarioFixo) || 0,
         foto_url: fotoUrl,
@@ -212,7 +213,7 @@ function CollaboratorsPage() {
         // Update user in 'usuarios' table
         const { error: userError } = await supabase
           .from("usuarios")
-          .update({ nome, login, senha })
+          .update({ nome, login: cleanLogin, senha })
           .eq("login", editingCollaborator.login);
         if (userError) throw userError;
 
@@ -233,7 +234,7 @@ function CollaboratorsPage() {
         // Create user in 'usuarios' table
         const { error: userError } = await supabase
           .from("usuarios")
-          .insert([{ nome, login, senha, nivel: 2 }]);
+          .insert([{ nome, login: cleanLogin, senha, nivel: 2 }]);
         if (userError) throw userError;
       }
 
@@ -319,8 +320,21 @@ function CollaboratorsPage() {
                   <Input id="nome" value={nome} onChange={e => setNome(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login">Login (Telefone 11 dígitos)</Label>
-                  <Input id="login" value={login} onChange={e => setLogin(e.target.value)} placeholder="11999999999" maxLength={11} required />
+                  <Label htmlFor="login">Login (Telefone)</Label>
+                  <Input 
+                    id="login" 
+                    value={login} 
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 11);
+                      let masked = val;
+                      if (val.length > 0) masked = "(" + val;
+                      if (val.length > 2) masked = "(" + val.slice(0, 2) + ") " + val.slice(2);
+                      if (val.length > 7) masked = "(" + val.slice(0, 2) + ") " + val.slice(2, 7) + "-" + val.slice(7);
+                      setLogin(masked);
+                    }} 
+                    placeholder="(00) 00000-0000" 
+                    required 
+                  />
                 </div>
               </div>
 
@@ -435,7 +449,7 @@ function CollaboratorsPage() {
                 <CardContent className="p-4 pt-0 space-y-3">
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-1 text-muted-foreground">
-                      <Phone className="w-3 h-3" /> {colab.login}
+                      <Phone className="w-3 h-3" /> {colab.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <DollarSign className="w-3 h-3" /> Salário: R$ {Number(colab.salario_fixo).toFixed(2).replace(".", ",")}
