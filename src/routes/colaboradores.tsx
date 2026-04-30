@@ -201,7 +201,7 @@ function CollaboratorsPage() {
 
       let colabId = editingCollaborator?.id;
 
-      if (editingCollaborator) {
+      if (editingCollaborator && colabId) {
         // Update collaborator
         const { error } = await supabase
           .from("colaboradores")
