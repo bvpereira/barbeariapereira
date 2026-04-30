@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      services: {
+      servicos: {
         Row: {
           created_at: string
           duration: number
