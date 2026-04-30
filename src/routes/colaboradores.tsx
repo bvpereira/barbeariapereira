@@ -35,10 +35,10 @@ interface CollaboratorService {
 interface Collaborator {
   id: string;
   nome: string;
-  resumo: string;
+  resumo: string | null;
   login: string;
   senha: string;
-  salario_fixo: number;
+  salario_fixo: number | null;
   foto_url: string | null;
   colaborador_servicos?: (CollaboratorService & { servicos: { name: string } })[];
 }
