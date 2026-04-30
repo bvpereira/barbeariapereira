@@ -13,7 +13,6 @@ import {
   Scissors
 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 import { cn } from "../lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -101,7 +100,7 @@ function Hero() {
 }
 
 function SobreNos() {
-  const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 3000, stopOnInteraction: false })]);
+  const [emblaRef] = useEmblaCarousel({ loop: true });
   
   const images = Array.from({ length: 8 }, (_, i) => `/carrossel/barbearia-${i + 1}.png`);
   
