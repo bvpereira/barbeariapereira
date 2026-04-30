@@ -27,14 +27,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               to={item.href}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-accent text-muted-foreground hover:text-foreground"
-                )
-              }
+              activeProps={{
+                className: "bg-primary text-primary-foreground",
+              }}
+              inactiveProps={{
+                className: "hover:bg-accent text-muted-foreground hover:text-foreground",
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
             >
               <item.icon className="w-5 h-5" />
               <span className="font-medium">{item.title}</span>
