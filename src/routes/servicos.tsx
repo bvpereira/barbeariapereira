@@ -153,7 +153,7 @@ function ServicesPage() {
     if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
 
     try {
-      const { error } = await supabase.from("services").delete().eq("id", id);
+      const { error } = await supabase.from("servicos").delete().eq("id", id);
       if (error) throw error;
       toast.success("Serviço excluído com sucesso!");
       fetchServices();
