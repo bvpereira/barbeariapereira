@@ -127,10 +127,10 @@ function SobreNos() {
             <ul className="space-y-4">
               {features.map((item, i) => (
                 <li key={i} className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Check className="w-4 h-4 text-primary" />
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center">
+                    <Check className="w-4 h-4 text-secondary" />
                   </div>
-                  <span className="text-foreground/90 font-medium">{item}</span>
+                  <span className="text-foreground/90 font-medium group-hover:text-secondary transition-colors">{item}</span>
                 </li>
               ))}
             </ul>

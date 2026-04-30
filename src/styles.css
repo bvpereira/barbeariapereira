@@ -71,7 +71,7 @@
   --popover-foreground: oklch(0.984 0.003 247.858);
   --primary: oklch(0.7 0.15 45); /* Gold tone from logo */
   --primary-foreground: oklch(0.129 0.042 264.695);
-  --secondary: oklch(0.25 0.04 260);
+  --secondary: oklch(0.4 0.2 250); /* Blue tone for lists */
   --secondary-foreground: oklch(0.984 0.003 247.858);
   --muted: oklch(0.25 0.04 260);
   --muted-foreground: oklch(0.7 0.02 260);
