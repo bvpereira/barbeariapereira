@@ -239,16 +239,31 @@ function CollaboratorsPage() {
 
       // Insert services
       if (colabId && selectedServices.length > 0) {
+        console.log("Tentando inserir serviços para colabId:", colabId);
+        console.log("Serviços selecionados:", selectedServices);
+
         const servicesToInsert = selectedServices.map(s => ({
           colaborador_id: colabId as string,
           servico_id: s.servico_id,
           tipo_comissao: s.tipo_comissao,
-          valor_comissao: s.valor_comissao
+          valor_comissao: s.valor_comissao || 0
         }));
-        const { error: servicesError } = await supabase
+
+        console.log("Dados formatados para inserção:", servicesToInsert);
+
+        const { data: insertedData, error: servicesError } = await supabase
           .from("colaborador_servicos")
-          .insert(servicesToInsert);
-        if (servicesError) throw servicesError;
+          .insert(servicesToInsert)
+          .select();
+
+        if (servicesError) {
+          console.error("Erro do Supabase ao inserir serviços:", servicesError);
+          throw servicesError;
+        }
+
+        console.log("Serviços inseridos com sucesso:", insertedData);
+      } else {
+        console.log("Nenhum serviço selecionado ou colabId ausente.", { colabId, count: selectedServices.length });
       }
 
       toast.success(editingCollaborator ? "Colaborador atualizado!" : "Colaborador criado!");
