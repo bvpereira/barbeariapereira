@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RecuperarsenhaRouteImport } from './routes/recuperarsenha'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ColaboradoresRouteImport } from './routes/colaboradores'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
 import { Route as ClienteRouteImport } from './routes/cliente'
 import { Route as CadastroRouteImport } from './routes/cadastro'
@@ -31,6 +32,11 @@ const RecuperarsenhaRoute = RecuperarsenhaRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColaboradoresRoute = ColaboradoresRouteImport.update({
+  id: '/colaboradores',
+  path: '/colaboradores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ColaboradorRoute = ColaboradorRouteImport.update({
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
+  '/colaboradores': typeof ColaboradoresRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/servicos': typeof ServicosRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
+  '/colaboradores': typeof ColaboradoresRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/servicos': typeof ServicosRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
+  '/colaboradores': typeof ColaboradoresRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/servicos': typeof ServicosRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/cliente'
     | '/colaborador'
+    | '/colaboradores'
     | '/login'
     | '/recuperarsenha'
     | '/servicos'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/cliente'
     | '/colaborador'
+    | '/colaboradores'
     | '/login'
     | '/recuperarsenha'
     | '/servicos'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/cliente'
     | '/colaborador'
+    | '/colaboradores'
     | '/login'
     | '/recuperarsenha'
     | '/servicos'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   ClienteRoute: typeof ClienteRoute
   ColaboradorRoute: typeof ColaboradorRoute
+  ColaboradoresRoute: typeof ColaboradoresRoute
   LoginRoute: typeof LoginRoute
   RecuperarsenhaRoute: typeof RecuperarsenhaRoute
   ServicosRoute: typeof ServicosRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/colaboradores': {
+      id: '/colaboradores'
+      path: '/colaboradores'
+      fullPath: '/colaboradores'
+      preLoaderRoute: typeof ColaboradoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/colaborador': {
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   ClienteRoute: ClienteRoute,
   ColaboradorRoute: ColaboradorRoute,
+  ColaboradoresRoute: ColaboradoresRoute,
   LoginRoute: LoginRoute,
   RecuperarsenhaRoute: RecuperarsenhaRoute,
   ServicosRoute: ServicosRoute,
