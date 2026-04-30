@@ -12,6 +12,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/login" as any)({
   component: Login,
@@ -37,6 +46,11 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [recoveryLogin, setRecoveryLogin] = useState("");
   const [isRecoveryLoading, setIsRecoveryLoading] = useState(false);
+  const [alertState, setAlertState] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+  }>({ open: false, title: "", description: "" });
   const navigate = useNavigate();
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +65,24 @@ function Login() {
     const cleanLogin = login.replace(/[^\d]/g, "");
 
     try {
+      // Primeiro verifica se o usuário existe
+      const { data: userExists, error: checkError } = await supabase
+        .from("usuarios")
+        .select("login")
+        .eq("login", cleanLogin)
+        .maybeSingle();
+
+      if (!userExists) {
+        setAlertState({
+          open: true,
+          title: "Usuário não encontrado",
+          description: "Este número de usuário não foi encontrado no nosso banco de dados. Crie um novo usuário e cadastre sua senha."
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Se existe, tenta o login com a senha
       const { data, error } = await supabase
         .from("usuarios")
         .select("*")
@@ -59,8 +91,10 @@ function Login() {
         .maybeSingle();
 
       if (error || !data) {
-        toast.error("Acesso negado", {
-          description: "O telefone ou a senha informados estão incorretos. Por favor, verifique seus dados e tente novamente.",
+        setAlertState({
+          open: true,
+          title: "Senha incorreta",
+          description: "A senha informada está incorreta para este usuário. Por favor, tente novamente."
         });
       } else {
         localStorage.setItem("user", JSON.stringify(data));
@@ -204,6 +238,25 @@ function Login() {
           </Dialog>
         </div>
       </div>
+
+      <AlertDialog 
+        open={alertState.open} 
+        onOpenChange={(open) => setAlertState(prev => ({ ...prev, open }))}
+      >
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-foreground">{alertState.title}</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              {alertState.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction className="bg-primary text-primary-foreground hover:bg-primary/90">
+              Entendido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
