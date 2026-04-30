@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      colaborador_servicos: {
+        Row: {
+          colaborador_id: string
+          created_at: string
+          id: string
+          servico_id: string
+          tipo_comissao: string
+          valor_comissao: number
+        }
+        Insert: {
+          colaborador_id: string
+          created_at?: string
+          id?: string
+          servico_id: string
+          tipo_comissao: string
+          valor_comissao: number
+        }
+        Update: {
+          colaborador_id?: string
+          created_at?: string
+          id?: string
+          servico_id?: string
+          tipo_comissao?: string
+          valor_comissao?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "colaborador_servicos_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "colaborador_servicos_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      colaboradores: {
+        Row: {
+          created_at: string
+          foto_url: string | null
+          id: string
+          login: string
+          nome: string
+          resumo: string | null
+          salario_fixo: number | null
+          senha: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          login: string
+          nome: string
+          resumo?: string | null
+          salario_fixo?: number | null
+          senha: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          foto_url?: string | null
+          id?: string
+          login?: string
+          nome?: string
+          resumo?: string | null
+          salario_fixo?: number | null
+          senha?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       servicos: {
         Row: {
           created_at: string
