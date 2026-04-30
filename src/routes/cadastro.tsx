@@ -38,6 +38,14 @@ function Cadastro() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    
+    if (senha.length < 6) {
+      toast.error("Erro no cadastro", {
+        description: "A senha precisa ter no mínimo 6 caracteres.",
+      });
+      setIsLoading(false);
+      return;
+    }
 
     const cleanLogin = login.replace(/[^\d]/g, "");
 

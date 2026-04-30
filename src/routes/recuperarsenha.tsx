@@ -38,7 +38,7 @@ function RecuperarSenha() {
 
     if (novaSenha.length < 6) {
       toast.error("Erro", {
-        description: "A senha deve ter pelo menos 6 caracteres.",
+        description: "A senha precisa ter no mínimo 6 caracteres.",
       });
       return;
     }
