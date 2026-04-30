@@ -79,7 +79,7 @@ function Hero() {
           transition={{ delay: 0.5, duration: 0.8 }}
         >
           <Link
-            to="/"
+            to="/login"
             className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-primary-foreground bg-primary rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95"
           >
             <Calendar className="mr-2 h-5 w-5" />
