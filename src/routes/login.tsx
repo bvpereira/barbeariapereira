@@ -59,8 +59,8 @@ function Login() {
         .maybeSingle();
 
       if (error || !data) {
-        toast.error("Erro no login", {
-          description: "Login ou senha incorretos.",
+        toast.error("Acesso negado", {
+          description: "O telefone ou a senha informados estão incorretos. Por favor, verifique seus dados e tente novamente.",
         });
       } else {
         localStorage.setItem("user", JSON.stringify(data));
