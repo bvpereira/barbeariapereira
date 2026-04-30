@@ -49,7 +49,7 @@ function ServicesPage() {
   const fetchServices = async () => {
     try {
       const { data, error } = await supabase
-        .from("services")
+        .from("servicos")
         .select("*")
         .order("created_at", { ascending: false });
 
