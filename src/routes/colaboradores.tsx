@@ -213,11 +213,13 @@ function CollaboratorsPage() {
         const { error: userError } = await supabase
           .from("usuarios")
           .update({ nome, login, senha })
-          .eq("login", editingCollaborator.login); // Use old login to find user
+          .eq("login", editingCollaborator.login);
         if (userError) throw userError;
 
         // Clear existing services to re-insert
-        await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
+        if (colabId) {
+          await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
+        }
       } else {
         // Create collaborator
         const { data, error } = await supabase
@@ -236,9 +238,9 @@ function CollaboratorsPage() {
       }
 
       // Insert services
-      if (selectedServices.length > 0) {
+      if (colabId && selectedServices.length > 0) {
         const servicesToInsert = selectedServices.map(s => ({
-          colaborador_id: colabId,
+          colaborador_id: colabId as string,
           servico_id: s.servico_id,
           tipo_comissao: s.tipo_comissao,
           valor_comissao: s.valor_comissao
