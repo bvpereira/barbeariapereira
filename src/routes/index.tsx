@@ -290,12 +290,12 @@ function Colaboradores() {
   const time = [
     {
       nome: "Bruno",
-      img: "/colaboradores/bruno.png",
+      img: "/colaboradores/joao.png",
       desc: "Especialista em cortes clássicos e barbas modeladas, Bruno traz 10 anos de experiência e um olhar atento aos detalhes que fazem toda a diferença no estilo de cada cliente."
     },
     {
       nome: "João Pedro",
-      img: "/colaboradores/joao.png",
+      img: "/colaboradores/bruno.png",
       desc: "Mestre em degradês e técnicas modernas, João é referência em transformar o visual com agilidade e perfeccionismo, sempre conectado com as últimas tendências do mercado."
     }
   ];
