@@ -48,6 +48,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/clientes")({
@@ -74,6 +84,7 @@ interface AtendimentoHistorico {
 
 function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
+  const isMobile = useIsMobile();
   const [totalClientes, setTotalClientes] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -518,88 +529,127 @@ function ClientesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        {/* Histórico Dialog */}
-        <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0">
-            <DialogHeader className="p-6 pb-2">
-              <DialogTitle className="flex items-center gap-2">
-                <History className="w-5 h-5 text-blue-600" />
-                Histórico: {selectedCliente?.nome}
-              </DialogTitle>
-            </DialogHeader>
-            
-            <ScrollArea className="flex-1 p-6 pt-0">
-              {historyLoading ? (
-                <div className="py-12 text-center text-muted-foreground">
-                  Carregando histórico...
-                </div>
-              ) : atendimentosCliente.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground">
-                  Nenhum atendimento registrado para este cliente.
-                </div>
-              ) : (
-                <div className="space-y-4 py-4">
-                  {atendimentosCliente.map((atendimento) => (
-                    <Card key={atendimento.id} className="overflow-hidden border-l-4 border-l-primary/40">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2 text-sm font-semibold">
-                              <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
-                              {format(parseISO(atendimento.data), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <User className="w-3.5 h-3.5" />
-                              Profissional: {atendimento.colaborador.nome}
-                            </div>
-                          </div>
-                          <Badge 
-                            variant="secondary"
-                            className={cn(
-                              "text-[10px] px-2 py-0",
-                              atendimento.status === 'Agendado' && "bg-blue-100 text-blue-700",
-                              atendimento.status === 'Finalizado' && "bg-green-100 text-green-700",
-                              atendimento.status === 'Não compareceu' && "bg-red-100 text-red-700"
-                            )}
-                          >
-                            {atendimento.status === 'Agendado' && <Clock className="w-3 h-3 mr-1" />}
-                            {atendimento.status === 'Finalizado' && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                            {atendimento.status === 'Não compareceu' && <XCircle className="w-3 h-3 mr-1" />}
-                            {atendimento.status}
-                          </Badge>
-                        </div>
-                        
-                        <div className="bg-muted/30 rounded-md p-2.5 space-y-2">
-                          <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 uppercase tracking-wider">
-                            <Scissors className="w-3 h-3" />
-                            Serviços
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {atendimento.servicos.map((s, idx) => (
-                              <span key={idx} className="text-xs bg-background border rounded px-2 py-0.5">
-                                {s.name}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
+        {/* Histórico Dialog/Drawer */}
+        {isMobile ? (
+          <Drawer open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+            <DrawerContent className="max-h-[85vh]">
+              <DrawerHeader className="text-left border-b pb-4">
+                <DrawerTitle className="flex items-center gap-2">
+                  <History className="w-5 h-5 text-blue-600" />
+                  Histórico: {selectedCliente?.nome}
+                </DrawerTitle>
+                <DrawerDescription>
+                  Histórico completo de atendimentos do cliente.
+                </DrawerDescription>
+              </DrawerHeader>
+              
+              <div className="overflow-y-auto px-4 py-2">
+                {renderHistoryContent()}
+              </div>
 
-                        <div className="mt-3 text-right">
-                          <span className="text-sm font-bold text-primary">
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(atendimento.valor)}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-            <DialogFooter className="p-6 pt-2 border-t">
-              <Button onClick={() => setIsHistoryOpen(false)}>Fechar</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DrawerFooter className="border-t pt-4">
+                <DrawerClose asChild>
+                  <Button variant="outline">Fechar</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0">
+              <DialogHeader className="p-6 pb-2">
+                <DialogTitle className="flex items-center gap-2">
+                  <History className="w-5 h-5 text-blue-600" />
+                  Histórico: {selectedCliente?.nome}
+                </DialogTitle>
+              </DialogHeader>
+              
+              <ScrollArea className="flex-1 p-6 pt-0">
+                {renderHistoryContent()}
+              </ScrollArea>
+              
+              <DialogFooter className="p-6 pt-2 border-t">
+                <Button onClick={() => setIsHistoryOpen(false)}>Fechar</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </AdminLayout>
   );
+
+  function renderHistoryContent() {
+    if (historyLoading) {
+      return (
+        <div className="py-12 text-center text-muted-foreground">
+          Carregando histórico...
+        </div>
+      );
+    }
+
+    if (atendimentosCliente.length === 0) {
+      return (
+        <div className="py-12 text-center text-muted-foreground">
+          Nenhum atendimento registrado para este cliente.
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4 py-4">
+        {atendimentosCliente.map((atendimento) => (
+          <Card key={atendimento.id} className="overflow-hidden border-l-4 border-l-primary/40">
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    {format(parseISO(atendimento.data), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <User className="w-3.5 h-3.5" />
+                    Profissional: {atendimento.colaborador.nome}
+                  </div>
+                </div>
+                <Badge 
+                  variant="secondary"
+                  className={cn(
+                    "text-[10px] px-2 py-0",
+                    atendimento.status === 'Agendado' && "bg-blue-100 text-blue-700",
+                    atendimento.status === 'Finalizado' && "bg-green-100 text-green-700",
+                    atendimento.status === 'Não compareceu' && "bg-red-100 text-red-700"
+                  )}
+                >
+                  {atendimento.status === 'Agendado' && <Clock className="w-3 h-3 mr-1" />}
+                  {atendimento.status === 'Finalizado' && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                  {atendimento.status === 'Não compareceu' && <XCircle className="w-3 h-3 mr-1" />}
+                  {atendimento.status}
+                </Badge>
+              </div>
+              
+              <div className="bg-muted/30 rounded-md p-2.5 space-y-2">
+                <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 uppercase tracking-wider">
+                  <Scissors className="w-3 h-3" />
+                  Serviços
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {atendimento.servicos.map((s, idx) => (
+                    <span key={idx} className="text-xs bg-background border rounded px-2 py-0.5">
+                      {s.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-3 text-right">
+                <span className="text-sm font-bold text-primary">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(atendimento.valor)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 }
