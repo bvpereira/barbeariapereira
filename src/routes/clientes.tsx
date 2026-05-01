@@ -122,19 +122,29 @@ function ClientesPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.nome || !formData.login || !formData.senha) {
-      toast.error("Preencha todos os campos obrigatórios");
+    if (!formData.nome) {
+      toast.error("O nome do cliente é obrigatório");
+      return;
+    }
+
+    const loginNumeros = formData.login.replace(/\D/g, "");
+    if (loginNumeros.length === 0) {
+      toast.error("O telefone é obrigatório");
+      return;
+    }
+
+    if (loginNumeros.length < 11) {
+      toast.error("O telefone está incompleto (deve ter 11 dígitos)");
+      return;
+    }
+
+    if (!formData.senha) {
+      toast.error("A senha é obrigatória");
       return;
     }
 
     if (formData.senha.length < 6) {
       toast.error("A senha deve ter no mínimo 6 caracteres");
-      return;
-    }
-
-    const loginNumeros = formData.login.replace(/\D/g, "");
-    if (loginNumeros.length !== 11) {
-      toast.error("O telefone deve ter 11 dígitos");
       return;
     }
 
