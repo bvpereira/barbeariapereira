@@ -580,7 +580,7 @@ function AtendimentosPage() {
               {selectedServicos.length > 0 && (
                 <div className="space-y-2">
                   <Label>4. Selecione a Data</Label>
-                  <Popover>
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant={"outline"}
