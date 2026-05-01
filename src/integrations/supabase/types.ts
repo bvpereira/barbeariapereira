@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      atendimento_servicos: {
+        Row: {
+          atendimento_id: string
+          created_at: string
+          id: string
+          servico_id: string
+          valor_servico: number
+        }
+        Insert: {
+          atendimento_id: string
+          created_at?: string
+          id?: string
+          servico_id: string
+          valor_servico: number
+        }
+        Update: {
+          atendimento_id?: string
+          created_at?: string
+          id?: string
+          servico_id?: string
+          valor_servico?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atendimento_servicos_atendimento_id_fkey"
+            columns: ["atendimento_id"]
+            isOneToOne: false
+            referencedRelation: "atendimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimento_servicos_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atendimentos: {
+        Row: {
+          cliente_id: string
+          colaborador_id: string
+          created_at: string
+          data: string
+          id: string
+          status: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          cliente_id: string
+          colaborador_id: string
+          created_at?: string
+          data: string
+          id?: string
+          status: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          cliente_id?: string
+          colaborador_id?: string
+          created_at?: string
+          data?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atendimentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimentos_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       colaborador_servicos: {
         Row: {
           colaborador_id: string | null
