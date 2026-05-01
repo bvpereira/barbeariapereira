@@ -765,6 +765,16 @@ function ClientesPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="valor-edit">Valor Total (R$)</Label>
+                <Input 
+                  id="valor-edit"
+                  type="number"
+                  step="0.01"
+                  value={valorFinal}
+                  onChange={(e) => setValorFinal(e.target.value)}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsEditAtendimentoOpen(false)}>Cancelar</Button>
