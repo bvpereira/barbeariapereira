@@ -13,8 +13,20 @@ import {
   StickyNote,
   ChevronDown,
   Eye,
-  EyeOff
+  EyeOff,
+  History,
+  Calendar as CalendarIcon,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  User,
+  Scissors
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +60,16 @@ interface Cliente {
   login: string;
   senha?: string;
   observacao: string | null;
+  hasAtendimentos?: boolean;
+}
+
+interface AtendimentoHistorico {
+  id: string;
+  data: string;
+  valor: number;
+  status: 'Agendado' | 'Finalizado' | 'Não compareceu';
+  colaborador: { nome: string };
+  servicos: { name: string }[];
 }
 
 function ClientesPage() {
@@ -57,6 +79,11 @@ function ClientesPage() {
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(20);
   const [hasMore, setHasMore] = useState(false);
+
+  // Historico states
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [atendimentosCliente, setAtendimentosCliente] = useState<AtendimentoHistorico[]>([]);
 
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -101,7 +128,14 @@ function ClientesPage() {
     
     let finalQuery = supabase
       .from("usuarios")
-      .select("id, nome, login, senha, observacao", { count: "exact" })
+      .select(`
+        id, 
+        nome, 
+        login, 
+        senha, 
+        observacao,
+        atendimentos:atendimentos(id)
+      `, { count: "exact" })
       .eq("nivel", 3)
       .order("nome", { ascending: true });
 
@@ -115,10 +149,47 @@ function ClientesPage() {
       toast.error("Erro ao carregar clientes");
       console.error(finalError);
     } else {
-      setClientes(finalData || []);
+      const clientesComFlag = (finalData || []).map((cliente: any) => ({
+        ...cliente,
+        hasAtendimentos: cliente.atendimentos && cliente.atendimentos.length > 0
+      }));
+      setClientes(clientesComFlag);
       setHasMore((filteredCount || 0) > limit);
     }
     setLoading(false);
+  };
+
+  const fetchHistorico = async (cliente: Cliente) => {
+    setSelectedCliente(cliente);
+    setIsHistoryOpen(true);
+    setHistoryLoading(true);
+    
+    const { data, error } = await supabase
+      .from("atendimentos")
+      .select(`
+        id,
+        data,
+        valor,
+        status,
+        colaborador:colaboradores(nome),
+        servicos:atendimento_servicos(
+          servico:servicos(name)
+        )
+      `)
+      .eq("cliente_id", cliente.id)
+      .order("data", { ascending: false });
+
+    if (error) {
+      toast.error("Erro ao carregar histórico");
+      console.error(error);
+    } else {
+      const formattedData = (data || []).map((at: any) => ({
+        ...at,
+        servicos: at.servicos.map((s: any) => s.servico)
+      }));
+      setAtendimentosCliente(formattedData);
+    }
+    setHistoryLoading(false);
   };
 
   const handleSave = async () => {
@@ -304,11 +375,25 @@ function ClientesPage() {
                     </TableRow>
                   ) : (
                     clientes.map((cliente) => (
-                      <TableRow key={cliente.id}>
-                        <TableCell className="font-medium">{cliente.nome}</TableCell>
+                      <TableRow 
+                        key={cliente.id} 
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => fetchHistorico(cliente)}
+                      >
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            {cliente.nome}
+                            {cliente.hasAtendimentos && (
+                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-[10px] py-0 px-1.5 border-blue-200">
+                                <History className="w-3 h-3 mr-1" />
+                                Histórico
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>{formatPhone(cliente.login)}</TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -430,6 +515,87 @@ function ClientesPage() {
               <Button onClick={handleSave}>
                 {isEditing ? "Salvar Alterações" : "Cadastrar Cliente"}
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        {/* Histórico Dialog */}
+        <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col p-0">
+            <DialogHeader className="p-6 pb-2">
+              <DialogTitle className="flex items-center gap-2">
+                <History className="w-5 h-5 text-blue-600" />
+                Histórico: {selectedCliente?.nome}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <ScrollArea className="flex-1 p-6 pt-0">
+              {historyLoading ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  Carregando histórico...
+                </div>
+              ) : atendimentosCliente.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  Nenhum atendimento registrado para este cliente.
+                </div>
+              ) : (
+                <div className="space-y-4 py-4">
+                  {atendimentosCliente.map((atendimento) => (
+                    <Card key={atendimento.id} className="overflow-hidden border-l-4 border-l-primary/40">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-sm font-semibold">
+                              <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                              {format(parseISO(atendimento.data), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <User className="w-3.5 h-3.5" />
+                              Profissional: {atendimento.colaborador.nome}
+                            </div>
+                          </div>
+                          <Badge 
+                            variant="secondary"
+                            className={cn(
+                              "text-[10px] px-2 py-0",
+                              atendimento.status === 'Agendado' && "bg-blue-100 text-blue-700",
+                              atendimento.status === 'Finalizado' && "bg-green-100 text-green-700",
+                              atendimento.status === 'Não compareceu' && "bg-red-100 text-red-700"
+                            )}
+                          >
+                            {atendimento.status === 'Agendado' && <Clock className="w-3 h-3 mr-1" />}
+                            {atendimento.status === 'Finalizado' && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                            {atendimento.status === 'Não compareceu' && <XCircle className="w-3 h-3 mr-1" />}
+                            {atendimento.status}
+                          </Badge>
+                        </div>
+                        
+                        <div className="bg-muted/30 rounded-md p-2.5 space-y-2">
+                          <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 uppercase tracking-wider">
+                            <Scissors className="w-3 h-3" />
+                            Serviços
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {atendimento.servicos.map((s, idx) => (
+                              <span key={idx} className="text-xs bg-background border rounded px-2 py-0.5">
+                                {s.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="mt-3 text-right">
+                          <span className="text-sm font-bold text-primary">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(atendimento.valor)}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+            <DialogFooter className="p-6 pt-2 border-t">
+              <Button onClick={() => setIsHistoryOpen(false)}>Fechar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
