@@ -162,7 +162,41 @@ function HorariosPage() {
     }
   };
 
+  const deleteLastDay = async () => {
+    if (dias.length === 0) return;
+    
+    const lastDay = dias[dias.length - 1];
+    const confirm = window.confirm(`Tem certeza que deseja excluir o dia ${format(parseISO(lastDay.data), "dd/MM/yyyy")}?`);
+    
+    if (!confirm) return;
+
+    try {
+      const { error } = await supabase
+        .from("dias_agenda")
+        .delete()
+        .eq("id", lastDay.id);
+
+      if (error) throw error;
+
+      setDias(dias.slice(0, -1));
+      
+      // Also remove from global config and selected collaborators
+      const newGlobalConfig = { ...globalConfig };
+      delete newGlobalConfig[lastDay.data];
+      setGlobalConfig(newGlobalConfig);
+      
+      const newSelected = { ...selectedCollaborators };
+      delete newSelected[lastDay.data];
+      setSelectedCollaborators(newSelected);
+
+      toast.success("Último dia excluído com sucesso.");
+    } catch (error: any) {
+      toast.error("Erro ao excluir dia: " + error.message);
+    }
+  };
+
   const updateGlobalField = (date: string, field: string, value: string) => {
+...
     setGlobalConfig({
       ...globalConfig,
       [date]: {
