@@ -118,6 +118,7 @@ function AtendimentosPage() {
   const [loadingTimes, setLoadingTimes] = useState(false);
   const [maxDate, setMaxDate] = useState<string>("");
   const [status, setStatus] = useState<Atendimento['status']>('Finalizado');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const fetchAgendados = useCallback(async () => {
     setLoadingAgendados(true);
@@ -579,7 +580,7 @@ function AtendimentosPage() {
               {selectedServicos.length > 0 && (
                 <div className="space-y-2">
                   <Label>4. Selecione a Data</Label>
-                  <Popover>
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant={"outline"}
@@ -603,6 +604,7 @@ function AtendimentosPage() {
                         onSelect={(date) => {
                           if (date) {
                             setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                            setIsCalendarOpen(false);
                           }
                         }}
                         disabled={(date) => {
