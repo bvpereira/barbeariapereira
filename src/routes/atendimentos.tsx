@@ -219,7 +219,13 @@ function AtendimentosPage() {
     
     // Fetch active dates
     const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
-    setColabActiveDates(activeDates?.map(d => d.data) || []);
+    const dates = activeDates?.map(d => d.data) || [];
+    setColabActiveDates(dates);
+    
+    // Only reset date if it's a new scheduling and current date isn't active
+    if (isScheduleDialogOpen && selectedDatePart && !dates.includes(selectedDatePart)) {
+      setSelectedDatePart("");
+    }
   };
 
   const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
