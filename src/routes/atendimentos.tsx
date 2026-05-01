@@ -108,6 +108,22 @@ function AtendimentosPage() {
   const [selectedTimePart, setSelectedTimePart] = useState(format(new Date(), "HH:mm"));
   const [selectedServicos, setSelectedServicos] = useState<string[]>([]);
   const [valorFinal, setValorFinal] = useState("0");
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
+  const [maxDate, setMaxDate] = useState<string>("");
+
+  useEffect(() => {
+    fetchMaxDate();
+  }, []);
+
+  const fetchMaxDate = async () => {
+    const { data } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    if (data && data.length > 0) {
+      setMaxDate(data[0].data);
+    }
+  };
+
   const [status, setStatus] = useState<Atendimento['status']>('Agendado');
 
   useEffect(() => {
