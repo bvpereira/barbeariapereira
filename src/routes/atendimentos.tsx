@@ -307,7 +307,7 @@ function AtendimentosPage() {
       const payload = {
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
-        data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00`,
+        data: `${selectedDatePart} ${selectedTimePart || format(new Date(), "HH:mm")}:00`,
         valor: parseFloat(valorFinal),
         status: isScheduling ? 'Agendado' : status
       };
