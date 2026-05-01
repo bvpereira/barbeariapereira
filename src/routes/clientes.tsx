@@ -117,16 +117,13 @@ function ClientesPage() {
       finalQuery = finalQuery.or(`nome.ilike.%${search}%,login.ilike.%${search}%`);
     }
 
-    const { data: finalData, error: finalError } = await finalQuery.range(0, limit - 1);
+    const { data: finalData, error: finalError, count: filteredCount } = await finalQuery.range(0, limit - 1);
 
     if (finalError) {
       toast.error("Erro ao carregar clientes");
       console.error(finalError);
     } else {
       setClientes(finalData || []);
-      
-      // Check if there are more
-      const { count: filteredCount } = await finalQuery.select("*", { count: 'exact', head: true });
       setHasMore((filteredCount || 0) > limit);
     }
     setLoading(false);
