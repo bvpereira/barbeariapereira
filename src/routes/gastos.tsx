@@ -406,7 +406,29 @@ function GastosPage() {
             <CardTitle>Histórico de Gastos (12 meses)</CardTitle>
           </CardHeader>
           <CardContent>
-...
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `R$ ${value}`}
+                  />
+                  <Tooltip 
+                    formatter={(value: number) => [
+                      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value),
+                      'Gasto Total'
+                    ]}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
+                  />
                   <Bar 
                     dataKey="total" 
                     fill="currentColor" 
