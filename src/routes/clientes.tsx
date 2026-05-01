@@ -11,7 +11,9 @@ import {
   Phone, 
   Lock, 
   StickyNote,
-  ChevronDown
+  ChevronDown,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -59,6 +61,7 @@ function ClientesPage() {
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [formData, setFormData] = useState({
     nome: "",
@@ -66,6 +69,14 @@ function ClientesPage() {
     senha: "",
     observacao: "",
   });
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 0) return "";
+    if (digits.length <= 2) return `(${digits}`;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  };
 
   useEffect(() => {
     fetchTotal();
@@ -187,6 +198,7 @@ function ClientesPage() {
   const openAddDialog = () => {
     setIsEditing(false);
     setSelectedCliente(null);
+    setShowPassword(false);
     setFormData({ nome: "", login: "", senha: "", observacao: "" });
     setIsDialogOpen(true);
   };
@@ -194,9 +206,10 @@ function ClientesPage() {
   const openEditDialog = (cliente: Cliente) => {
     setIsEditing(true);
     setSelectedCliente(cliente);
+    setShowPassword(false);
     setFormData({
       nome: cliente.nome,
-      login: cliente.login,
+      login: formatPhone(cliente.login),
       senha: cliente.senha || "",
       observacao: cliente.observacao || "",
     });
@@ -278,7 +291,7 @@ function ClientesPage() {
                     clientes.map((cliente) => (
                       <TableRow key={cliente.id}>
                         <TableCell className="font-medium">{cliente.nome}</TableCell>
-                        <TableCell>{cliente.login}</TableCell>
+                        <TableCell>{formatPhone(cliente.login)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button
@@ -343,16 +356,15 @@ function ClientesPage() {
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="login">Telefone (11 dígitos)</Label>
+                <Label htmlFor="login">Telefone</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="login"
                     className="pl-10"
-                    placeholder="Ex: 11999999999"
-                    maxLength={11}
+                    placeholder="(00) 00000-0000"
                     value={formData.login}
-                    onChange={(e) => setFormData({ ...formData, login: e.target.value.replace(/\D/g, "") })}
+                    onChange={(e) => setFormData({ ...formData, login: formatPhone(e.target.value) })}
                   />
                 </div>
               </div>
@@ -362,11 +374,24 @@ function ClientesPage() {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="senha"
-                    type="password"
-                    className="pl-10"
+                    type={showPassword ? "text" : "password"}
+                    className="pl-10 pr-10"
                     value={formData.senha}
                     onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
                 </div>
               </div>
               <div className="grid gap-2">
