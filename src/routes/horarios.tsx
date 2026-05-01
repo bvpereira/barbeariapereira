@@ -37,6 +37,7 @@ interface HorarioColaborador {
   manha_fim: string | null;
   tarde_inicio: string | null;
   tarde_fim: string | null;
+  ativo?: boolean;
 }
 
 function HorariosPage() {
