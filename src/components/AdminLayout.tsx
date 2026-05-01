@@ -1,9 +1,14 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
+  {
+    title: "Atendimentos",
+    icon: Calendar,
+    href: "/atendimentos",
+  },
   {
     title: "Serviços",
     icon: Scissors,

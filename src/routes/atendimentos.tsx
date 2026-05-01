@@ -287,7 +287,7 @@ function AtendimentosPage() {
 
       // Insert services
       const servicesToInsert = selectedServicos.map(sId => ({
-        atendimento_id: atendimentoId,
+        atendimento_id: atendimentoId as string,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
       }));
