@@ -37,7 +37,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO, isAfter, addMinutes } from "date-fns";
+import { format, parseISO, isAfter, addMinutes, startOfToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   DropdownMenu, 
@@ -47,6 +47,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/atendimentos" as any)({
   component: AtendimentosPage,
