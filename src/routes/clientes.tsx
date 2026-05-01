@@ -91,13 +91,25 @@ interface Cliente {
   hasAtendimentos?: boolean;
 }
 
+interface Colaborador {
+  id: string;
+  nome: string;
+}
+
+interface Servico {
+  id: string;
+  name: string;
+  price: number;
+  duration: number;
+}
+
 interface AtendimentoHistorico {
   id: string;
   data: string;
   valor: number;
   status: 'Agendado' | 'Finalizado' | 'Não compareceu';
-  colaborador: { nome: string };
-  servicos: { name: string }[];
+  colaborador: { id: string, nome: string };
+  servicos: { id: string, name: string, price: number, duration: number }[];
 }
 
 function ClientesPage() {
