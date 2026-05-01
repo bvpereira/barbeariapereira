@@ -731,7 +731,144 @@ function ClientesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        {/* Histórico Dialog/Drawer */}
+        {/* Dialog Novo/Editar Atendimento (Histórico) */}
+        <Dialog open={isEditAtendimentoOpen} onOpenChange={setIsEditAtendimentoOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader><DialogTitle>Editar Atendimento</DialogTitle></DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Colaborador</Label>
+                <Select value={selectedColaborador} onValueChange={(v) => { setSelectedColaborador(v); fetchColabServicos(v); }}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>{colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Serviços</Label>
+                <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto">
+                  {allServicos.map(s => (
+                    <div key={s.id} className="flex items-center gap-2">
+                      <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServicoAtendimento(s.id)} />
+                      <span>{s.name} - R${s.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={statusAtendimento} onValueChange={(v: any) => setStatusAtendimento(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Agendado">Agendado</SelectItem>
+                    <SelectItem value="Finalizado">Finalizado</SelectItem>
+                    <SelectItem value="Não compareceu">Não compareceu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditAtendimentoOpen(false)}>Cancelar</Button>
+              <Button onClick={() => handleSaveAtendimento(false)} disabled={isSubmitting}>Salvar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Agendar Atendimento (Histórico) */}
+        <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>Editar Agendamento</DialogTitle></DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Colaborador</Label>
+                <Select value={selectedColaborador} onValueChange={(v) => { setSelectedColaborador(v); setSelectedServicos([]); fetchColabServicos(v); }}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o profissional" /></SelectTrigger>
+                  <SelectContent>{colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+
+              {selectedColaborador && (
+                <div className="space-y-2">
+                  <Label>Serviços</Label>
+                  <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto bg-muted/20">
+                    {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
+                      <div key={s.id} className="flex items-center gap-2">
+                        <Checkbox id={`sch-${s.id}`} checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServicoAtendimento(s.id)} />
+                        <label htmlFor={`sch-${s.id}`} className="text-sm flex-1 flex justify-between">
+                          <span>{s.name}</span>
+                          <span className="opacity-60">{s.duration}min - R${s.price}</span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedColaborador && selectedServicos.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Data</Label>
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal pl-3",
+                          !selectedDatePart && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                        {selectedDatePart ? (
+                          format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                        ) : (
+                          <span>Selecione uma data</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                            setIsCalendarOpen(false);
+                          }
+                        }}
+                        disabled={(date) => {
+                          const dateStr = format(date, "yyyy-MM-dd");
+                          const today = startOfToday();
+                          return (
+                            date < today || 
+                            (maxDate && dateStr > maxDate) || 
+                            !colabActiveDates.includes(dateStr)
+                          );
+                        }}
+                        initialFocus
+                        locale={ptBR}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
+              {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
+                <div className="space-y-2">
+                  <Label>Horários Disponíveis</Label>
+                  {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
+                    <div className="grid grid-cols-4 gap-2">
+                      {availableTimes.length > 0 ? availableTimes.map(t => (
+                        <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" onClick={() => setSelectedTimePart(t)}>{t}</Button>
+                      )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={() => handleSaveAtendimento(true)} disabled={isSubmitting || !selectedTimePart}>Salvar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         {isMobile ? (
           <Drawer open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
             <DrawerContent className="max-h-[85vh]">
