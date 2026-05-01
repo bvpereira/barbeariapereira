@@ -102,7 +102,8 @@ function AtendimentosPage() {
   const [searchCliente, setSearchCliente] = useState("");
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [selectedColaborador, setSelectedColaborador] = useState("");
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+  const [selectedDatePart, setSelectedDatePart] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [selectedTimePart, setSelectedTimePart] = useState(format(new Date(), "HH:mm"));
   const [selectedServicos, setSelectedServicos] = useState<string[]>([]);
   const [valorFinal, setValorFinal] = useState("0");
   const [status, setStatus] = useState<Atendimento['status']>('Agendado');
@@ -232,7 +233,8 @@ function AtendimentosPage() {
     setSelectedCliente(null);
     setSearchCliente("");
     setSelectedColaborador("");
-    setSelectedDate(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+    setSelectedDatePart(format(new Date(), "yyyy-MM-dd"));
+    setSelectedTimePart(format(new Date(), "HH:mm"));
     setSelectedServicos([]);
     setValorFinal("0");
     setStatus('Agendado');
@@ -248,7 +250,8 @@ function AtendimentosPage() {
     setSelectedCliente(atendimento.cliente);
     setSearchCliente(atendimento.cliente.nome);
     setSelectedColaborador(atendimento.colaborador.id);
-    setSelectedDate(format(new Date(atendimento.data), "yyyy-MM-dd'T'HH:mm"));
+    setSelectedDatePart(format(new Date(atendimento.data), "yyyy-MM-dd"));
+    setSelectedTimePart(format(new Date(atendimento.data), "HH:mm"));
     setSelectedServicos(atendimento.servicos.map(s => s.id));
     setValorFinal(atendimento.valor.toString());
     setStatus(atendimento.status);
@@ -267,7 +270,7 @@ function AtendimentosPage() {
       const payload = {
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
-        data: selectedDate,
+        data: `${selectedDatePart}T${selectedTimePart}`,
         valor: parseFloat(valorFinal),
         status: status,
       };
@@ -525,13 +528,23 @@ function AtendimentosPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label>Data e Horário</Label>
-                <Input 
-                  type="datetime-local" 
-                  value={selectedDate} 
-                  onChange={(e) => setSelectedDate(e.target.value)} 
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Data</Label>
+                  <Input 
+                    type="date" 
+                    value={selectedDatePart} 
+                    onChange={(e) => setSelectedDatePart(e.target.value)} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Horário</Label>
+                  <Input 
+                    type="time" 
+                    value={selectedTimePart} 
+                    onChange={(e) => setSelectedTimePart(e.target.value)} 
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
