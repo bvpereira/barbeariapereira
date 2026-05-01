@@ -169,7 +169,21 @@ function ClientesPage() {
   useEffect(() => {
     fetchTotal();
     fetchClientes();
+    fetchFormData();
+    fetchMaxDate();
   }, [search, limit]);
+
+  const fetchFormData = async () => {
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome').order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').order('name');
+    setColaboradores(colabs || []);
+    setAllServicos(servs || []);
+  };
+
+  const fetchMaxDate = async () => {
+    const { data } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    if (data && data.length > 0) setMaxDate(data[0].data);
+  };
 
   const fetchTotal = async () => {
     const { count, error } = await supabase
