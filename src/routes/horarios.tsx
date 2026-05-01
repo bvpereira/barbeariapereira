@@ -521,7 +521,7 @@ function HorariosPage() {
                         <tbody className="divide-y">
                           {collaborators.map((colab) => {
                             const horario = horariosColaboradores.find(h => h.colaborador_id === colab.id && h.data === dia.data);
-                            const isSelected = selectedCollaborators[dia.data]?.includes(colab.id);
+                            const isSelected = !!horario?.ativo;
                             
                             return (
                               <tr key={colab.id} className={isSelected ? "bg-primary/5" : ""}>
