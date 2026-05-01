@@ -171,10 +171,11 @@ function GastosPage() {
     }
 
     try {
+      const [year, month, day] = dataGasto.split("-").map(Number);
       const payload = {
         nome,
         valor: parseFloat(valor),
-        data: new Date(dataGasto).toISOString(),
+        data: new Date(year, month - 1, day, 12, 0, 0).toISOString(),
       };
 
       if (editingGasto) {
