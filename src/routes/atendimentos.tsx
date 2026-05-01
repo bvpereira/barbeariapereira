@@ -604,6 +604,7 @@ function AtendimentosPage() {
                         onSelect={(date) => {
                           if (date) {
                             setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                            setIsCalendarOpen(false);
                           }
                         }}
                         disabled={(date) => {
