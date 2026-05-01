@@ -126,6 +126,26 @@ function ClientesPage() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [atendimentosCliente, setAtendimentosCliente] = useState<AtendimentoHistorico[]>([]);
 
+  // Edit Atendimento states
+  const [isEditAtendimentoOpen, setIsEditAtendimentoOpen] = useState(false);
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingAtendimento, setEditingAtendimento] = useState<AtendimentoHistorico | null>(null);
+  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
+  const [allServicos, setAllServicos] = useState<Servico[]>([]);
+  const [colabServicosIds, setColabServicosIds] = useState<string[]>([]);
+  const [colabActiveDates, setColabActiveDates] = useState<string[]>([]);
+  const [selectedColaborador, setSelectedColaborador] = useState("");
+  const [selectedDatePart, setSelectedDatePart] = useState("");
+  const [selectedTimePart, setSelectedTimePart] = useState("");
+  const [selectedServicos, setSelectedServicos] = useState<string[]>([]);
+  const [valorFinal, setValorFinal] = useState("0");
+  const [statusAtendimento, setStatusAtendimento] = useState<AtendimentoHistorico['status']>('Finalizado');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
+  const [maxDate, setMaxDate] = useState("");
+
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
