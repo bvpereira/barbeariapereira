@@ -765,6 +765,16 @@ function ClientesPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="valor-edit">Valor Total (R$)</Label>
+                <Input 
+                  id="valor-edit"
+                  type="number"
+                  step="0.01"
+                  value={valorFinal}
+                  onChange={(e) => setValorFinal(e.target.value)}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsEditAtendimentoOpen(false)}>Cancelar</Button>
@@ -858,9 +868,19 @@ function ClientesPage() {
                       {availableTimes.length > 0 ? availableTimes.map(t => (
                         <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" onClick={() => setSelectedTimePart(t)}>{t}</Button>
                       )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
-                    </div>
-                  )}
                 </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="valor-agendar">Valor Total (R$)</Label>
+                <Input 
+                  id="valor-agendar"
+                  type="number"
+                  step="0.01"
+                  value={valorFinal}
+                  onChange={(e) => setValorFinal(e.target.value)}
+                />
+              </div>
+            </div>
               )}
             </div>
             <DialogFooter>
