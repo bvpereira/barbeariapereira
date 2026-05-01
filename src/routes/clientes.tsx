@@ -127,6 +127,11 @@ function ClientesPage() {
       return;
     }
 
+    if (formData.senha.length < 6) {
+      toast.error("A senha deve ter no mínimo 6 caracteres");
+      return;
+    }
+
     const loginNumeros = formData.login.replace(/\D/g, "");
     if (loginNumeros.length !== 11) {
       toast.error("O telefone deve ter 11 dígitos");
