@@ -531,19 +531,27 @@ function AtendimentosPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Data</Label>
-                  <Input 
-                    type="date" 
-                    value={selectedDatePart} 
-                    onChange={(e) => setSelectedDatePart(e.target.value)} 
-                  />
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                    <Input 
+                      type="date" 
+                      className="pl-10"
+                      value={selectedDatePart} 
+                      onChange={(e) => setSelectedDatePart(e.target.value)} 
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Horário</Label>
-                  <Input 
-                    type="time" 
-                    value={selectedTimePart} 
-                    onChange={(e) => setSelectedTimePart(e.target.value)} 
-                  />
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                    <Input 
+                      type="time" 
+                      className="pl-10"
+                      value={selectedTimePart} 
+                      onChange={(e) => setSelectedTimePart(e.target.value)} 
+                    />
+                  </div>
                 </div>
               </div>
 
