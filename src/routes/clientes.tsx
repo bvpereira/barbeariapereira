@@ -18,8 +18,11 @@ import {
   Calendar as CalendarIcon,
   CheckCircle2,
   XCircle,
-  Clock
+  Clock,
+  User,
+  Scissors
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
