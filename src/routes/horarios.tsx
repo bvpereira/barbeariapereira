@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users } from "lucide-react";
+import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -162,6 +162,39 @@ function HorariosPage() {
     }
   };
 
+  const deleteLastDay = async () => {
+    if (dias.length === 0) return;
+    
+    const lastDay = dias[dias.length - 1];
+    const confirm = window.confirm(`Tem certeza que deseja excluir o dia ${format(parseISO(lastDay.data), "dd/MM/yyyy")}?`);
+    
+    if (!confirm) return;
+
+    try {
+      const { error } = await supabase
+        .from("dias_agenda")
+        .delete()
+        .eq("id", lastDay.id);
+
+      if (error) throw error;
+
+      setDias(dias.slice(0, -1));
+      
+      // Also remove from global config and selected collaborators
+      const newGlobalConfig = { ...globalConfig };
+      delete newGlobalConfig[lastDay.data];
+      setGlobalConfig(newGlobalConfig);
+      
+      const newSelected = { ...selectedCollaborators };
+      delete newSelected[lastDay.data];
+      setSelectedCollaborators(newSelected);
+
+      toast.success("Último dia excluído com sucesso.");
+    } catch (error: any) {
+      toast.error("Erro ao excluir dia: " + error.message);
+    }
+  };
+
   const updateGlobalField = (date: string, field: string, value: string) => {
     setGlobalConfig({
       ...globalConfig,
@@ -272,10 +305,18 @@ function HorariosPage() {
               Configure a disponibilidade da barbearia e dos colaboradores.
             </p>
           </div>
-          <Button onClick={addDay} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Adicionar dia
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            {dias.length > 0 && (
+              <Button onClick={deleteLastDay} variant="outline" className="gap-2 text-destructive border-destructive hover:bg-destructive/10">
+                <Trash2 className="w-4 h-4" />
+                Excluir último dia
+              </Button>
+            )}
+            <Button onClick={addDay} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Adicionar dia
+            </Button>
+          </div>
         </div>
 
         {lastDate && (
@@ -295,7 +336,7 @@ function HorariosPage() {
                   className="flex items-center gap-4 cursor-pointer flex-1"
                   onClick={() => setExpandedDay(expandedDay === dia.id ? null : dia.id)}
                 >
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-[100px]">
                     <span className="font-bold text-lg">
                       {format(parseISO(dia.data), "dd/MM/yyyy")}
                     </span>
@@ -303,7 +344,27 @@ function HorariosPage() {
                       {format(parseISO(dia.data), "EEEE", { locale: ptBR })}
                     </span>
                   </div>
-                  {expandedDay === dia.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+                  <div className="flex flex-wrap gap-2 flex-1">
+                    {collaborators
+                      .filter(c => horariosColaboradores.some(h => h.colaborador_id === c.id && h.data === dia.data))
+                      .map(c => {
+                        const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
+                        return (
+                          <div key={c.id} className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded border border-secondary flex items-center gap-1">
+                            <span className="font-bold whitespace-nowrap">{c.nome}:</span>
+                            <span className="text-muted-foreground whitespace-nowrap">
+                              {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio}-${h.manha_fim}` : ""}
+                              {(h?.manha_inicio && h.tarde_inicio) ? " | " : ""}
+                              {h?.tarde_inicio && h?.tarde_fim ? `${h.tarde_inicio}-${h.tarde_fim}` : ""}
+                            </span>
+                          </div>
+                        );
+                      })
+                    }
+                  </div>
+
+                  {expandedDay === dia.id ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
                 </div>
                 <div className="flex items-center gap-2">
                   <Label htmlFor={`ativo-${dia.id}`} className="text-sm">
