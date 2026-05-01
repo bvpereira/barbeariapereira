@@ -198,6 +198,7 @@ function ClientesPage() {
   const openAddDialog = () => {
     setIsEditing(false);
     setSelectedCliente(null);
+    setShowPassword(false);
     setFormData({ nome: "", login: "", senha: "", observacao: "" });
     setIsDialogOpen(true);
   };
@@ -205,9 +206,10 @@ function ClientesPage() {
   const openEditDialog = (cliente: Cliente) => {
     setIsEditing(true);
     setSelectedCliente(cliente);
+    setShowPassword(false);
     setFormData({
       nome: cliente.nome,
-      login: cliente.login,
+      login: formatPhone(cliente.login),
       senha: cliente.senha || "",
       observacao: cliente.observacao || "",
     });
