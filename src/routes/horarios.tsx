@@ -206,18 +206,45 @@ function HorariosPage() {
     });
   };
 
-  const toggleCollaboratorSelection = (date: string, colabId: string) => {
-    const current = selectedCollaborators[date] || [];
-    if (current.includes(colabId)) {
-      setSelectedCollaborators({
-        ...selectedCollaborators,
-        [date]: current.filter(id => id !== colabId)
-      });
-    } else {
-      setSelectedCollaborators({
-        ...selectedCollaborators,
-        [date]: [...current, colabId]
-      });
+  const toggleCollaboratorSelection = async (date: string, colabId: string) => {
+    const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
+    const newAtivo = existing ? !existing.ativo : true;
+    
+    const updatedData = {
+      colaborador_id: colabId,
+      data: date,
+      ativo: newAtivo,
+      ...(existing || {})
+    };
+
+    // Remove unneeded fields for upsert
+    delete (updatedData as any).id;
+    delete (updatedData as any).created_at;
+    delete (updatedData as any).updated_at;
+    
+    // Ensure the new ativo state is set
+    (updatedData as any).ativo = newAtivo;
+
+    try {
+      const { data, error } = await supabase
+        .from("horarios_colaboradores")
+        .upsert([updatedData], { onConflict: "colaborador_id, data" })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (existing) {
+        setHorariosColaboradores(horariosColaboradores.map(h => 
+          (h.colaborador_id === colabId && h.data === date) ? (data as any) : h
+        ));
+      } else {
+        setHorariosColaboradores([...horariosColaboradores, data as any]);
+      }
+      
+      toast.success(`${newAtivo ? "Colaborador ativado" : "Colaborador desativado"} para este dia.`);
+    } catch (error: any) {
+      toast.error("Erro ao atualizar status do colaborador: " + error.message);
     }
   };
 
