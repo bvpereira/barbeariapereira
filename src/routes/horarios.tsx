@@ -347,7 +347,11 @@ function HorariosPage() {
 
                   <div className="flex flex-wrap gap-2 flex-1">
                     {collaborators
-                      .filter(c => horariosColaboradores.some(h => h.colaborador_id === c.id && h.data === dia.data))
+                      .filter(c => {
+                        const isSelected = selectedCollaborators[dia.data]?.includes(c.id);
+                        const hasHorario = horariosColaboradores.some(h => h.colaborador_id === c.id && h.data === dia.data);
+                        return isSelected && hasHorario;
+                      })
                       .map(c => {
                         const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
                         return (
