@@ -171,10 +171,11 @@ function GastosPage() {
     }
 
     try {
+      const [year, month, day] = dataGasto.split("-").map(Number);
       const payload = {
         nome,
         valor: parseFloat(valor),
-        data: new Date(dataGasto).toISOString(),
+        data: new Date(year, month - 1, day, 12, 0, 0).toISOString(),
       };
 
       if (editingGasto) {
@@ -386,7 +387,10 @@ function GastosPage() {
               <Label className="hidden sm:inline">Filtrar por mês:</Label>
               <Select 
                 value={format(selectedMonth, "yyyy-MM")} 
-                onValueChange={(value) => setSelectedMonth(new Date(value + "-01"))}
+                onValueChange={(value) => {
+                  const [year, month] = value.split("-").map(Number);
+                  setSelectedMonth(new Date(year, month - 1, 1, 12, 0, 0));
+                }}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Selecione o mês" />
