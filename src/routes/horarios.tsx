@@ -305,10 +305,18 @@ function HorariosPage() {
               Configure a disponibilidade da barbearia e dos colaboradores.
             </p>
           </div>
-          <Button onClick={addDay} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Adicionar dia
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            {dias.length > 0 && (
+              <Button onClick={deleteLastDay} variant="outline" className="gap-2 text-destructive border-destructive hover:bg-destructive/10">
+                <Trash2 className="w-4 h-4" />
+                Excluir último dia
+              </Button>
+            )}
+            <Button onClick={addDay} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Adicionar dia
+            </Button>
+          </div>
         </div>
 
         {lastDate && (
