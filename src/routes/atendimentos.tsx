@@ -618,17 +618,23 @@ function AtendimentosPage() {
                 <div className="space-y-2">
                   <Label>Status</Label>
                   
-                  {/* Select mark */}
-                  <Select value={status} onValueChange={(v: any) => setStatus(v)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Agendado">Agendado</SelectItem>
-                      <SelectItem value="Finalizado">Finalizado</SelectItem>
-                      <SelectItem value="Não compareceu">Não compareceu</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {!editingAtendimento ? (
+                    <div className=\"h-10 px-3 py-2 border rounded-md bg-muted/50 text-sm flex items-center font-medium text-green-600\">
+                      <CheckCircle2 className=\"w-4 h-4 mr-2 text-green-500\" />
+                      Finalizado
+                    </div>
+                  ) : (
+                    <Select value={status} onValueChange={(v: any) => setStatus(v)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value=\"Agendado\">Agendado</SelectItem>
+                        <SelectItem value=\"Finalizado\">Finalizado</SelectItem>
+                        <SelectItem value=\"Não compareceu\">Não compareceu</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
               </div>
 
