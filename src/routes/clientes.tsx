@@ -543,7 +543,7 @@ function ClientesPage() {
                 </DrawerDescription>
               </DrawerHeader>
               
-              <div className="overflow-y-auto px-4 py-2">
+              <div className="overflow-y-auto px-4 py-2 flex-1">
                 {renderHistoryContent()}
               </div>
 
@@ -564,7 +564,7 @@ function ClientesPage() {
                 </DialogTitle>
               </DialogHeader>
               
-              <ScrollArea className="flex-1 p-6 pt-0">
+              <ScrollArea className="flex-1 overflow-y-auto px-6 py-0">
                 {renderHistoryContent()}
               </ScrollArea>
               
