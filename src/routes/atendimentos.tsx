@@ -530,6 +530,16 @@ function AtendimentosPage() {
                   </Select>
                 </div>
               )}
+              <div className="space-y-2">
+                <Label htmlFor="valor">Valor Total (R$)</Label>
+                <Input 
+                  id="valor"
+                  type="number"
+                  step="0.01"
+                  value={valorFinal}
+                  onChange={(e) => setValorFinal(e.target.value)}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
@@ -636,6 +646,16 @@ function AtendimentosPage() {
                   )}
                 </div>
               )}
+              <div className="space-y-2">
+                <Label htmlFor="valor-agendar">Valor Total (R$)</Label>
+                <Input 
+                  id="valor-agendar"
+                  type="number"
+                  step="0.01"
+                  value={valorFinal}
+                  onChange={(e) => setValorFinal(e.target.value)}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>Cancelar</Button>
