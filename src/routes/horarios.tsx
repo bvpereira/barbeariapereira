@@ -37,6 +37,7 @@ interface HorarioColaborador {
   manha_fim: string | null;
   tarde_inicio: string | null;
   tarde_fim: string | null;
+  ativo?: boolean | null;
 }
 
 function HorariosPage() {
@@ -57,7 +58,7 @@ function HorariosPage() {
   }>({});
 
   // Selection for batch application
-  const [selectedCollaborators, setSelectedCollaborators] = useState<{ [date: string]: string[] }>({});
+  
 
   useEffect(() => {
     fetchData();
@@ -87,7 +88,7 @@ function HorariosPage() {
         .select("*");
 
       if (horariosError) throw horariosError;
-      setHorariosColaboradores(horariosData || []);
+      setHorariosColaboradores((horariosData as any) || []);
 
       // Initialize global config defaults
       const initialGlobal: any = {};
@@ -185,9 +186,6 @@ function HorariosPage() {
       delete newGlobalConfig[lastDay.data];
       setGlobalConfig(newGlobalConfig);
       
-      const newSelected = { ...selectedCollaborators };
-      delete newSelected[lastDay.data];
-      setSelectedCollaborators(newSelected);
 
       toast.success("Último dia excluído com sucesso.");
     } catch (error: any) {
@@ -205,23 +203,50 @@ function HorariosPage() {
     });
   };
 
-  const toggleCollaboratorSelection = (date: string, colabId: string) => {
-    const current = selectedCollaborators[date] || [];
-    if (current.includes(colabId)) {
-      setSelectedCollaborators({
-        ...selectedCollaborators,
-        [date]: current.filter(id => id !== colabId)
-      });
-    } else {
-      setSelectedCollaborators({
-        ...selectedCollaborators,
-        [date]: [...current, colabId]
-      });
+  const toggleCollaboratorSelection = async (date: string, colabId: string) => {
+    const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
+    const newAtivo = existing ? !existing.ativo : true;
+    
+    const updatedData = {
+      colaborador_id: colabId,
+      data: date,
+      ativo: newAtivo,
+      ...(existing || {})
+    };
+
+    // Remove unneeded fields for upsert
+    delete (updatedData as any).id;
+    delete (updatedData as any).created_at;
+    delete (updatedData as any).updated_at;
+    
+    // Ensure the new ativo state is set
+    (updatedData as any).ativo = newAtivo;
+
+    try {
+      const { data, error } = await supabase
+        .from("horarios_colaboradores")
+        .upsert([updatedData], { onConflict: "colaborador_id, data" })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (existing) {
+        setHorariosColaboradores(horariosColaboradores.map(h => 
+          (h.colaborador_id === colabId && h.data === date) ? (data as any) : h
+        ));
+      } else {
+        setHorariosColaboradores([...horariosColaboradores, data as any]);
+      }
+      
+      toast.success(`${newAtivo ? "Colaborador ativado" : "Colaborador desativado"} para este dia.`);
+    } catch (error: any) {
+      toast.error("Erro ao atualizar status do colaborador: " + error.message);
     }
   };
 
   const applyGlobalConfig = async (date: string) => {
-    const selected = selectedCollaborators[date] || [];
+    const selected = collaborators.filter(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === date)?.ativo).map(c => c.id);
     if (selected.length === 0) {
       toast.warning("Selecione ao menos um colaborador.");
       return;
@@ -238,7 +263,8 @@ function HorariosPage() {
         manha_inicio: config.manha_inicio,
         manha_fim: config.manha_fim,
         tarde_inicio: config.tarde_inicio,
-        tarde_fim: config.tarde_fim
+        tarde_fim: config.tarde_fim,
+        ativo: true
       };
 
       if (existingIdx >= 0) {
@@ -348,9 +374,8 @@ function HorariosPage() {
                   <div className="flex flex-wrap gap-2 flex-1">
                     {collaborators
                       .filter(c => {
-                        const isSelected = selectedCollaborators[dia.data]?.includes(c.id);
-                        const hasHorario = horariosColaboradores.some(h => h.colaborador_id === c.id && h.data === dia.data);
-                        return isSelected && hasHorario;
+                        const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
+                        return h && h.ativo;
                       })
                       .map(c => {
                         const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
@@ -452,18 +477,36 @@ function HorariosPage() {
                           <tr>
                             <th className="p-3 text-left w-10">
                               <Checkbox 
-                                checked={selectedCollaborators[dia.data]?.length === collaborators.length && collaborators.length > 0}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setSelectedCollaborators({
-                                      ...selectedCollaborators,
-                                      [dia.data]: collaborators.map(c => c.id)
+                                checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
+                                onCheckedChange={async (checked) => {
+                                  const updates = collaborators.map(c => ({
+                                    colaborador_id: c.id,
+                                    data: dia.data,
+                                    ativo: !!checked
+                                  }));
+
+                                  try {
+                                    const { data, error } = await supabase
+                                      .from("horarios_colaboradores")
+                                      .upsert(updates, { onConflict: "colaborador_id, data" })
+                                      .select();
+
+                                    if (error) throw error;
+                                    
+                                    // Update local state - merging with existing hours
+                                    const newHorarios = [...horariosColaboradores];
+                                    (data as any[]).forEach(updated => {
+                                      const idx = newHorarios.findIndex(h => h.colaborador_id === updated.colaborador_id && h.data === updated.data);
+                                      if (idx >= 0) {
+                                        newHorarios[idx] = updated;
+                                      } else {
+                                        newHorarios.push(updated);
+                                      }
                                     });
-                                  } else {
-                                    setSelectedCollaborators({
-                                      ...selectedCollaborators,
-                                      [dia.data]: []
-                                    });
+                                    setHorariosColaboradores(newHorarios);
+                                    toast.success(checked ? "Todos ativados" : "Todos desativados");
+                                  } catch (error: any) {
+                                    toast.error("Erro ao atualizar colaboradores: " + error.message);
                                   }
                                 }}
                               />
@@ -476,7 +519,7 @@ function HorariosPage() {
                         <tbody className="divide-y">
                           {collaborators.map((colab) => {
                             const horario = horariosColaboradores.find(h => h.colaborador_id === colab.id && h.data === dia.data);
-                            const isSelected = selectedCollaborators[dia.data]?.includes(colab.id);
+                            const isSelected = !!horario?.ativo;
                             
                             return (
                               <tr key={colab.id} className={isSelected ? "bg-primary/5" : ""}>

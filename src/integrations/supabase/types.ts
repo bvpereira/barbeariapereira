@@ -118,6 +118,7 @@ export type Database = {
       }
       horarios_colaboradores: {
         Row: {
+          ativo: boolean | null
           colaborador_id: string
           created_at: string
           data: string
@@ -129,6 +130,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ativo?: boolean | null
           colaborador_id: string
           created_at?: string
           data: string
@@ -140,6 +142,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ativo?: boolean | null
           colaborador_id?: string
           created_at?: string
           data?: string
