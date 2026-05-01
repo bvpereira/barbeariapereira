@@ -354,9 +354,9 @@ function HorariosPage() {
                           <div key={c.id} className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded border border-secondary flex items-center gap-1">
                             <span className="font-bold whitespace-nowrap">{c.nome}:</span>
                             <span className="text-muted-foreground whitespace-nowrap">
-                              {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio}-${h.manha_fim}` : ""}
+                              {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio.substring(0, 5)}-${h.manha_fim.substring(0, 5)}` : ""}
                               {(h?.manha_inicio && h.tarde_inicio) ? " | " : ""}
-                              {h?.tarde_inicio && h?.tarde_fim ? `${h.tarde_inicio}-${h.tarde_fim}` : ""}
+                              {h?.tarde_inicio && h?.tarde_fim ? `${h.tarde_inicio.substring(0, 5)}-${h.tarde_fim.substring(0, 5)}` : ""}
                             </span>
                           </div>
                         );
