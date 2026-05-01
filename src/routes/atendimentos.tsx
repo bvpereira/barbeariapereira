@@ -249,7 +249,7 @@ function AtendimentosPage() {
           if (isAfter(curr, minAllowed) && !checkOverlap(curr, requestedDuration)) {
             possibleTimes.push(format(curr, "HH:mm"));
           }
-          curr = addMinutes(curr, 15);
+          curr = addMinutes(curr, 30);
         }
       };
 
