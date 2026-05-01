@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users } from "lucide-react";
+import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
