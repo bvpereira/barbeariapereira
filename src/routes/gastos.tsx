@@ -331,60 +331,12 @@ function GastosPage() {
           </Card>
         </div>
 
-        {/* Gráfico */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Histórico de Gastos (12 meses)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis 
-                    dataKey="name" 
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis 
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `R$ ${value}`}
-                  />
-                  <Tooltip 
-                    formatter={(value: number) => [
-                      new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value),
-                      'Gasto Total'
-                    ]}
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                  />
-                  <Bar 
-                    dataKey="total" 
-                    fill="currentColor" 
-                    radius={[4, 4, 0, 0]} 
-                    className="fill-primary"
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={isSameMonth(entry.fullDate, selectedMonth) ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.4)'} 
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Lista e Filtro */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Gastos do Mês</CardTitle>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 space-y-0">
+            <CardTitle>Gastos de {format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}</CardTitle>
             <div className="flex items-center gap-2">
-              <Label className="hidden sm:inline">Filtrar por mês:</Label>
+              <Label className="hidden sm:inline whitespace-nowrap">Filtrar por mês:</Label>
               <Select 
                 value={format(selectedMonth, "yyyy-MM")} 
                 onValueChange={(value) => {
@@ -392,7 +344,7 @@ function GastosPage() {
                   setSelectedMonth(new Date(year, month - 1, 1, 12, 0, 0));
                 }}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Selecione o mês" />
                 </SelectTrigger>
                 <SelectContent>
@@ -411,7 +363,7 @@ function GastosPage() {
             ) : gastos.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">Nenhum gasto registrado para este mês.</div>
             ) : (
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -426,16 +378,16 @@ function GastosPage() {
                       <TableRow key={gasto.id}>
                         <TableCell className="font-medium">{gasto.nome}</TableCell>
                         <TableCell>{format(parseISO(gasto.data), "dd/MM/yyyy")}</TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right font-semibold">
                           {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
                         </TableCell>
                         <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => openEditDialog(gasto)}>
-                              <Edit2 className="h-4 w-4" />
+                          <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(gasto)}>
+                              <Edit2 className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
-                              <Trash2 className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
+                              <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </TableCell>
@@ -445,6 +397,32 @@ function GastosPage() {
                 </Table>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Gráfico */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Histórico de Gastos (12 meses)</CardTitle>
+          </CardHeader>
+          <CardContent>
+...
+                  <Bar 
+                    dataKey="total" 
+                    fill="currentColor" 
+                    radius={[4, 4, 0, 0]} 
+                    className="fill-primary"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={isSameMonth(entry.fullDate, selectedMonth) ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.4)'} 
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
