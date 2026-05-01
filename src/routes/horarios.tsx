@@ -186,9 +186,6 @@ function HorariosPage() {
       delete newGlobalConfig[lastDay.data];
       setGlobalConfig(newGlobalConfig);
       
-      const newSelected = { ...selectedCollaborators };
-      delete newSelected[lastDay.data];
-      setSelectedCollaborators(newSelected);
 
       toast.success("Último dia excluído com sucesso.");
     } catch (error: any) {
