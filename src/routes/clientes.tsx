@@ -87,26 +87,7 @@ function ClientesPage() {
 
   const fetchClientes = async () => {
     setLoading(true);
-    let query = supabase
-      .from("usuarios")
-      .select("id, nome, login, senha, observacao")
-      .eq("nivel", 3)
-      .order("nome", { ascending: true })
-      .range(0, limit - 1);
-
-    if (search) {
-      query = query.or(`nome.ilike.%${search}%,login.ilike.%${search}%`);
-    }
-
-    const { data, error, count } = await supabase
-      .from("usuarios")
-      .select("id, nome, login, senha, observacao", { count: "exact" })
-      .eq("nivel", 3)
-      .order("nome", { ascending: true })
-      .range(0, limit - 1);
-
-    // Re-apply filter if needed manually if .or logic is complex, 
-    // but supabase or is fine here.
+    
     let finalQuery = supabase
       .from("usuarios")
       .select("id, nome, login, senha, observacao", { count: "exact" })
