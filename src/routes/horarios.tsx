@@ -479,18 +479,36 @@ function HorariosPage() {
                           <tr>
                             <th className="p-3 text-left w-10">
                               <Checkbox 
-                                checked={selectedCollaborators[dia.data]?.length === collaborators.length && collaborators.length > 0}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setSelectedCollaborators({
-                                      ...selectedCollaborators,
-                                      [dia.data]: collaborators.map(c => c.id)
+                                checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
+                                onCheckedChange={async (checked) => {
+                                  const updates = collaborators.map(c => ({
+                                    colaborador_id: c.id,
+                                    data: dia.data,
+                                    ativo: !!checked
+                                  }));
+
+                                  try {
+                                    const { data, error } = await supabase
+                                      .from("horarios_colaboradores")
+                                      .upsert(updates, { onConflict: "colaborador_id, data" })
+                                      .select();
+
+                                    if (error) throw error;
+                                    
+                                    // Update local state - merging with existing hours
+                                    const newHorarios = [...horariosColaboradores];
+                                    (data as any[]).forEach(updated => {
+                                      const idx = newHorarios.findIndex(h => h.colaborador_id === updated.colaborador_id && h.data === updated.data);
+                                      if (idx >= 0) {
+                                        newHorarios[idx] = updated;
+                                      } else {
+                                        newHorarios.push(updated);
+                                      }
                                     });
-                                  } else {
-                                    setSelectedCollaborators({
-                                      ...selectedCollaborators,
-                                      [dia.data]: []
-                                    });
+                                    setHorariosColaboradores(newHorarios);
+                                    toast.success(checked ? "Todos ativados" : "Todos desativados");
+                                  } catch (error: any) {
+                                    toast.error("Erro ao atualizar colaboradores: " + error.message);
                                   }
                                 }}
                               />
