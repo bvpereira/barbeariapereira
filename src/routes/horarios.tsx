@@ -266,7 +266,8 @@ function HorariosPage() {
         manha_inicio: config.manha_inicio,
         manha_fim: config.manha_fim,
         tarde_inicio: config.tarde_inicio,
-        tarde_fim: config.tarde_fim
+        tarde_fim: config.tarde_fim,
+        ativo: true
       };
 
       if (existingIdx >= 0) {
