@@ -336,7 +336,7 @@ function HorariosPage() {
                   className="flex items-center gap-4 cursor-pointer flex-1"
                   onClick={() => setExpandedDay(expandedDay === dia.id ? null : dia.id)}
                 >
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-[100px]">
                     <span className="font-bold text-lg">
                       {format(parseISO(dia.data), "dd/MM/yyyy")}
                     </span>
@@ -344,7 +344,27 @@ function HorariosPage() {
                       {format(parseISO(dia.data), "EEEE", { locale: ptBR })}
                     </span>
                   </div>
-                  {expandedDay === dia.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+
+                  <div className="hidden lg:flex flex-wrap gap-2 flex-1">
+                    {collaborators
+                      .filter(c => horariosColaboradores.some(h => h.colaborador_id === c.id && h.data === dia.data))
+                      .map(c => {
+                        const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
+                        return (
+                          <div key={c.id} className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded border border-secondary flex items-center gap-1">
+                            <span className="font-bold">{c.nome}:</span>
+                            <span className="text-muted-foreground">
+                              {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio}-${h.manha_fim}` : ""}
+                              {h?.manha_inicio && h.tarde_inicio ? " / " : ""}
+                              {h?.tarde_inicio && h?.tarde_fim ? `${h.tarde_inicio}-${h.tarde_fim}` : ""}
+                            </span>
+                          </div>
+                        );
+                      })
+                    }
+                  </div>
+
+                  {expandedDay === dia.id ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
                 </div>
                 <div className="flex items-center gap-2">
                   <Label htmlFor={`ativo-${dia.id}`} className="text-sm">
