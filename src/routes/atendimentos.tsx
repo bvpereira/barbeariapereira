@@ -15,7 +15,8 @@ import {
   XCircle,
   Search,
   Filter,
-  ChevronDown
+  ChevronDown,
+  AlertTriangle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -81,6 +82,7 @@ interface Servico {
 
 function AtendimentosPage() {
   const [agendados, setAgendados] = useState<Atendimento[]>([]);
+  const [atencao, setAtencao] = useState<Atendimento[]>([]);
   const [concluidos, setConcluidos] = useState<Atendimento[]>([]);
   const [loadingAgendados, setLoadingAgendados] = useState(true);
   const [loadingConcluidos, setLoadingConcluidos] = useState(true);
@@ -142,7 +144,12 @@ function AtendimentosPage() {
         servicos: item.atendimento_servicos.map((as: any) => as.servicos)
       }));
 
-      setAgendados(formatted);
+      const now = new Date();
+      const emAtencao = formatted.filter(item => new Date(item.data) < now);
+      const pendentes = formatted.filter(item => new Date(item.data) >= now);
+
+      setAtencao(emAtencao);
+      setAgendados(pendentes);
       setHasMoreAgendados((count || 0) > limitAgendados);
     } catch (error: any) {
       toast.error("Erro ao carregar agendados: " + error.message);
@@ -417,16 +424,40 @@ function AtendimentosPage() {
             <TabsTrigger value="concluidos">Concluídos</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="agendados" className="space-y-4 mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {loadingAgendados && agendados.length === 0 ? (
-                Array(3).fill(0).map((_, i) => <Card key={i} className="h-40 animate-pulse bg-muted/50" />)
-              ) : agendados.length === 0 ? (
-                <p className="text-muted-foreground italic col-span-full py-12 text-center">Nenhum agendamento pendente.</p>
-              ) : (
-                agendados.map(item => <AtendimentoCard key={item.id} item={item} />)
-              )}
+          <TabsContent value="agendados" className="space-y-6 mt-6">
+            {atencao.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-amber-500">
+                  <AlertTriangle className="w-5 h-5" />
+                  <h2 className="text-lg font-semibold">Requer Atenção (Horário ultrapassado)</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {atencao.map(item => (
+                    <div key={item.id} className="relative">
+                      <div className="absolute -top-2 -right-2 z-10">
+                        <Badge variant="destructive" className="animate-pulse">Atrasado</Badge>
+                      </div>
+                      <AtendimentoCard item={item} />
+                    </div>
+                  ))}
+                </div>
+                <div className="border-b my-6" />
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-muted-foreground">Próximos Agendamentos</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {loadingAgendados && agendados.length === 0 && atencao.length === 0 ? (
+                  Array(3).fill(0).map((_, i) => <Card key={i} className="h-40 animate-pulse bg-muted/50" />)
+                ) : agendados.length === 0 && atencao.length === 0 ? (
+                  <p className="text-muted-foreground italic col-span-full py-12 text-center">Nenhum agendamento pendente.</p>
+                ) : (
+                  agendados.map(item => <AtendimentoCard key={item.id} item={item} />)
+                )}
+              </div>
             </div>
+            
             {hasMoreAgendados && (
               <div className="flex justify-center mt-4">
                 <Button variant="outline" onClick={() => setLimitAgendados(p => p + 10)} disabled={loadingAgendados}>
