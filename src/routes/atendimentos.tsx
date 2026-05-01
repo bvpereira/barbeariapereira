@@ -4,7 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, 
-  Calendar, 
+  Calendar as CalendarIcon, 
   User, 
   Scissors, 
   Clock, 
@@ -37,7 +37,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO, isAfter, addMinutes } from "date-fns";
+import { format, parseISO, isAfter, addMinutes, startOfToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   DropdownMenu, 
@@ -47,6 +47,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/atendimentos" as any)({
   component: AtendimentosPage,
@@ -102,6 +105,7 @@ function AtendimentosPage() {
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
   const [allServicos, setAllServicos] = useState<Servico[]>([]);
   const [colabServicosIds, setColabServicosIds] = useState<string[]>([]);
+  const [colabActiveDates, setColabActiveDates] = useState<string[]>([]);
   
   const [searchCliente, setSearchCliente] = useState("");
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
@@ -212,6 +216,16 @@ function AtendimentosPage() {
   const fetchColabServicos = async (colabId: string) => {
     const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('colaborador_id', colabId);
     setColabServicosIds(data?.map(d => d.servico_id).filter((id): id is string => !!id) || []);
+    
+    // Fetch active dates
+    const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
+    const dates = activeDates?.map(d => d.data) || [];
+    setColabActiveDates(dates);
+    
+    // Only reset date if it's a new scheduling and current date isn't active
+    if (isScheduleDialogOpen && selectedDatePart && !dates.includes(selectedDatePart)) {
+      setSelectedDatePart("");
+    }
   };
 
   const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
@@ -377,7 +391,7 @@ function AtendimentosPage() {
           {getStatusBadge(item.status)}
         </div>
         <div className="space-y-1 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2"><Calendar className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
+          <div className="flex items-center gap-2"><CalendarIcon className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
           <div className="flex items-center gap-2"><User className="w-3 h-3" /><span>Colaborador: {item.colaborador.nome}</span></div>
           <div className="flex items-center gap-2"><Scissors className="w-3 h-3" /><span>{item.servicos.map(s => s.name).join(", ")}</span></div>
         </div>
@@ -421,7 +435,7 @@ function AtendimentosPage() {
           </div>
           <div className="flex gap-2">
             <Button onClick={() => { resetForm(); setIsScheduleDialogOpen(true); }} variant="outline" className="gap-2 border-primary text-primary hover:bg-primary/10">
-              <Calendar className="w-4 h-4" />
+              <CalendarIcon className="w-4 h-4" />
               Agendar Atendimento
             </Button>
             <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2">
@@ -565,10 +579,46 @@ function AtendimentosPage() {
               {selectedServicos.length > 0 && (
                 <div className="space-y-2">
                   <Label>4. Selecione a Data</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
-                    <Input type="date" className="pl-10" min={format(new Date(), "yyyy-MM-dd")} max={maxDate} value={selectedDatePart} onChange={(e) => setSelectedDatePart(e.target.value)} />
-                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal pl-3",
+                          !selectedDatePart && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                        {selectedDatePart ? (
+                          format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                        ) : (
+                          <span>Selecione uma data</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                          }
+                        }}
+                        disabled={(date) => {
+                          const dateStr = format(date, "yyyy-MM-dd");
+                          const today = startOfToday();
+                          return (
+                            date < today || 
+                            (maxDate && dateStr > maxDate) || 
+                            !colabActiveDates.includes(dateStr)
+                          );
+                        }}
+                        initialFocus
+                        locale={ptBR}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )}
 
