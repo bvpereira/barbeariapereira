@@ -19,6 +19,11 @@ const menuItems = [
     icon: Clock,
     href: "/horarios",
   },
+  {
+    title: "Gastos",
+    icon: Wallet,
+    href: "/gastos",
+  },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
