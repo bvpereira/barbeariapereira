@@ -92,6 +92,74 @@ export type Database = {
         }
         Relationships: []
       }
+      dias_agenda: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          data: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          data: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          data?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      horarios_colaboradores: {
+        Row: {
+          colaborador_id: string
+          created_at: string
+          data: string
+          id: string
+          manha_fim: string | null
+          manha_inicio: string | null
+          tarde_fim: string | null
+          tarde_inicio: string | null
+          updated_at: string
+        }
+        Insert: {
+          colaborador_id: string
+          created_at?: string
+          data: string
+          id?: string
+          manha_fim?: string | null
+          manha_inicio?: string | null
+          tarde_fim?: string | null
+          tarde_inicio?: string | null
+          updated_at?: string
+        }
+        Update: {
+          colaborador_id?: string
+          created_at?: string
+          data?: string
+          id?: string
+          manha_fim?: string | null
+          manha_inicio?: string | null
+          tarde_fim?: string | null
+          tarde_inicio?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "horarios_colaboradores_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       servicos: {
         Row: {
           created_at: string
