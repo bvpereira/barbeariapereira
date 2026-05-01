@@ -242,6 +242,7 @@ export type Database = {
           login: string
           nivel: number
           nome: string
+          observacao: string | null
           senha: string
           updated_at: string
         }
@@ -251,6 +252,7 @@ export type Database = {
           login: string
           nivel: number
           nome: string
+          observacao?: string | null
           senha: string
           updated_at?: string
         }
@@ -260,6 +262,7 @@ export type Database = {
           login?: string
           nivel?: number
           nome?: string
+          observacao?: string | null
           senha?: string
           updated_at?: string
         }
