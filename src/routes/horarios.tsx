@@ -249,7 +249,7 @@ function HorariosPage() {
   };
 
   const applyGlobalConfig = async (date: string) => {
-    const selected = selectedCollaborators[date] || [];
+    const selected = collaborators.filter(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === date)?.ativo).map(c => c.id);
     if (selected.length === 0) {
       toast.warning("Selecione ao menos um colaborador.");
       return;
