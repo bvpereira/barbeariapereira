@@ -619,8 +619,8 @@ function AtendimentosPage() {
                   <Label>Status</Label>
                   
                   {!editingAtendimento ? (
-                    <div className=\"h-10 px-3 py-2 border rounded-md bg-muted/50 text-sm flex items-center font-medium text-green-600\">
-                      <CheckCircle2 className=\"w-4 h-4 mr-2 text-green-500\" />
+                    <div className="h-10 px-3 py-2 border rounded-md bg-muted/50 text-sm flex items-center font-medium text-green-600">
+                      <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />
                       Finalizado
                     </div>
                   ) : (
@@ -629,9 +629,9 @@ function AtendimentosPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value=\"Agendado\">Agendado</SelectItem>
-                        <SelectItem value=\"Finalizado\">Finalizado</SelectItem>
-                        <SelectItem value=\"Não compareceu\">Não compareceu</SelectItem>
+                        <SelectItem value="Agendado">Agendado</SelectItem>
+                        <SelectItem value="Finalizado">Finalizado</SelectItem>
+                        <SelectItem value="Não compareceu">Não compareceu</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
