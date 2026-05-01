@@ -88,7 +88,7 @@ function HorariosPage() {
         .select("*");
 
       if (horariosError) throw horariosError;
-      setHorariosColaboradores(horariosData || []);
+      setHorariosColaboradores((horariosData as any) || []);
 
       // Initialize global config defaults
       const initialGlobal: any = {};
