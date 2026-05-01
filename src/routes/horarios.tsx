@@ -196,7 +196,6 @@ function HorariosPage() {
   };
 
   const updateGlobalField = (date: string, field: string, value: string) => {
-...
     setGlobalConfig({
       ...globalConfig,
       [date]: {
