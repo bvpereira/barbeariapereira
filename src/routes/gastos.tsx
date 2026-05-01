@@ -331,6 +331,75 @@ function GastosPage() {
           </Card>
         </div>
 
+        {/* Lista e Filtro */}
+        <Card>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 space-y-0">
+            <CardTitle>Gastos de {format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}</CardTitle>
+            <div className="flex items-center gap-2">
+              <Label className="hidden sm:inline whitespace-nowrap">Filtrar por mês:</Label>
+              <Select 
+                value={format(selectedMonth, "yyyy-MM")} 
+                onValueChange={(value) => {
+                  const [year, month] = value.split("-").map(Number);
+                  setSelectedMonth(new Date(year, month - 1, 1, 12, 0, 0));
+                }}
+              >
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Selecione o mês" />
+                </SelectTrigger>
+                <SelectContent>
+                  {monthOptions.map((month) => (
+                    <SelectItem key={format(month, "yyyy-MM")} value={format(month, "yyyy-MM")}>
+                      {format(month, "MMMM 'de' yyyy", { locale: ptBR })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="py-8 text-center text-muted-foreground">Carregando...</div>
+            ) : gastos.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">Nenhum gasto registrado para este mês.</div>
+            ) : (
+              <div className="rounded-md border overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead className="text-right">Valor</TableHead>
+                      <TableHead className="w-[100px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {gastos.map((gasto) => (
+                      <TableRow key={gasto.id}>
+                        <TableCell className="font-medium">{gasto.nome}</TableCell>
+                        <TableCell>{format(parseISO(gasto.data), "dd/MM/yyyy")}</TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(gasto)}>
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Gráfico */}
         <Card>
           <CardHeader>
@@ -376,75 +445,6 @@ function GastosPage() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Lista e Filtro */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle>Gastos do Mês</CardTitle>
-            <div className="flex items-center gap-2">
-              <Label className="hidden sm:inline">Filtrar por mês:</Label>
-              <Select 
-                value={format(selectedMonth, "yyyy-MM")} 
-                onValueChange={(value) => {
-                  const [year, month] = value.split("-").map(Number);
-                  setSelectedMonth(new Date(year, month - 1, 1, 12, 0, 0));
-                }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Selecione o mês" />
-                </SelectTrigger>
-                <SelectContent>
-                  {monthOptions.map((month) => (
-                    <SelectItem key={format(month, "yyyy-MM")} value={format(month, "yyyy-MM")}>
-                      {format(month, "MMMM 'de' yyyy", { locale: ptBR })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="py-8 text-center text-muted-foreground">Carregando...</div>
-            ) : gastos.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground">Nenhum gasto registrado para este mês.</div>
-            ) : (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead className="text-right">Valor</TableHead>
-                      <TableHead className="w-[100px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {gastos.map((gasto) => (
-                      <TableRow key={gasto.id}>
-                        <TableCell className="font-medium">{gasto.nome}</TableCell>
-                        <TableCell>{format(parseISO(gasto.data), "dd/MM/yyyy")}</TableCell>
-                        <TableCell className="text-right">
-                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => openEditDialog(gasto)}>
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
