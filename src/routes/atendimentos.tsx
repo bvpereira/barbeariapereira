@@ -105,6 +105,7 @@ function AtendimentosPage() {
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
   const [allServicos, setAllServicos] = useState<Servico[]>([]);
   const [colabServicosIds, setColabServicosIds] = useState<string[]>([]);
+  const [colabActiveDates, setColabActiveDates] = useState<string[]>([]);
   
   const [searchCliente, setSearchCliente] = useState("");
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
