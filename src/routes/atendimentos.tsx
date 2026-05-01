@@ -253,8 +253,8 @@ function AtendimentosPage() {
         }
       };
 
-      generateSlots(workingHours.manha_inicio, workingHours.manha_fim);
-      generateSlots(workingHours.tarde_inicio, workingHours.tarde_fim);
+      if (workingHours.manha_inicio && workingHours.manha_fim) generateSlots(workingHours.manha_inicio, workingHours.manha_fim);
+      if (workingHours.tarde_inicio && workingHours.tarde_fim) generateSlots(workingHours.tarde_inicio, workingHours.tarde_fim);
       setAvailableTimes(possibleTimes);
     } catch (e) { console.error(e); }
     setLoadingTimes(false);
