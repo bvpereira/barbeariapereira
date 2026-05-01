@@ -221,8 +221,12 @@ function AtendimentosPage() {
     }
     setLoadingTimes(true);
     try {
-      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).single();
-      if (!workingHours) { setAvailableTimes([]); return; }
+      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
+      if (!workingHours) { 
+        setAvailableTimes([]); 
+        setLoadingTimes(false);
+        return; 
+      }
 
       const { data: appts } = await supabase.from('atendimentos').select('data, status, atendimento_servicos(servicos(duration))').eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
 
