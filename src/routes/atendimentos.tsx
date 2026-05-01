@@ -4,7 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, 
-  Calendar, 
+  Calendar as CalendarIcon, 
   User, 
   Scissors, 
   Clock, 
