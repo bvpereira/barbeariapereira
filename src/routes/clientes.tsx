@@ -356,16 +356,15 @@ function ClientesPage() {
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="login">Telefone (11 dígitos)</Label>
+                <Label htmlFor="login">Telefone</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="login"
                     className="pl-10"
-                    placeholder="Ex: 11999999999"
-                    maxLength={11}
+                    placeholder="(00) 00000-0000"
                     value={formData.login}
-                    onChange={(e) => setFormData({ ...formData, login: e.target.value.replace(/\D/g, "") })}
+                    onChange={(e) => setFormData({ ...formData, login: formatPhone(e.target.value) })}
                   />
                 </div>
               </div>
@@ -375,11 +374,24 @@ function ClientesPage() {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="senha"
-                    type="password"
-                    className="pl-10"
+                    type={showPassword ? "text" : "password"}
+                    className="pl-10 pr-10"
                     value={formData.senha}
                     onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
                   />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
                 </div>
               </div>
               <div className="grid gap-2">
