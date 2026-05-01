@@ -573,10 +573,46 @@ function AtendimentosPage() {
               {selectedServicos.length > 0 && (
                 <div className="space-y-2">
                   <Label>4. Selecione a Data</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
-                    <Input type="date" className="pl-10" min={format(new Date(), "yyyy-MM-dd")} max={maxDate} value={selectedDatePart} onChange={(e) => setSelectedDatePart(e.target.value)} />
-                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal pl-3",
+                          !selectedDatePart && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                        {selectedDatePart ? (
+                          format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                        ) : (
+                          <span>Selecione uma data</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                          }
+                        }}
+                        disabled={(date) => {
+                          const dateStr = format(date, "yyyy-MM-dd");
+                          const today = startOfToday();
+                          return (
+                            date < today || 
+                            (maxDate && dateStr > maxDate) || 
+                            !colabActiveDates.includes(dateStr)
+                          );
+                        }}
+                        initialFocus
+                        locale={ptBR}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )}
 
