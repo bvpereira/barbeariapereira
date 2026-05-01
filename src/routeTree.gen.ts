@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RecuperarsenhaRouteImport } from './routes/recuperarsenha'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as ColaboradoresRouteImport } from './routes/colaboradores'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
 import { Route as ClienteRouteImport } from './routes/cliente'
@@ -32,6 +33,11 @@ const RecuperarsenhaRoute = RecuperarsenhaRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HorariosRoute = HorariosRouteImport.update({
+  id: '/horarios',
+  path: '/horarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ColaboradoresRoute = ColaboradoresRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
+  '/horarios': typeof HorariosRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/servicos': typeof ServicosRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
+  '/horarios': typeof HorariosRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/servicos': typeof ServicosRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/cliente': typeof ClienteRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
+  '/horarios': typeof HorariosRoute
   '/login': typeof LoginRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/servicos': typeof ServicosRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/cliente'
     | '/colaborador'
     | '/colaboradores'
+    | '/horarios'
     | '/login'
     | '/recuperarsenha'
     | '/servicos'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/cliente'
     | '/colaborador'
     | '/colaboradores'
+    | '/horarios'
     | '/login'
     | '/recuperarsenha'
     | '/servicos'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/cliente'
     | '/colaborador'
     | '/colaboradores'
+    | '/horarios'
     | '/login'
     | '/recuperarsenha'
     | '/servicos'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   ClienteRoute: typeof ClienteRoute
   ColaboradorRoute: typeof ColaboradorRoute
   ColaboradoresRoute: typeof ColaboradoresRoute
+  HorariosRoute: typeof HorariosRoute
   LoginRoute: typeof LoginRoute
   RecuperarsenhaRoute: typeof RecuperarsenhaRoute
   ServicosRoute: typeof ServicosRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/horarios': {
+      id: '/horarios'
+      path: '/horarios'
+      fullPath: '/horarios'
+      preLoaderRoute: typeof HorariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/colaboradores': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClienteRoute: ClienteRoute,
   ColaboradorRoute: ColaboradorRoute,
   ColaboradoresRoute: ColaboradoresRoute,
+  HorariosRoute: HorariosRoute,
   LoginRoute: LoginRoute,
   RecuperarsenhaRoute: RecuperarsenhaRoute,
   ServicosRoute: ServicosRoute,
