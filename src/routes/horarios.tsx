@@ -345,17 +345,17 @@ function HorariosPage() {
                     </span>
                   </div>
 
-                  <div className="hidden lg:flex flex-wrap gap-2 flex-1">
+                  <div className="flex flex-wrap gap-2 flex-1">
                     {collaborators
                       .filter(c => horariosColaboradores.some(h => h.colaborador_id === c.id && h.data === dia.data))
                       .map(c => {
                         const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
                         return (
                           <div key={c.id} className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded border border-secondary flex items-center gap-1">
-                            <span className="font-bold">{c.nome}:</span>
-                            <span className="text-muted-foreground">
+                            <span className="font-bold whitespace-nowrap">{c.nome}:</span>
+                            <span className="text-muted-foreground whitespace-nowrap">
                               {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio}-${h.manha_fim}` : ""}
-                              {h?.manha_inicio && h.tarde_inicio ? " / " : ""}
+                              {(h?.manha_inicio && h.tarde_inicio) ? " | " : ""}
                               {h?.tarde_inicio && h?.tarde_fim ? `${h.tarde_inicio}-${h.tarde_fim}` : ""}
                             </span>
                           </div>
