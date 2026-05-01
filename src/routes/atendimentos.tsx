@@ -429,7 +429,7 @@ function AtendimentosPage() {
           </div>
           <div className="flex gap-2">
             <Button onClick={() => { resetForm(); setIsScheduleDialogOpen(true); }} variant="outline" className="gap-2 border-primary text-primary hover:bg-primary/10">
-              <Calendar className="w-4 h-4" />
+              <CalendarIcon className="w-4 h-4" />
               Agendar Atendimento
             </Button>
             <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2">
