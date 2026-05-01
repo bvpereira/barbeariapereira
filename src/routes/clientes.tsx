@@ -246,9 +246,9 @@ function ClientesPage() {
         data,
         valor,
         status,
-        colaborador:colaboradores(nome),
+        colaborador:colaboradores(id, nome),
         servicos:atendimento_servicos(
-          servico:servicos(name)
+          servico:servicos(id, name, price, duration)
         )
       `)
       .eq("cliente_id", cliente.id)
@@ -265,6 +265,144 @@ function ClientesPage() {
       setAtendimentosCliente(formattedData);
     }
     setHistoryLoading(false);
+  };
+
+  const fetchColabServicos = async (colabId: string) => {
+    const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('colaborador_id', colabId);
+    setColabServicosIds(data?.map(d => d.servico_id).filter((id): id is string => !!id) || []);
+    
+    const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
+    setColabActiveDates(activeDates?.map(d => d.data) || []);
+  };
+
+  const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
+    if (!date || !colabId || servs.length === 0) {
+      setAvailableTimes([]);
+      return;
+    }
+    setLoadingTimes(true);
+    try {
+      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
+      if (!workingHours) { 
+        setAvailableTimes([]); 
+        setLoadingTimes(false);
+        return; 
+      }
+
+      const { data: appts } = await supabase.from('atendimentos').select('id, data, status, atendimento_servicos(servicos(duration))').eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
+
+      const filteredAppts = editingAtendimento ? appts?.filter(a => a.id !== editingAtendimento.id) : appts;
+
+      const requestedDuration = servs.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.duration || 0), 0);
+      const possibleTimes: string[] = [];
+      const now = new Date();
+      const minAllowed = addMinutes(now, 60);
+
+      const checkOverlap = (start: Date, duration: number) => {
+        const end = addMinutes(start, duration);
+        return filteredAppts?.some(app => {
+          const appStart = parseISO(app.data);
+          const appDur = (app.atendimento_servicos as any[]).reduce((sum, item) => sum + (item.servicos.duration || 0), 0);
+          const appEnd = addMinutes(appStart, appDur);
+          return (start < appEnd && end > appStart);
+        });
+      };
+
+      const generateSlots = (s: string, e: string) => {
+        if (!s || !e) return;
+        let curr = parseISO(`${date}T${s}`);
+        const end = parseISO(`${date}T${e}`);
+        while (addMinutes(curr, requestedDuration) <= end) {
+          if (isAfter(curr, minAllowed) && !checkOverlap(curr, requestedDuration)) {
+            possibleTimes.push(format(curr, "HH:mm"));
+          }
+          curr = addMinutes(curr, 30);
+        }
+      };
+
+      if (workingHours.manha_inicio && workingHours.manha_fim) generateSlots(workingHours.manha_inicio, workingHours.manha_fim);
+      if (workingHours.tarde_inicio && workingHours.tarde_fim) generateSlots(workingHours.tarde_inicio, workingHours.tarde_fim);
+      setAvailableTimes(possibleTimes);
+    } catch (e) { console.error(e); }
+    setLoadingTimes(false);
+  }, [allServicos, editingAtendimento]);
+
+  useEffect(() => {
+    if (isScheduleDialogOpen) {
+      fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
+    }
+  }, [selectedDatePart, selectedColaborador, selectedServicos, isScheduleDialogOpen, fetchAvailableTimes]);
+
+  const handleSelectServicoAtendimento = (servicoId: string) => {
+    setSelectedServicos(prev => {
+      const newSelection = prev.includes(servicoId) ? prev.filter(id => id !== servicoId) : [...prev, servicoId];
+      const newTotal = newSelection.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
+      setValorFinal(newTotal.toString());
+      return newSelection;
+    });
+  };
+
+  const handleSaveAtendimento = async (isScheduling: boolean) => {
+    if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || (isScheduling && !selectedTimePart)) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        cliente_id: selectedCliente.id,
+        colaborador_id: selectedColaborador,
+        data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
+        valor: parseFloat(valorFinal),
+        status: isScheduling ? 'Agendado' : statusAtendimento
+      };
+      
+      let atendimentoId: string;
+      if (editingAtendimento) {
+        await supabase.from('atendimentos').update(payload).eq('id', editingAtendimento.id);
+        await supabase.from('atendimento_servicos').delete().eq('atendimento_id', editingAtendimento.id);
+        atendimentoId = editingAtendimento.id;
+      } else {
+        const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
+        if (error) throw error;
+        atendimentoId = data.id;
+      }
+
+      await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
+        atendimento_id: atendimentoId,
+        servico_id: sId,
+        valor_servico: allServicos.find(s => s.id === sId)?.price || 0
+      })));
+
+      toast.success("Salvo com sucesso");
+      setIsEditAtendimentoOpen(false);
+      setIsScheduleDialogOpen(false);
+      fetchHistorico(selectedCliente);
+    } catch (e: any) { toast.error(e.message); }
+    setIsSubmitting(false);
+  };
+
+  const handleDeleteAtendimento = async (id: string) => {
+    if (!confirm("Excluir este atendimento?")) return;
+    try {
+      const { error } = await supabase.from('atendimentos').delete().eq('id', id);
+      if (error) throw error;
+      toast.success("Atendimento excluído");
+      if (selectedCliente) fetchHistorico(selectedCliente);
+    } catch (error: any) {
+      toast.error("Erro ao excluir: " + error.message);
+    }
+  };
+
+  const updateStatusAtendimento = async (id: string, newStatus: AtendimentoHistorico['status']) => {
+    try {
+      const { error } = await supabase.from('atendimentos').update({ status: newStatus }).eq('id', id);
+      if (error) throw error;
+      toast.success("Status atualizado");
+      if (selectedCliente) fetchHistorico(selectedCliente);
+    } catch (error: any) {
+      toast.error("Erro ao atualizar status: " + error.message);
+    }
   };
 
   const handleSave = async () => {
