@@ -385,7 +385,7 @@ function AtendimentosPage() {
           {getStatusBadge(item.status)}
         </div>
         <div className="space-y-1 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2"><Calendar className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
+          <div className="flex items-center gap-2"><CalendarIcon className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
           <div className="flex items-center gap-2"><User className="w-3 h-3" /><span>Colaborador: {item.colaborador.nome}</span></div>
           <div className="flex items-center gap-2"><Scissors className="w-3 h-3" /><span>{item.servicos.map(s => s.name).join(", ")}</span></div>
         </div>
