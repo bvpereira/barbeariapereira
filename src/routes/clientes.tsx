@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -59,6 +59,24 @@ import {
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Textarea } from "@/components/ui/textarea";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { addMinutes, isAfter, startOfToday } from "date-fns";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 
 export const Route = createFileRoute("/clientes")({
   component: ClientesPage,
@@ -73,13 +91,25 @@ interface Cliente {
   hasAtendimentos?: boolean;
 }
 
+interface Colaborador {
+  id: string;
+  nome: string;
+}
+
+interface Servico {
+  id: string;
+  name: string;
+  price: number;
+  duration: number;
+}
+
 interface AtendimentoHistorico {
   id: string;
   data: string;
   valor: number;
   status: 'Agendado' | 'Finalizado' | 'Não compareceu';
-  colaborador: { nome: string };
-  servicos: { name: string }[];
+  colaborador: { id: string, nome: string };
+  servicos: { id: string, name: string, price: number, duration: number }[];
 }
 
 function ClientesPage() {
@@ -95,6 +125,26 @@ function ClientesPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [atendimentosCliente, setAtendimentosCliente] = useState<AtendimentoHistorico[]>([]);
+
+  // Edit Atendimento states
+  const [isEditAtendimentoOpen, setIsEditAtendimentoOpen] = useState(false);
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingAtendimento, setEditingAtendimento] = useState<AtendimentoHistorico | null>(null);
+  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
+  const [allServicos, setAllServicos] = useState<Servico[]>([]);
+  const [colabServicosIds, setColabServicosIds] = useState<string[]>([]);
+  const [colabActiveDates, setColabActiveDates] = useState<string[]>([]);
+  const [selectedColaborador, setSelectedColaborador] = useState("");
+  const [selectedDatePart, setSelectedDatePart] = useState("");
+  const [selectedTimePart, setSelectedTimePart] = useState("");
+  const [selectedServicos, setSelectedServicos] = useState<string[]>([]);
+  const [valorFinal, setValorFinal] = useState("0");
+  const [statusAtendimento, setStatusAtendimento] = useState<AtendimentoHistorico['status']>('Finalizado');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
+  const [maxDate, setMaxDate] = useState("");
 
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -119,7 +169,21 @@ function ClientesPage() {
   useEffect(() => {
     fetchTotal();
     fetchClientes();
+    fetchFormData();
+    fetchMaxDate();
   }, [search, limit]);
+
+  const fetchFormData = async () => {
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome').order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').order('name');
+    setColaboradores(colabs || []);
+    setAllServicos(servs || []);
+  };
+
+  const fetchMaxDate = async () => {
+    const { data } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    if (data && data.length > 0) setMaxDate(data[0].data);
+  };
 
   const fetchTotal = async () => {
     const { count, error } = await supabase
@@ -182,9 +246,9 @@ function ClientesPage() {
         data,
         valor,
         status,
-        colaborador:colaboradores(nome),
+        colaborador:colaboradores(id, nome),
         servicos:atendimento_servicos(
-          servico:servicos(name)
+          servico:servicos(id, name, price, duration)
         )
       `)
       .eq("cliente_id", cliente.id)
@@ -201,6 +265,144 @@ function ClientesPage() {
       setAtendimentosCliente(formattedData);
     }
     setHistoryLoading(false);
+  };
+
+  const fetchColabServicos = async (colabId: string) => {
+    const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('colaborador_id', colabId);
+    setColabServicosIds(data?.map(d => d.servico_id).filter((id): id is string => !!id) || []);
+    
+    const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
+    setColabActiveDates(activeDates?.map(d => d.data) || []);
+  };
+
+  const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
+    if (!date || !colabId || servs.length === 0) {
+      setAvailableTimes([]);
+      return;
+    }
+    setLoadingTimes(true);
+    try {
+      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
+      if (!workingHours) { 
+        setAvailableTimes([]); 
+        setLoadingTimes(false);
+        return; 
+      }
+
+      const { data: appts } = await supabase.from('atendimentos').select('id, data, status, atendimento_servicos(servicos(duration))').eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
+
+      const filteredAppts = editingAtendimento ? appts?.filter(a => a.id !== editingAtendimento.id) : appts;
+
+      const requestedDuration = servs.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.duration || 0), 0);
+      const possibleTimes: string[] = [];
+      const now = new Date();
+      const minAllowed = addMinutes(now, 60);
+
+      const checkOverlap = (start: Date, duration: number) => {
+        const end = addMinutes(start, duration);
+        return filteredAppts?.some(app => {
+          const appStart = parseISO(app.data);
+          const appDur = (app.atendimento_servicos as any[]).reduce((sum, item) => sum + (item.servicos.duration || 0), 0);
+          const appEnd = addMinutes(appStart, appDur);
+          return (start < appEnd && end > appStart);
+        });
+      };
+
+      const generateSlots = (s: string, e: string) => {
+        if (!s || !e) return;
+        let curr = parseISO(`${date}T${s}`);
+        const end = parseISO(`${date}T${e}`);
+        while (addMinutes(curr, requestedDuration) <= end) {
+          if (isAfter(curr, minAllowed) && !checkOverlap(curr, requestedDuration)) {
+            possibleTimes.push(format(curr, "HH:mm"));
+          }
+          curr = addMinutes(curr, 30);
+        }
+      };
+
+      if (workingHours.manha_inicio && workingHours.manha_fim) generateSlots(workingHours.manha_inicio, workingHours.manha_fim);
+      if (workingHours.tarde_inicio && workingHours.tarde_fim) generateSlots(workingHours.tarde_inicio, workingHours.tarde_fim);
+      setAvailableTimes(possibleTimes);
+    } catch (e) { console.error(e); }
+    setLoadingTimes(false);
+  }, [allServicos, editingAtendimento]);
+
+  useEffect(() => {
+    if (isScheduleDialogOpen) {
+      fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
+    }
+  }, [selectedDatePart, selectedColaborador, selectedServicos, isScheduleDialogOpen, fetchAvailableTimes]);
+
+  const handleSelectServicoAtendimento = (servicoId: string) => {
+    setSelectedServicos(prev => {
+      const newSelection = prev.includes(servicoId) ? prev.filter(id => id !== servicoId) : [...prev, servicoId];
+      const newTotal = newSelection.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
+      setValorFinal(newTotal.toString());
+      return newSelection;
+    });
+  };
+
+  const handleSaveAtendimento = async (isScheduling: boolean) => {
+    if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || (isScheduling && !selectedTimePart)) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        cliente_id: selectedCliente.id,
+        colaborador_id: selectedColaborador,
+        data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
+        valor: parseFloat(valorFinal),
+        status: isScheduling ? 'Agendado' : statusAtendimento
+      };
+      
+      let atendimentoId: string;
+      if (editingAtendimento) {
+        await supabase.from('atendimentos').update(payload).eq('id', editingAtendimento.id);
+        await supabase.from('atendimento_servicos').delete().eq('atendimento_id', editingAtendimento.id);
+        atendimentoId = editingAtendimento.id;
+      } else {
+        const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
+        if (error) throw error;
+        atendimentoId = data.id;
+      }
+
+      await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
+        atendimento_id: atendimentoId,
+        servico_id: sId,
+        valor_servico: allServicos.find(s => s.id === sId)?.price || 0
+      })));
+
+      toast.success("Salvo com sucesso");
+      setIsEditAtendimentoOpen(false);
+      setIsScheduleDialogOpen(false);
+      fetchHistorico(selectedCliente);
+    } catch (e: any) { toast.error(e.message); }
+    setIsSubmitting(false);
+  };
+
+  const handleDeleteAtendimento = async (id: string) => {
+    if (!confirm("Excluir este atendimento?")) return;
+    try {
+      const { error } = await supabase.from('atendimentos').delete().eq('id', id);
+      if (error) throw error;
+      toast.success("Atendimento excluído");
+      if (selectedCliente) fetchHistorico(selectedCliente);
+    } catch (error: any) {
+      toast.error("Erro ao excluir: " + error.message);
+    }
+  };
+
+  const updateStatusAtendimento = async (id: string, newStatus: AtendimentoHistorico['status']) => {
+    try {
+      const { error } = await supabase.from('atendimentos').update({ status: newStatus }).eq('id', id);
+      if (error) throw error;
+      toast.success("Status atualizado");
+      if (selectedCliente) fetchHistorico(selectedCliente);
+    } catch (error: any) {
+      toast.error("Erro ao atualizar status: " + error.message);
+    }
   };
 
   const handleSave = async () => {
@@ -529,7 +731,144 @@ function ClientesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        {/* Histórico Dialog/Drawer */}
+        {/* Dialog Novo/Editar Atendimento (Histórico) */}
+        <Dialog open={isEditAtendimentoOpen} onOpenChange={setIsEditAtendimentoOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader><DialogTitle>Editar Atendimento</DialogTitle></DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Colaborador</Label>
+                <Select value={selectedColaborador} onValueChange={(v) => { setSelectedColaborador(v); fetchColabServicos(v); }}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>{colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Serviços</Label>
+                <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto">
+                  {allServicos.map(s => (
+                    <div key={s.id} className="flex items-center gap-2">
+                      <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServicoAtendimento(s.id)} />
+                      <span>{s.name} - R${s.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={statusAtendimento} onValueChange={(v: any) => setStatusAtendimento(v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Agendado">Agendado</SelectItem>
+                    <SelectItem value="Finalizado">Finalizado</SelectItem>
+                    <SelectItem value="Não compareceu">Não compareceu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditAtendimentoOpen(false)}>Cancelar</Button>
+              <Button onClick={() => handleSaveAtendimento(false)} disabled={isSubmitting}>Salvar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Agendar Atendimento (Histórico) */}
+        <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>Editar Agendamento</DialogTitle></DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Colaborador</Label>
+                <Select value={selectedColaborador} onValueChange={(v) => { setSelectedColaborador(v); setSelectedServicos([]); fetchColabServicos(v); }}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o profissional" /></SelectTrigger>
+                  <SelectContent>{colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+
+              {selectedColaborador && (
+                <div className="space-y-2">
+                  <Label>Serviços</Label>
+                  <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto bg-muted/20">
+                    {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
+                      <div key={s.id} className="flex items-center gap-2">
+                        <Checkbox id={`sch-${s.id}`} checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServicoAtendimento(s.id)} />
+                        <label htmlFor={`sch-${s.id}`} className="text-sm flex-1 flex justify-between">
+                          <span>{s.name}</span>
+                          <span className="opacity-60">{s.duration}min - R${s.price}</span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedColaborador && selectedServicos.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Data</Label>
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal pl-3",
+                          !selectedDatePart && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                        {selectedDatePart ? (
+                          format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                        ) : (
+                          <span>Selecione uma data</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                            setIsCalendarOpen(false);
+                          }
+                        }}
+                        disabled={(date) => {
+                          const dateStr = format(date, "yyyy-MM-dd");
+                          const today = startOfToday();
+                          return (
+                            date < today || 
+                            (maxDate && dateStr > maxDate) || 
+                            !colabActiveDates.includes(dateStr)
+                          );
+                        }}
+                        initialFocus
+                        locale={ptBR}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
+              {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
+                <div className="space-y-2">
+                  <Label>Horários Disponíveis</Label>
+                  {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
+                    <div className="grid grid-cols-4 gap-2">
+                      {availableTimes.length > 0 ? availableTimes.map(t => (
+                        <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" onClick={() => setSelectedTimePart(t)}>{t}</Button>
+                      )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>Cancelar</Button>
+              <Button onClick={() => handleSaveAtendimento(true)} disabled={isSubmitting || !selectedTimePart}>Salvar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         {isMobile ? (
           <Drawer open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
             <DrawerContent className="max-h-[85vh]">
@@ -598,7 +937,25 @@ function ClientesPage() {
     return (
       <div className="space-y-4 py-4">
         {atendimentosCliente.map((atendimento) => (
-          <Card key={atendimento.id} className="overflow-hidden border-l-4 border-l-primary/40">
+          <Card 
+            key={atendimento.id} 
+            className="overflow-hidden border-l-4 border-l-primary/40 cursor-pointer hover:bg-muted/30 transition-colors"
+            onClick={() => {
+              setEditingAtendimento(atendimento);
+              setSelectedColaborador(atendimento.colaborador.id);
+              setSelectedDatePart(format(parseISO(atendimento.data), "yyyy-MM-dd"));
+              setSelectedTimePart(format(parseISO(atendimento.data), "HH:mm"));
+              setSelectedServicos(atendimento.servicos.map(s => s.id));
+              setValorFinal(atendimento.valor.toString());
+              setStatusAtendimento(atendimento.status);
+              fetchColabServicos(atendimento.colaborador.id);
+              if (atendimento.status === 'Agendado') {
+                setIsScheduleDialogOpen(true);
+              } else {
+                setIsEditAtendimentoOpen(true);
+              }
+            }}
+          >
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex flex-col gap-1">
@@ -641,7 +998,30 @@ function ClientesPage() {
                 </div>
               </div>
 
-              <div className="mt-3 text-right">
+              <div className="mt-3 flex justify-between items-center">
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => updateStatusAtendimento(atendimento.id, 'Agendado')}>
+                        <Clock className="w-4 h-4 mr-2" /> Agendado
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => updateStatusAtendimento(atendimento.id, 'Finalizado')}>
+                        <CheckCircle2 className="w-4 h-4 mr-2" /> Finalizado
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => updateStatusAtendimento(atendimento.id, 'Não compareceu')}>
+                        <XCircle className="w-4 h-4 mr-2" /> Não compareceu
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteAtendimento(atendimento.id)}>
+                        <Trash2 className="w-4 h-4 mr-2" /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
                 <span className="text-sm font-bold text-primary">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(atendimento.valor)}
                 </span>
