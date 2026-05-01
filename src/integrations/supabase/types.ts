@@ -116,6 +116,30 @@ export type Database = {
         }
         Relationships: []
       }
+      gastos: {
+        Row: {
+          created_at: string
+          data: string
+          id: string
+          nome: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          id?: string
+          nome: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          id?: string
+          nome?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       horarios_colaboradores: {
         Row: {
           ativo: boolean | null
