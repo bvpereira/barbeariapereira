@@ -118,6 +118,7 @@ function AtendimentosPage() {
   const [loadingTimes, setLoadingTimes] = useState(false);
   const [maxDate, setMaxDate] = useState<string>("");
   const [status, setStatus] = useState<Atendimento['status']>('Finalizado');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const fetchAgendados = useCallback(async () => {
     setLoadingAgendados(true);
