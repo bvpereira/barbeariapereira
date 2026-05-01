@@ -244,7 +244,7 @@ function AtendimentosPage() {
     setSelectedTimePart(format(new Date(), "HH:mm"));
     setSelectedServicos([]);
     setValorFinal("0");
-    setStatus('Agendado');
+    setStatus('Finalizado');
   };
 
   const openAddDialog = () => {
