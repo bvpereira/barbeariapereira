@@ -11,7 +11,9 @@ import {
   Phone, 
   Lock, 
   StickyNote,
-  ChevronDown
+  ChevronDown,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
