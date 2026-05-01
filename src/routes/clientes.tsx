@@ -800,7 +800,25 @@ function ClientesPage() {
     return (
       <div className="space-y-4 py-4">
         {atendimentosCliente.map((atendimento) => (
-          <Card key={atendimento.id} className="overflow-hidden border-l-4 border-l-primary/40">
+          <Card 
+            key={atendimento.id} 
+            className="overflow-hidden border-l-4 border-l-primary/40 cursor-pointer hover:bg-muted/30 transition-colors"
+            onClick={() => {
+              setEditingAtendimento(atendimento);
+              setSelectedColaborador(atendimento.colaborador.id);
+              setSelectedDatePart(format(parseISO(atendimento.data), "yyyy-MM-dd"));
+              setSelectedTimePart(format(parseISO(atendimento.data), "HH:mm"));
+              setSelectedServicos(atendimento.servicos.map(s => s.id));
+              setValorFinal(atendimento.valor.toString());
+              setStatusAtendimento(atendimento.status);
+              fetchColabServicos(atendimento.colaborador.id);
+              if (atendimento.status === 'Agendado') {
+                setIsScheduleDialogOpen(true);
+              } else {
+                setIsEditAtendimentoOpen(true);
+              }
+            }}
+          >
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex flex-col gap-1">
@@ -843,7 +861,30 @@ function ClientesPage() {
                 </div>
               </div>
 
-              <div className="mt-3 text-right">
+              <div className="mt-3 flex justify-between items-center">
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => updateStatusAtendimento(atendimento.id, 'Agendado')}>
+                        <Clock className="w-4 h-4 mr-2" /> Agendado
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => updateStatusAtendimento(atendimento.id, 'Finalizado')}>
+                        <CheckCircle2 className="w-4 h-4 mr-2" /> Finalizado
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => updateStatusAtendimento(atendimento.id, 'Não compareceu')}>
+                        <XCircle className="w-4 h-4 mr-2" /> Não compareceu
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteAtendimento(atendimento.id)}>
+                        <Trash2 className="w-4 h-4 mr-2" /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
                 <span className="text-sm font-bold text-primary">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(atendimento.valor)}
                 </span>
