@@ -372,25 +372,32 @@ function HorariosPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 flex-1">
-                    {collaborators
-                      .filter(c => {
-                        const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
-                        return h && h.ativo;
-                      })
-                      .map(c => {
-                        const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
-                        return (
-                          <div key={c.id} className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded border border-secondary flex items-center gap-1">
-                            <span className="font-bold whitespace-nowrap">{c.nome}:</span>
-                            <span className="text-muted-foreground whitespace-nowrap">
-                              {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio.substring(0, 5)}-${h.manha_fim.substring(0, 5)}` : ""}
-                              {(h?.manha_inicio && h.tarde_inicio) ? " | " : ""}
-                              {h?.tarde_inicio && h?.tarde_fim ? `${h.tarde_inicio.substring(0, 5)}-${h.tarde_fim.substring(0, 5)}` : ""}
-                            </span>
-                          </div>
-                        );
-                      })
-                    }
+                    {collaborators.some(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) ? (
+                      collaborators
+                        .filter(c => {
+                          const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
+                          return h && h.ativo;
+                        })
+                        .map(c => {
+                          const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
+                          return (
+                            <div key={c.id} className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded border border-secondary flex items-center gap-1">
+                              <span className="font-bold whitespace-nowrap">{c.nome}:</span>
+                              <span className="text-muted-foreground whitespace-nowrap">
+                                {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio.substring(0, 5)}-${h.manha_fim.substring(0, 5)}` : ""}
+                                {(h?.manha_inicio && h.tarde_inicio) ? " | " : ""}
+                                {h?.tarde_inicio && h?.tarde_fim ? `${h.tarde_inicio.substring(0, 5)}-${h.tarde_fim.substring(0, 5)}` : ""}
+                              </span>
+                            </div>
+                          );
+                        })
+                    ) : (
+                      dia.ativo && (
+                        <div className="text-[10px] bg-destructive/10 text-destructive px-2 py-0.5 rounded border border-destructive/20 font-bold whitespace-nowrap">
+                          Nenhum colaborador ativo para este dia
+                        </div>
+                      )
+                    )}
                   </div>
 
                   {expandedDay === dia.id ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
