@@ -387,7 +387,10 @@ function GastosPage() {
               <Label className="hidden sm:inline">Filtrar por mês:</Label>
               <Select 
                 value={format(selectedMonth, "yyyy-MM")} 
-                onValueChange={(value) => setSelectedMonth(new Date(value + "-01"))}
+                onValueChange={(value) => {
+                  const [year, month] = value.split("-").map(Number);
+                  setSelectedMonth(new Date(year, month - 1, 1, 12, 0, 0));
+                }}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Selecione o mês" />
