@@ -291,7 +291,7 @@ function ClientesPage() {
                     clientes.map((cliente) => (
                       <TableRow key={cliente.id}>
                         <TableCell className="font-medium">{cliente.nome}</TableCell>
-                        <TableCell>{cliente.login}</TableCell>
+                        <TableCell>{formatPhone(cliente.login)}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button
