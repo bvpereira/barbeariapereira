@@ -58,7 +58,7 @@ function HorariosPage() {
   }>({});
 
   // Selection for batch application
-  const [selectedCollaborators, setSelectedCollaborators] = useState<{ [date: string]: string[] }>({});
+  
 
   useEffect(() => {
     fetchData();
