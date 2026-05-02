@@ -306,6 +306,7 @@ function CollaboratorsPage() {
       fetchData();
     } catch (error: any) {
       toast.error("Erro ao excluir: " + error.message);
+    }
   };
 
   const toggleCollaboratorStatus = async (colabId: string, currentStatus: boolean) => {
