@@ -51,6 +51,7 @@ interface DashboardData {
 function AdminPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState("");
   const [data, setData] = useState<DashboardData>({
     clientesAgendadosHoje: 0,
     novosAgendamentosHoje: 0,
@@ -66,6 +67,11 @@ function AdminPage() {
 
   useEffect(() => {
     fetchDashboardData();
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUserName(parsedUser.nome || "");
+    }
   }, []);
 
   const fetchDashboardData = async () => {
@@ -217,7 +223,9 @@ function AdminPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground">Bem-vindo à gestão da sua barbearia.</p>
+            <p className="text-muted-foreground">
+              {userName ? `${userName}, bem-vindo` : "Bem-vindo"} à gestão da sua barbearia.
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => navigate({ to: "/clientes" } as any)} variant="outline" size="sm" className="gap-2">
