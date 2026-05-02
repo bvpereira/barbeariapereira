@@ -61,7 +61,8 @@ interface FinanceiroData {
   liquidoMes: number;
   despesasMes: number;
   comissoesMes: number;
-  previsaoBrutoMes: number;
+  previsaoTotalMes: number;
+  previsaoAgendadosMes: number;
   comissoesPorColaborador: { nome: string; valor: number }[];
   chartData: any[];
   historico: any[];
@@ -76,7 +77,8 @@ function FinanceiroPage() {
     liquidoMes: 0,
     despesasMes: 0,
     comissoesMes: 0,
-    previsaoBrutoMes: 0,
+    previsaoTotalMes: 0,
+    previsaoAgendadosMes: 0,
     comissoesPorColaborador: [],
     chartData: [],
     historico: []
@@ -163,7 +165,7 @@ function FinanceiroPage() {
       const despesasMes = gastosMes?.reduce((acc, curr) => acc + Number(curr.valor), 0) || 0;
 
       let brutoMes = 0;
-      let previsaoBrutoMes = 0;
+      let previsaoAgendadosMes = 0;
       let comissoesMes = 0;
       const comissoesColabMap = new Map<string, number>();
       
@@ -178,12 +180,13 @@ function FinanceiroPage() {
           const current = comissoesColabMap.get(atend.colaborador_id) || 0;
           comissoesColabMap.set(atend.colaborador_id, current + comissaoVal);
         } else if (atend.status === "Agendado") {
-          previsaoBrutoMes += val;
+          previsaoAgendadosMes += val;
         }
       });
 
       const liquidoMes = brutoMes - comissoesMes - despesasMes;
       const liquidoDia = brutoDia - comissoesDia;
+      const previsaoTotalMes = brutoMes + previsaoAgendadosMes;
 
       const start12 = startOfMonth(subMonths(today, 11));
       
@@ -244,7 +247,8 @@ function FinanceiroPage() {
         liquidoMes,
         despesasMes,
         comissoesMes,
-        previsaoBrutoMes,
+        previsaoTotalMes,
+        previsaoAgendadosMes,
         comissoesPorColaborador: colaboradores?.map(c => ({
           nome: c.nome,
           valor: comissoesColabMap.get(c.id) || 0
@@ -400,13 +404,23 @@ function FinanceiroPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Previsão de Faturamento</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">Agendados para o mês</p>
-                    <p className="text-2xl font-bold text-primary">{formatCurrency(data.previsaoBrutoMes)}</p>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Previsto (Finalizado + Agendado)</span>
+                  <div className="text-3xl font-black text-primary tracking-tight">
+                    {formatCurrency(data.previsaoTotalMes)}
                   </div>
-                  <Calendar className="h-8 w-8 text-primary/40" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/50">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase">Já Finalizado</p>
+                    <p className="text-lg font-semibold">{formatCurrency(data.brutoMes)}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase">Agendado</p>
+                    <p className="text-lg font-semibold text-primary/80">{formatCurrency(data.previsaoAgendadosMes)}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
