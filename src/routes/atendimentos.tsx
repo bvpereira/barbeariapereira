@@ -548,11 +548,10 @@ function AtendimentosPage() {
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader><DialogTitle>{editingAtendimento ? "Editar Atendimento" : "Novo Atendimento"}</DialogTitle></DialogHeader>
             <div className="space-y-4 py-4">
-               {/* Simplified fields for brevity */}
                <div className="space-y-2">
                 <Label>Cliente</Label>
                 <Input placeholder="Buscar cliente..." value={searchCliente} onChange={(e) => searchClientes(e.target.value)} />
-                {clientes.map(c => <div key={c.id} onClick={() => { setSelectedCliente(c); setSearchCliente(c.nome); setClientes([]); }} className="p-2 hover:bg-accent cursor-pointer">{c.nome}</div>)}
+                {clientes.map(c => <div key={c.id} onClick={() => { setSelectedCliente(c); setSearchCliente(c.nome); setClientes([]); }} className="p-2 hover:bg-accent cursor-pointer border rounded-md mt-1">{c.nome}</div>)}
               </div>
               <div className="space-y-2">
                 <Label>Colaborador</Label>
@@ -570,6 +569,43 @@ function AtendimentosPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label>Data do Atendimento</Label>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !selectedDatePart && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDatePart ? (
+                        format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                      ) : (
+                        <span>Selecione uma data</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                          setIsCalendarOpen(false);
+                        }
+                      }}
+                      initialFocus
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
               <div className="space-y-2">
                 <Label>Serviços</Label>
                 <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto">
