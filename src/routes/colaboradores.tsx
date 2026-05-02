@@ -472,13 +472,20 @@ function CollaboratorsPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold truncate">{colab.nome}</h3>
-                      {!colab.ativo && (
-                        <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20 uppercase font-bold">
-                          Inativo
-                        </span>
-                      )}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h3 className="font-bold truncate">{colab.nome}</h3>
+                        {!colab.ativo && (
+                          <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20 uppercase font-bold">
+                            Inativo
+                          </span>
+                        )}
+                      </div>
+                      <Switch 
+                        checked={colab.ativo} 
+                        onCheckedChange={() => toggleCollaboratorStatus(colab.id, colab.ativo)}
+                        title={colab.ativo ? "Desativar colaborador" : "Ativar colaborador"}
+                      />
                     </div>
                     <p className="text-sm text-muted-foreground truncate">{colab.resumo || "Sem resumo"}</p>
                   </div>
