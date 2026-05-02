@@ -90,7 +90,7 @@ function AdminPage() {
         .from("atendimentos")
         .select("*", { count: "exact", head: true })
         .gte("created_at", sDay.toISOString())
-        .lte("created_at", eDay.toISOString());
+        .lte("created_at", now.toISOString());
 
       // 3. Faturamento Bruto Dia (Finalizados)
       const { data: atendDia } = await supabase
@@ -254,7 +254,7 @@ function AdminPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{data.novosAgendamentosHoje}</div>
-              <p className="text-xs text-muted-foreground">Criados nas últimas 24h</p>
+              <p className="text-xs text-muted-foreground">Criados hoje (desde 00:00)</p>
             </CardContent>
           </Card>
           <Card>
