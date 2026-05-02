@@ -73,7 +73,7 @@ function CollaboratorsPage() {
     try {
       const { data: servicesData, error: servicesError } = await supabase
         .from("servicos")
-        .select("id, name")
+        .select("id, name, price")
         .order("name");
       
       if (servicesError) throw servicesError;
@@ -160,9 +160,34 @@ function CollaboratorsPage() {
   };
 
   const updateServiceCommission = (serviceId: string, field: keyof CollaboratorService, value: any) => {
-    setSelectedServices(prev => prev.map(s => 
-      s.servico_id === serviceId ? { ...s, [field]: value } : s
-    ));
+    const service = allServices.find(s => s.id === serviceId);
+    const servicePrice = (service as any)?.price || 0;
+
+    setSelectedServices(prev => prev.map(s => {
+      if (s.servico_id === serviceId) {
+        let newValue = value;
+        
+        if (field === "valor_comissao") {
+          if (s.tipo_comissao === "percentual" && value > 100) {
+            newValue = 100;
+            toast.warning("A porcentagem não pode ser maior que 100%");
+          } else if (s.tipo_comissao === "fixo" && value > servicePrice) {
+            newValue = servicePrice;
+            toast.warning(`O valor fixo não pode ser maior que o valor do serviço (R$ ${servicePrice})`);
+          }
+        } else if (field === "tipo_comissao") {
+          // Quando muda o tipo, valida o valor atual contra as novas regras
+          if (value === "percentual" && s.valor_comissao > 100) {
+            return { ...s, [field]: value, valor_comissao: 100 };
+          } else if (value === "fixo" && s.valor_comissao > servicePrice) {
+            return { ...s, [field]: value, valor_comissao: servicePrice };
+          }
+        }
+        
+        return { ...s, [field]: newValue };
+      }
+      return s;
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -182,6 +207,19 @@ function CollaboratorsPage() {
     }
 
     try {
+      // 1. Verificações de Login Único (apenas para novos ou se mudar o login)
+      if (!editingCollaborator || cleanLogin !== editingCollaborator.login.replace(/\D/g, "")) {
+        const { data: existingUser } = await supabase
+          .from("usuarios")
+          .select("login")
+          .eq("login", cleanLogin)
+          .maybeSingle();
+        
+        if (existingUser) {
+          throw new Error("Este telefone (login) já está sendo usado por outro usuário.");
+        }
+      }
+
       let fotoUrl = fotoPreview;
 
       if (foto) {
@@ -234,27 +272,33 @@ function CollaboratorsPage() {
           await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
         }
       } else {
+        // Create user in 'usuarios' table FIRST to ensure login is unique and captured
+        const { error: userError } = await supabase
+          .from("usuarios")
+          .insert([{ nome, login: cleanLogin, senha, nivel: 2 }]);
+        
+        if (userError) {
+          if (userError.code === "23505") throw new Error("Este telefone já está cadastrado.");
+          throw userError;
+        }
+
         // Create collaborator
-        const { data, error } = await supabase
+        const { data, error: colabError } = await supabase
           .from("colaboradores")
           .insert([colabData])
           .select()
           .single();
-        if (error) throw error;
+        
+        if (colabError) {
+          // Se der erro ao criar colaborador, tentamos remover o usuário criado para manter consistência
+          await supabase.from("usuarios").delete().eq("login", cleanLogin);
+          throw colabError;
+        }
         colabId = data.id;
-
-        // Create user in 'usuarios' table
-        const { error: userError } = await supabase
-          .from("usuarios")
-          .insert([{ nome, login: cleanLogin, senha, nivel: 2 }]);
-        if (userError) throw userError;
       }
 
       // Insert services
       if (colabId && selectedServices.length > 0) {
-        console.log("Tentando inserir serviços para colabId:", colabId);
-        console.log("Serviços selecionados:", selectedServices);
-
         const servicesToInsert = selectedServices.map(s => ({
           colaborador_id: colabId as string,
           servico_id: s.servico_id,
@@ -262,21 +306,11 @@ function CollaboratorsPage() {
           valor_comissao: s.valor_comissao || 0
         }));
 
-        console.log("Dados formatados para inserção:", servicesToInsert);
-
-        const { data: insertedData, error: servicesError } = await supabase
+        const { error: servicesError } = await supabase
           .from("colaborador_servicos")
-          .insert(servicesToInsert)
-          .select();
+          .insert(servicesToInsert);
 
-        if (servicesError) {
-          console.error("Erro do Supabase ao inserir serviços:", servicesError);
-          throw servicesError;
-        }
-
-        console.log("Serviços inseridos com sucesso:", insertedData);
-      } else {
-        console.log("Nenhum serviço selecionado ou colabId ausente.", { colabId, count: selectedServices.length });
+        if (servicesError) throw servicesError;
       }
 
       toast.success(editingCollaborator ? "Colaborador atualizado!" : "Colaborador criado!");
@@ -294,11 +328,14 @@ function CollaboratorsPage() {
     if (!confirm(`Tem certeza que deseja remover ${colab.nome}?`)) return;
 
     try {
-      // Delete from colaboradores (cascades to colaborador_servicos)
+      // 1. Delete from colaborador_servicos explicitly just in case cascade isn't set
+      await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colab.id);
+
+      // 2. Delete from colaboradores
       const { error } = await supabase.from("colaboradores").delete().eq("id", colab.id);
       if (error) throw error;
 
-      // Delete from usuarios
+      // 3. Delete from usuarios
       const { error: userError } = await supabase.from("usuarios").delete().eq("login", colab.login);
       if (userError) throw userError;
 
