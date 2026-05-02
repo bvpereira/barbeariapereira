@@ -70,12 +70,15 @@ function GastosPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSalarioDialogOpen, setIsSalarioDialogOpen] = useState(false);
   const [editingGasto, setEditingGasto] = useState<Gasto | null>(null);
+  const [colaboradores, setColaboradores] = useState<{ id: string; nome: string }[]>([]);
   
   // Form states
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
   const [dataGasto, setDataGasto] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [selectedColaboradorId, setSelectedColaboradorId] = useState("");
 
   const [totalMesAtual, setTotalMesAtual] = useState(0);
   const [totalUltimos12Meses, setTotalUltimos12Meses] = useState(0);
@@ -84,7 +87,20 @@ function GastosPage() {
   useEffect(() => {
     fetchGastos();
     fetchSummaryData();
+    fetchColaboradores();
   }, [selectedMonth]);
+
+  const fetchColaboradores = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("colaboradores")
+        .select("id, nome");
+      if (error) throw error;
+      setColaboradores(data || []);
+    } catch (error: any) {
+      console.error("Erro ao buscar colaboradores:", error);
+    }
+  };
 
   const fetchGastos = async () => {
     setIsLoading(true);
@@ -225,6 +241,36 @@ function GastosPage() {
     setValor("");
     setDataGasto(format(new Date(), "yyyy-MM-dd"));
     setEditingGasto(null);
+    setSelectedColaboradorId("");
+  };
+
+  const handleSaveSalario = async () => {
+    const colaborador = colaboradores.find(c => c.id === selectedColaboradorId);
+    if (!colaborador || !valor) {
+      toast.error("Selecione o funcionário e o valor");
+      return;
+    }
+
+    try {
+      const payload = {
+        nome: `Salário: ${colaborador.nome}`,
+        valor: parseFloat(valor),
+        data: startOfMonth(selectedMonth).toISOString(),
+      };
+
+      const { error } = await supabase
+        .from("gastos")
+        .insert([payload]);
+
+      if (error) throw error;
+      toast.success("Salário registrado como gasto");
+      setIsSalarioDialogOpen(false);
+      resetForm();
+      fetchGastos();
+      fetchSummaryData();
+    } catch (error: any) {
+      toast.error("Erro ao salvar salário: " + error.message);
+    }
   };
 
   const openEditDialog = (gasto: Gasto) => {
@@ -246,16 +292,67 @@ function GastosPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h1 className="text-3xl font-bold tracking-tight">Controle de Gastos</h1>
           
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
-                Adicionar Gasto
-              </Button>
-            </DialogTrigger>
+            <div className="flex gap-2">
+              <Dialog open={isSalarioDialogOpen} onOpenChange={(open) => {
+                setIsSalarioDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Adicionar Salário
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Registrar Salário de Funcionário</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="colaborador">Funcionário</Label>
+                      <Select value={selectedColaboradorId} onValueChange={setSelectedColaboradorId}>
+                        <SelectTrigger id="colaborador">
+                          <SelectValue placeholder="Selecione o funcionário" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {colaboradores.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="valor_salario">Valor do Salário (R$)</Label>
+                      <Input 
+                        id="valor_salario" 
+                        type="number" 
+                        step="0.01"
+                        value={valor} 
+                        onChange={(e) => setValor(e.target.value)} 
+                        placeholder="0,00"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      O salário será registrado no primeiro dia do mês selecionado ({format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}).
+                    </p>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsSalarioDialogOpen(false)}>Cancelar</Button>
+                    <Button onClick={handleSaveSalario}>Salvar</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Adicionar Gasto
+                  </Button>
+                </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingGasto ? "Editar Gasto" : "Novo Gasto"}</DialogTitle>
@@ -296,7 +393,8 @@ function GastosPage() {
                 <Button onClick={handleSaveGasto}>Salvar</Button>
               </DialogFooter>
             </DialogContent>
-          </Dialog>
+              </Dialog>
+            </div>
         </div>
 
         {/* Resumo */}

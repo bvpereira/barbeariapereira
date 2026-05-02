@@ -155,7 +155,7 @@ function FinanceiroPage() {
       
       const { data: colaboradores, error: errorColab } = await supabase
         .from("colaboradores")
-        .select("id, nome, salario_fixo");
+        .select("id, nome");
       
       if (errorColab) throw errorColab;
 
@@ -200,8 +200,7 @@ function FinanceiroPage() {
         }
       });
 
-      const totalSalarios = colaboradores?.reduce((acc, curr) => acc + Number(curr.salario_fixo || 0), 0) || 0;
-      const liquidoMes = brutoMes - comissoesMes - despesasMes - totalSalarios;
+      const liquidoMes = brutoMes - comissoesMes - despesasMes;
       const liquidoDia = brutoDia - comissoesDia;
 
       const start12 = startOfMonth(subMonths(today, 11));
@@ -249,7 +248,7 @@ function FinanceiroPage() {
           });
         });
 
-        const liquido = bruto - comissoes - gastos - totalSalarios;
+        const liquido = bruto - comissoes - gastos;
 
         return {
           month: format(month, "MMM/yy", { locale: ptBR }),
@@ -258,7 +257,7 @@ function FinanceiroPage() {
           liquido,
           comissoes,
           gastos,
-          salarios: totalSalarios
+          salarios: 0 // Salários agora estão inclusos nos gastos
         };
       }).reverse();
 
@@ -360,7 +359,7 @@ function FinanceiroPage() {
               <div className={cn("text-2xl font-bold", data.liquidoMes >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
                 {formatCurrency(data.liquidoMes)}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Bruto - comissões - gastos - salários</p>
+              <p className="text-xs text-muted-foreground mt-1">Bruto - comissões - gastos (incluindo salários)</p>
             </CardContent>
           </Card>
           <Card>
@@ -474,7 +473,7 @@ function FinanceiroPage() {
                     <TableHead className="text-right">Faturamento Bruto</TableHead>
                     <TableHead className="text-right">Comissões</TableHead>
                     <TableHead className="text-right">Gastos</TableHead>
-                    <TableHead className="text-right">Salários</TableHead>
+                    <TableHead className="text-right hidden">Salários</TableHead>
                     <TableHead className="text-right">Faturamento Líquido</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -485,7 +484,7 @@ function FinanceiroPage() {
                       <TableCell className="text-right">{formatCurrency(h.bruto)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{formatCurrency(h.comissoes)}</TableCell>
                       <TableCell className="text-right text-destructive/80">{formatCurrency(h.gastos)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatCurrency(h.salarios)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground hidden">{formatCurrency(h.salarios)}</TableCell>
                       <TableCell className={cn("text-right font-bold", h.liquido >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
                         {formatCurrency(h.liquido)}
                       </TableCell>
