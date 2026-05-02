@@ -267,7 +267,7 @@ function CollaboratorsPage() {
             nome, 
             login: cleanLogin, 
             senha,
-            nivel: ativo ? 2 : 3 // 2 if active, 3 (or other) if inactive
+            nivel: ativo ? 2 : 10 // 2 if active, 10 if inactive (prevents login)
           })
           .eq("login", editingCollaborator.login);
         if (userError) throw userError;
@@ -284,7 +284,7 @@ function CollaboratorsPage() {
             nome, 
             login: cleanLogin, 
             senha, 
-            nivel: ativo ? 2 : 3 
+            nivel: ativo ? 2 : 10 
           }]);
         
         if (userError) {
@@ -369,7 +369,7 @@ function CollaboratorsPage() {
       // Also update user level in 'usuarios'
       const { error: userError } = await supabase
         .from("usuarios")
-        .update({ nivel: newStatus ? 2 : 3 })
+        .update({ nivel: newStatus ? 2 : 10 })
         .eq("login", colab.login);
       
       if (userError) throw userError;
