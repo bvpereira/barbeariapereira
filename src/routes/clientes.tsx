@@ -592,19 +592,20 @@ function ClientesPage() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead>Telefone</TableHead>
+                    <TableHead>Observação</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading && clientes.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center py-8">
+                      <TableCell colSpan={4} className="text-center py-8">
                         Carregando clientes...
                       </TableCell>
                     </TableRow>
                   ) : clientes.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                         Nenhum cliente encontrado
                       </TableCell>
                     </TableRow>
@@ -627,6 +628,15 @@ function ClientesPage() {
                           </div>
                         </TableCell>
                         <TableCell>{formatPhone(cliente.login)}</TableCell>
+                        <TableCell>
+                          {cliente.observacao ? (
+                            <span className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]" title={cliente.observacao}>
+                              {cliente.observacao}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground/30 italic">Sem observações</span>
+                          )}
+                        </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                             <Button
