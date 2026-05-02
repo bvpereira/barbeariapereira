@@ -322,6 +322,42 @@ export type Database = {
         }
         Relationships: []
       }
+      transacoes_financeiras: {
+        Row: {
+          categoria: string
+          created_at: string
+          data: string
+          descricao: string | null
+          id: string
+          referencia_id: string | null
+          tipo: Database["public"]["Enums"]["tipo_transacao"]
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          id?: string
+          referencia_id?: string | null
+          tipo: Database["public"]["Enums"]["tipo_transacao"]
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          id?: string
+          referencia_id?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_transacao"]
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       usuarios: {
         Row: {
           created_at: string
@@ -363,7 +399,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      tipo_transacao: "receita" | "despesa"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -490,6 +526,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      tipo_transacao: ["receita", "despesa"],
+    },
   },
 } as const
