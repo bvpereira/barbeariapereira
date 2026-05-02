@@ -95,6 +95,12 @@ function FinanceiroPage() {
       const startMonth = startOfMonth(today);
       const endMonth = endOfMonth(today);
 
+      const { data: rules, error: errorRules } = await supabase
+        .from("colaborador_servicos")
+        .select("colaborador_id, servico_id, valor_comissao, tipo_comissao");
+      
+      if (errorRules) throw errorRules;
+
       const { data: atendimentosHoje, error: errorHoje } = await supabase
         .from("atendimentos")
         .select(`
@@ -102,11 +108,7 @@ function FinanceiroPage() {
           status,
           atendimento_servicos (
             servico_id,
-            colaborador_servicos:servico_id (
-              colaborador_id,
-              valor_comissao,
-              tipo_comissao
-            )
+            valor_servico
           ),
           colaborador_id
         `)
@@ -118,13 +120,16 @@ function FinanceiroPage() {
 
       let brutoDia = 0;
       let comissoesDia = 0;
+
       atendimentosHoje?.forEach(atend => {
         brutoDia += Number(atend.valor || 0);
         atend.atendimento_servicos?.forEach((as: any) => {
-          const commissionRule = as.colaborador_servicos?.find((cs: any) => cs.colaborador_id === atend.colaborador_id);
-          if (commissionRule) {
-            if (commissionRule.tipo_comissao === "fixo") {
-              comissoesDia += Number(commissionRule.valor_comissao);
+          const rule = rules?.find(r => r.servico_id === as.servico_id && r.colaborador_id === atend.colaborador_id);
+          if (rule) {
+            if (rule.tipo_comissao === "fixo") {
+              comissoesDia += Number(rule.valor_comissao);
+            } else {
+              comissoesDia += (Number(as.valor_servico || 0) * Number(rule.valor_comissao)) / 100;
             }
           }
         });
@@ -147,12 +152,6 @@ function FinanceiroPage() {
         .lte("data", endMonth.toISOString());
 
       if (errorMes) throw errorMes;
-
-      const { data: rules, error: errorRules } = await supabase
-        .from("colaborador_servicos")
-        .select("colaborador_id, servico_id, valor_comissao, tipo_comissao");
-      
-      if (errorRules) throw errorRules;
       
       const { data: colaboradores, error: errorColab } = await supabase
         .from("colaboradores")
