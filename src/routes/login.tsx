@@ -136,6 +136,12 @@ function Login() {
           title: "Senha incorreta",
           description: "A senha informada está incorreta para este usuário. Por favor, tente novamente."
         });
+      } else if (data.nivel === 10) {
+        setAlertState({
+          open: true,
+          title: "Acesso bloqueado",
+          description: "Este colaborador está inativo e não possui permissão para acessar o sistema."
+        });
       } else {
         localStorage.setItem("user", JSON.stringify(data));
         
