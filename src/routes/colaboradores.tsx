@@ -356,16 +356,25 @@ function CollaboratorsPage() {
     }
   };
 
-  const toggleCollaboratorStatus = async (colabId: string, currentStatus: boolean) => {
+  const toggleCollaboratorStatus = async (colab: Collaborator) => {
     try {
+      const newStatus = !colab.ativo;
       const { error } = await supabase
         .from("colaboradores")
-        .update({ ativo: !currentStatus })
-        .eq("id", colabId);
+        .update({ ativo: newStatus })
+        .eq("id", colab.id);
 
       if (error) throw error;
+
+      // Also update user level in 'usuarios'
+      const { error: userError } = await supabase
+        .from("usuarios")
+        .update({ nivel: newStatus ? 2 : 3 })
+        .eq("login", colab.login);
       
-      toast.success(`Colaborador ${!currentStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      if (userError) throw userError;
+      
+      toast.success(`Colaborador ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchData();
     } catch (error: any) {
       toast.error("Erro ao alterar status: " + error.message);
