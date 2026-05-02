@@ -593,15 +593,27 @@ function AtendimentosPage() {
                   </Select>
                 </div>
               )}
-              <div className="space-y-2">
-                <Label htmlFor="valor">Valor Total (R$)</Label>
-                <Input 
-                  id="valor"
-                  type="number"
-                  step="0.01"
-                  value={valorFinal}
-                  onChange={(e) => setValorFinal(e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="valor">Valor Total (R$)</Label>
+                  <Input 
+                    id="valor"
+                    type="number"
+                    step="0.01"
+                    value={valorFinal}
+                    onChange={(e) => setValorFinal(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="comissao">Comissão (R$)</Label>
+                  <Input 
+                    id="comissao"
+                    type="number"
+                    step="0.01"
+                    value={comissaoFinal}
+                    onChange={(e) => setComissaoFinal(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
             <DialogFooter>
