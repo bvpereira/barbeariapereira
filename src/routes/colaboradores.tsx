@@ -40,6 +40,7 @@ interface Collaborator {
   senha: string;
   salario_fixo: number | null;
   foto_url: string | null;
+  ativo: boolean;
   colaborador_servicos?: (CollaboratorService & { servicos: { name: string } })[];
 }
 
@@ -60,6 +61,7 @@ function CollaboratorsPage() {
   const [foto, setFoto] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
   const [selectedServices, setSelectedServices] = useState<CollaboratorService[]>([]);
+  const [ativo, setAtivo] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -109,6 +111,7 @@ function CollaboratorsPage() {
     setFoto(null);
     setFotoPreview(null);
     setSelectedServices([]);
+    setAtivo(true);
     setEditingCollaborator(null);
   };
 
@@ -120,6 +123,7 @@ function CollaboratorsPage() {
     setSenha(colab.senha);
     setSalarioFixo(colab.salario_fixo?.toString() || "");
     setFotoPreview(colab.foto_url);
+    setAtivo(colab.ativo);
     
     const services = colab.colaborador_servicos?.map(s => ({
       servico_id: s.servico_id,
@@ -204,6 +208,7 @@ function CollaboratorsPage() {
         senha,
         salario_fixo: parseFloat(salarioFixo) || 0,
         foto_url: fotoUrl,
+        ativo: ativo,
       };
 
       let colabId = editingCollaborator?.id;
@@ -360,6 +365,18 @@ function CollaboratorsPage() {
                 </div>
               </div>
 
+              <div className="flex items-center space-x-2 border p-3 rounded-lg bg-muted/20">
+                <Checkbox id="ativo" checked={ativo} onCheckedChange={(checked) => setAtivo(checked as boolean)} />
+                <div className="grid gap-1.5 leading-none">
+                  <Label htmlFor="ativo" className="text-sm font-medium leading-none cursor-pointer">
+                    Colaborador Ativo
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Desative para ocultar este colaborador de novos agendamentos sem perder seu histórico.
+                  </p>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label>Foto (Quadrada 1:1)</Label>
                 <Input type="file" accept="image/*" onChange={handleFotoChange} />
@@ -448,7 +465,14 @@ function CollaboratorsPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold truncate">{colab.nome}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold truncate">{colab.nome}</h3>
+                      {!colab.ativo && (
+                        <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20 uppercase font-bold">
+                          Inativo
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground truncate">{colab.resumo || "Sem resumo"}</p>
                   </div>
                 </CardHeader>
