@@ -25,6 +25,7 @@ function MinhaContaPage() {
   const [senhaAtual, setSenhaAtual] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -114,6 +115,7 @@ function MinhaContaPage() {
       setSenhaAtual("");
       setNovaSenha("");
       setConfirmarNovaSenha("");
+      setIsChangingPassword(false);
     } catch (error: any) {
       console.error(error);
       toast.error("Erro ao alterar senha: " + error.message);
@@ -177,41 +179,68 @@ function MinhaContaPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleChangePassword} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="senhaAtual">Senha Atual</Label>
-                  <Input
-                    id="senhaAtual"
-                    type="password"
-                    value={senhaAtual}
-                    onChange={(e) => setSenhaAtual(e.target.value)}
-                    placeholder="Digite sua senha atual"
-                  />
+              {!isChangingPassword ? (
+                <div className="py-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsChangingPassword(true)}
+                    className="gap-2"
+                  >
+                    <Lock className="h-4 w-4" />
+                    Alterar minha senha
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="novaSenha">Nova Senha</Label>
-                  <Input
-                    id="novaSenha"
-                    type="password"
-                    value={novaSenha}
-                    onChange={(e) => setNovaSenha(e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmarNovaSenha">Confirmar Nova Senha</Label>
-                  <Input
-                    id="confirmarNovaSenha"
-                    type="password"
-                    value={confirmarNovaSenha}
-                    onChange={(e) => setConfirmarNovaSenha(e.target.value)}
-                    placeholder="Repita a nova senha"
-                  />
-                </div>
-                <Button type="submit" variant="outline" disabled={loading}>
-                  {loading ? "Processando..." : "Atualizar Senha"}
-                </Button>
-              </form>
+              ) : (
+                <form onSubmit={handleChangePassword} className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="senhaAtual">Senha Atual</Label>
+                    <Input
+                      id="senhaAtual"
+                      type="password"
+                      value={senhaAtual}
+                      onChange={(e) => setSenhaAtual(e.target.value)}
+                      placeholder="Digite sua senha atual"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="novaSenha">Nova Senha</Label>
+                    <Input
+                      id="novaSenha"
+                      type="password"
+                      value={novaSenha}
+                      onChange={(e) => setNovaSenha(e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmarNovaSenha">Confirmar Nova Senha</Label>
+                    <Input
+                      id="confirmarNovaSenha"
+                      type="password"
+                      value={confirmarNovaSenha}
+                      onChange={(e) => setConfirmarNovaSenha(e.target.value)}
+                      placeholder="Repita a nova senha"
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button type="submit" disabled={loading}>
+                      {loading ? "Processando..." : "Confirmar Nova Senha"}
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      onClick={() => {
+                        setIsChangingPassword(false);
+                        setSenhaAtual("");
+                        setNovaSenha("");
+                        setConfirmarNovaSenha("");
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </form>
+              )}
             </CardContent>
           </Card>
         </div>
