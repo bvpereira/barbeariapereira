@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/colaboradores" as any)({
   component: CollaboratorsPage,
@@ -308,6 +309,22 @@ function CollaboratorsPage() {
     }
   };
 
+  const toggleCollaboratorStatus = async (colabId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("colaboradores")
+        .update({ ativo: !currentStatus })
+        .eq("id", colabId);
+
+      if (error) throw error;
+      
+      toast.success(`Colaborador ${!currentStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      fetchData();
+    } catch (error: any) {
+      toast.error("Erro ao alterar status: " + error.message);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="flex flex-col gap-8">
@@ -365,17 +382,7 @@ function CollaboratorsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 border p-3 rounded-lg bg-muted/20">
-                <Checkbox id="ativo" checked={ativo} onCheckedChange={(checked) => setAtivo(checked as boolean)} />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="ativo" className="text-sm font-medium leading-none cursor-pointer">
-                    Colaborador Ativo
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Desative para ocultar este colaborador de novos agendamentos sem perder seu histórico.
-                  </p>
-                </div>
-              </div>
+              {/* Status toggle removed from here as requested, now on the card */}
 
               <div className="space-y-2">
                 <Label>Foto (Quadrada 1:1)</Label>
@@ -465,13 +472,20 @@ function CollaboratorsPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold truncate">{colab.nome}</h3>
-                      {!colab.ativo && (
-                        <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20 uppercase font-bold">
-                          Inativo
-                        </span>
-                      )}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h3 className="font-bold truncate">{colab.nome}</h3>
+                        {!colab.ativo && (
+                          <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20 uppercase font-bold">
+                            Inativo
+                          </span>
+                        )}
+                      </div>
+                      <Switch 
+                        checked={colab.ativo} 
+                        onCheckedChange={() => toggleCollaboratorStatus(colab.id, colab.ativo)}
+                        title={colab.ativo ? "Desativar colaborador" : "Ativar colaborador"}
+                      />
                     </div>
                     <p className="text-sm text-muted-foreground truncate">{colab.resumo || "Sem resumo"}</p>
                   </div>
