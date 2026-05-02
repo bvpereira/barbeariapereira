@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User, Lock, Save } from "lucide-react";
+import { User, Lock, Save, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/minhaconta" as any)({
   component: MinhaContaPage,
@@ -20,6 +20,8 @@ function MinhaContaPage() {
   
   // Profile state
   const [nome, setNome] = useState("");
+  const [telContato, setTelContato] = useState("");
+  const [infoId, setInfoId] = useState<string | null>(null);
   
   // Password state
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -36,6 +38,27 @@ function MinhaContaPage() {
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
     setNome(parsedUser.nome || "");
+
+    const fetchInformacoes = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("informacoes")
+          .select("*")
+          .eq("user_id", parsedUser.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        
+        if (data) {
+          setTelContato(data.tel_contato || "");
+          setInfoId(data.id);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar informações:", error);
+      }
+    };
+
+    fetchInformacoes();
   }, [navigate]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -47,19 +70,37 @@ function MinhaContaPage() {
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      // Update basic profile
+      const { error: profileError } = await supabase
         .from("usuarios")
         .update({ nome })
         .eq("id", user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Update or insert tel_contato in informacoes table
+      if (infoId) {
+        const { error: infoError } = await supabase
+          .from("informacoes")
+          .update({ tel_contato: telContato })
+          .eq("id", infoId);
+        if (infoError) throw infoError;
+      } else {
+        const { data: newInfo, error: infoError } = await supabase
+          .from("informacoes")
+          .insert({ tel_contato: telContato, user_id: user.id })
+          .select()
+          .single();
+        if (infoError) throw infoError;
+        if (newInfo) setInfoId(newInfo.id);
+      }
 
       // Update local storage
       const updatedUser = { ...user, nome };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
       
-      toast.success("Nome atualizado com sucesso!");
+      toast.success("Informações atualizadas com sucesso!");
     } catch (error: any) {
       console.error(error);
       toast.error("Erro ao atualizar perfil: " + error.message);
@@ -153,6 +194,15 @@ function MinhaContaPage() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="telContato">Telefone de contato</Label>
+                  <Input
+                    id="telContato"
+                    value={telContato}
+                    onChange={(e) => setTelContato(e.target.value)}
+                    placeholder="Ex: (11) 99999-9999"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="login">Telefone (Login)</Label>
                   <Input
                     id="login"
@@ -160,7 +210,7 @@ function MinhaContaPage() {
                     disabled
                     className="bg-muted cursor-not-allowed"
                   />
-                  <p className="text-xs text-muted-foreground">O telefone não pode ser alterado por aqui.</p>
+                  <p className="text-xs text-muted-foreground">O telefone de acesso não pode ser alterado por aqui.</p>
                 </div>
                 <Button type="submit" disabled={loading} className="gap-2">
                   <Save className="h-4 w-4" />
