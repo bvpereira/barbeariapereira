@@ -382,17 +382,7 @@ function CollaboratorsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 border p-3 rounded-lg bg-muted/20">
-                <Checkbox id="ativo" checked={ativo} onCheckedChange={(checked) => setAtivo(checked as boolean)} />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="ativo" className="text-sm font-medium leading-none cursor-pointer">
-                    Colaborador Ativo
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Desative para ocultar este colaborador de novos agendamentos sem perder seu histórico.
-                  </p>
-                </div>
-              </div>
+              {/* Status toggle removed from here as requested, now on the card */}
 
               <div className="space-y-2">
                 <Label>Foto (Quadrada 1:1)</Label>
