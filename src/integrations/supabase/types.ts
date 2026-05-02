@@ -280,6 +280,30 @@ export type Database = {
           },
         ]
       }
+      informacoes: {
+        Row: {
+          created_at: string
+          id: string
+          tel_contato: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tel_contato?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tel_contato?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       servicos: {
         Row: {
           created_at: string
