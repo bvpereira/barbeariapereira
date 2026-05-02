@@ -92,7 +92,7 @@ function CollaboratorsPage() {
             )
           )
         `)
-        .order("created_at", { ascending: false });
+        .order("nome", { ascending: true });
 
       if (collaboratorsError) throw collaboratorsError;
       setCollaborators((collaboratorsData as any) || []);
