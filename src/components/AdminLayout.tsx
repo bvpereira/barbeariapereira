@@ -44,6 +44,11 @@ const menuItems = [
     icon: DollarSign,
     href: "/financeiro",
   },
+  {
+    title: "Minha Conta",
+    icon: UserCircle,
+    href: "/minhaconta",
+  },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
