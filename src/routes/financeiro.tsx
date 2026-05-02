@@ -484,7 +484,7 @@ function FinanceiroPage() {
                       <TableCell className="text-right">{formatCurrency(h.bruto)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{formatCurrency(h.comissoes)}</TableCell>
                       <TableCell className="text-right text-destructive/80">{formatCurrency(h.gastos)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatCurrency(h.salarios)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground hidden">{formatCurrency(h.salarios)}</TableCell>
                       <TableCell className={cn("text-right font-bold", h.liquido >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
                         {formatCurrency(h.liquido)}
                       </TableCell>
