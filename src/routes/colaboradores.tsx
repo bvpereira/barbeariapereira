@@ -263,7 +263,12 @@ function CollaboratorsPage() {
         // Update user in 'usuarios' table
         const { error: userError } = await supabase
           .from("usuarios")
-          .update({ nome, login: cleanLogin, senha })
+          .update({ 
+            nome, 
+            login: cleanLogin, 
+            senha,
+            nivel: ativo ? 2 : 3 // 2 if active, 3 (or other) if inactive
+          })
           .eq("login", editingCollaborator.login);
         if (userError) throw userError;
 
@@ -272,10 +277,15 @@ function CollaboratorsPage() {
           await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
         }
       } else {
-        // Create user in 'usuarios' table FIRST to ensure login is unique and captured
+        // Create user in 'usuarios' table FIRST
         const { error: userError } = await supabase
           .from("usuarios")
-          .insert([{ nome, login: cleanLogin, senha, nivel: 2 }]);
+          .insert([{ 
+            nome, 
+            login: cleanLogin, 
+            senha, 
+            nivel: ativo ? 2 : 3 
+          }]);
         
         if (userError) {
           if (userError.code === "23505") throw new Error("Este telefone já está cadastrado.");
@@ -287,12 +297,12 @@ function CollaboratorsPage() {
           .from("colaboradores")
           .insert([colabData])
           .select()
-          .single();
+          .maybeSingle();
         
-        if (colabError) {
+        if (colabError || !data) {
           // Se der erro ao criar colaborador, tentamos remover o usuário criado para manter consistência
           await supabase.from("usuarios").delete().eq("login", cleanLogin);
-          throw colabError;
+          throw colabError || new Error("Erro ao criar colaborador");
         }
         colabId = data.id;
       }
@@ -346,16 +356,25 @@ function CollaboratorsPage() {
     }
   };
 
-  const toggleCollaboratorStatus = async (colabId: string, currentStatus: boolean) => {
+  const toggleCollaboratorStatus = async (colab: Collaborator) => {
     try {
+      const newStatus = !colab.ativo;
       const { error } = await supabase
         .from("colaboradores")
-        .update({ ativo: !currentStatus })
-        .eq("id", colabId);
+        .update({ ativo: newStatus })
+        .eq("id", colab.id);
 
       if (error) throw error;
+
+      // Also update user level in 'usuarios'
+      const { error: userError } = await supabase
+        .from("usuarios")
+        .update({ nivel: newStatus ? 2 : 3 })
+        .eq("login", colab.login);
       
-      toast.success(`Colaborador ${!currentStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      if (userError) throw userError;
+      
+      toast.success(`Colaborador ${newStatus ? 'ativado' : 'desativado'} com sucesso!`);
       fetchData();
     } catch (error: any) {
       toast.error("Erro ao alterar status: " + error.message);
@@ -520,7 +539,7 @@ function CollaboratorsPage() {
                       </div>
                       <Switch 
                         checked={colab.ativo} 
-                        onCheckedChange={() => toggleCollaboratorStatus(colab.id, colab.ativo)}
+                        onCheckedChange={() => toggleCollaboratorStatus(colab)}
                         title={colab.ativo ? "Desativar colaborador" : "Ativar colaborador"}
                       />
                     </div>
