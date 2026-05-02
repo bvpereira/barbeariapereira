@@ -57,6 +57,7 @@ export type Database = {
         Row: {
           cliente_id: string
           colaborador_id: string
+          comissao: number
           created_at: string
           data: string
           id: string
@@ -67,6 +68,7 @@ export type Database = {
         Insert: {
           cliente_id: string
           colaborador_id: string
+          comissao?: number
           created_at?: string
           data: string
           id?: string
@@ -77,6 +79,7 @@ export type Database = {
         Update: {
           cliente_id?: string
           colaborador_id?: string
+          comissao?: number
           created_at?: string
           data?: string
           id?: string
@@ -145,6 +148,7 @@ export type Database = {
       }
       colaboradores: {
         Row: {
+          ativo: boolean
           created_at: string
           foto_url: string | null
           id: string
@@ -156,6 +160,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ativo?: boolean
           created_at?: string
           foto_url?: string | null
           id?: string
@@ -167,6 +172,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ativo?: boolean
           created_at?: string
           foto_url?: string | null
           id?: string

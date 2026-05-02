@@ -59,6 +59,7 @@ interface Atendimento {
   id: string;
   data: string;
   valor: number;
+  comissao: number;
   status: 'Agendado' | 'Finalizado' | 'Não compareceu';
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
@@ -74,6 +75,7 @@ interface Cliente {
 interface Colaborador {
   id: string;
   nome: string;
+  ativo: boolean;
 }
 
 interface Servico {
@@ -114,6 +116,7 @@ function AtendimentosPage() {
   const [selectedTimePart, setSelectedTimePart] = useState("");
   const [selectedServicos, setSelectedServicos] = useState<string[]>([]);
   const [valorFinal, setValorFinal] = useState("0");
+  const [comissaoFinal, setComissaoFinal] = useState("0");
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [loadingTimes, setLoadingTimes] = useState(false);
   const [maxDate, setMaxDate] = useState<string>("");
@@ -174,7 +177,7 @@ function AtendimentosPage() {
   }, [limitConcluidos, filtroConcluidos]);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome').order('nome');
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo').order('nome');
     const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').order('name');
     setColaboradores(colabs || []);
     setAllServicos(servs || []);
@@ -205,13 +208,41 @@ function AtendimentosPage() {
     setClientes(data || []);
   };
 
-  const handleSelectServico = (servicoId: string) => {
+  const handleSelectServico = async (servicoId: string) => {
     setSelectedServicos(prev => {
-      const newSelection = prev.includes(servicoId) ? prev.filter(id => id !== servicoId) : [...prev, servicoId];
+      const isRemoving = prev.includes(servicoId);
+      const newSelection = isRemoving ? prev.filter(id => id !== servicoId) : [...prev, servicoId];
       const newTotal = newSelection.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
       setValorFinal(newTotal.toString());
+      
+      // Auto-calculate commission if we have a collaborator
+      if (selectedColaborador) {
+        calculateComissao(newSelection, selectedColaborador);
+      }
+      
       return newSelection;
     });
+  };
+
+  const calculateComissao = async (servicosIds: string[], colabId: string) => {
+    const { data: rules } = await supabase
+      .from("colaborador_servicos")
+      .select("servico_id, valor_comissao, tipo_comissao")
+      .eq("colaborador_id", colabId);
+    
+    let totalComissao = 0;
+    servicosIds.forEach(sId => {
+      const rule = rules?.find(r => r.servico_id === sId);
+      const servico = allServicos.find(s => s.id === sId);
+      if (rule && servico) {
+        if (rule.tipo_comissao === "fixo") {
+          totalComissao += Number(rule.valor_comissao);
+        } else {
+          totalComissao += (Number(servico.price) * Number(rule.valor_comissao)) / 100;
+        }
+      }
+    });
+    setComissaoFinal(totalComissao.toString());
   };
 
   const fetchColabServicos = async (colabId: string) => {
@@ -294,6 +325,7 @@ function AtendimentosPage() {
     setSelectedTimePart("");
     setSelectedServicos([]);
     setValorFinal("0");
+    setComissaoFinal("0");
     setStatus('Finalizado');
     setColabServicosIds([]);
   };
@@ -310,6 +342,7 @@ function AtendimentosPage() {
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
         valor: parseFloat(valorFinal),
+        comissao: parseFloat(comissaoFinal),
         status: isScheduling ? 'Agendado' : status
       };
       
@@ -350,7 +383,36 @@ function AtendimentosPage() {
 
   const updateStatus = async (id: string, newStatus: Atendimento['status']) => {
     try {
-      const { error } = await supabase.from('atendimentos').update({ status: newStatus }).eq('id', id);
+      const payload: any = { status: newStatus };
+      
+      // If finalizing and comissao is 0, we might want to calculate it
+      // However, the requirement says "locked once finalized", so if we update via menu
+      // we should check if it already has a commission value.
+      if (newStatus === 'Finalizado') {
+        const item = concluidos.find(a => a.id === id) || agendados.find(a => a.id === id) || atencao.find(a => a.id === id);
+        if (item && Number(item.comissao) === 0) {
+          // Fetch rules to calculate
+          const { data: rules } = await supabase
+            .from("colaborador_servicos")
+            .select("servico_id, valor_comissao, tipo_comissao")
+            .eq("colaborador_id", item.colaborador.id);
+          
+          let totalComissao = 0;
+          item.servicos.forEach(serv => {
+            const rule = rules?.find(r => r.servico_id === serv.id);
+            if (rule) {
+              if (rule.tipo_comissao === "fixo") {
+                totalComissao += Number(rule.valor_comissao);
+              } else {
+                totalComissao += (Number(serv.price) * Number(rule.valor_comissao)) / 100;
+              }
+            }
+          });
+          payload.comissao = totalComissao;
+        }
+      }
+
+      const { error } = await supabase.from('atendimentos').update(payload).eq('id', id);
       if (error) throw error;
       toast.success("Status atualizado");
       fetchAgendados();
@@ -383,6 +445,7 @@ function AtendimentosPage() {
       setSelectedTimePart(format(parseISO(item.data), "HH:mm"));
       setSelectedServicos(item.servicos.map(s => s.id));
       setValorFinal(item.valor.toString());
+      setComissaoFinal(item.comissao?.toString() || "0");
       setStatus(item.status);
       setIsDialogOpen(true);
     }}>
@@ -493,9 +556,18 @@ function AtendimentosPage() {
               </div>
               <div className="space-y-2">
                 <Label>Colaborador</Label>
-                <Select value={selectedColaborador} onValueChange={setSelectedColaborador}>
+                <Select value={selectedColaborador} onValueChange={(v) => { 
+                  setSelectedColaborador(v);
+                  if (selectedServicos.length > 0) calculateComissao(selectedServicos, v);
+                }}>
                   <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>{colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    {colaboradores.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.nome} {!c.ativo && "(Inativo)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
@@ -530,15 +602,27 @@ function AtendimentosPage() {
                   </Select>
                 </div>
               )}
-              <div className="space-y-2">
-                <Label htmlFor="valor">Valor Total (R$)</Label>
-                <Input 
-                  id="valor"
-                  type="number"
-                  step="0.01"
-                  value={valorFinal}
-                  onChange={(e) => setValorFinal(e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="valor">Valor Total (R$)</Label>
+                  <Input 
+                    id="valor"
+                    type="number"
+                    step="0.01"
+                    value={valorFinal}
+                    onChange={(e) => setValorFinal(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="comissao">Comissão (R$)</Label>
+                  <Input 
+                    id="comissao"
+                    type="number"
+                    step="0.01"
+                    value={comissaoFinal}
+                    onChange={(e) => setComissaoFinal(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -566,7 +650,7 @@ function AtendimentosPage() {
                 <Label>2. Selecione o Colaborador</Label>
                 <Select value={selectedColaborador} onValueChange={(v) => { setSelectedColaborador(v); setSelectedServicos([]); fetchColabServicos(v); }}>
                   <SelectTrigger><SelectValue placeholder="Selecione o profissional" /></SelectTrigger>
-                  <SelectContent>{colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                  <SelectContent>{colaboradores.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
 
