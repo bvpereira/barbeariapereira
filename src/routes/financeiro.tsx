@@ -105,6 +105,7 @@ function FinanceiroPage() {
         .from("atendimentos")
         .select(`
           valor, 
+          comissao,
           status,
           atendimento_servicos (
             servico_id,
@@ -123,16 +124,7 @@ function FinanceiroPage() {
 
       atendimentosHoje?.forEach(atend => {
         brutoDia += Number(atend.valor || 0);
-        atend.atendimento_servicos?.forEach((as: any) => {
-          const rule = rules?.find(r => r.servico_id === as.servico_id && r.colaborador_id === atend.colaborador_id);
-          if (rule) {
-            if (rule.tipo_comissao === "fixo") {
-              comissoesDia += Number(rule.valor_comissao);
-            } else {
-              comissoesDia += (Number(as.valor_servico || 0) * Number(rule.valor_comissao)) / 100;
-            }
-          }
-        });
+        comissoesDia += Number(atend.comissao || 0);
       });
 
       const { data: atendimentosMes, error: errorMes } = await supabase
@@ -140,6 +132,7 @@ function FinanceiroPage() {
         .select(`
           id,
           valor, 
+          comissao,
           status,
           data,
           colaborador_id,
@@ -180,21 +173,10 @@ function FinanceiroPage() {
         const val = Number(atend.valor || 0);
         if (atend.status === "Finalizado") {
           brutoMes += val;
-          
-          atend.atendimento_servicos?.forEach((as: any) => {
-            const rule = rules?.find(r => r.servico_id === as.servico_id && r.colaborador_id === atend.colaborador_id);
-            if (rule) {
-              let valorComissao = 0;
-              if (rule.tipo_comissao === "fixo") {
-                valorComissao = Number(rule.valor_comissao);
-              } else {
-                valorComissao = (Number(as.valor_servico) * Number(rule.valor_comissao)) / 100;
-              }
-              comissoesMes += valorComissao;
-              const current = comissoesColabMap.get(atend.colaborador_id) || 0;
-              comissoesColabMap.set(atend.colaborador_id, current + valorComissao);
-            }
-          });
+          const comissaoVal = Number(atend.comissao || 0);
+          comissoesMes += comissaoVal;
+          const current = comissoesColabMap.get(atend.colaborador_id) || 0;
+          comissoesColabMap.set(atend.colaborador_id, current + comissaoVal);
         } else if (atend.status === "Agendado") {
           previsaoBrutoMes += val;
         }
@@ -207,7 +189,7 @@ function FinanceiroPage() {
       
       const { data: allAtendimentos12, error: error12A } = await supabase
         .from("atendimentos")
-        .select("valor, status, data, colaborador_id, atendimento_servicos(servico_id, valor_servico)")
+        .select("valor, comissao, status, data, colaborador_id, atendimento_servicos(servico_id, valor_servico)")
         .gte("data", start12.toISOString())
         .lte("data", endMonth.toISOString())
         .eq("status", "Finalizado");
@@ -239,13 +221,7 @@ function FinanceiroPage() {
         
         let comissoes = 0;
         monthAtendimentos.forEach(atend => {
-          atend.atendimento_servicos?.forEach((as: any) => {
-            const rule = rules?.find(r => r.servico_id === as.servico_id && r.colaborador_id === atend.colaborador_id);
-            if (rule) {
-              if (rule.tipo_comissao === "fixo") comissoes += Number(rule.valor_comissao);
-              else comissoes += (Number(as.valor_servico) * Number(rule.valor_comissao)) / 100;
-            }
-          });
+          comissoes += Number(atend.comissao || 0);
         });
 
         const liquido = bruto - comissoes - gastos;

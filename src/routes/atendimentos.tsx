@@ -556,9 +556,18 @@ function AtendimentosPage() {
               </div>
               <div className="space-y-2">
                 <Label>Colaborador</Label>
-                <Select value={selectedColaborador} onValueChange={setSelectedColaborador}>
+                <Select value={selectedColaborador} onValueChange={(v) => { 
+                  setSelectedColaborador(v);
+                  if (selectedServicos.length > 0) calculateComissao(selectedServicos, v);
+                }}>
                   <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>{colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    {colaboradores.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.nome} {!c.ativo && "(Inativo)"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
