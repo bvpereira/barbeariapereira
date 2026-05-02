@@ -306,6 +306,21 @@ function CollaboratorsPage() {
       fetchData();
     } catch (error: any) {
       toast.error("Erro ao excluir: " + error.message);
+  };
+
+  const toggleCollaboratorStatus = async (colabId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("colaboradores")
+        .update({ ativo: !currentStatus })
+        .eq("id", colabId);
+
+      if (error) throw error;
+      
+      toast.success(`Colaborador ${!currentStatus ? 'ativado' : 'desativado'} com sucesso!`);
+      fetchData();
+    } catch (error: any) {
+      toast.error("Erro ao alterar status: " + error.message);
     }
   };
 
