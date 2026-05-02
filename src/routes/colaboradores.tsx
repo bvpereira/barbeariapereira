@@ -539,7 +539,7 @@ function CollaboratorsPage() {
                       </div>
                       <Switch 
                         checked={colab.ativo} 
-                        onCheckedChange={() => toggleCollaboratorStatus(colab.id, colab.ativo)}
+                        onCheckedChange={() => toggleCollaboratorStatus(colab)}
                         title={colab.ativo ? "Desativar colaborador" : "Ativar colaborador"}
                       />
                     </div>
