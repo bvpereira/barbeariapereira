@@ -263,7 +263,12 @@ function CollaboratorsPage() {
         // Update user in 'usuarios' table
         const { error: userError } = await supabase
           .from("usuarios")
-          .update({ nome, login: cleanLogin, senha })
+          .update({ 
+            nome, 
+            login: cleanLogin, 
+            senha,
+            nivel: ativo ? 2 : 3 // 2 if active, 3 (or other) if inactive
+          })
           .eq("login", editingCollaborator.login);
         if (userError) throw userError;
 
@@ -272,10 +277,15 @@ function CollaboratorsPage() {
           await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
         }
       } else {
-        // Create user in 'usuarios' table FIRST to ensure login is unique and captured
+        // Create user in 'usuarios' table FIRST
         const { error: userError } = await supabase
           .from("usuarios")
-          .insert([{ nome, login: cleanLogin, senha, nivel: 2 }]);
+          .insert([{ 
+            nome, 
+            login: cleanLogin, 
+            senha, 
+            nivel: ativo ? 2 : 3 
+          }]);
         
         if (userError) {
           if (userError.code === "23505") throw new Error("Este telefone já está cadastrado.");
@@ -287,12 +297,12 @@ function CollaboratorsPage() {
           .from("colaboradores")
           .insert([colabData])
           .select()
-          .single();
+          .maybeSingle();
         
-        if (colabError) {
+        if (colabError || !data) {
           // Se der erro ao criar colaborador, tentamos remover o usuário criado para manter consistência
           await supabase.from("usuarios").delete().eq("login", cleanLogin);
-          throw colabError;
+          throw colabError || new Error("Erro ao criar colaborador");
         }
         colabId = data.id;
       }
