@@ -228,11 +228,11 @@ function AdminPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => navigate({ to: "/clientes" } as any)} variant="outline" size="sm" className="gap-2">
+            <Button onClick={() => navigate({ to: "/clientes" } as any)} size="sm" className="gap-2">
               <UserPlus className="h-4 w-4" />
               Novo Cliente
             </Button>
-            <Button onClick={() => navigate({ to: "/atendimentos" } as any)} variant="outline" size="sm" className="gap-2">
+            <Button onClick={() => navigate({ to: "/atendimentos" } as any)} size="sm" className="gap-2">
               <Calendar className="h-4 w-4" />
               Agendar
             </Button>
