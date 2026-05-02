@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users, Trash2 } from "lucide-react";
+import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users, Trash2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format, addDays, parseISO, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/horarios" as any)({
   component: HorariosPage,
@@ -46,6 +57,7 @@ function HorariosPage() {
   const [horariosColaboradores, setHorariosColaboradores] = useState<HorarioColaborador[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Global config states (per day, but transient)
   const [globalConfig, setGlobalConfig] = useState<{
@@ -167,9 +179,6 @@ function HorariosPage() {
     if (dias.length === 0) return;
     
     const lastDay = dias[dias.length - 1];
-    const confirm = window.confirm(`Tem certeza que deseja excluir o dia ${format(parseISO(lastDay.data), "dd/MM/yyyy")}?`);
-    
-    if (!confirm) return;
 
     try {
       const { error } = await supabase
@@ -333,10 +342,34 @@ function HorariosPage() {
           </div>
           <div className="flex gap-2 flex-wrap">
             {dias.length > 0 && (
-              <Button onClick={deleteLastDay} variant="outline" className="gap-2 text-destructive border-destructive hover:bg-destructive/10">
-                <Trash2 className="w-4 h-4" />
-                Excluir último dia
-              </Button>
+              <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="gap-2 text-destructive border-destructive hover:bg-destructive/10">
+                    <Trash2 className="w-4 h-4" />
+                    Excluir último dia
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <div className="flex items-center gap-2 text-destructive mb-2">
+                      <AlertTriangle className="h-5 w-5" />
+                      <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                    </div>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja excluir o dia <strong>{format(parseISO(dias[dias.length - 1].data), "dd/MM/yyyy")}</strong>? Esta ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={deleteLastDay}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             <Button onClick={addDay} className="gap-2">
               <Plus className="w-4 h-4" />
