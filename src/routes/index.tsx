@@ -14,6 +14,7 @@ import {
   Image as ImageIcon
 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { cn } from "../lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -361,7 +362,7 @@ function GaleriaInformacoes() {
     loop: true,
     align: "start",
     slidesToScroll: 1
-  });
+  }, [Autoplay({ delay: 3000, stopOnInteraction: false })]);
 
   useEffect(() => {
     const fetchImages = async () => {
