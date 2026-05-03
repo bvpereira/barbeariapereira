@@ -53,11 +53,12 @@ function MinhaContaPage() {
         if (error) throw error;
         
         if (data) {
-          setTelContato(data.tel_contato || "");
-          setInfoId(data.id);
+          const infoData = data as any;
+          setTelContato(infoData.tel_contato || "");
+          setInfoId(infoData.id);
           setImagens([
-            data.imagem_1, data.imagem_2, data.imagem_3, data.imagem_4,
-            data.imagem_5, data.imagem_6, data.imagem_7, data.imagem_8
+            infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
+            infoData.imagem_5, infoData.imagem_6, infoData.imagem_7, infoData.imagem_8
           ]);
         }
       } catch (error) {
@@ -105,7 +106,7 @@ function MinhaContaPage() {
           .update({ tel_contato: telContato, usuario_id: user.id } as any)
           .eq("id", (existingInfo as any).id));
         if (infoError) throw infoError;
-        setInfoId(existingInfo.id);
+        setInfoId((existingInfo as any).id);
       } else {
         const { data: newInfo, error: infoError } = await (supabase
           .from("informacoes" as any)
@@ -113,7 +114,7 @@ function MinhaContaPage() {
           .select()
           .single());
         if (infoError) throw infoError;
-        if (newInfo) setInfoId(newInfo.id);
+        if (newInfo) setInfoId((newInfo as any).id);
       }
 
       // Update local storage
@@ -252,7 +253,7 @@ function MinhaContaPage() {
 
       if (existingInfo) {
         await (supabase.from("informacoes") as any).update(updateObj).eq("id", (existingInfo as any).id);
-        setInfoId(existingInfo.id);
+        setInfoId((existingInfo as any).id);
       } else {
         const { data: newInfo } = await (supabase
           .from("informacoes") as any)
