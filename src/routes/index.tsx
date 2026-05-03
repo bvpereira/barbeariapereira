@@ -17,6 +17,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "../lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { AuroraBackground } from "@/components/ui/aurora-background";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -72,12 +73,7 @@ function FrasesDiferentes() {
 
 function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex flex-col items-center justify-center pt-20 pb-10 px-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full" />
-      </div>
-
+    <AuroraBackground className="min-h-[90vh] pt-20 pb-10 px-4">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -125,8 +121,7 @@ function Hero() {
           </Link>
         </motion.div>
       </motion.div>
-
-    </section>
+    </AuroraBackground>
   );
 }
 
