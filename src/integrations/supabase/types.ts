@@ -294,7 +294,7 @@ export type Database = {
           imagem_8: string | null
           tel_contato: string | null
           updated_at: string
-          user_id: string | null
+          userrr: string | null
           usuario_id: string | null
         }
         Insert: {
@@ -310,7 +310,7 @@ export type Database = {
           imagem_8?: string | null
           tel_contato?: string | null
           updated_at?: string
-          user_id?: string | null
+          userrr?: string | null
           usuario_id?: string | null
         }
         Update: {
@@ -326,7 +326,7 @@ export type Database = {
           imagem_8?: string | null
           tel_contato?: string | null
           updated_at?: string
-          user_id?: string | null
+          userrr?: string | null
           usuario_id?: string | null
         }
         Relationships: []
