@@ -17,7 +17,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { cn } from "../lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { AuroraBackground } from "@/components/ui/aurora-background";
+import { BeamsBackground } from "@/components/ui/beams-background";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -121,7 +121,7 @@ function Hero() {
           </Link>
         </motion.div>
       </motion.div>
-    </AuroraBackground>
+    </BeamsBackground>
   );
 }
 
