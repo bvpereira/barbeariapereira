@@ -44,8 +44,8 @@ function MinhaContaPage() {
 
     const fetchInformacoes = async () => {
       try {
-        const { data, error } = await supabase
-          .from("informacoes" as any)
+        const { data, error } = await (supabase
+          .from("informacoes") as any)
           .select("*")
           .eq("userrr", "admin")
           .maybeSingle();
@@ -93,22 +93,22 @@ function MinhaContaPage() {
       if (profileError) throw profileError;
 
       // Update or insert tel_contato in informacoes table where userrr is 'admin'
-      const { data: existingInfo } = await supabase
-        .from("informacoes" as any)
+      const { data: existingInfo } = await (supabase
+        .from("informacoes") as any)
         .select("id")
         .eq("userrr", "admin")
         .maybeSingle();
 
       if (existingInfo) {
-        const { error: infoError } = await supabase
-          .from("informacoes" as any)
+        const { error: infoError } = await (supabase
+          .from("informacoes") as any)
           .update({ tel_contato: telContato, usuario_id: user.id } as any)
-          .eq("id", existingInfo.id);
+          .eq("id", (existingInfo as any).id);
         if (infoError) throw infoError;
         setInfoId(existingInfo.id);
       } else {
-        const { data: newInfo, error: infoError } = await supabase
-          .from("informacoes" as any)
+        const { data: newInfo, error: infoError } = await (supabase
+          .from("informacoes") as any)
           .insert({ tel_contato: telContato, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
           .select()
           .single();
@@ -245,18 +245,18 @@ function MinhaContaPage() {
       const updateObj: any = { usuario_id: user.id };
       updateObj[`imagem_${emptySlotIndex + 1}`] = publicUrl;
 
-      const { data: existingInfo } = await supabase
-        .from("informacoes" as any)
+      const { data: existingInfo } = await (supabase
+        .from("informacoes") as any)
         .select("id")
         .eq("userrr", "admin")
         .maybeSingle();
 
       if (existingInfo) {
-        await supabase.from("informacoes" as any).update(updateObj).eq("id", existingInfo.id);
+        await (supabase.from("informacoes") as any).update(updateObj).eq("id", (existingInfo as any).id);
         setInfoId(existingInfo.id);
       } else {
-        const { data: newInfo } = await supabase
-          .from("informacoes" as any)
+        const { data: newInfo } = await (supabase
+          .from("informacoes") as any)
           .insert({ ...updateObj, user_id: user.id, userrr: "admin" } as any)
           .select()
           .single();
@@ -284,8 +284,8 @@ function MinhaContaPage() {
       const updateObj: any = {};
       updateObj[`imagem_${index + 1}`] = null;
 
-      const { error } = await supabase
-        .from("informacoes" as any)
+      const { error } = await (supabase
+        .from("informacoes") as any)
         .update(updateObj)
         .eq("id", infoId);
 
