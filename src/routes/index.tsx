@@ -11,7 +11,10 @@ import {
   Calendar,
   User,
   Scissors,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Snowflake,
+  Car,
+  Coffee
 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
