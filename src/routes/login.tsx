@@ -145,6 +145,12 @@ function Login() {
       } else {
         localStorage.setItem("user", JSON.stringify(data));
         
+        // Verifica se o registro está confirmado
+        if (data.registro === "nao") {
+          navigate({ to: "/registro" });
+          return;
+        }
+        
         switch (data.nivel) {
           case 1:
             navigate({ to: "/admin" });

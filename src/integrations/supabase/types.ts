@@ -426,6 +426,7 @@ export type Database = {
           nivel: number
           nome: string
           observacao: string | null
+          registro: string | null
           senha: string
           updated_at: string
         }
@@ -436,6 +437,7 @@ export type Database = {
           nivel: number
           nome: string
           observacao?: string | null
+          registro?: string | null
           senha: string
           updated_at?: string
         }
@@ -446,6 +448,7 @@ export type Database = {
           nivel?: number
           nome?: string
           observacao?: string | null
+          registro?: string | null
           senha?: string
           updated_at?: string
         }
