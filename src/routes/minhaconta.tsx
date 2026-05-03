@@ -242,7 +242,7 @@ function MinhaContaPage() {
       newImagens[emptySlotIndex] = publicUrl;
       setImagens(newImagens);
 
-      const updateObj: any = {};
+      const updateObj: any = { usuarios_id: user.id };
       updateObj[`imagem_${emptySlotIndex + 1}`] = publicUrl;
 
       const { data: existingInfo } = await supabase
