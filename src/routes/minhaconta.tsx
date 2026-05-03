@@ -103,7 +103,7 @@ function MinhaContaPage() {
         const { error: infoError } = await (supabase
           .from("informacoes" as any)
           .update({ tel_contato: telContato, usuario_id: user.id } as any)
-          .eq("id", (existingInfo as any).id);
+          .eq("id", (existingInfo as any).id));
         if (infoError) throw infoError;
         setInfoId(existingInfo.id);
       } else {
@@ -111,7 +111,7 @@ function MinhaContaPage() {
           .from("informacoes" as any)
           .insert({ tel_contato: telContato, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
           .select()
-          .single();
+          .single());
         if (infoError) throw infoError;
         if (newInfo) setInfoId(newInfo.id);
       }
