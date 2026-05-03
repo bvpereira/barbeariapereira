@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { 
@@ -9,10 +10,12 @@ import {
   Play, 
   Calendar,
   User,
-  Scissors
+  Scissors,
+  Image as ImageIcon
 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "../lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -26,6 +29,7 @@ function Index() {
       <Localizacao />
       <Servicos />
       <Colaboradores />
+      <GaleriaInformacoes />
       <Contato />
       <Footer />
     </div>
@@ -345,6 +349,81 @@ function Colaboradores() {
               </div>
             </motion.div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GaleriaInformacoes() {
+  const [images, setImages] = useState<string[]>([]);
+  const [emblaRef] = useEmblaCarousel({ 
+    loop: true,
+    align: "start",
+    slidesToScroll: 1
+  });
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const { data, error } = await (supabase
+          .from("informacoes" as any)
+          .select("*")
+          .eq("userrr", "admin")
+          .maybeSingle());
+
+        if (error) throw error;
+        if (data) {
+          const infoData = data as any;
+          const imgList = [
+            infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
+            infoData.imagem_5, infoData.imagem_6, infoData.imagem_7, infoData.imagem_8
+          ].filter(img => img !== null && img !== "");
+          setImages(imgList);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar galeria:", err);
+      }
+    };
+    fetchImages();
+  }, []);
+
+  if (images.length === 0) return null;
+
+  return (
+    <section className="py-20 bg-secondary/10 px-4 overflow-hidden">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
+            <ImageIcon className="w-8 h-8" />
+            Galeria da Barbearia
+          </h2>
+          <div className="w-24 h-1 bg-primary mx-auto" />
+        </div>
+
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex">
+            {images.map((src, index) => (
+              <div key={index} className="flex-[0_0_80%] min-w-0 sm:flex-[0_0_40%] md:flex-[0_0_25%] pl-4">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="relative rounded-2xl overflow-hidden aspect-square border border-primary/20 shadow-lg group"
+                >
+                  <img 
+                    src={src} 
+                    alt={`Galeria ${index + 1}`} 
+                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                    <span className="text-white text-sm font-medium">Ambiente Pereira</span>
+                  </div>
+                </motion.div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
