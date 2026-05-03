@@ -106,7 +106,7 @@ function Hero() {
               ease: "easeInOut"
             }
           }}
-          className="text-2xl md:text-4xl font-bold tracking-wider mb-8 uppercase"
+          className="text-2xl md:text-4xl font-josefin font-bold tracking-wider mb-8 uppercase"
         >
           Tradição e Estilo em Cada Corte
         </motion.h1>
