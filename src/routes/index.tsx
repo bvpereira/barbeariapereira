@@ -73,7 +73,7 @@ function FrasesDiferentes() {
 
 function Hero() {
   return (
-    <AuroraBackground className="min-h-[90vh] pt-20 pb-10 px-4">
+    <BeamsBackground className="min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
