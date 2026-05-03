@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2 } from "lucide-react";
+import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/minhaconta" as any)({
   component: MinhaContaPage,
@@ -22,6 +22,7 @@ function MinhaContaPage() {
   const [nome, setNome] = useState("");
   const [telContato, setTelContato] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
+  const [whatsapp, setWhatsapp] = useState("");
   const [imagens, setImagens] = useState<(string | null)[]>(Array(8).fill(null));
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +56,7 @@ function MinhaContaPage() {
         if (data) {
           const infoData = data as any;
           setTelContato(infoData.tel_contato || "");
+          setWhatsapp(infoData.whatsapp || "");
           setInfoId(infoData.id);
           setImagens([
             infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
@@ -103,14 +105,14 @@ function MinhaContaPage() {
       if (existingInfo) {
         const { error: infoError } = await (supabase
           .from("informacoes" as any)
-          .update({ tel_contato: telContato, usuario_id: user.id } as any)
+          .update({ tel_contato: telContato, whatsapp, usuario_id: user.id } as any)
           .eq("id", (existingInfo as any).id));
         if (infoError) throw infoError;
         setInfoId((existingInfo as any).id);
       } else {
         const { data: newInfo, error: infoError } = await (supabase
           .from("informacoes" as any)
-          .insert({ tel_contato: telContato, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
+          .insert({ tel_contato: telContato, whatsapp, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
           .select()
           .single());
         if (infoError) throw infoError;
@@ -344,6 +346,32 @@ function MinhaContaPage() {
                     placeholder="(xx) xxxxx-xxxx"
                   />
                   <p className="text-xs text-muted-foreground">Insira exatamente 11 números (DDD + número).</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp">WhatsApp de Destino (Validação)</Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <MessageCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="whatsapp"
+                        value={whatsapp}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/\D/g, "");
+                          if (val.length > 11) val = val.slice(0, 11);
+                          
+                          let masked = val;
+                          if (val.length > 0) masked = "(" + val;
+                          if (val.length > 2) masked = "(" + val.slice(0, 2) + ") " + val.slice(2);
+                          if (val.length > 7) masked = "(" + val.slice(0, 2) + ") " + val.slice(2, 7) + "-" + val.slice(7);
+                          
+                          setWhatsapp(masked);
+                        }}
+                        placeholder="(xx) xxxxx-xxxx"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Este é o número que os clientes entrarão em contato para validar o registro.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="login">Telefone (Login)</Label>
