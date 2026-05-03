@@ -11,7 +11,10 @@ import {
   Calendar,
   User,
   Scissors,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Snowflake,
+  Car,
+  Coffee
 } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -131,54 +134,52 @@ function SobreNos() {
   const images = Array.from({ length: 8 }, (_, i) => `/carrossel/barbearia-${i + 1}.png`);
   
   const features = [
-    "Ambiente climatizado e confortável",
-    "Fácil localização com estacionamento",
-    "Atendimento personalizado e café cortesia"
+    { icon: Snowflake, text: "Ambiente climatizado e confortável" },
+    { icon: Car, text: "Fácil localização com estacionamento" },
+    { icon: Coffee, text: "Atendimento personalizado e café cortesia" }
   ];
 
   return (
     <section id="sobre" className="py-20 bg-secondary/30">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-          <motion.div
-            initial={{ x: -30, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary border-l-4 border-primary pl-4 uppercase tracking-wider flex flex-col gap-3">
-              <User className="w-8 h-8" />
-              Sobre Nós
-            </h2>
-            <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              A Barbearia Pereira não é apenas um lugar para cortar o cabelo; é um espaço dedicado ao homem moderno que valoriza a tradição. Combinamos técnicas clássicas de barbearia com o que há de mais atual em tendências e cuidados masculinos, proporcionando uma experiência de relaxamento e renovação.
-            </p>
-            
-            <ul className="space-y-4">
-              {features.map((item, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center">
-                    <Check className="w-4 h-4 text-secondary" />
-                  </div>
-                  <span className="text-foreground/90 font-medium group-hover:text-secondary transition-colors">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="mb-16 max-w-4xl mx-auto text-center"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary uppercase tracking-wider flex flex-col items-center gap-3">
+            <User className="w-8 h-8" />
+            Sobre Nós
+          </h2>
+          <div className="w-20 h-1 bg-primary mx-auto mb-8" />
+          <p className="text-muted-foreground text-lg leading-relaxed">
+            A Barbearia Pereira não é apenas um lugar para cortar o cabelo; é um espaço dedicado ao homem moderno que valoriza a tradição. Combinamos técnicas clássicas de barbearia com o que há de mais atual em tendências e cuidados masculinos, proporcionando uma experiência de relaxamento e renovação.
+          </p>
+        </motion.div>
 
-          <motion.div
-            initial={{ x: 30, opacity: 0 }}
-            whileInView={{ x: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative rounded-2xl overflow-hidden aspect-video border border-primary/20 shadow-2xl"
-          >
-            <img 
-              src="/carrossel/barbearia-1.png" 
-              alt="Ambiente da Barbearia" 
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-16 max-w-4xl mx-auto">
+          {features.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-card border border-primary/10 rounded-2xl p-8 flex flex-col items-center text-center gap-4 hover:border-primary/40 transition-all hover:-translate-y-1"
+              >
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Icon className="w-7 h-7 text-primary" />
+                </div>
+                <p className="text-foreground font-bold uppercase tracking-wider text-sm leading-tight">
+                  {item.text}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
 
         <div className="overflow-hidden" ref={emblaRef}>
