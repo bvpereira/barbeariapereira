@@ -330,9 +330,18 @@ function MinhaContaPage() {
                   <Input
                     id="telContato"
                     value={telContato}
-                    onChange={(e) => setTelContato(e.target.value)}
-                    placeholder="Ex: 11999999999"
-                    maxLength={11}
+                    onChange={(e) => {
+                      let val = e.target.value.replace(/\D/g, "");
+                      if (val.length > 11) val = val.slice(0, 11);
+                      
+                      let masked = val;
+                      if (val.length > 0) masked = "(" + val;
+                      if (val.length > 2) masked = "(" + val.slice(0, 2) + ") " + val.slice(2);
+                      if (val.length > 7) masked = "(" + val.slice(0, 2) + ") " + val.slice(2, 7) + "-" + val.slice(7);
+                      
+                      setTelContato(masked);
+                    }}
+                    placeholder="(xx) xxxxx-xxxx"
                   />
                   <p className="text-xs text-muted-foreground">Insira exatamente 11 números (DDD + número).</p>
                 </div>
