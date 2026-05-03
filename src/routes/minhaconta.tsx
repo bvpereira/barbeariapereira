@@ -93,12 +93,19 @@ function MinhaContaPage() {
       if (profileError) throw profileError;
 
       // Update or insert tel_contato in informacoes table
-      if (infoId) {
+      const { data: existingInfo } = await supabase
+        .from("informacoes")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existingInfo) {
         const { error: infoError } = await supabase
           .from("informacoes")
           .update({ tel_contato: telContato })
-          .eq("id", infoId);
+          .eq("id", existingInfo.id);
         if (infoError) throw infoError;
+        setInfoId(existingInfo.id);
       } else {
         const { data: newInfo, error: infoError } = await supabase
           .from("informacoes")
@@ -238,8 +245,15 @@ function MinhaContaPage() {
       const updateObj: any = {};
       updateObj[`imagem_${emptySlotIndex + 1}`] = publicUrl;
 
-      if (infoId) {
-        await supabase.from("informacoes").update(updateObj).eq("id", infoId);
+      const { data: existingInfo } = await supabase
+        .from("informacoes")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existingInfo) {
+        await supabase.from("informacoes").update(updateObj).eq("id", existingInfo.id);
+        setInfoId(existingInfo.id);
       } else {
         const { data: newInfo } = await supabase
           .from("informacoes")
