@@ -42,30 +42,7 @@ function MinhaContaPage() {
     setUser(parsedUser);
     setNome(parsedUser.nome || "");
 
-    const fetchInformacoes = async () => {
-      try {
-        const { data, error } = await (supabase
-          .from("informacoes") as any)
-          .select("*")
-          .eq("userrr", "admin")
-          .maybeSingle();
-
-        if (error) throw error;
-        
-        if (data) {
-          setTelContato(data.tel_contato || "");
-          setInfoId(data.id);
-          setImagens([
-            data.imagem_1, data.imagem_2, data.imagem_3, data.imagem_4,
-            data.imagem_5, data.imagem_6, data.imagem_7, data.imagem_8
-          ]);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar informações:", error);
-      }
-    };
-
-    fetchInformacoes();
+    // fetchInformacoes foi removido pois a tabela informacoes foi deletada
   }, [navigate]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -92,29 +69,7 @@ function MinhaContaPage() {
 
       if (profileError) throw profileError;
 
-      // Update or insert tel_contato in informacoes table where userrr is 'admin'
-      const { data: existingInfo } = await (supabase
-        .from("informacoes") as any)
-        .select("id")
-        .eq("userrr", "admin")
-        .maybeSingle();
-
-      if (existingInfo) {
-        const { error: infoError } = await (supabase
-          .from("informacoes") as any)
-          .update({ tel_contato: telContato, usuario_id: user.id } as any)
-          .eq("id", (existingInfo as any).id);
-        if (infoError) throw infoError;
-        setInfoId(existingInfo.id);
-      } else {
-        const { data: newInfo, error: infoError } = await (supabase
-          .from("informacoes") as any)
-          .insert({ tel_contato: telContato, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
-          .select()
-          .single();
-        if (infoError) throw infoError;
-        if (newInfo) setInfoId(newInfo.id);
-      }
+      // Lógica de atualização da tabela informacoes removida
 
       // Update local storage
       const updatedUser = { ...user, nome };
@@ -244,24 +199,7 @@ function MinhaContaPage() {
 
       const updateObj: any = { usuario_id: user.id };
       updateObj[`imagem_${emptySlotIndex + 1}`] = publicUrl;
-
-      const { data: existingInfo } = await (supabase
-        .from("informacoes") as any)
-        .select("id")
-        .eq("userrr", "admin")
-        .maybeSingle();
-
-      if (existingInfo) {
-        await (supabase.from("informacoes") as any).update(updateObj).eq("id", (existingInfo as any).id);
-        setInfoId(existingInfo.id);
-      } else {
-        const { data: newInfo } = await (supabase
-          .from("informacoes") as any)
-          .insert({ ...updateObj, user_id: user.id, userrr: "admin" } as any)
-          .select()
-          .single();
-        if (newInfo) setInfoId(newInfo.id);
-      }
+      // Lógica de salvamento na tabela informacoes removida
 
       toast.success("Imagem enviada com sucesso!");
     } catch (error: any) {
@@ -284,12 +222,7 @@ function MinhaContaPage() {
       const updateObj: any = {};
       updateObj[`imagem_${index + 1}`] = null;
 
-      const { error } = await (supabase
-        .from("informacoes") as any)
-        .update(updateObj)
-        .eq("id", infoId);
-
-      if (error) throw error;
+      // Lógica de remoção na tabela informacoes removida
       toast.success("Imagem removida");
     } catch (error: any) {
       console.error(error);
