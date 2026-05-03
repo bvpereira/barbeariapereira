@@ -33,7 +33,40 @@ function Index() {
       <GaleriaInformacoes />
       <Contato />
       <Footer />
+      <FrasesDiferentes />
     </div>
+  );
+}
+
+function FrasesDiferentes() {
+  const fontes = [
+    { name: "Serif (Times New Roman)", class: "font-serif" },
+    { name: "Sans-serif (Inter/Geist)", class: "font-sans" },
+    { name: "Monospace (JetBrains Mono)", class: "font-mono" },
+    { name: "Display (Bold/Italic)", class: "font-sans font-black italic tracking-tighter" },
+    { name: "Condensed (Tight Tracking)", class: "font-sans tracking-tight font-medium" },
+    { name: "Wide (Loose Tracking)", class: "font-sans tracking-[0.2em] uppercase text-xs" },
+    { name: "Lightweight (Extra Light)", class: "font-sans font-extralight" },
+    { name: "SemiBold (Strong)", class: "font-sans font-semibold" },
+    { name: "Italic Serif", class: "font-serif italic" },
+    { name: "Uppercase Mono", class: "font-mono uppercase text-sm font-bold" }
+  ];
+
+  return (
+    <section className="py-20 bg-background border-t border-primary/5 px-4">
+      <div className="max-w-4xl mx-auto space-y-12">
+        {fontes.map((fonte, i) => (
+          <div key={i} className="flex flex-col items-center text-center">
+            <p className={cn("text-2xl md:text-4xl text-foreground mb-2", fonte.class)}>
+              Esse é o título
+            </p>
+            <span className="text-xs text-muted-foreground font-mono opacity-60">
+              Fonte: {fonte.name}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
