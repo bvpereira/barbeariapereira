@@ -66,9 +66,11 @@ function Registro() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-lg border border-border shadow-xl text-center">
         <div className="flex justify-center">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-            <MessageCircle size={40} />
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="Barbearia Pereira Logo" 
+            className="w-32 md:w-40 mb-2" 
+          />
         </div>
         
         <div className="space-y-4">
