@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User, Lock, Save, Phone } from "lucide-react";
+import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/minhaconta" as any)({
   component: MinhaContaPage,
@@ -22,6 +22,9 @@ function MinhaContaPage() {
   const [nome, setNome] = useState("");
   const [telContato, setTelContato] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
+  const [imagens, setImagens] = useState<(string | null)[]>(Array(8).fill(null));
+  const [uploadingImage, setUploadingImage] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Password state
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -52,6 +55,10 @@ function MinhaContaPage() {
         if (data) {
           setTelContato(data.tel_contato || "");
           setInfoId(data.id);
+          setImagens([
+            data.imagem_1, data.imagem_2, data.imagem_3, data.imagem_4,
+            data.imagem_5, data.imagem_6, data.imagem_7, data.imagem_8
+          ]);
         }
       } catch (error) {
         console.error("Erro ao buscar informações:", error);
@@ -65,6 +72,13 @@ function MinhaContaPage() {
     e.preventDefault();
     if (!nome.trim()) {
       toast.error("O nome não pode estar vazio");
+      return;
+    }
+
+    // Validação do telefone: apenas números, deve ter exatamente 11 dígitos
+    const phoneDigits = telContato.replace(/\D/g, "");
+    if (phoneDigits.length !== 11) {
+      toast.error("O telefone de contato deve ter exatamente 11 números");
       return;
     }
 
@@ -165,6 +179,110 @@ function MinhaContaPage() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    // Encontrar o primeiro slot vazio
+    const emptySlotIndex = imagens.findIndex(img => img === null);
+    if (emptySlotIndex === -1) {
+      toast.error("Você já atingiu o limite de 8 imagens");
+      return;
+    }
+
+    setUploadingImage(emptySlotIndex);
+
+    try {
+      // 1. Processar a imagem para ser quadrada (usando Canvas API simples)
+      const imageUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.src = imageUrl;
+      
+      await new Promise((resolve) => { img.onload = resolve; });
+      
+      const canvas = document.createElement("canvas");
+      const size = Math.min(img.width, img.height);
+      canvas.width = 500; // Tamanho fixo para economia de espaço
+      canvas.height = 500;
+      const ctx = canvas.getContext("2d");
+      
+      if (ctx) {
+        ctx.drawImage(
+          img,
+          (img.width - size) / 2, (img.height - size) / 2, size, size, // Source
+          0, 0, 500, 500 // Destination
+        );
+      }
+
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.8));
+      if (!blob) throw new Error("Erro ao processar imagem");
+
+      // 2. Upload para Supabase Storage
+      const fileName = `${user.id}/${Date.now()}.jpg`;
+      const { data, error: uploadError } = await supabase.storage
+        .from("informacoes_imagens")
+        .upload(fileName, blob);
+
+      if (uploadError) throw uploadError;
+
+      // 3. Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from("informacoes_imagens")
+        .getPublicUrl(fileName);
+
+      // 4. Atualizar estado e banco de dados
+      const newImagens = [...imagens];
+      newImagens[emptySlotIndex] = publicUrl;
+      setImagens(newImagens);
+
+      const updateObj: any = {};
+      updateObj[`imagem_${emptySlotIndex + 1}`] = publicUrl;
+
+      if (infoId) {
+        await supabase.from("informacoes").update(updateObj).eq("id", infoId);
+      } else {
+        const { data: newInfo } = await supabase
+          .from("informacoes")
+          .insert({ ...updateObj, user_id: user.id })
+          .select()
+          .single();
+        if (newInfo) setInfoId(newInfo.id);
+      }
+
+      toast.success("Imagem enviada com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao enviar imagem: " + error.message);
+    } finally {
+      setUploadingImage(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const removeImage = async (index: number) => {
+    if (!infoId) return;
+
+    try {
+      const newImagens = [...imagens];
+      newImagens[index] = null;
+      setImagens(newImagens);
+
+      const updateObj: any = {};
+      updateObj[`imagem_${index + 1}`] = null;
+
+      const { error } = await supabase
+        .from("informacoes")
+        .update(updateObj)
+        .eq("id", infoId);
+
+      if (error) throw error;
+      toast.success("Imagem removida");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao remover imagem");
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-2xl mx-auto space-y-8 pb-10">
@@ -199,8 +317,10 @@ function MinhaContaPage() {
                     id="telContato"
                     value={telContato}
                     onChange={(e) => setTelContato(e.target.value)}
-                    placeholder="Ex: (11) 99999-9999"
+                    placeholder="Ex: 11999999999"
+                    maxLength={11}
                   />
+                  <p className="text-xs text-muted-foreground">Insira exatamente 11 números (DDD + número).</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="login">Telefone (Login)</Label>
@@ -217,6 +337,62 @@ function MinhaContaPage() {
                   Salvar Alterações
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Imagens */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" />
+                Galeria de Imagens (Até 8)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {imagens.map((src, index) => (
+                  <div key={index} className="relative aspect-square rounded-md overflow-hidden border bg-muted flex items-center justify-center group">
+                    {src ? (
+                      <>
+                        <img src={src} alt={`Imagem ${index + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </>
+                    ) : uploadingImage === index ? (
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">{index + 1}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full gap-2"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage !== null || imagens.every(img => img !== null)}
+                >
+                  <Upload className="h-4 w-4" />
+                  {imagens.every(img => img !== null) ? "Limite atingido" : "Adicionar Imagem"}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  As imagens serão automaticamente ajustadas para formato quadrado.
+                </p>
+              </div>
             </CardContent>
           </Card>
 

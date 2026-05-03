@@ -284,6 +284,14 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          imagem_1: string | null
+          imagem_2: string | null
+          imagem_3: string | null
+          imagem_4: string | null
+          imagem_5: string | null
+          imagem_6: string | null
+          imagem_7: string | null
+          imagem_8: string | null
           tel_contato: string | null
           updated_at: string
           user_id: string | null
@@ -291,6 +299,14 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          imagem_1?: string | null
+          imagem_2?: string | null
+          imagem_3?: string | null
+          imagem_4?: string | null
+          imagem_5?: string | null
+          imagem_6?: string | null
+          imagem_7?: string | null
+          imagem_8?: string | null
           tel_contato?: string | null
           updated_at?: string
           user_id?: string | null
@@ -298,6 +314,14 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          imagem_1?: string | null
+          imagem_2?: string | null
+          imagem_3?: string | null
+          imagem_4?: string | null
+          imagem_5?: string | null
+          imagem_6?: string | null
+          imagem_7?: string | null
+          imagem_8?: string | null
           tel_contato?: string | null
           updated_at?: string
           user_id?: string | null
