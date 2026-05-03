@@ -58,6 +58,7 @@ function Cadastro() {
             login: cleanLogin,
             senha,
             nivel: 3, // Cliente
+            registro: "nao"
           },
         ])
         .select()
@@ -76,7 +77,7 @@ function Cadastro() {
       } else {
         localStorage.setItem("user", JSON.stringify(data));
         toast.success("Conta criada com sucesso!");
-        navigate({ to: "/cliente" });
+        navigate({ to: "/registro" });
       }
     } catch (err) {
       console.error(err);
