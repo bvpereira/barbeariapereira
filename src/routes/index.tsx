@@ -93,16 +93,6 @@ function Hero() {
         </motion.div>
       </motion.div>
 
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50"
-      >
-        <div className="w-6 h-10 border-2 border-primary rounded-full flex justify-center p-1">
-          <div className="w-1 h-2 bg-primary rounded-full animate-scroll" />
-        </div>
-      </motion.div>
     </section>
   );
 }
