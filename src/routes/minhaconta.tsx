@@ -97,7 +97,7 @@ function MinhaContaPage() {
         .from("informacoes" as any)
         .select("id")
         .eq("userrr", "admin")
-        .maybeSingle();
+        .maybeSingle());
 
       if (existingInfo) {
         const { error: infoError } = await (supabase
@@ -248,7 +248,7 @@ function MinhaContaPage() {
         .from("informacoes" as any)
         .select("id")
         .eq("userrr", "admin")
-        .maybeSingle();
+        .maybeSingle());
 
       if (existingInfo) {
         await (supabase.from("informacoes") as any).update(updateObj).eq("id", (existingInfo as any).id);
@@ -286,7 +286,7 @@ function MinhaContaPage() {
       const { error } = await (supabase
         .from("informacoes" as any)
         .update(updateObj)
-        .eq("id", infoId);
+        .eq("id", infoId));
 
       if (error) throw error;
       toast.success("Imagem removida");
