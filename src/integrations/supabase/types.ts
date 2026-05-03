@@ -280,57 +280,6 @@ export type Database = {
           },
         ]
       }
-      informacoes: {
-        Row: {
-          created_at: string
-          id: string
-          imagem_1: string | null
-          imagem_2: string | null
-          imagem_3: string | null
-          imagem_4: string | null
-          imagem_5: string | null
-          imagem_6: string | null
-          imagem_7: string | null
-          imagem_8: string | null
-          tel_contato: string | null
-          updated_at: string
-          userrr: string | null
-          usuario_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          imagem_1?: string | null
-          imagem_2?: string | null
-          imagem_3?: string | null
-          imagem_4?: string | null
-          imagem_5?: string | null
-          imagem_6?: string | null
-          imagem_7?: string | null
-          imagem_8?: string | null
-          tel_contato?: string | null
-          updated_at?: string
-          userrr?: string | null
-          usuario_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          imagem_1?: string | null
-          imagem_2?: string | null
-          imagem_3?: string | null
-          imagem_4?: string | null
-          imagem_5?: string | null
-          imagem_6?: string | null
-          imagem_7?: string | null
-          imagem_8?: string | null
-          tel_contato?: string | null
-          updated_at?: string
-          userrr?: string | null
-          usuario_id?: string | null
-        }
-        Relationships: []
-      }
       servicos: {
         Row: {
           created_at: string
