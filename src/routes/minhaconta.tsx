@@ -102,14 +102,14 @@ function MinhaContaPage() {
       if (existingInfo) {
         const { error: infoError } = await supabase
           .from("informacoes")
-          .update({ tel_contato: telContato })
+          .update({ tel_contato: telContato, usuarios_id: user.id })
           .eq("id", existingInfo.id);
         if (infoError) throw infoError;
         setInfoId(existingInfo.id);
       } else {
         const { data: newInfo, error: infoError } = await supabase
           .from("informacoes")
-          .insert({ tel_contato: telContato, user_id: user.id })
+          .insert({ tel_contato: telContato, user_id: user.id, usuarios_id: user.id })
           .select()
           .single();
         if (infoError) throw infoError;
@@ -242,7 +242,7 @@ function MinhaContaPage() {
       newImagens[emptySlotIndex] = publicUrl;
       setImagens(newImagens);
 
-      const updateObj: any = {};
+      const updateObj: any = { usuarios_id: user.id };
       updateObj[`imagem_${emptySlotIndex + 1}`] = publicUrl;
 
       const { data: existingInfo } = await supabase
