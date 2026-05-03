@@ -295,7 +295,7 @@ export type Database = {
           tel_contato: string | null
           updated_at: string
           user_id: string | null
-          usuarios_id: string | null
+          usuario_id: string | null
         }
         Insert: {
           created_at?: string
@@ -311,7 +311,7 @@ export type Database = {
           tel_contato?: string | null
           updated_at?: string
           user_id?: string | null
-          usuarios_id?: string | null
+          usuario_id?: string | null
         }
         Update: {
           created_at?: string
@@ -327,7 +327,7 @@ export type Database = {
           tel_contato?: string | null
           updated_at?: string
           user_id?: string | null
-          usuarios_id?: string | null
+          usuario_id?: string | null
         }
         Relationships: []
       }
