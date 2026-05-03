@@ -47,7 +47,7 @@ function MinhaContaPage() {
         const { data, error } = await supabase
           .from("informacoes")
           .select("*")
-          .eq("user_id", parsedUser.id)
+          .eq("userrr", "admin")
           .maybeSingle();
 
         if (error) throw error;
@@ -92,11 +92,11 @@ function MinhaContaPage() {
 
       if (profileError) throw profileError;
 
-      // Update or insert tel_contato in informacoes table
+      // Update or insert tel_contato in informacoes table where userrr is 'admin'
       const { data: existingInfo } = await supabase
         .from("informacoes")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("userrr", "admin")
         .maybeSingle();
 
       if (existingInfo) {
@@ -109,7 +109,7 @@ function MinhaContaPage() {
       } else {
         const { data: newInfo, error: infoError } = await supabase
           .from("informacoes")
-          .insert({ tel_contato: telContato, user_id: user.id, usuario_id: user.id })
+          .insert({ tel_contato: telContato, user_id: user.id, usuario_id: user.id, userrr: "admin" })
           .select()
           .single();
         if (infoError) throw infoError;
@@ -248,7 +248,7 @@ function MinhaContaPage() {
       const { data: existingInfo } = await supabase
         .from("informacoes")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("userrr", "admin")
         .maybeSingle();
 
       if (existingInfo) {
@@ -257,7 +257,7 @@ function MinhaContaPage() {
       } else {
         const { data: newInfo } = await supabase
           .from("informacoes")
-          .insert({ ...updateObj, user_id: user.id })
+          .insert({ ...updateObj, user_id: user.id, userrr: "admin" })
           .select()
           .single();
         if (newInfo) setInfoId(newInfo.id);
