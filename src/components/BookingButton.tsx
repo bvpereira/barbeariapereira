@@ -418,7 +418,7 @@ export function BookingButton({
 
             {selectedColaborador && (
               <div className="space-y-2">
-                <Label>{(fixedClientId && fixedColaboradorId) ? "1" : (!fixedClientId && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "1" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
                 <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto bg-muted/20">
                   {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
                     <div key={s.id} className="flex items-center gap-2">
@@ -439,7 +439,7 @@ export function BookingButton({
 
             {selectedServicos.length > 0 && (
               <div className="space-y-2">
-                <Label>{(fixedClientId && fixedColaboradorId) ? "2" : (!fixedClientId && !fixedColaboradorId) ? "4" : "3"}. Selecione a Data</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "2" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "4" : "3"}. Selecione a Data</Label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
