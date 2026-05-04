@@ -451,8 +451,27 @@ function AtendimentosPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir este atendimento?")) return;
     try {
+      // Fetch data for webhook before deleting
+      const { data: item } = await supabase
+        .from('atendimentos')
+        .select('*, cliente:usuarios!cliente_id(nome), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
+        .eq('id', id)
+        .single();
+
       const { error } = await supabase.from('atendimentos').delete().eq('id', id);
       if (error) throw error;
+
+      if (item) {
+        triggerWebhook("Exclusao", {
+          tipo: "Exclusao",
+          cliente: (item.cliente as any)?.nome || "Cliente",
+          colaborador: (item.colaborador as any)?.nome || "Colaborador",
+          data: format(parseISO(item.data), "dd/MM/yyyy"),
+          horario: format(parseISO(item.data), "HH:mm"),
+          servicos: (item.atendimento_servicos as any[]).map(s => s.servicos?.name)
+        });
+      }
+
       toast.success("Atendimento excluído");
       fetchAgendados();
       fetchConcluidos();
