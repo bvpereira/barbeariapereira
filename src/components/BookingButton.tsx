@@ -72,8 +72,16 @@ export function BookingButton({
   label = "Agendar Atendimento",
   icon
 }: BookingButtonProps) {
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
   
   // Data states
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -514,14 +522,7 @@ export function BookingButton({
                 step="0.01"
                 value={valorFinal}
                 onChange={(e) => setValorFinal(e.target.value)}
-                disabled={(() => {
-                  const userData = localStorage.getItem("user");
-                  if (userData) {
-                    const user = JSON.parse(userData);
-                    return user.nivel === 3;
-                  }
-                  return false;
-                })()}
+                disabled={currentUser?.nivel === 3}
               />
             </div>
           </div>
