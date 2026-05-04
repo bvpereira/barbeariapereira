@@ -302,11 +302,14 @@ export function BookingButton({
         
         // Always trigger if it was an update, but follow "Remarcacao" rules for fields
         const isRemarcacao = oldData.getTime() !== newData.getTime();
+        const colab = colaboradores.find(c => c.id === selectedColaborador);
+        const { data: colabUser } = await supabase.from('usuarios').select('login').eq('id', selectedColaborador).maybeSingle();
         
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
           cliente: selectedCliente.nome,
-          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          colaborador: colab?.nome || "",
+          tel_colaborador: colabUser?.login || "",
           data: format(newData, "dd/MM/yyyy"),
           horario: selectedTimePart,
           servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || ""),
@@ -316,10 +319,14 @@ export function BookingButton({
           })
         });
       } else {
+        const colab = colaboradores.find(c => c.id === selectedColaborador);
+        const { data: colabUser } = await supabase.from('usuarios').select('login').eq('id', selectedColaborador).maybeSingle();
+
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
-          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          colaborador: colab?.nome || "",
+          tel_colaborador: colabUser?.login || "",
           data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
           horario: selectedTimePart,
           servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")

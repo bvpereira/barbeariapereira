@@ -6,6 +6,7 @@ interface WebhookData {
   tipo: WebhookEvent;
   cliente: string;
   colaborador: string;
+  tel_colaborador?: string;
   data: string;
   horario: string;
   servicos: string[];
