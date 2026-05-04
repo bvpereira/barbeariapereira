@@ -48,6 +48,7 @@ const menuItems = [
     title: "Minha Conta",
     icon: UserCircle,
     href: "/minhaconta",
+  },
   {
     title: "Integrações",
     icon: Link2,
