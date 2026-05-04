@@ -361,6 +361,35 @@ function AtendimentosPage() {
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
       })));
 
+      // Trigger Webhook
+      if (editingAtendimento) {
+        const oldData = parseISO(editingAtendimento.data);
+        const newData = parseISO(`${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`);
+        const isRemarcacao = oldData.getTime() !== newData.getTime();
+        
+        triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
+          tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(newData, "dd/MM/yyyy"),
+          horario: format(newData, "HH:mm"),
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || ""),
+          ...(isRemarcacao && {
+            data_antiga: format(oldData, "dd/MM/yyyy"),
+            horario_antigo: format(oldData, "HH:mm")
+          })
+        });
+      } else {
+        triggerWebhook("Agendamento", {
+          tipo: "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
+          horario: selectedTimePart || format(new Date(), "HH:mm"),
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
+        });
+      }
+
       toast.success("Salvo com sucesso");
       setIsDialogOpen(false);
       fetchAgendados();
