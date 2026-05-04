@@ -391,7 +391,7 @@ export function BookingButton({
 
             {!fixedColaboradorId ? (
               <div className="space-y-2">
-                <Label>{fixedClientId ? "1" : "2"}. Selecione o Colaborador</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) ? "1" : "2"}. Selecione o Colaborador</Label>
                 <Select 
                   value={selectedColaborador} 
                   onValueChange={(v) => { setSelectedColaborador(v); setSelectedServicos([]); fetchColabServicos(v); }}
