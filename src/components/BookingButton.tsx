@@ -256,6 +256,16 @@ export function BookingButton({
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
       })));
 
+      // Trigger Webhook
+      triggerWebhook("Agendamento", {
+        tipo: "Agendamento",
+        cliente: selectedCliente.nome,
+        colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+        data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
+        horario: selectedTimePart,
+        servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
+      });
+
       toast.success("Agendamento realizado com sucesso");
       setIsOpen(false);
       resetForm();
