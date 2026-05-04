@@ -72,8 +72,16 @@ export function BookingButton({
   label = "Agendar Atendimento",
   icon
 }: BookingButtonProps) {
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
   
   // Data states
   const [clientes, setClientes] = useState<Cliente[]>([]);
