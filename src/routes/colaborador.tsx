@@ -70,7 +70,25 @@ function ColaboradorPage() {
     window.location.href = "/login";
   };
 
-  if (!user || !colabId) return (
+  if (!user) return null;
+
+  if (!colabId && !loading) return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="max-w-md w-full border-destructive/50 bg-destructive/5">
+        <CardContent className="p-6 text-center space-y-4">
+          <AlertTriangle className="w-12 h-12 text-destructive mx-auto" />
+          <h2 className="text-xl font-bold text-destructive">Perfil não encontrado</h2>
+          <p className="text-muted-foreground text-sm">
+            Seu usuário não está vinculado a um perfil de colaborador ativo. 
+            Entre em contato com o administrador.
+          </p>
+          <Button variant="outline" onClick={handleLogout} className="w-full">Sair</Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  if (loading && !colabId) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
