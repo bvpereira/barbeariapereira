@@ -150,7 +150,7 @@ function ColaboradorPage() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
-                        <Badge variant="ghost" className="text-[10px] p-0 h-auto font-normal">
+                        <Badge variant="outline" className="text-[10px] h-auto font-normal">
                           {item.status}
                         </Badge>
                       </div>
