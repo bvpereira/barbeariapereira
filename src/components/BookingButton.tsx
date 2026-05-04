@@ -283,16 +283,37 @@ export function BookingButton({
       })));
 
       // Trigger Webhook
-      triggerWebhook("Agendamento", {
-        tipo: "Agendamento",
-        cliente: selectedCliente.nome,
-        colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
-        data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
-        horario: selectedTimePart,
-        servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
-      });
+      if (initialData?.id) {
+        const oldData = parseISO(initialData.data);
+        const newData = parseISO(`${selectedDatePart}T${selectedTimePart}:00-03:00`);
+        
+        // Always trigger if it was an update, but follow "Remarcacao" rules for fields
+        const isRemarcacao = oldData.getTime() !== newData.getTime();
+        
+        triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
+          tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(newData, "dd/MM/yyyy"),
+          horario: selectedTimePart,
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || ""),
+          ...(isRemarcacao && {
+            data_antiga: format(oldData, "dd/MM/yyyy"),
+            horario_antigo: format(oldData, "HH:mm")
+          })
+        });
+      } else {
+        triggerWebhook("Agendamento", {
+          tipo: "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
+          horario: selectedTimePart,
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
+        });
+      }
 
-      toast.success("Agendamento realizado com sucesso");
+      toast.success(initialData?.id ? "Agendamento atualizado" : "Agendamento realizado com sucesso");
       setIsOpen(false);
       resetForm();
       if (onSuccess) onSuccess();
