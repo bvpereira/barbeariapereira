@@ -522,14 +522,7 @@ export function BookingButton({
                 step="0.01"
                 value={valorFinal}
                 onChange={(e) => setValorFinal(e.target.value)}
-                disabled={(() => {
-                  const userData = localStorage.getItem("user");
-                  if (userData) {
-                    const user = JSON.parse(userData);
-                    return user.nivel === 3;
-                  }
-                  return false;
-                })()}
+                disabled={currentUser?.nivel === 3}
               />
             </div>
           </div>
