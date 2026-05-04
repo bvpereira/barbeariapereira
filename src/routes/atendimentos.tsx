@@ -362,7 +362,6 @@ function AtendimentosPage() {
 
       toast.success("Salvo com sucesso");
       setIsDialogOpen(false);
-      setIsScheduleDialogOpen(false);
       fetchAgendados();
       fetchConcluidos();
     } catch (e: any) { toast.error(e.message); }
