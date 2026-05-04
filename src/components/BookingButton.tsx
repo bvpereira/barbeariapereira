@@ -304,12 +304,14 @@ export function BookingButton({
         const isRemarcacao = oldData.getTime() !== newData.getTime();
         const colab = colaboradores.find(c => c.id === selectedColaborador);
         const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
+        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : "";
+        
         
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
           cliente: selectedCliente.nome,
           colaborador: colab?.nome || "",
-          tel_colaborador: colabData?.login || "",
+          tel_colaborador: formattedTel,
           data: format(newData, "dd/MM/yyyy"),
           horario: selectedTimePart,
           servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || ""),
@@ -321,12 +323,13 @@ export function BookingButton({
       } else {
         const colab = colaboradores.find(c => c.id === selectedColaborador);
         const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
+        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : "";
 
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
           colaborador: colab?.nome || "",
-          tel_colaborador: colabData?.login || "",
+          tel_colaborador: formattedTel,
           data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
           horario: selectedTimePart,
           servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
