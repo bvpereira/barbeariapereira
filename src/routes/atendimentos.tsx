@@ -499,10 +499,7 @@ function AtendimentosPage() {
             <p className="text-muted-foreground">Controle os agendamentos e atendimentos realizados</p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => { resetForm(); setIsScheduleDialogOpen(true); }} variant="outline" className="gap-2 border-primary text-primary hover:bg-primary/10">
-              <CalendarIcon className="w-4 h-4" />
-              Agendar Atendimento
-            </Button>
+            <BookingButton onSuccess={fetchAgendados} />
             <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2">
               <Plus className="w-4 h-4" />
               Novo atendimento
