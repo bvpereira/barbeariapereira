@@ -54,10 +54,12 @@ interface Servico {
 interface BookingButtonProps {
   fixedClientId?: string;
   fixedColaboradorId?: string;
+  initialData?: any;
   onSuccess?: () => void;
   variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary";
   className?: string;
   label?: string;
+  icon?: React.ReactNode;
 }
 
 export function BookingButton({ 
