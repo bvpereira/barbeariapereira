@@ -353,7 +353,7 @@ export function BookingButton({
             <DialogTitle>Agendar Atendimento</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {!fixedClientId && (
+            {(!fixedClientId && !initialData?.cliente_id) && (
               <div className="space-y-2">
                 <Label>1. Selecione o Cliente</Label>
                 <Input 
@@ -377,9 +377,21 @@ export function BookingButton({
               </div>
             )}
 
+            {(fixedClientId || initialData?.cliente_id) && (
+              <div className="space-y-2">
+                <Label>Cliente Selecionado</Label>
+                <div className="p-2 border rounded bg-muted/50 flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-medium">
+                    {selectedCliente?.nome || "Carregando..."}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {!fixedColaboradorId ? (
               <div className="space-y-2">
-                <Label>{fixedClientId ? "1" : "2"}. Selecione o Colaborador</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) ? "1" : "2"}. Selecione o Colaborador</Label>
                 <Select 
                   value={selectedColaborador} 
                   onValueChange={(v) => { setSelectedColaborador(v); setSelectedServicos([]); fetchColabServicos(v); }}
@@ -394,7 +406,7 @@ export function BookingButton({
               </div>
             ) : (
               <div className="space-y-2">
-                <Label>{fixedClientId ? "" : "2. "}Colaborador Selecionado</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) ? "" : "2. "}Colaborador Selecionado</Label>
                 <div className="p-2 border rounded bg-muted/50 flex items-center gap-2">
                   <User className="w-4 h-4 text-muted-foreground" />
                   <span className="font-medium">
@@ -406,7 +418,7 @@ export function BookingButton({
 
             {selectedColaborador && (
               <div className="space-y-2">
-                <Label>{(fixedClientId && fixedColaboradorId) ? "1" : (!fixedClientId && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "1" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
                 <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto bg-muted/20">
                   {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
                     <div key={s.id} className="flex items-center gap-2">
@@ -427,7 +439,7 @@ export function BookingButton({
 
             {selectedServicos.length > 0 && (
               <div className="space-y-2">
-                <Label>{(fixedClientId && fixedColaboradorId) ? "2" : (!fixedClientId && !fixedColaboradorId) ? "4" : "3"}. Selecione a Data</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "2" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "4" : "3"}. Selecione a Data</Label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -474,7 +486,7 @@ export function BookingButton({
 
             {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
               <div className="space-y-2">
-                <Label>{(fixedClientId && fixedColaboradorId) ? "3" : (!fixedClientId && !fixedColaboradorId) ? "5" : "4"}. Horários Disponíveis</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "3" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "5" : "4"}. Horários Disponíveis</Label>
                 {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
                   <div className="grid grid-cols-4 gap-2">
                     {availableTimes.length > 0 ? availableTimes.map(t => (
