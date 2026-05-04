@@ -353,7 +353,7 @@ export function BookingButton({
             <DialogTitle>Agendar Atendimento</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {!fixedClientId && (
+            {(!fixedClientId && !initialData?.cliente_id) && (
               <div className="space-y-2">
                 <Label>1. Selecione o Cliente</Label>
                 <Input 
@@ -374,6 +374,18 @@ export function BookingButton({
                   ))}
                 </div>
                 {selectedCliente && <p className="text-xs text-green-600 font-medium">✓ {selectedCliente.nome}</p>}
+              </div>
+            )}
+
+            {(fixedClientId || initialData?.cliente_id) && (
+              <div className="space-y-2">
+                <Label>Cliente Selecionado</Label>
+                <div className="p-2 border rounded bg-muted/50 flex items-center gap-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-medium">
+                    {selectedCliente?.nome || "Carregando..."}
+                  </span>
+                </div>
               </div>
             )}
 
