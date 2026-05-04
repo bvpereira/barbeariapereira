@@ -524,7 +524,7 @@ export function BookingButton({
                 step="0.01"
                 value={valorFinal}
                 onChange={(e) => setValorFinal(e.target.value)}
-                disabled={currentUser?.nivel === 3}
+                disabled={currentUser?.nivel === 3 || currentUser?.nivel === "3"}
               />
             </div>
           </div>
