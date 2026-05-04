@@ -4,10 +4,12 @@ import { BookingButton } from "@/components/BookingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, Scissors, User, LogOut } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { triggerWebhook } from "@/lib/webhook";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/cliente" as any)({
   component: ClientePage,
