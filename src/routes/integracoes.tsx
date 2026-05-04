@@ -28,20 +28,19 @@ function IntegracoesPage() {
       const { data, error } = await supabase
         .from("integracoes")
         .select("*")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
 
-      if (error && error.code !== "PGRST116") {
-        throw error;
+      if (error) {
+        console.error("Erro ao buscar integração:", error);
+        return;
       }
 
-      if (data) {
-        setWebhookUrl(data.webhook_url);
-        setIntegrationId(data.id);
+      if (data && data.length > 0) {
+        setWebhookUrl(data[0].webhook_url);
+        setIntegrationId(data[0].id);
       }
     } catch (error) {
-      console.error("Erro ao buscar integração:", error);
+      console.error("Exceção ao buscar integração:", error);
     } finally {
       setLoading(false);
     }
@@ -74,9 +73,9 @@ function IntegracoesPage() {
       }
 
       toast.success("Configuração de webhook salva com sucesso!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao salvar integração:", error);
-      toast.error("Erro ao salvar configuração.");
+      toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
     } finally {
       setSaving(false);
     }
