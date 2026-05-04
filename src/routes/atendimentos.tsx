@@ -310,10 +310,8 @@ function AtendimentosPage() {
   }, [allServicos]);
 
   useEffect(() => {
-    if (isScheduleDialogOpen) {
-      fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
-    }
-  }, [selectedDatePart, selectedColaborador, selectedServicos, isScheduleDialogOpen, fetchAvailableTimes]);
+    fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
+  }, [selectedDatePart, selectedColaborador, selectedServicos, fetchAvailableTimes]);
 
   const resetForm = () => {
     setEditingAtendimento(null);
