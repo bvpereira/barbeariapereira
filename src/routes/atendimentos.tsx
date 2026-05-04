@@ -362,7 +362,7 @@ function AtendimentosPage() {
       })));
 
       // Trigger Webhook
-      const { data: colabUser } = await supabase.from('usuarios').select('login').eq('id', selectedColaborador).maybeSingle();
+      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
 
       if (editingAtendimento) {
         const oldData = parseISO(editingAtendimento.data);
@@ -373,7 +373,7 @@ function AtendimentosPage() {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
           cliente: selectedCliente.nome,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
-          tel_colaborador: colabUser?.login || "",
+          tel_colaborador: colabData?.login || "",
           data: format(newData, "dd/MM/yyyy"),
           horario: format(newData, "HH:mm"),
           servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || ""),
@@ -387,7 +387,7 @@ function AtendimentosPage() {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
-          tel_colaborador: colabUser?.login || "",
+          tel_colaborador: colabData?.login || "",
           data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
           horario: selectedTimePart || format(new Date(), "HH:mm"),
           servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
