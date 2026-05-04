@@ -262,9 +262,19 @@ export function BookingButton({
         status: 'Agendado'
       };
       
-      const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
-      if (error) throw error;
-      const atendimentoId = data.id;
+      let atendimentoId: string;
+      if (initialData?.id) {
+        const { error } = await supabase.from('atendimentos').update(payload).eq('id', initialData.id);
+        if (error) throw error;
+        atendimentoId = initialData.id;
+        
+        // Delete old services
+        await supabase.from('atendimento_servicos').delete().eq('atendimento_id', atendimentoId);
+      } else {
+        const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
+        if (error) throw error;
+        atendimentoId = data.id;
+      }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
         atendimento_id: atendimentoId,
