@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { triggerWebhook } from "@/lib/webhook";
 import { Button } from "@/components/ui/button";
 import { 
   Calendar as CalendarIcon, 
@@ -53,19 +54,23 @@ interface Servico {
 interface BookingButtonProps {
   fixedClientId?: string;
   fixedColaboradorId?: string;
+  initialData?: any;
   onSuccess?: () => void;
   variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary";
   className?: string;
   label?: string;
+  icon?: React.ReactNode;
 }
 
 export function BookingButton({ 
   fixedClientId, 
   fixedColaboradorId, 
+  initialData,
   onSuccess,
   variant = "outline",
   className,
-  label = "Agendar Atendimento"
+  label = "Agendar Atendimento",
+  icon
 }: BookingButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,15 +119,27 @@ export function BookingButton({
     if (isOpen) {
       fetchFormData();
       fetchMaxDate();
-      if (fixedClientId) {
-        fetchFixedClient(fixedClientId);
-      }
-      if (fixedColaboradorId) {
-        setSelectedColaborador(fixedColaboradorId);
-        fetchColabServicos(fixedColaboradorId);
+      
+      if (initialData) {
+        setSelectedCliente({ id: initialData.cliente_id, nome: initialData.cliente_nome, login: "" });
+        setSearchCliente(initialData.cliente_nome || "");
+        setSelectedColaborador(initialData.colaborador_id);
+        setSelectedDatePart(format(parseISO(initialData.data), "yyyy-MM-dd"));
+        setSelectedTimePart(format(parseISO(initialData.data), "HH:mm"));
+        setSelectedServicos(initialData.servicos_ids || []);
+        setValorFinal(initialData.valor?.toString() || "0");
+        fetchColabServicos(initialData.colaborador_id);
+      } else {
+        if (fixedClientId) {
+          fetchFixedClient(fixedClientId);
+        }
+        if (fixedColaboradorId) {
+          setSelectedColaborador(fixedColaboradorId);
+          fetchColabServicos(fixedColaboradorId);
+        }
       }
     }
-  }, [isOpen, fixedClientId, fixedColaboradorId]);
+  }, [isOpen, fixedClientId, fixedColaboradorId, initialData]);
 
   const searchClientes = async (term: string) => {
     setSearchCliente(term);
@@ -245,9 +262,19 @@ export function BookingButton({
         status: 'Agendado'
       };
       
-      const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
-      if (error) throw error;
-      const atendimentoId = data.id;
+      let atendimentoId: string;
+      if (initialData?.id) {
+        const { error } = await supabase.from('atendimentos').update(payload).eq('id', initialData.id);
+        if (error) throw error;
+        atendimentoId = initialData.id;
+        
+        // Delete old services
+        await supabase.from('atendimento_servicos').delete().eq('atendimento_id', atendimentoId);
+      } else {
+        const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
+        if (error) throw error;
+        atendimentoId = data.id;
+      }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
         atendimento_id: atendimentoId,
@@ -255,7 +282,38 @@ export function BookingButton({
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
       })));
 
-      toast.success("Agendamento realizado com sucesso");
+      // Trigger Webhook
+      if (initialData?.id) {
+        const oldData = parseISO(initialData.data);
+        const newData = parseISO(`${selectedDatePart}T${selectedTimePart}:00-03:00`);
+        
+        // Always trigger if it was an update, but follow "Remarcacao" rules for fields
+        const isRemarcacao = oldData.getTime() !== newData.getTime();
+        
+        triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
+          tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(newData, "dd/MM/yyyy"),
+          horario: selectedTimePart,
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || ""),
+          ...(isRemarcacao && {
+            data_antiga: format(oldData, "dd/MM/yyyy"),
+            horario_antigo: format(oldData, "HH:mm")
+          })
+        });
+      } else {
+        triggerWebhook("Agendamento", {
+          tipo: "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
+          horario: selectedTimePart,
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
+        });
+      }
+
+      toast.success(initialData?.id ? "Agendamento atualizado" : "Agendamento realizado com sucesso");
       setIsOpen(false);
       resetForm();
       if (onSuccess) onSuccess();
@@ -285,7 +343,7 @@ export function BookingButton({
         variant={variant} 
         className={cn("gap-2", className)}
       >
-        <CalendarIcon className="w-4 h-4" />
+        {icon ? icon : <CalendarIcon className="w-4 h-4" />}
         {label}
       </Button>
 

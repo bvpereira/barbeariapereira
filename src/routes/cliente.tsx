@@ -4,10 +4,12 @@ import { BookingButton } from "@/components/BookingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, Scissors, User, LogOut } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { triggerWebhook } from "@/lib/webhook";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/cliente" as any)({
   component: ClientePage,
@@ -24,8 +26,8 @@ function ClientePage() {
       .from('atendimentos')
       .select(`
         *,
-        colaborador:colaboradores(nome),
-        atendimento_servicos(servicos(name))
+        colaborador:colaboradores(id, nome),
+        atendimento_servicos(servicos(id, name))
       `)
       .eq('cliente_id', userId)
       .eq('status', 'Agendado')
@@ -47,6 +49,34 @@ function ClientePage() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/login";
+  };
+
+  const handleDelete = async (item: any) => {
+    if (!confirm("Tem certeza que deseja cancelar este agendamento?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('atendimentos')
+        .delete()
+        .eq('id', item.id);
+      
+      if (error) throw error;
+      
+      // Trigger Webhook
+      triggerWebhook("Exclusao", {
+        tipo: "Exclusao",
+        cliente: user.nome,
+        colaborador: item.colaborador?.nome || "",
+        data: format(parseISO(item.data), "dd/MM/yyyy"),
+        horario: format(parseISO(item.data), "HH:mm"),
+        servicos: item.atendimento_servicos.map((s: any) => s.servicos?.name)
+      });
+      
+      toast.success("Agendamento cancelado com sucesso");
+      fetchAgendamentos(user.id);
+    } catch (error: any) {
+      toast.error("Erro ao cancelar: " + error.message);
+    }
   };
 
   if (!user) return null;
@@ -133,6 +163,33 @@ function ClientePage() {
                               {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
                             </span>
                           </div>
+                        </div>
+                        <div className="mt-4 flex gap-2">
+                          <BookingButton 
+                            label="Remarcar"
+                            variant="outline"
+                            className="flex-1 h-8 text-xs gap-1"
+                            icon={<Edit2 className="w-3 h-3" />}
+                            initialData={{
+                              id: item.id,
+                              data: item.data,
+                              cliente_id: user.id,
+                              cliente_nome: user.nome,
+                              colaborador_id: item.colaborador_id,
+                              valor: item.valor,
+                              servicos_ids: item.atendimento_servicos.map((as: any) => as.servicos?.id).filter(Boolean)
+                            }}
+                            onSuccess={() => fetchAgendamentos(user.id)}
+                          />
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 h-8 text-xs gap-1 text-destructive hover:bg-destructive/10 border-destructive/20"
+                            onClick={() => handleDelete(item)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Cancelar
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>

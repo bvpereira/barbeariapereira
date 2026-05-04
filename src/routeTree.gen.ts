@@ -14,6 +14,7 @@ import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecuperarsenhaRouteImport } from './routes/recuperarsenha'
 import { Route as MinhacontaRouteImport } from './routes/minhaconta'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
@@ -49,6 +50,11 @@ const MinhacontaRoute = MinhacontaRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegracoesRoute = IntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HorariosRoute = HorariosRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/gastos'
     | '/horarios'
+    | '/integracoes'
     | '/login'
     | '/minhaconta'
     | '/recuperarsenha'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/gastos'
     | '/horarios'
+    | '/integracoes'
     | '/login'
     | '/minhaconta'
     | '/recuperarsenha'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/gastos'
     | '/horarios'
+    | '/integracoes'
     | '/login'
     | '/minhaconta'
     | '/recuperarsenha'
@@ -231,6 +243,7 @@ export interface RootRouteChildren {
   FinanceiroRoute: typeof FinanceiroRoute
   GastosRoute: typeof GastosRoute
   HorariosRoute: typeof HorariosRoute
+  IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MinhacontaRoute: typeof MinhacontaRoute
   RecuperarsenhaRoute: typeof RecuperarsenhaRoute
@@ -273,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integracoes': {
+      id: '/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof IntegracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/horarios': {
@@ -367,6 +387,7 @@ const rootRouteChildren: RootRouteChildren = {
   FinanceiroRoute: FinanceiroRoute,
   GastosRoute: GastosRoute,
   HorariosRoute: HorariosRoute,
+  IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MinhacontaRoute: MinhacontaRoute,
   RecuperarsenhaRoute: RecuperarsenhaRoute,

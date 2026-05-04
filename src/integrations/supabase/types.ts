@@ -334,6 +334,27 @@ export type Database = {
         }
         Relationships: []
       }
+      integracoes: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          webhook_url?: string
+        }
+        Relationships: []
+      }
       servicos: {
         Row: {
           created_at: string

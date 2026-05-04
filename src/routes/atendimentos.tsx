@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { triggerWebhook } from "@/lib/webhook";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookingButton } from "@/components/BookingButton";
 import {
@@ -360,6 +361,35 @@ function AtendimentosPage() {
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
       })));
 
+      // Trigger Webhook
+      if (editingAtendimento) {
+        const oldData = parseISO(editingAtendimento.data);
+        const newData = parseISO(`${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`);
+        const isRemarcacao = oldData.getTime() !== newData.getTime();
+        
+        triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
+          tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(newData, "dd/MM/yyyy"),
+          horario: format(newData, "HH:mm"),
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || ""),
+          ...(isRemarcacao && {
+            data_antiga: format(oldData, "dd/MM/yyyy"),
+            horario_antigo: format(oldData, "HH:mm")
+          })
+        });
+      } else {
+        triggerWebhook("Agendamento", {
+          tipo: "Agendamento",
+          cliente: selectedCliente.nome,
+          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+          data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
+          horario: selectedTimePart || format(new Date(), "HH:mm"),
+          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
+        });
+      }
+
       toast.success("Salvo com sucesso");
       setIsDialogOpen(false);
       fetchAgendados();
@@ -421,8 +451,27 @@ function AtendimentosPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir este atendimento?")) return;
     try {
+      // Fetch data for webhook before deleting
+      const { data: item } = await supabase
+        .from('atendimentos')
+        .select('*, cliente:usuarios!cliente_id(nome), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
+        .eq('id', id)
+        .single();
+
       const { error } = await supabase.from('atendimentos').delete().eq('id', id);
       if (error) throw error;
+
+      if (item) {
+        triggerWebhook("Exclusao", {
+          tipo: "Exclusao",
+          cliente: (item.cliente as any)?.nome || "Cliente",
+          colaborador: (item.colaborador as any)?.nome || "Colaborador",
+          data: format(parseISO(item.data), "dd/MM/yyyy"),
+          horario: format(parseISO(item.data), "HH:mm"),
+          servicos: (item.atendimento_servicos as any[]).map(s => s.servicos?.name)
+        });
+      }
+
       toast.success("Atendimento excluído");
       fetchAgendados();
       fetchConcluidos();
