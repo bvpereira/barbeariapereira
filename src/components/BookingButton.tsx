@@ -142,6 +142,9 @@ export function BookingButton({
   }, [isOpen, fixedClientId, fixedColaboradorId, initialData]);
 
   const searchClientes = async (term: string) => {
+    // Se o cliente já está fixo ou é uma edição, não permite busca/alteração
+    if (fixedClientId || initialData?.cliente_id) return;
+    
     setSearchCliente(term);
     if (term.length < 2) { setClientes([]); return; }
     const { data } = await supabase.from('usuarios').select('id, nome, login').eq('nivel', 3).or(`nome.ilike.%${term}%,login.ilike.%${term}%`).limit(5);
