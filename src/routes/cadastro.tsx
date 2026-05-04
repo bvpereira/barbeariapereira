@@ -41,6 +41,15 @@ function Cadastro() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    const cleanLogin = login.replace(/[^\d]/g, "");
+
+    if (cleanLogin.length !== 11) {
+      toast.error("Erro no cadastro", {
+        description: "O telefone deve ter exatamente 11 dígitos.",
+      });
+      setIsLoading(false);
+      return;
+    }
     
     if (senha.length < 6) {
       toast.error("Erro no cadastro", {
@@ -50,7 +59,6 @@ function Cadastro() {
       return;
     }
 
-    const cleanLogin = login.replace(/[^\d]/g, "");
 
     try {
       const { data, error } = await supabase
