@@ -343,7 +343,7 @@ export function BookingButton({
         variant={variant} 
         className={cn("gap-2", className)}
       >
-        <CalendarIcon className="w-4 h-4" />
+        {icon ? icon : <CalendarIcon className="w-4 h-4" />}
         {label}
       </Button>
 
