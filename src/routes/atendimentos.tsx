@@ -254,8 +254,7 @@ function AtendimentosPage() {
     const dates = activeDates?.map(d => d.data) || [];
     setColabActiveDates(dates);
     
-    // Only reset date if it's a new scheduling and current date isn't active
-    if (isScheduleDialogOpen && selectedDatePart && !dates.includes(selectedDatePart)) {
+    if (selectedDatePart && !dates.includes(selectedDatePart)) {
       setSelectedDatePart("");
     }
   };
