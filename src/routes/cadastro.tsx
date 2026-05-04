@@ -32,7 +32,10 @@ function Cadastro() {
   const navigate = useNavigate();
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLogin(formatPhone(e.target.value));
+    const value = e.target.value.replace(/[^\d]/g, "");
+    if (value.length <= 11) {
+      setLogin(formatPhone(value));
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
