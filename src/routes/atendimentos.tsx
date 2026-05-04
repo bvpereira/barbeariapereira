@@ -100,7 +100,6 @@ function AtendimentosPage() {
 
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingAtendimento, setEditingAtendimento] = useState<Atendimento | null>(null);
 
