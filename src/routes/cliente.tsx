@@ -164,6 +164,33 @@ function ClientePage() {
                             </span>
                           </div>
                         </div>
+                        <div className="mt-4 flex gap-2">
+                          <BookingButton 
+                            label="Remarcar"
+                            variant="outline"
+                            className="flex-1 h-8 text-xs gap-1"
+                            icon={<Edit2 className="w-3 h-3" />}
+                            initialData={{
+                              id: item.id,
+                              data: item.data,
+                              cliente_id: user.id,
+                              cliente_nome: user.nome,
+                              colaborador_id: item.colaborador_id,
+                              valor: item.valor,
+                              servicos_ids: item.atendimento_servicos.map((as: any) => as.servicos?.id).filter(Boolean)
+                            }}
+                            onSuccess={() => fetchAgendamentos(user.id)}
+                          />
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 h-8 text-xs gap-1 text-destructive hover:bg-destructive/10 border-destructive/20"
+                            onClick={() => handleDelete(item)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Cancelar
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
