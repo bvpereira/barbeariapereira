@@ -75,13 +75,13 @@ function ClientePage() {
       if (error) throw error;
       
       // Trigger Webhook
-      const { data: colabUser } = await supabase.from('usuarios').select('login').eq('id', itemToDelete.colaborador_id).maybeSingle();
+      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', itemToDelete.colaborador_id).maybeSingle();
 
       triggerWebhook("Exclusao", {
         tipo: "Exclusao",
         cliente: user.nome,
         colaborador: itemToDelete.colaborador?.nome || "",
-        tel_colaborador: colabUser?.login || "",
+        tel_colaborador: colabData?.login || "",
         data: format(parseISO(itemToDelete.data), "dd/MM/yyyy"),
         horario: format(parseISO(itemToDelete.data), "HH:mm"),
         servicos: itemToDelete.atendimento_servicos.map((s: any) => s.servicos?.name)
