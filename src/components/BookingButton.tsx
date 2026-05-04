@@ -406,7 +406,7 @@ export function BookingButton({
               </div>
             ) : (
               <div className="space-y-2">
-                <Label>{fixedClientId ? "" : "2. "}Colaborador Selecionado</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) ? "" : "2. "}Colaborador Selecionado</Label>
                 <div className="p-2 border rounded bg-muted/50 flex items-center gap-2">
                   <User className="w-4 h-4 text-muted-foreground" />
                   <span className="font-medium">
@@ -486,7 +486,7 @@ export function BookingButton({
 
             {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
               <div className="space-y-2">
-                <Label>{(fixedClientId && fixedColaboradorId) ? "3" : (!fixedClientId && !fixedColaboradorId) ? "5" : "4"}. Horários Disponíveis</Label>
+                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "3" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "5" : "4"}. Horários Disponíveis</Label>
                 {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
                   <div className="grid grid-cols-4 gap-2">
                     {availableTimes.length > 0 ? availableTimes.map(t => (
