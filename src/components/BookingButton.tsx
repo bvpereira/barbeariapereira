@@ -65,10 +65,12 @@ interface BookingButtonProps {
 export function BookingButton({ 
   fixedClientId, 
   fixedColaboradorId, 
+  initialData,
   onSuccess,
   variant = "outline",
   className,
-  label = "Agendar Atendimento"
+  label = "Agendar Atendimento",
+  icon
 }: BookingButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
