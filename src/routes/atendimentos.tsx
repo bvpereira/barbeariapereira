@@ -20,6 +20,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
+import { BookingButton } from "@/components/BookingButton";
 import {
   Dialog,
   DialogContent,
@@ -99,7 +100,6 @@ function AtendimentosPage() {
 
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingAtendimento, setEditingAtendimento] = useState<Atendimento | null>(null);
 
@@ -254,8 +254,7 @@ function AtendimentosPage() {
     const dates = activeDates?.map(d => d.data) || [];
     setColabActiveDates(dates);
     
-    // Only reset date if it's a new scheduling and current date isn't active
-    if (isScheduleDialogOpen && selectedDatePart && !dates.includes(selectedDatePart)) {
+    if (selectedDatePart && !dates.includes(selectedDatePart)) {
       setSelectedDatePart("");
     }
   };
@@ -311,10 +310,8 @@ function AtendimentosPage() {
   }, [allServicos]);
 
   useEffect(() => {
-    if (isScheduleDialogOpen) {
-      fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
-    }
-  }, [selectedDatePart, selectedColaborador, selectedServicos, isScheduleDialogOpen, fetchAvailableTimes]);
+    fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
+  }, [selectedDatePart, selectedColaborador, selectedServicos, fetchAvailableTimes]);
 
   const resetForm = () => {
     setEditingAtendimento(null);
@@ -365,7 +362,6 @@ function AtendimentosPage() {
 
       toast.success("Salvo com sucesso");
       setIsDialogOpen(false);
-      setIsScheduleDialogOpen(false);
       fetchAgendados();
       fetchConcluidos();
     } catch (e: any) { toast.error(e.message); }
@@ -498,10 +494,7 @@ function AtendimentosPage() {
             <p className="text-muted-foreground">Controle os agendamentos e atendimentos realizados</p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => { resetForm(); setIsScheduleDialogOpen(true); }} variant="outline" className="gap-2 border-primary text-primary hover:bg-primary/10">
-              <CalendarIcon className="w-4 h-4" />
-              Agendar Atendimento
-            </Button>
+            <BookingButton onSuccess={fetchAgendados} />
             <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2">
               <Plus className="w-4 h-4" />
               Novo atendimento
@@ -668,121 +661,6 @@ function AtendimentosPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Dialog Agendar */}
-        <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
-          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>Agendar Atendimento</DialogTitle></DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>1. Selecione o Cliente</Label>
-                <Input placeholder="Buscar cliente..." value={searchCliente} onChange={(e) => searchClientes(e.target.value)} />
-                <div className="space-y-1">
-                  {clientes.map(c => <div key={c.id} onClick={() => { setSelectedCliente(c); setSearchCliente(c.nome); setClientes([]); }} className="p-2 border rounded hover:bg-accent cursor-pointer flex justify-between"><span>{c.nome}</span><span className="text-xs opacity-50">{c.login}</span></div>)}
-                </div>
-                {selectedCliente && <p className="text-xs text-green-600 font-medium">✓ {selectedCliente.nome}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label>2. Selecione o Colaborador</Label>
-                <Select value={selectedColaborador} onValueChange={(v) => { setSelectedColaborador(v); setSelectedServicos([]); fetchColabServicos(v); }}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o profissional" /></SelectTrigger>
-                  <SelectContent>{colaboradores.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-
-              {selectedColaborador && (
-                <div className="space-y-2">
-                  <Label>3. Selecione os Serviços</Label>
-                  <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto bg-muted/20">
-                    {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
-                      <div key={s.id} className="flex items-center gap-2">
-                        <Checkbox id={`sch-${s.id}`} checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} />
-                        <label htmlFor={`sch-${s.id}`} className="text-sm flex-1 flex justify-between">
-                          <span>{s.name}</span>
-                          <span className="opacity-60">{s.duration}min - R${s.price}</span>
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedServicos.length > 0 && (
-                <div className="space-y-2">
-                  <Label>4. Selecione a Data</Label>
-                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal pl-3",
-                          !selectedDatePart && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                        {selectedDatePart ? (
-                          format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                        ) : (
-                          <span>Selecione uma data</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
-                        onSelect={(date) => {
-                          if (date) {
-                            setSelectedDatePart(format(date, "yyyy-MM-dd"));
-                            setIsCalendarOpen(false);
-                          }
-                        }}
-                        disabled={(date) => {
-                          const dateStr = format(date, "yyyy-MM-dd");
-                          const today = startOfToday();
-                          return (
-                            date < today || 
-                            (maxDate && dateStr > maxDate) || 
-                            !colabActiveDates.includes(dateStr)
-                          );
-                        }}
-                        initialFocus
-                        locale={ptBR}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              )}
-
-              {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
-                <div className="space-y-2">
-                  <Label>5. Horários Disponíveis</Label>
-                  {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
-                    <div className="grid grid-cols-4 gap-2">
-                      {availableTimes.length > 0 ? availableTimes.map(t => (
-                        <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" onClick={() => setSelectedTimePart(t)}>{t}</Button>
-                      )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="valor-agendar">Valor Total (R$)</Label>
-                <Input 
-                  id="valor-agendar"
-                  type="number"
-                  step="0.01"
-                  value={valorFinal}
-                  onChange={(e) => setValorFinal(e.target.value)}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsScheduleDialogOpen(false)}>Cancelar</Button>
-              <Button onClick={() => handleSave(true)} disabled={isSubmitting || !selectedTimePart}>Agendar</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     </AdminLayout>
   );
