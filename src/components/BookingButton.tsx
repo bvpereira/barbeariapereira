@@ -77,11 +77,13 @@ export function BookingButton({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setCurrentUser(JSON.parse(userData));
+    if (isOpen) {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        setCurrentUser(JSON.parse(userData));
+      }
     }
-  }, []);
+  }, [isOpen]);
   
   // Data states
   const [clientes, setClientes] = useState<Cliente[]>([]);
