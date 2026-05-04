@@ -10,6 +10,16 @@ import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { triggerWebhook } from "@/lib/webhook";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/cliente" as any)({
   component: ClientePage,
@@ -19,6 +29,8 @@ function ClientePage() {
   const [user, setUser] = useState<any>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
     setLoading(true);
@@ -51,14 +63,14 @@ function ClientePage() {
     window.location.href = "/login";
   };
 
-  const handleDelete = async (item: any) => {
-    if (!confirm("Tem certeza que deseja cancelar este agendamento?")) return;
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
     
     try {
       const { error } = await supabase
         .from('atendimentos')
         .delete()
-        .eq('id', item.id);
+        .eq('id', itemToDelete.id);
       
       if (error) throw error;
       
@@ -66,17 +78,25 @@ function ClientePage() {
       triggerWebhook("Exclusao", {
         tipo: "Exclusao",
         cliente: user.nome,
-        colaborador: item.colaborador?.nome || "",
-        data: format(parseISO(item.data), "dd/MM/yyyy"),
-        horario: format(parseISO(item.data), "HH:mm"),
-        servicos: item.atendimento_servicos.map((s: any) => s.servicos?.name)
+        colaborador: itemToDelete.colaborador?.nome || "",
+        data: format(parseISO(itemToDelete.data), "dd/MM/yyyy"),
+        horario: format(parseISO(itemToDelete.data), "HH:mm"),
+        servicos: itemToDelete.atendimento_servicos.map((s: any) => s.servicos?.name)
       });
       
       toast.success("Agendamento cancelado com sucesso");
       fetchAgendamentos(user.id);
     } catch (error: any) {
       toast.error("Erro ao cancelar: " + error.message);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setItemToDelete(null);
     }
+  };
+
+  const confirmDelete = (item: any) => {
+    setItemToDelete(item);
+    setIsDeleteDialogOpen(true);
   };
 
   if (!user) return null;
@@ -185,7 +205,7 @@ function ClientePage() {
                             variant="outline" 
                             size="sm" 
                             className="flex-1 h-8 text-xs gap-1 text-destructive hover:bg-destructive/10 border-destructive/20"
-                            onClick={() => handleDelete(item)}
+                            onClick={() => confirmDelete(item)}
                           >
                             <Trash2 className="w-3 h-3" />
                             Cancelar
@@ -200,6 +220,26 @@ function ClientePage() {
           </Card>
         </div>
       </div>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar Agendamento</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja cancelar este agendamento? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setItemToDelete(null)}>Voltar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Confirmar Cancelamento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
