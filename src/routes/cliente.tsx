@@ -51,6 +51,34 @@ function ClientePage() {
     window.location.href = "/login";
   };
 
+  const handleDelete = async (item: any) => {
+    if (!confirm("Tem certeza que deseja cancelar este agendamento?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('atendimentos')
+        .delete()
+        .eq('id', item.id);
+      
+      if (error) throw error;
+      
+      // Trigger Webhook
+      triggerWebhook("Exclusao", {
+        tipo: "Exclusao",
+        cliente: user.nome,
+        colaborador: item.colaborador?.nome || "",
+        data: format(parseISO(item.data), "dd/MM/yyyy"),
+        horario: format(parseISO(item.data), "HH:mm"),
+        servicos: item.atendimento_servicos.map((s: any) => s.servicos?.name)
+      });
+      
+      toast.success("Agendamento cancelado com sucesso");
+      fetchAgendamentos(user.id);
+    } catch (error: any) {
+      toast.error("Erro ao cancelar: " + error.message);
+    }
+  };
+
   if (!user) return null;
 
   return (
