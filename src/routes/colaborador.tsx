@@ -118,8 +118,8 @@ function ColaboradorPage() {
             <CardContent>
               <p className="mb-4 text-muted-foreground">Agende um novo serviço para um cliente.</p>
               <BookingButton 
-                fixedColaboradorId={colabId} 
-                onSuccess={() => fetchAgendamentos(colabId)}
+                fixedColaboradorId={colabId!} 
+                onSuccess={() => fetchAgendamentos(colabId!)}
                 className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
                 variant="default"
               />
