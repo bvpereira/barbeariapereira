@@ -16,13 +16,16 @@ interface WebhookData {
 
 export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
   try {
-    // 1. Check if the user is level 3
+    // 1. Log for debugging
+    console.log("Triggering Webhook:", event, data);
+
+    // 2. Check if the user is level 3
     const userData = localStorage.getItem("user");
     if (!userData) return;
     
     const user = JSON.parse(userData);
     if (user.nivel !== 3) {
-      console.log("Webhook skipped: User is not Level 3");
+      console.log("Webhook skipped: User is not Level 3 (Nível:", user.nivel, ")");
       return;
     }
 

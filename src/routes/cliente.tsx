@@ -76,7 +76,7 @@ function ClientePage() {
       
       // Trigger Webhook
       const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', itemToDelete.colaborador_id).maybeSingle();
-      const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : "";
+      const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
 
       triggerWebhook("Exclusao", {
         tipo: "Exclusao",
