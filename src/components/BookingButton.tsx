@@ -304,7 +304,9 @@ export function BookingButton({
         const isRemarcacao = oldData.getTime() !== newData.getTime();
         const colab = colaboradores.find(c => c.id === selectedColaborador);
         const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
-        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : "";
+        console.log("Colab data found:", colabData);
+        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
+        
         
         
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
@@ -323,7 +325,8 @@ export function BookingButton({
       } else {
         const colab = colaboradores.find(c => c.id === selectedColaborador);
         const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
-        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : "";
+        console.log("Colab data found:", colabData);
+        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
 
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
