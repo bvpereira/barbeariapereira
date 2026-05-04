@@ -119,15 +119,27 @@ export function BookingButton({
     if (isOpen) {
       fetchFormData();
       fetchMaxDate();
-      if (fixedClientId) {
-        fetchFixedClient(fixedClientId);
-      }
-      if (fixedColaboradorId) {
-        setSelectedColaborador(fixedColaboradorId);
-        fetchColabServicos(fixedColaboradorId);
+      
+      if (initialData) {
+        setSelectedCliente({ id: initialData.cliente_id, nome: initialData.cliente_nome, login: "" });
+        setSearchCliente(initialData.cliente_nome || "");
+        setSelectedColaborador(initialData.colaborador_id);
+        setSelectedDatePart(format(parseISO(initialData.data), "yyyy-MM-dd"));
+        setSelectedTimePart(format(parseISO(initialData.data), "HH:mm"));
+        setSelectedServicos(initialData.servicos_ids || []);
+        setValorFinal(initialData.valor?.toString() || "0");
+        fetchColabServicos(initialData.colaborador_id);
+      } else {
+        if (fixedClientId) {
+          fetchFixedClient(fixedClientId);
+        }
+        if (fixedColaboradorId) {
+          setSelectedColaborador(fixedColaboradorId);
+          fetchColabServicos(fixedColaboradorId);
+        }
       }
     }
-  }, [isOpen, fixedClientId, fixedColaboradorId]);
+  }, [isOpen, fixedClientId, fixedColaboradorId, initialData]);
 
   const searchClientes = async (term: string) => {
     setSearchCliente(term);
