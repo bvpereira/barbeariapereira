@@ -36,7 +36,9 @@ function Registro() {
 
         if (error) throw error;
         if (data) {
-          setAdminPhone((data as any).tel_contato ? (data as any).tel_contato.replace(/[^\d]/g, "") : "");
+          const rawPhone = (data as any).tel_contato || "";
+          // Remove todos os caracteres não numéricos para o link do wa.me
+          setAdminPhone(rawPhone.replace(/\D/g, ""));
         }
       } catch (err) {
         console.error("Erro ao buscar telefone do admin:", err);
