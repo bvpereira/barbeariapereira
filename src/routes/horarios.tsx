@@ -73,8 +73,29 @@ function HorariosPage() {
   
 
   useEffect(() => {
-    fetchData();
+    const cleanupAndFetch = async () => {
+      await cleanupOldDays();
+      await fetchData();
+    };
+    cleanupAndFetch();
   }, []);
+
+  const cleanupOldDays = async () => {
+    try {
+      const today = format(new Date(), "yyyy-MM-dd");
+      
+      // We only delete from dias_agenda, which seems to be the controlling table for the UI
+      // and won't affect the history of appointments (assuming they are in another table)
+      const { error } = await supabase
+        .from("dias_agenda")
+        .delete()
+        .lt("data", today);
+
+      if (error) console.error("Erro ao limpar dias antigos:", error);
+    } catch (error) {
+      console.error("Erro na limpeza de dias:", error);
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
