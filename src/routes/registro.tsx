@@ -30,13 +30,13 @@ function Registro() {
       try {
         const { data, error } = await supabase
           .from("informacoes" as any)
-          .select("whatsapp")
+          .select("tel_contato")
           .eq("userrr", "admin")
           .maybeSingle();
 
         if (error) throw error;
         if (data) {
-          setAdminPhone((data as any).whatsapp.replace(/[^\d]/g, ""));
+          setAdminPhone((data as any).tel_contato ? (data as any).tel_contato.replace(/[^\d]/g, "") : "");
         }
       } catch (err) {
         console.error("Erro ao buscar telefone do admin:", err);

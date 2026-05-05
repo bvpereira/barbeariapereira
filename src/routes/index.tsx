@@ -388,7 +388,7 @@ function GaleriaInformacoes() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("*")
+          .select("imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8")
           .eq("userrr", "admin")
           .maybeSingle());
 
