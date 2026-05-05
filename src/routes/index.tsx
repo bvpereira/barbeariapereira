@@ -28,55 +28,23 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
       <Hero />
       <SobreNos />
       <Localizacao />
       <Servicos />
       <Colaboradores />
-      <GaleriaInformacoes />
       <Contato />
       <Footer />
-      <FrasesDiferentes />
     </div>
   );
 }
 
-function FrasesDiferentes() {
-  const fontes = [
-    { name: "Serif (Times New Roman)", class: "font-serif" },
-    { name: "Sans-serif (Inter/Geist)", class: "font-sans" },
-    { name: "Monospace (JetBrains Mono)", class: "font-mono" },
-    { name: "Display (Bold/Italic)", class: "font-sans font-black italic tracking-tighter" },
-    { name: "Condensed (Tight Tracking)", class: "font-sans tracking-tight font-medium" },
-    { name: "Wide (Loose Tracking)", class: "font-sans tracking-[0.2em] uppercase text-xs" },
-    { name: "Lightweight (Extra Light)", class: "font-sans font-extralight" },
-    { name: "SemiBold (Strong)", class: "font-sans font-semibold" },
-    { name: "Italic Serif", class: "font-serif italic" },
-    { name: "Uppercase Mono", class: "font-mono uppercase text-sm font-bold" }
-  ];
-
-  return (
-    <section className="py-20 bg-background border-t border-primary/5 px-4">
-      <div className="max-w-4xl mx-auto space-y-12">
-        {fontes.map((fonte, i) => (
-          <div key={i} className="flex flex-col items-center text-center">
-            <p className={cn("text-2xl md:text-4xl text-foreground mb-2", fonte.class)}>
-              Esse é o título
-            </p>
-            <span className="text-xs text-muted-foreground font-mono opacity-60">
-              Fonte: {fonte.name}
-            </span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
+// Seção de frases removida conforme solicitação
 
 function Hero() {
   return (
-    <BeamsBackground className="min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center">
+    <section className="min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-black">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -124,14 +92,42 @@ function Hero() {
           </Link>
         </motion.div>
       </motion.div>
-    </BeamsBackground>
+    </section>
   );
 }
 
 function SobreNos() {
-  const [emblaRef] = useEmblaCarousel({ loop: true });
-  
-  const images = Array.from({ length: 8 }, (_, i) => `/carrossel/barbearia-${i + 1}.png`);
+  const [images, setImages] = useState<string[]>([]);
+  const [emblaRef] = useEmblaCarousel({ 
+    loop: true,
+    align: "start",
+    slidesToScroll: 1
+  }, [Autoplay({ delay: 3000, stopOnInteraction: false })]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const { data, error } = await (supabase
+          .from("informacoes" as any)
+          .select("imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8")
+          .eq("userrr", "admin")
+          .maybeSingle());
+
+        if (error) throw error;
+        if (data) {
+          const infoData = data as any;
+          const imgList = [
+            infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
+            infoData.imagem_5, infoData.imagem_6, infoData.imagem_7, infoData.imagem_8
+          ].filter(img => img !== null && img !== "");
+          setImages(imgList);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar galeria:", err);
+      }
+    };
+    fetchImages();
+  }, []);
   
   const features = [
     { icon: Snowflake, text: "Ambiente climatizado e confortável" },
@@ -182,17 +178,29 @@ function SobreNos() {
           })}
         </div>
 
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex">
-            {images.map((src, index) => (
-              <div key={index} className="flex-[0_0_80%] min-w-0 sm:flex-[0_0_40%] md:flex-[0_0_25%] pl-4">
-                <div className="relative rounded-xl overflow-hidden aspect-square border border-primary/10 transition-transform hover:scale-105 duration-500">
-                  <img src={src} alt={`Barbearia ${index + 1}`} className="w-full h-full object-cover" />
+        {images.length > 0 && (
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex">
+              {images.map((src, index) => (
+                <div key={index} className="flex-[0_0_80%] min-w-0 sm:flex-[0_0_40%] md:flex-[0_0_25%] pl-4">
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="relative rounded-2xl overflow-hidden aspect-square border border-primary/20 shadow-lg group"
+                  >
+                    <img 
+                      src={src} 
+                      alt={`Galeria ${index + 1}`} 
+                      className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" 
+                    />
+                  </motion.div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
@@ -375,77 +383,7 @@ function Colaboradores() {
   );
 }
 
-function GaleriaInformacoes() {
-  const [images, setImages] = useState<string[]>([]);
-  const [emblaRef] = useEmblaCarousel({ 
-    loop: true,
-    align: "start",
-    slidesToScroll: 1
-  }, [Autoplay({ delay: 3000, stopOnInteraction: false })]);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const { data, error } = await (supabase
-          .from("informacoes" as any)
-          .select("imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8")
-          .eq("userrr", "admin")
-          .maybeSingle());
-
-        if (error) throw error;
-        if (data) {
-          const infoData = data as any;
-          const imgList = [
-            infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
-            infoData.imagem_5, infoData.imagem_6, infoData.imagem_7, infoData.imagem_8
-          ].filter(img => img !== null && img !== "");
-          setImages(imgList);
-        }
-      } catch (err) {
-        console.error("Erro ao buscar galeria:", err);
-      }
-    };
-    fetchImages();
-  }, []);
-
-  if (images.length === 0) return null;
-
-  return (
-    <section className="py-20 bg-secondary/10 px-4 overflow-hidden">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
-            <ImageIcon className="w-8 h-8" />
-            Galeria da Barbearia
-          </h2>
-          <div className="w-24 h-1 bg-primary mx-auto" />
-        </div>
-
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex">
-            {images.map((src, index) => (
-              <div key={index} className="flex-[0_0_80%] min-w-0 sm:flex-[0_0_40%] md:flex-[0_0_25%] pl-4">
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="relative rounded-2xl overflow-hidden aspect-square border border-primary/20 shadow-lg group"
-                >
-                  <img 
-                    src={src} 
-                    alt={`Galeria ${index + 1}`} 
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" 
-                  />
-                </motion.div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+// Galeria removida conforme solicitação
 
 function Contato() {
   const whatsappLink = "https://wa.me/5522998770113?text=Olá, gostaria de agendar um horário";
