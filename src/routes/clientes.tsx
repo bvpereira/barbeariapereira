@@ -163,7 +163,7 @@ function ClientesPage() {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
-
+  const [formData, setFormData] = useState({
     nome: "",
     login: "",
     senha: "",
@@ -538,16 +538,6 @@ function ClientesPage() {
     setClienteToDelete(id);
     setIsDeleteDialogOpen(true);
   };
-        .in("id", atendimentoIds);
-    }
-
-    const { error } = await supabase
-      .from("usuarios")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      console.error("Erro ao excluir cliente:", error);
       toast.error("Erro ao excluir cliente: " + error.message);
     } else {
       toast.success("Cliente excluído com sucesso");
