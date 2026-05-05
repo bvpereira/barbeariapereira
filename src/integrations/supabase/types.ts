@@ -283,6 +283,7 @@ export type Database = {
       informacoes: {
         Row: {
           created_at: string
+          email: string | null
           id: string
           imagem_1: string | null
           imagem_2: string | null
@@ -300,6 +301,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           id?: string
           imagem_1?: string | null
           imagem_2?: string | null
@@ -317,6 +319,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           id?: string
           imagem_1?: string | null
           imagem_2?: string | null
@@ -382,24 +385,6 @@ export type Database = {
           name?: string
           price?: number
           updated_at?: string
-        }
-        Relationships: []
-      }
-      teste: {
-        Row: {
-          created_at: string
-          id: string
-          nomes: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          nomes: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          nomes?: string
         }
         Relationships: []
       }
