@@ -41,6 +41,16 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -151,6 +161,8 @@ function ClientesPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     nome: "",
     login: "",
@@ -478,42 +490,53 @@ function ClientesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
-
-    // Primeiro, vamos deletar os atendimentos relacionados para evitar erro de chave estrangeira
-    // se o banco não estiver com ON DELETE CASCADE configurado.
-    // Primeiro deletamos da tabela atendimento_servicos
-    const { data: userAtendimentos } = await supabase
-      .from("atendimentos")
-      .select("id")
-      .eq("cliente_id", id);
-    
-    if (userAtendimentos && userAtendimentos.length > 0) {
-      const atendimentoIds = userAtendimentos.map(a => a.id);
-      await supabase
-        .from("atendimento_servicos")
-        .delete()
-        .in("atendimento_id", atendimentoIds);
-
-      await supabase
+    try {
+      // Primeiro, vamos deletar os atendimentos relacionados para evitar erro de chave estrangeira
+      // se o banco não estiver com ON DELETE CASCADE configurado.
+      // Primeiro deletamos da tabela atendimento_servicos
+      const { data: userAtendimentos } = await supabase
         .from("atendimentos")
+        .select("id")
+        .eq("cliente_id", id);
+      
+      if (userAtendimentos && userAtendimentos.length > 0) {
+        const atendimentoIds = userAtendimentos.map(a => a.id);
+        await supabase
+          .from("atendimento_servicos")
+          .delete()
+          .in("atendimento_id", atendimentoIds);
+
+        await supabase
+          .from("atendimentos")
+          .delete()
+          .in("id", atendimentoIds);
+      }
+
+      const { error } = await supabase
+        .from("usuarios")
         .delete()
-        .in("id", atendimentoIds);
-    }
+        .eq("id", id);
 
-    const { error } = await supabase
-      .from("usuarios")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      console.error("Erro ao excluir cliente:", error);
-      toast.error("Erro ao excluir cliente: " + error.message);
-    } else {
-      toast.success("Cliente excluído com sucesso");
-      fetchClientes();
-      fetchTotal();
+      if (error) {
+        toast.error("Erro ao excluir cliente");
+        console.error(error);
+      } else {
+        toast.success("Cliente excluído com sucesso");
+        fetchClientes();
+        fetchTotal();
+      }
+    } catch (error) {
+      console.error("Erro na exclusão:", error);
+      toast.error("Ocorreu um erro ao tentar excluir o cliente");
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setClienteToDelete(null);
     }
+  };
+
+  const confirmDelete = (id: string) => {
+    setClienteToDelete(id);
+    setIsDeleteDialogOpen(true);
   };
 
   const openAddDialog = () => {
@@ -650,7 +673,7 @@ function ClientesPage() {
                               variant="ghost"
                               size="icon"
                               className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleDelete(cliente.id)}
+                              onClick={() => confirmDelete(cliente.id)}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -763,6 +786,30 @@ function ClientesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        
+        {/* Alert Dialog for Deletion Confirmation */}
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente
+                e todos os seus registros de atendimento associados.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setClienteToDelete(null)}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => clienteToDelete && handleDelete(clienteToDelete)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Excluir Cliente
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         {/* Dialog Novo/Editar Atendimento (Histórico) */}
         <Dialog open={isEditAtendimentoOpen} onOpenChange={setIsEditAtendimentoOpen}>
           <DialogContent className="sm:max-w-[500px]">
