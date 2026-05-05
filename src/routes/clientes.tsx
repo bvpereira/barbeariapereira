@@ -673,7 +673,7 @@ function ClientesPage() {
                               variant="ghost"
                               size="icon"
                               className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleDelete(cliente.id)}
+                              onClick={() => confirmDelete(cliente.id)}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -786,6 +786,30 @@ function ClientesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        
+        {/* Alert Dialog for Deletion Confirmation */}
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Tem certeza que deseja excluir?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente
+                e todos os seus registros de atendimento associados.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setClienteToDelete(null)}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => clienteToDelete && handleDelete(clienteToDelete)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Excluir Cliente
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         {/* Dialog Novo/Editar Atendimento (Histórico) */}
         <Dialog open={isEditAtendimentoOpen} onOpenChange={setIsEditAtendimentoOpen}>
           <DialogContent className="sm:max-w-[500px]">
