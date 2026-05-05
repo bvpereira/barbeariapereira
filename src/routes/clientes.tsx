@@ -538,13 +538,6 @@ function ClientesPage() {
     setClienteToDelete(id);
     setIsDeleteDialogOpen(true);
   };
-      toast.error("Erro ao excluir cliente: " + error.message);
-    } else {
-      toast.success("Cliente excluído com sucesso");
-      fetchClientes();
-      fetchTotal();
-    }
-  };
 
   const openAddDialog = () => {
     setIsEditing(false);
