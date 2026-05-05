@@ -1,0 +1,1 @@
+ALTER TABLE public.informacoes DROP COLUMN IF EXISTS whatsapp;
