@@ -330,6 +330,16 @@ function MinhaContaPage() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="login">Telefone (Login)</Label>
+                  <Input
+                    id="login"
+                    value={user?.login || ""}
+                    disabled
+                    className="bg-muted cursor-not-allowed"
+                  />
+                  <p className="text-xs text-muted-foreground">O telefone de acesso não pode ser alterado por aqui.</p>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -388,16 +398,6 @@ function MinhaContaPage() {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">Este é o número que os clientes entrarão em contato para validar o registro.</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login">Telefone (Login)</Label>
-                  <Input
-                    id="login"
-                    value={user?.login || ""}
-                    disabled
-                    className="bg-muted cursor-not-allowed"
-                  />
-                  <p className="text-xs text-muted-foreground">O telefone de acesso não pode ser alterado por aqui.</p>
                 </div>
                 <Button type="submit" disabled={loading} className="gap-2">
                   <Save className="h-4 w-4" />
