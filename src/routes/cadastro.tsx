@@ -200,7 +200,7 @@ function Cadastro() {
             <Label htmlFor="confirmarSenha">Confirmar Senha</Label>
             <Input
               id="confirmarSenha"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
               required
