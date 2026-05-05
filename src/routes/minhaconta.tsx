@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, MessageCircle } from "lucide-react";
+import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, MessageCircle, Mail } from "lucide-react";
 
 export const Route = createFileRoute("/minhaconta" as any)({
   component: MinhaContaPage,
@@ -21,6 +21,7 @@ function MinhaContaPage() {
   // Profile state
   const [nome, setNome] = useState("");
   const [telContato, setTelContato] = useState("");
+  const [email, setEmail] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
   const [whatsapp, setWhatsapp] = useState("");
   const [imagens, setImagens] = useState<(string | null)[]>(Array(8).fill(null));
@@ -57,6 +58,7 @@ function MinhaContaPage() {
           const infoData = data as any;
           setTelContato(infoData.tel_contato || "");
           setWhatsapp(infoData.whatsapp || "");
+          setEmail(infoData.email || "");
           setInfoId(infoData.id);
           setImagens([
             infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
@@ -105,14 +107,14 @@ function MinhaContaPage() {
       if (existingInfo) {
         const { error: infoError } = await (supabase
           .from("informacoes" as any)
-          .update({ tel_contato: telContato, whatsapp, usuario_id: user.id } as any)
+          .update({ tel_contato: telContato, whatsapp, email, usuario_id: user.id } as any)
           .eq("id", (existingInfo as any).id));
         if (infoError) throw infoError;
         setInfoId((existingInfo as any).id);
       } else {
         const { data: newInfo, error: infoError } = await (supabase
           .from("informacoes" as any)
-          .insert({ tel_contato: telContato, whatsapp, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
+          .insert({ tel_contato: telContato, whatsapp, email, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
           .select()
           .single());
         if (infoError) throw infoError;
@@ -326,6 +328,20 @@ function MinhaContaPage() {
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Seu nome"
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="seu@email.com"
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="telContato">Telefone de contato</Label>
