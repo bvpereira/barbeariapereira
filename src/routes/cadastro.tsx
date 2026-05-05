@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/cadastro" as any)({
   component: Cadastro,
@@ -28,6 +29,9 @@ function Cadastro() {
   const [nome, setNome] = useState("");
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [displayedPassword, setDisplayedPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -37,6 +41,27 @@ function Cadastro() {
       setLogin(formatPhone(value));
     }
   };
+
+  useEffect(() => {
+    if (showPassword) {
+      setDisplayedPassword(senha);
+      return;
+    }
+    
+    if (senha.length === 0) {
+      setDisplayedPassword("");
+      return;
+    }
+
+    const masked = "*".repeat(senha.length - 1) + senha.slice(-1);
+    setDisplayedPassword(masked);
+
+    const timer = setTimeout(() => {
+      setDisplayedPassword("*".repeat(senha.length));
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [senha, showPassword]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +79,14 @@ function Cadastro() {
     if (senha.length < 6) {
       toast.error("Erro no cadastro", {
         description: "A senha precisa ter no mínimo 6 caracteres.",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      toast.error("Erro no cadastro", {
+        description: "As senhas não coincidem.",
       });
       setIsLoading(false);
       return;
@@ -133,11 +166,43 @@ function Cadastro() {
 
           <div className="space-y-2">
             <Label htmlFor="senha">Senha</Label>
+            <div className="relative">
+              <Input
+                id="senha"
+                type="text"
+                value={displayedPassword}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val.length < senha.length) {
+                    setSenha(senha.slice(0, val.length));
+                  } else if (val.length > senha.length) {
+                    const lastChar = val.slice(-1);
+                    setSenha(senha + lastChar);
+                  }
+                }}
+                required
+                className="bg-background pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              A senha deve conter no mínimo 6 caracteres.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmarSenha">Confirmar Senha</Label>
             <Input
-              id="senha"
+              id="confirmarSenha"
               type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              value={confirmarSenha}
+              onChange={(e) => setConfirmarSenha(e.target.value)}
               required
               className="bg-background"
             />
