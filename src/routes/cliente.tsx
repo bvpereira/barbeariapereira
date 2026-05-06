@@ -4,12 +4,14 @@ import { BookingButton } from "@/components/BookingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2 } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { triggerWebhook } from "@/lib/webhook";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +33,8 @@ function ClientePage() {
   const [loading, setLoading] = useState(true);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPromocaoEnabled, setIsPromocaoEnabled] = useState(true);
+  const [isUpdatingPromocao, setIsUpdatingPromocao] = useState(false);
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
     setLoading(true);
@@ -49,14 +53,56 @@ function ClientePage() {
     setLoading(false);
   }, []);
 
+  const fetchUserPromocao = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('promocao')
+      .eq('id', userId)
+      .maybeSingle();
+    
+    if (!error && data) {
+      setIsPromocaoEnabled(data.promocao === 'sim');
+    }
+  }, []);
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
       fetchAgendamentos(parsedUser.id);
+      fetchUserPromocao(parsedUser.id);
     }
-  }, [fetchAgendamentos]);
+  }, [fetchAgendamentos, fetchUserPromocao]);
+
+  const handlePromocaoToggle = async (checked: boolean) => {
+    if (!user) return;
+    
+    setIsUpdatingPromocao(true);
+    const newValue = checked ? 'sim' : 'não';
+    
+    try {
+      const { error } = await supabase
+        .from('usuarios')
+        .update({ promocao: newValue })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      setIsPromocaoEnabled(checked);
+      
+      // Atualiza o localStorage também para manter consistência
+      const updatedUser = { ...user, promocao: newValue };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      toast.success(checked ? "Promoções ativadas" : "Promoções desativadas");
+    } catch (error: any) {
+      toast.error("Erro ao atualizar preferência: " + error.message);
+    } finally {
+      setIsUpdatingPromocao(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -119,6 +165,31 @@ function ClientePage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" />
+                Preferências de Comunicação
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex flex-col space-y-1">
+                  <Label htmlFor="promocoes" className="text-base font-semibold">Promoções</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Aceito receber promoções e novidades no meu WhatsApp.
+                  </p>
+                </div>
+                <Switch
+                  id="promocoes"
+                  checked={isPromocaoEnabled}
+                  onCheckedChange={handlePromocaoToggle}
+                  disabled={isUpdatingPromocao}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="md:col-span-2 bg-primary/5 border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

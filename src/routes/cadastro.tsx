@@ -102,7 +102,8 @@ function Cadastro() {
             login: cleanLogin,
             senha,
             nivel: 3, // Cliente
-            registro: "nao"
+            registro: "nao",
+            promocao: "sim"
           },
         ])
         .select()
