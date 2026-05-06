@@ -14,8 +14,16 @@ import {
   Image as ImageIcon,
   Snowflake,
   Car,
-  Coffee
+  Coffee,
+  X
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { cn } from "../lib/utils";
@@ -211,6 +219,28 @@ function SobreNos() {
 }
 
 function Localizacao() {
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchVideo = async () => {
+      try {
+        const { data, error } = await (supabase
+          .from("informacoes" as any)
+          .select("video_local")
+          .eq("userrr", "admin")
+          .maybeSingle());
+
+        if (error) throw error;
+        if (data && (data as any).video_local) {
+          setVideoUrl((data as any).video_local);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar vídeo de localização:", err);
+      }
+    };
+    fetchVideo();
+  }, []);
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
@@ -249,10 +279,32 @@ function Localizacao() {
               </div>
             </div>
 
-            <button className="flex items-center gap-3 bg-secondary hover:bg-secondary/80 text-foreground px-6 py-4 rounded-xl transition-all border border-primary/10 w-fit">
-              <Play className="fill-primary text-primary w-5 h-5" />
-              <span className="font-bold uppercase tracking-tight">Ver como chegar</span>
-            </button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button 
+                  className="flex items-center gap-3 bg-secondary hover:bg-secondary/80 text-foreground px-6 py-4 rounded-xl transition-all border border-primary/10 w-fit"
+                  disabled={!videoUrl}
+                >
+                  <Play className="fill-primary text-primary w-5 h-5" />
+                  <span className="font-bold uppercase tracking-tight">Ver como chegar</span>
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-primary/20">
+                <DialogHeader className="p-4 absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent">
+                  <DialogTitle className="text-primary font-josefin uppercase tracking-widest">Vídeo de Localização</DialogTitle>
+                </DialogHeader>
+                <div className="aspect-video w-full">
+                  {videoUrl && (
+                    <video 
+                      src={videoUrl} 
+                      controls 
+                      autoPlay 
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </motion.div>
 
           <motion.div
