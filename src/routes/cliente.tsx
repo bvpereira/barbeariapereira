@@ -254,31 +254,7 @@ function ClientePage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-primary" />
-                Preferências de Comunicação
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between space-x-2">
-                <div className="flex flex-col space-y-1">
-                  <Label htmlFor="promocoes" className="text-base font-semibold">Promoções</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Aceito receber promoções e novidades no meu WhatsApp.
-                  </p>
-                </div>
-                <Switch
-                  id="promocoes"
-                  checked={isPromocaoEnabled}
-                  onCheckedChange={handlePromocaoToggle}
-                  disabled={isUpdatingPromocao}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
+          {/* Section 1: Novo Agendamento */}
           <Card className="md:col-span-2 bg-primary/5 border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -297,6 +273,7 @@ function ClientePage() {
             </CardContent>
           </Card>
 
+          {/* Section 2: Meus Próximos Horários */}
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -380,6 +357,133 @@ function ClientePage() {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Section 3: Preferências de Comunicação (Penultimate) */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" />
+                Preferências de Comunicação
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex flex-col space-y-1">
+                  <Label htmlFor="promocoes" className="text-base font-semibold">Promoções</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Aceito receber promoções e novidades no meu WhatsApp.
+                  </p>
+                </div>
+                <Switch
+                  id="promocoes"
+                  checked={isPromocaoEnabled}
+                  onCheckedChange={handlePromocaoToggle}
+                  disabled={isUpdatingPromocao}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 4: Informações da Conta (Last) */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-primary" />
+                Informações da Conta
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="userName">Nome</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="userName" 
+                      value={newName} 
+                      onChange={(e) => setNewName(e.target.value)}
+                    />
+                    <Button 
+                      size="icon" 
+                      onClick={handleUpdateName} 
+                      disabled={isUpdatingName || newName === user.nome}
+                      variant="secondary"
+                    >
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="userLogin">Login (Telefone)</Label>
+                  <Input 
+                    id="userLogin" 
+                    value={user.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")} 
+                    disabled 
+                    className="bg-muted cursor-not-allowed"
+                  />
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Alterar Senha
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Alterar Minha Senha</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="currentPassword">Senha Atual</Label>
+                        <Input 
+                          id="currentPassword" 
+                          type="password" 
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="newPassword">Nova Senha</Label>
+                        <Input 
+                          id="newPassword" 
+                          type="password" 
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                        <Input 
+                          id="confirmPassword" 
+                          type="password" 
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setIsPasswordDialogOpen(false)}
+                        disabled={isUpdatingPassword}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button 
+                        onClick={handleChangePassword}
+                        disabled={isUpdatingPassword}
+                      >
+                        {isUpdatingPassword ? "Salvando..." : "Salvar Nova Senha"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardContent>
           </Card>
         </div>
