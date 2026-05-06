@@ -4,7 +4,7 @@ import { BookingButton } from "@/components/BookingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { triggerWebhook } from "@/lib/webhook";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +23,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/cliente" as any)({
   component: ClientePage,
@@ -35,6 +44,14 @@ function ClientePage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPromocaoEnabled, setIsPromocaoEnabled] = useState(true);
   const [isUpdatingPromocao, setIsUpdatingPromocao] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
     setLoading(true);
@@ -70,6 +87,7 @@ function ClientePage() {
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
+      setNewName(parsedUser.nome);
       fetchAgendamentos(parsedUser.id);
       fetchUserPromocao(parsedUser.id);
     }
@@ -103,6 +121,77 @@ function ClientePage() {
       setIsUpdatingPromocao(false);
     }
   };
+
+  const handleUpdateName = async () => {
+    if (!user || !newName.trim()) return;
+    
+    setIsUpdatingName(true);
+    try {
+      const { error } = await supabase
+        .from('usuarios')
+        .update({ nome: newName })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      const updatedUser = { ...user, nome: newName };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      toast.success("Nome atualizado com sucesso");
+    } catch (error: any) {
+      toast.error("Erro ao atualizar nome: " + error.message);
+    } finally {
+      setIsUpdatingName(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!user) return;
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Preencha todos os campos");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("As novas senhas não coincidem");
+      return;
+    }
+    
+    setIsUpdatingPassword(true);
+    try {
+      // Primeiro verifica a senha atual
+      const { data, error: checkError } = await supabase
+        .from('usuarios')
+        .select('senha')
+        .eq('id', user.id)
+        .maybeSingle();
+        
+      if (checkError) throw checkError;
+      if (data?.senha !== currentPassword) {
+        toast.error("Senha atual incorreta");
+        setIsUpdatingPassword(false);
+        return;
+      }
+      
+      // Atualiza para a nova senha
+      const { error: updateError } = await supabase
+        .from('usuarios')
+        .update({ senha: newPassword })
+        .eq('id', user.id);
+        
+      if (updateError) throw updateError;
+      
+      toast.success("Senha alterada com sucesso");
+      setIsPasswordDialogOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast.error("Erro ao alterar senha: " + error.message);
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -165,31 +254,7 @@ function ClientePage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-primary" />
-                Preferências de Comunicação
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between space-x-2">
-                <div className="flex flex-col space-y-1">
-                  <Label htmlFor="promocoes" className="text-base font-semibold">Promoções</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Aceito receber promoções e novidades no meu WhatsApp.
-                  </p>
-                </div>
-                <Switch
-                  id="promocoes"
-                  checked={isPromocaoEnabled}
-                  onCheckedChange={handlePromocaoToggle}
-                  disabled={isUpdatingPromocao}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
+          {/* Section 1: Novo Agendamento */}
           <Card className="md:col-span-2 bg-primary/5 border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -208,6 +273,7 @@ function ClientePage() {
             </CardContent>
           </Card>
 
+          {/* Section 2: Meus Próximos Horários */}
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -291,6 +357,133 @@ function ClientePage() {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Section 3: Preferências de Comunicação (Penultimate) */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" />
+                Preferências de Comunicação
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex flex-col space-y-1">
+                  <Label htmlFor="promocoes" className="text-base font-semibold">Promoções</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Aceito receber promoções e novidades no meu WhatsApp.
+                  </p>
+                </div>
+                <Switch
+                  id="promocoes"
+                  checked={isPromocaoEnabled}
+                  onCheckedChange={handlePromocaoToggle}
+                  disabled={isUpdatingPromocao}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 4: Informações da Conta (Last) */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-primary" />
+                Informações da Conta
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="userName">Nome</Label>
+                  <div className="flex gap-2">
+                    <Input 
+                      id="userName" 
+                      value={newName} 
+                      onChange={(e) => setNewName(e.target.value)}
+                    />
+                    <Button 
+                      size="icon" 
+                      onClick={handleUpdateName} 
+                      disabled={isUpdatingName || newName === user.nome}
+                      variant="secondary"
+                    >
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="userLogin">Login (Telefone)</Label>
+                  <Input 
+                    id="userLogin" 
+                    value={user.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")} 
+                    disabled 
+                    className="bg-muted cursor-not-allowed"
+                  />
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Alterar Senha
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Alterar Minha Senha</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="currentPassword">Senha Atual</Label>
+                        <Input 
+                          id="currentPassword" 
+                          type="password" 
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="newPassword">Nova Senha</Label>
+                        <Input 
+                          id="newPassword" 
+                          type="password" 
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                        <Input 
+                          id="confirmPassword" 
+                          type="password" 
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setIsPasswordDialogOpen(false)}
+                        disabled={isUpdatingPassword}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button 
+                        onClick={handleChangePassword}
+                        disabled={isUpdatingPassword}
+                      >
+                        {isUpdatingPassword ? "Salvando..." : "Salvar Nova Senha"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardContent>
           </Card>
         </div>
