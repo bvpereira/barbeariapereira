@@ -86,11 +86,11 @@ function PromocaoPage() {
         setPromoAtual(currentPromo);
       }
 
-      // 2. Fetch webhook URL
+      // 2. Fetch webhook URL for promotion
       const { data: integration, error: intError } = await supabase
         .from("integracoes")
         .select("webhook_url")
-        .limit(1)
+        .eq("tipo", "promocao")
         .maybeSingle();
       
       if (integration) setWebhookUrl(integration.webhook_url || "");
@@ -177,12 +177,21 @@ function PromocaoPage() {
   const handleSaveWebhook = async () => {
     setSaving(true);
     try {
-      const { data: existing } = await supabase.from("integracoes").select("id").limit(1).maybeSingle();
+      const { data: existing } = await supabase
+        .from("integracoes")
+        .select("id")
+        .eq("tipo", "promocao")
+        .maybeSingle();
       
       if (existing) {
-        await supabase.from("integracoes").update({ webhook_url: webhookUrl }).eq("id", existing.id);
+        await supabase
+          .from("integracoes")
+          .update({ webhook_url: webhookUrl })
+          .eq("tipo", "promocao");
       } else {
-        await supabase.from("integracoes").insert({ webhook_url: webhookUrl });
+        await supabase
+          .from("integracoes")
+          .insert({ webhook_url: webhookUrl, tipo: "promocao" });
       }
       
       toast.success("Webhook salvo!");
