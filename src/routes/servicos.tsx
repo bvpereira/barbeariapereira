@@ -26,6 +26,7 @@ interface Service {
   price: number;
   duration: number;
   image_url: string | null;
+  detalhes: string | null;
 }
 
 function ServicesPage() {
@@ -39,6 +40,7 @@ function ServicesPage() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [duration, setDuration] = useState("");
+  const [detalhes, setDetalhes] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -66,6 +68,7 @@ function ServicesPage() {
     setName("");
     setPrice("");
     setDuration("");
+    setDetalhes("");
     setImage(null);
     setImagePreview(null);
     setEditingService(null);
@@ -76,6 +79,7 @@ function ServicesPage() {
     setName(service.name);
     setPrice(service.price.toString());
     setDuration(service.duration.toString());
+    setDetalhes(service.detalhes || "");
     setImagePreview(service.image_url);
     setIsDialogOpen(true);
   };
@@ -122,6 +126,7 @@ function ServicesPage() {
         price: parseFloat(price),
         duration: parseInt(duration),
         image_url: imageUrl,
+        detalhes,
       };
 
       if (editingService) {
@@ -218,6 +223,15 @@ function ServicesPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="detalhes">Detalhes</Label>
+                  <Input 
+                    id="detalhes" 
+                    value={detalhes} 
+                    onChange={(e) => setDetalhes(e.target.value)} 
+                    placeholder="Descrição breve do serviço" 
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="image">Imagem</Label>
                   <Input 
                     id="image" 
@@ -279,6 +293,9 @@ function ServicesPage() {
                       <Clock className="w-4 h-4 text-primary" />
                       <span>{service.duration} min</span>
                     </div>
+                    {service.detalhes && (
+                      <p className="mt-2 text-xs line-clamp-2">{service.detalhes}</p>
+                    )}
                   </div>
                 </CardContent>
                 <CardFooter className="p-4 pt-0 flex gap-2">
