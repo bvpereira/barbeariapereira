@@ -219,6 +219,28 @@ function SobreNos() {
 }
 
 function Localizacao() {
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchVideo = async () => {
+      try {
+        const { data, error } = await (supabase
+          .from("informacoes" as any)
+          .select("video_local")
+          .eq("userrr", "admin")
+          .maybeSingle());
+
+        if (error) throw error;
+        if (data && (data as any).video_local) {
+          setVideoUrl((data as any).video_local);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar vídeo de localização:", err);
+      }
+    };
+    fetchVideo();
+  }, []);
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
