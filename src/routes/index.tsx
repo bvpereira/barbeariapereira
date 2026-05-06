@@ -54,7 +54,11 @@ function Hero() {
         <motion.img
           src="/logo.png"
           alt="Barbearia Pereira Logo"
-          className="w-[20.4rem] md:w-[27.2rem] mb-8"
+          width={821}
+          height={728}
+          fetchPriority="high"
+          decoding="async"
+          className="w-[20.4rem] md:w-[27.2rem] mb-8 h-auto"
         />
 
         <motion.h1 
