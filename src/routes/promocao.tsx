@@ -77,9 +77,9 @@ function PromocaoPage() {
         .from("promocao")
         .select("*")
         .eq("numero_promo", 0)
-        .single();
+        .maybeSingle();
       
-      if (promoError && promoError.code !== "PGRST116") {
+      if (promoError) {
         console.error("Erro ao buscar promoção atual:", promoError);
       } else if (currentPromo) {
         setPromoAtual(currentPromo);
