@@ -70,6 +70,7 @@ function PromocaoPage() {
   }, []);
 
   const fetchData = async () => {
+    console.log("Fetching data for promotions page...");
     setLoading(true);
     try {
       // 1. Fetch current promo (numero_promo = 0)
