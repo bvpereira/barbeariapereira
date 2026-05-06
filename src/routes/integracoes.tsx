@@ -28,16 +28,17 @@ function IntegracoesPage() {
       const { data, error } = await supabase
         .from("integracoes")
         .select("*")
-        .limit(1);
+        .eq("tipo", "atendimentos")
+        .maybeSingle();
 
       if (error) {
         console.error("Erro ao buscar integração:", error);
         return;
       }
 
-      if (data && data.length > 0) {
-        setWebhookUrl(data[0].webhook_url);
-        setIntegrationId(data[0].id);
+      if (data) {
+        setWebhookUrl(data.webhook_url);
+        setIntegrationId(data.id);
       }
     } catch (error) {
       console.error("Exceção ao buscar integração:", error);
@@ -64,7 +65,7 @@ function IntegracoesPage() {
       } else {
         const { data, error } = await supabase
           .from("integracoes")
-          .insert({ webhook_url: webhookUrl })
+          .insert({ webhook_url: webhookUrl, tipo: "atendimentos" })
           .select()
           .single();
         
