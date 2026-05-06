@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, Mail } from "lucide-react";
+import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, Mail, Video } from "lucide-react";
 
 export const Route = createFileRoute("/minhaconta" as any)({
   component: MinhaContaPage,
@@ -23,10 +23,13 @@ function MinhaContaPage() {
   const [telContato, setTelContato] = useState("");
   const [email, setEmail] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   
   const [imagens, setImagens] = useState<(string | null)[]>(Array(8).fill(null));
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   
   // Password state
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -48,7 +51,7 @@ function MinhaContaPage() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8")
+          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local")
           .eq("userrr", "admin")
           .maybeSingle());
 
@@ -60,6 +63,7 @@ function MinhaContaPage() {
           
           setEmail(infoData.email || "");
           setInfoId(infoData.id);
+          setVideoUrl(infoData.video_local || null);
           setImagens([
             infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
             infoData.imagem_5, infoData.imagem_6, infoData.imagem_7, infoData.imagem_8
@@ -301,6 +305,79 @@ function MinhaContaPage() {
     }
   };
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+      toast.error("O vídeo deve ter no máximo 50MB");
+      return;
+    }
+
+    setUploadingVideo(true);
+
+    try {
+      const fileName = `${user.id}/video_${Date.now()}_${file.name}`;
+      const { data, error: uploadError } = await supabase.storage
+        .from("informacoes_imagens")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("informacoes_imagens")
+        .getPublicUrl(fileName);
+
+      setVideoUrl(publicUrl);
+
+      const updateObj: any = { video_local: publicUrl, usuario_id: user.id };
+      const { data: existingInfo } = await (supabase
+        .from("informacoes" as any)
+        .select("id")
+        .eq("userrr", "admin")
+        .maybeSingle());
+
+      if (existingInfo) {
+        await (supabase.from("informacoes") as any).update(updateObj).eq("id", (existingInfo as any).id);
+        setInfoId((existingInfo as any).id);
+      } else {
+        const { data: newInfo } = await (supabase
+          .from("informacoes") as any)
+          .insert({ ...updateObj, user_id: user.id, userrr: "admin" } as any)
+          .select()
+          .single();
+        if (newInfo) setInfoId(newInfo.id);
+      }
+
+      toast.success("Vídeo enviado com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao enviar vídeo: " + error.message);
+    } finally {
+      setUploadingVideo(false);
+      if (videoInputRef.current) videoInputRef.current.value = "";
+    }
+  };
+
+  const removeVideo = async () => {
+    if (!infoId) return;
+
+    try {
+      setVideoUrl(null);
+
+      const { error } = await (supabase
+        .from("informacoes" as any)
+        .update({ video_local: null })
+        .eq("id", infoId));
+
+      if (error) throw error;
+      toast.success("Vídeo removido");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao remover vídeo");
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-2xl mx-auto space-y-8 pb-10">
@@ -432,6 +509,66 @@ function MinhaContaPage() {
                 </Button>
                 <p className="text-xs text-center text-muted-foreground mt-2">
                   As imagens serão automaticamente ajustadas para formato quadrado.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Vídeo */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Video className="h-5 w-5 text-primary" />
+                Vídeo de localização
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {videoUrl ? (
+                <div className="relative rounded-md overflow-hidden border bg-muted group aspect-video">
+                  <video src={videoUrl} controls className="w-full h-full object-contain" />
+                  <button
+                    onClick={removeVideo}
+                    className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-10 bg-muted/30">
+                  <Video className="h-10 w-10 text-muted-foreground mb-4" />
+                  <p className="text-sm text-muted-foreground mb-4">Ainda não há vídeo cadastrado.</p>
+                </div>
+              )}
+              
+              <div className="pt-2">
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  ref={videoInputRef}
+                  onChange={handleVideoUpload}
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full gap-2"
+                  onClick={() => videoInputRef.current?.click()}
+                  disabled={uploadingVideo}
+                >
+                  {uploadingVideo ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Enviando vídeo...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4" />
+                      {videoUrl ? "Substituir Vídeo" : "Adicionar Vídeo"}
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  Formatos aceitos: MP4, WebM, OGG. Tamanho máximo: 50MB.
                 </p>
               </div>
             </CardContent>
