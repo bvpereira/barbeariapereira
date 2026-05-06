@@ -391,18 +391,28 @@ function Servicos() {
 }
 
 function Colaboradores() {
-  const time = [
-    {
-      nome: "Bruno",
-      img: "/colaboradores/joao.png",
-      desc: "Especialista em cortes clássicos e barbas modeladas, Bruno traz 10 anos de experiência e um olhar atento aos detalhes que fazem toda a diferença no estilo de cada cliente."
-    },
-    {
-      nome: "João Pedro",
-      img: "/colaboradores/bruno.png",
-      desc: "Mestre em degradês e técnicas modernas, João é referência em transformar o visual com agilidade e perfeccionismo, sempre conectado com as últimas tendências do mercado."
-    }
-  ];
+  const [time, setTime] = useState<{ nome: string; img: string; desc: string }[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase
+        .from("colaboradores")
+        .select("nome, foto_url, resumo, ativo")
+        .eq("ativo", true)
+        .order("nome", { ascending: true });
+      if (!error && data) {
+        setTime(
+          data.map((c: any) => ({
+            nome: c.nome,
+            img: c.foto_url || "/placeholder.svg",
+            desc: c.resumo || "",
+          }))
+        );
+      }
+    })();
+  }, []);
+
+  if (time.length === 0) return null;
 
   return (
     <section className="py-20 px-4">
