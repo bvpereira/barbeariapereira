@@ -341,18 +341,21 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          tipo: string | null
           updated_at: string | null
           webhook_url: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          tipo?: string | null
           updated_at?: string | null
           webhook_url: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          tipo?: string | null
           updated_at?: string | null
           webhook_url?: string
         }
