@@ -358,6 +358,33 @@ export type Database = {
         }
         Relationships: []
       }
+      promocao: {
+        Row: {
+          created_at: string | null
+          data_promo: string | null
+          id: string
+          imagem_promo: string | null
+          numero_promo: number
+          texto_promo: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_promo?: string | null
+          id?: string
+          imagem_promo?: string | null
+          numero_promo: number
+          texto_promo?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_promo?: string | null
+          id?: string
+          imagem_promo?: string | null
+          numero_promo?: number
+          texto_promo?: string | null
+        }
+        Relationships: []
+      }
       servicos: {
         Row: {
           created_at: string
