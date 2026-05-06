@@ -1,0 +1,495 @@
+import { useState, useEffect, useRef } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { AdminLayout } from "@/components/AdminLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Megaphone, 
+  Send, 
+  TestTube, 
+  History, 
+  Image as ImageIcon, 
+  Upload, 
+  Loader2, 
+  Trash2, 
+  Link2,
+  Calendar,
+  Eye,
+  Save
+} from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+export const Route = createFileRoute("/promocao" as any)({
+  component: PromocaoPage,
+});
+
+function PromocaoPage() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
+  const [sendingPromo, setSendingPromo] = useState(false);
+  
+  const [promoAtual, setPromoAtual] = useState<any>({
+    texto_promo: "",
+    imagem_promo: null
+  });
+  
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [telContato, setTelContato] = useState("");
+  const [historico, setHistorico] = useState<any[]>([]);
+  const [selectedPromo, setSelectedPromo] = useState<any>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch current promo (numero_promo = 0)
+      const { data: currentPromo, error: promoError } = await supabase
+        .from("promocao")
+        .select("*")
+        .eq("numero_promo", 0)
+        .single();
+      
+      if (promoError && promoError.code !== "PGRST116") {
+        console.error("Erro ao buscar promoção atual:", promoError);
+      } else if (currentPromo) {
+        setPromoAtual(currentPromo);
+      }
+
+      // 2. Fetch webhook URL
+      const { data: integration, error: intError } = await supabase
+        .from("integracoes")
+        .select("webhook_url")
+        .limit(1)
+        .maybeSingle();
+      
+      if (integration) setWebhookUrl(integration.webhook_url || "");
+
+      // 3. Fetch tel_contato
+      const { data: info, error: infoError } = await supabase
+        .from("informacoes")
+        .select("tel_contato")
+        .eq("userrr", "admin")
+        .maybeSingle();
+      
+      if (info) setTelContato(info.tel_contato || "");
+
+      // 4. Fetch history (numero_promo > 0)
+      const { data: history, error: histError } = await supabase
+        .from("promocao")
+        .select("*")
+        .gt("numero_promo", 0)
+        .order("data_promo", { ascending: false });
+      
+      if (history) setHistorico(history);
+      
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+      toast.error("Erro ao carregar dados da página");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileName = `promo_${Date.now()}.jpg`;
+      const { data, error: uploadError } = await supabase.storage
+        .from("promocoes")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("promocoes")
+        .getPublicUrl(fileName);
+
+      // Save to Row 0 immediately
+      const { error: updateError } = await supabase
+        .from("promocao")
+        .update({ imagem_promo: publicUrl })
+        .eq("numero_promo", 0);
+
+      if (updateError) throw updateError;
+
+      setPromoAtual({ ...promoAtual, imagem_promo: publicUrl });
+      toast.success("Imagem enviada com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao enviar imagem: " + error.message);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSaveTexto = async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("promocao")
+        .update({ texto_promo: promoAtual.texto_promo })
+        .eq("numero_promo", 0);
+      
+      if (error) throw error;
+      toast.success("Texto da promoção salvo!");
+    } catch (error: any) {
+      toast.error("Erro ao salvar texto: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveWebhook = async () => {
+    setSaving(true);
+    try {
+      const { data: existing } = await supabase.from("integracoes").select("id").limit(1).maybeSingle();
+      
+      if (existing) {
+        await supabase.from("integracoes").update({ webhook_url: webhookUrl }).eq("id", existing.id);
+      } else {
+        await supabase.from("integracoes").insert({ webhook_url: webhookUrl });
+      }
+      
+      toast.success("Webhook salvo!");
+    } catch (error: any) {
+      toast.error("Erro ao salvar webhook: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const triggerWebhook = async (tipo: "Teste_promo" | "envio_promo") => {
+    if (!webhookUrl) {
+      toast.error("Configure a URL do webhook primeiro");
+      return false;
+    }
+
+    const payload = {
+      tipo,
+      telefone: telContato,
+      url_imagem: promoAtual.imagem_promo,
+      texto_promo: promoAtual.texto_promo,
+      data: new Date().toISOString()
+    };
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error("Erro na resposta do webhook");
+      
+      return true;
+    } catch (error: any) {
+      console.error("Erro webhook:", error);
+      toast.error("Erro ao disparar webhook: " + error.message);
+      return false;
+    }
+  };
+
+  const handleEnviarTeste = async () => {
+    setSendingTest(true);
+    const success = await triggerWebhook("Teste_promo");
+    if (success) toast.success("Teste enviado com sucesso!");
+    setSendingTest(false);
+  };
+
+  const handleEnviarConfirmado = async () => {
+    setSendingPromo(true);
+    setIsConfirmOpen(false);
+    
+    const success = await triggerWebhook("envio_promo");
+    
+    if (success) {
+      try {
+        // Save to history
+        const nextNumero = historico.length > 0 
+          ? Math.max(...historico.map(h => h.numero_promo)) + 1 
+          : 1;
+
+        const { error: histError } = await supabase
+          .from("promocao")
+          .insert({
+            numero_promo: nextNumero,
+            imagem_promo: promoAtual.imagem_promo,
+            texto_promo: promoAtual.texto_promo,
+            data_promo: new Date().toISOString()
+          });
+
+        if (histError) throw histError;
+
+        toast.success("Promoção enviada e salva no histórico!");
+        fetchData(); // Refresh history
+      } catch (error: any) {
+        toast.error("Erro ao salvar no histórico: " + error.message);
+      }
+    }
+    
+    setSendingPromo(false);
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6 pb-10">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Gerenciar Promoções</h1>
+          <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de promoções da barbearia.</p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Cadastro de Promoção */}
+          <Card className="md:row-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Megaphone className="h-5 w-5 text-primary" />
+                Promoção Atual
+              </CardTitle>
+              <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Imagem */}
+              <div className="space-y-2">
+                <Label>Imagem da Promoção</Label>
+                <div className="relative aspect-video rounded-lg border-2 border-dashed bg-muted flex flex-col items-center justify-center overflow-hidden">
+                  {promoAtual.imagem_promo ? (
+                    <>
+                      <img src={promoAtual.imagem_promo} alt="Promoção" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <Button size="sm" variant="secondary" onClick={() => fileInputRef.current?.click()}>
+                          Trocar Imagem
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center p-6">
+                      {uploading ? (
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                      ) : (
+                        <>
+                          <ImageIcon className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                            Fazer Upload
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                  />
+                </div>
+              </div>
+
+              {/* Texto */}
+              <div className="space-y-2">
+                <Label htmlFor="texto-promo">Texto da Promoção</Label>
+                <Textarea
+                  id="texto-promo"
+                  placeholder="Ex: Corte + Barba com 20% de desconto nesta quarta!"
+                  className="min-h-[120px]"
+                  value={promoAtual.texto_promo || ""}
+                  onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
+                />
+                <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleSaveTexto} disabled={saving}>
+                  <Save className="h-4 w-4" />
+                  Salvar Texto
+                </Button>
+              </div>
+
+              {/* Botões de Envio */}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <Button 
+                  variant="secondary" 
+                  className="gap-2" 
+                  onClick={handleEnviarTeste}
+                  disabled={sendingTest || !promoAtual.texto_promo}
+                >
+                  {sendingTest ? <Loader2 className="h-4 w-4 animate-spin" /> : <TestTube className="h-4 w-4" />}
+                  Enviar Teste
+                </Button>
+                
+                <Button 
+                  className="gap-2" 
+                  onClick={() => setIsConfirmOpen(true)}
+                  disabled={sendingPromo || !promoAtual.texto_promo}
+                >
+                  {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  Enviar Promoção
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Configuração de Webhook */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Link2 className="h-5 w-5 text-primary" />
+                URL do Webhook
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://exemplo.com/webhook"
+                  value={webhookUrl}
+                  onChange={(e) => setWebhookUrl(e.target.value)}
+                />
+                <Button size="icon" onClick={handleSaveWebhook} disabled={saving}>
+                  <Save className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                URL que receberá os dados da promoção via POST.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Histórico */}
+          <Card className="flex-1 overflow-hidden">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5 text-primary" />
+                Histórico de Envios
+              </CardTitle>
+              <CardDescription>Últimas campanhas disparadas.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="max-h-[400px] overflow-y-auto">
+                {historico.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    Nenhuma promoção enviada ainda.
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {historico.map((item) => (
+                      <div key={item.id} className="p-4 hover:bg-muted/50 transition-colors flex items-center gap-4">
+                        <div className="h-12 w-12 rounded overflow-hidden bg-muted flex-shrink-0">
+                          {item.imagem_promo ? (
+                            <img src={item.imagem_promo} className="w-full h-full object-cover" />
+                          ) : (
+                            <ImageIcon className="w-full h-full p-2 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{item.texto_promo || "Sem texto"}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                            <Calendar className="h-3 w-3" />
+                            {format(new Date(item.data_promo), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedPromo(item)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Popup de Confirmação */}
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar envio de promoção?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Deseja realmente enviar a promoção para todos os usuários? Esta ação não pode ser desfeita e será registrada no histórico.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleEnviarConfirmado}>
+              Sim, enviar agora
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Detalhes da Promoção */}
+      <Dialog open={!!selectedPromo} onOpenChange={(open) => !open && setSelectedPromo(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Promoção</DialogTitle>
+          </DialogHeader>
+          {selectedPromo && (
+            <div className="space-y-4">
+              {selectedPromo.imagem_promo && (
+                <div className="aspect-video rounded-lg overflow-hidden border">
+                  <img src={selectedPromo.imagem_promo} className="w-full h-full object-contain bg-black" />
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Data do Envio</Label>
+                <p className="text-sm font-medium">
+                  {format(new Date(selectedPromo.data_promo), "EEEE, d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Texto Enviado</Label>
+                <div className="p-4 rounded-lg bg-muted text-sm whitespace-pre-wrap">
+                  {selectedPromo.texto_promo}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </AdminLayout>
+  );
+}
+
+export default PromocaoPage;
