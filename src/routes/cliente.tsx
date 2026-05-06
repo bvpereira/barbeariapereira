@@ -122,6 +122,77 @@ function ClientePage() {
     }
   };
 
+  const handleUpdateName = async () => {
+    if (!user || !newName.trim()) return;
+    
+    setIsUpdatingName(true);
+    try {
+      const { error } = await supabase
+        .from('usuarios')
+        .update({ nome: newName })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      const updatedUser = { ...user, nome: newName };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      toast.success("Nome atualizado com sucesso");
+    } catch (error: any) {
+      toast.error("Erro ao atualizar nome: " + error.message);
+    } finally {
+      setIsUpdatingName(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!user) return;
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Preencha todos os campos");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("As novas senhas não coincidem");
+      return;
+    }
+    
+    setIsUpdatingPassword(true);
+    try {
+      // Primeiro verifica a senha atual
+      const { data, error: checkError } = await supabase
+        .from('usuarios')
+        .select('senha')
+        .eq('id', user.id)
+        .maybeSingle();
+        
+      if (checkError) throw checkError;
+      if (data?.senha !== currentPassword) {
+        toast.error("Senha atual incorreta");
+        setIsUpdatingPassword(false);
+        return;
+      }
+      
+      // Atualiza para a nova senha
+      const { error: updateError } = await supabase
+        .from('usuarios')
+        .update({ senha: newPassword })
+        .eq('id', user.id);
+        
+      if (updateError) throw updateError;
+      
+      toast.success("Senha alterada com sucesso");
+      setIsPasswordDialogOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast.error("Erro ao alterar senha: " + error.message);
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/login";
