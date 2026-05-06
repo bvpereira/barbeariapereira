@@ -298,6 +298,7 @@ export type Database = {
           user_id: string | null
           userrr: string | null
           usuario_id: string | null
+          video_local: string | null
         }
         Insert: {
           created_at?: string
@@ -316,6 +317,7 @@ export type Database = {
           user_id?: string | null
           userrr?: string | null
           usuario_id?: string | null
+          video_local?: string | null
         }
         Update: {
           created_at?: string
@@ -334,6 +336,7 @@ export type Database = {
           user_id?: string | null
           userrr?: string | null
           usuario_id?: string | null
+          video_local?: string | null
         }
         Relationships: []
       }
