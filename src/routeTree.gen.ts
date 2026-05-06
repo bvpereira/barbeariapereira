@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecuperarsenhaRouteImport } from './routes/recuperarsenha'
+import { Route as PromocaoRouteImport } from './routes/promocao'
 import { Route as MinhacontaRouteImport } from './routes/minhaconta'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
@@ -40,6 +41,11 @@ const RegistroRoute = RegistroRouteImport.update({
 const RecuperarsenhaRoute = RecuperarsenhaRouteImport.update({
   id: '/recuperarsenha',
   path: '/recuperarsenha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PromocaoRoute = PromocaoRouteImport.update({
+  id: '/promocao',
+  path: '/promocao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MinhacontaRoute = MinhacontaRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
+  '/promocao': typeof PromocaoRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
+  '/promocao': typeof PromocaoRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
+  '/promocao': typeof PromocaoRoute
   '/recuperarsenha': typeof RecuperarsenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/minhaconta'
+    | '/promocao'
     | '/recuperarsenha'
     | '/registro'
     | '/servicos'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/minhaconta'
+    | '/promocao'
     | '/recuperarsenha'
     | '/registro'
     | '/servicos'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/minhaconta'
+    | '/promocao'
     | '/recuperarsenha'
     | '/registro'
     | '/servicos'
@@ -246,6 +258,7 @@ export interface RootRouteChildren {
   IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MinhacontaRoute: typeof MinhacontaRoute
+  PromocaoRoute: typeof PromocaoRoute
   RecuperarsenhaRoute: typeof RecuperarsenhaRoute
   RegistroRoute: typeof RegistroRoute
   ServicosRoute: typeof ServicosRoute
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       path: '/recuperarsenha'
       fullPath: '/recuperarsenha'
       preLoaderRoute: typeof RecuperarsenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/promocao': {
+      id: '/promocao'
+      path: '/promocao'
+      fullPath: '/promocao'
+      preLoaderRoute: typeof PromocaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/minhaconta': {
@@ -390,6 +410,7 @@ const rootRouteChildren: RootRouteChildren = {
   IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MinhacontaRoute: MinhacontaRoute,
+  PromocaoRoute: PromocaoRoute,
   RecuperarsenhaRoute: RecuperarsenhaRoute,
   RegistroRoute: RegistroRoute,
   ServicosRoute: ServicosRoute,
