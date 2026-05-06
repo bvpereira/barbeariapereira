@@ -54,6 +54,11 @@ const menuItems = [
     icon: Link2,
     href: "/integracoes",
   },
+  {
+    title: "Promoções",
+    icon: Megaphone,
+    href: "/promocao",
+  },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
