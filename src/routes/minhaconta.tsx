@@ -317,7 +317,9 @@ function MinhaContaPage() {
     setUploadingVideo(true);
 
     try {
-      const fileName = `${user.id}/video_${Date.now()}_${file.name}`;
+      // Remove special characters and spaces from filename to avoid Supabase Storage errors
+      const safeFileName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.]/g, "_");
+      const fileName = `${user.id}/video_${Date.now()}_${safeFileName}`;
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
         .upload(fileName, file);
