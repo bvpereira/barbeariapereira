@@ -289,17 +289,17 @@ function Localizacao() {
                   <span className="font-bold uppercase tracking-tight">Ver como chegar</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl p-0 overflow-hidden bg-black border-primary/20">
-                <DialogHeader className="p-4 absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent">
+              <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-4xl w-fit p-0 overflow-hidden bg-black border-primary/20">
+                <DialogHeader className="p-4 absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
                   <DialogTitle className="text-primary font-josefin uppercase tracking-widest">Vídeo de Localização</DialogTitle>
                 </DialogHeader>
-                <div className="aspect-video w-full">
+                <div className="relative w-full h-full flex items-center justify-center bg-black">
                   {videoUrl && (
                     <video 
                       src={videoUrl} 
                       controls 
                       autoPlay 
-                      className="w-full h-full object-contain"
+                      className="max-w-full max-h-[85vh] w-auto h-auto shadow-2xl"
                     />
                   )}
                 </div>
