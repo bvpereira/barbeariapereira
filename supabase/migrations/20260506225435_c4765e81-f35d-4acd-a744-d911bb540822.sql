@@ -1,0 +1,1 @@
+ALTER TABLE public.servicos ADD COLUMN detalhes TEXT;
