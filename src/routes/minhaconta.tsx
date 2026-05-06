@@ -526,8 +526,8 @@ function MinhaContaPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {videoUrl ? (
-                <div className="relative rounded-md overflow-hidden border bg-muted group aspect-video">
-                  <video src={videoUrl} controls className="w-full h-full object-contain" />
+                <div className="relative rounded-md overflow-hidden border bg-muted group w-full flex justify-center">
+                  <video src={videoUrl} controls className="max-w-full max-h-[500px] h-auto" />
                   <button
                     onClick={removeVideo}
                     className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
