@@ -43,6 +43,7 @@ function ClientePage() {
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPromocaoEnabled, setIsPromocaoEnabled] = useState(true);
+  const [isUpdatingPromocao, setIsUpdatingPromocao] = useState(false);
   const [newName, setNewName] = useState("");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
