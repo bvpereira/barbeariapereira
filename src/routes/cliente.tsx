@@ -43,7 +43,14 @@ function ClientePage() {
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPromocaoEnabled, setIsPromocaoEnabled] = useState(true);
-  const [isUpdatingPromocao, setIsUpdatingPromocao] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
     setLoading(true);
