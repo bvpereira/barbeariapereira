@@ -87,6 +87,7 @@ function ClientePage() {
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
+      setNewName(parsedUser.nome);
       fetchAgendamentos(parsedUser.id);
       fetchUserPromocao(parsedUser.id);
     }
