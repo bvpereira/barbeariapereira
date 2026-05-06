@@ -14,8 +14,16 @@ import {
   Image as ImageIcon,
   Snowflake,
   Car,
-  Coffee
+  Coffee,
+  X
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { cn } from "../lib/utils";
