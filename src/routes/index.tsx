@@ -330,28 +330,31 @@ function Localizacao() {
 }
 
 function Servicos() {
-  const servicos = [
-    {
-      img: "/servicos/servico-1.png",
-      nome: "Corte Masculino",
-      desc: "Corte moderno ou clássico, finalizado com produtos premium."
-    },
-    {
-      img: "/servicos/servico-2.png",
-      nome: "Barba",
-      desc: "Desenho e aparo completo com toalha quente e óleos especiais."
-    },
-    {
-      img: "/servicos/servico-3.png",
-      nome: "Pezinho",
-      desc: "Acabamento perfeito para manter o visual em dia entre cortes."
-    },
-    {
-      img: "/servicos/servico-4.png",
-      nome: "Disfarce",
-      desc: "Técnica de degradê (fade) executada com precisão absoluta."
-    }
-  ];
+  const [servicos, setServicos] = useState<Array<{ img: string; nome: string; desc: string }>>([]);
+
+  useEffect(() => {
+    const fetchServicos = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("servicos")
+          .select("name, image_url, detalhes")
+          .order("created_at", { ascending: true });
+        if (error) throw error;
+        if (data) {
+          setServicos(
+            data.map((s: any) => ({
+              img: s.image_url || "/placeholder.svg",
+              nome: s.name,
+              desc: s.detalhes || "",
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Erro ao buscar serviços:", err);
+      }
+    };
+    fetchServicos();
+  }, []);
 
   return (
     <section className="py-20 bg-secondary/20 px-4">
