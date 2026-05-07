@@ -1,0 +1,1 @@
+ALTER FUNCTION public.sync_atendimento_servico_name() SET search_path = public;

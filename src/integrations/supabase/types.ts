@@ -19,6 +19,7 @@ export type Database = {
           atendimento_id: string
           created_at: string
           id: string
+          name_servico: string | null
           servico_id: string
           valor_servico: number
         }
@@ -26,6 +27,7 @@ export type Database = {
           atendimento_id: string
           created_at?: string
           id?: string
+          name_servico?: string | null
           servico_id: string
           valor_servico: number
         }
@@ -33,6 +35,7 @@ export type Database = {
           atendimento_id?: string
           created_at?: string
           id?: string
+          name_servico?: string | null
           servico_id?: string
           valor_servico?: number
         }
