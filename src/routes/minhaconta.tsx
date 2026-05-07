@@ -467,7 +467,7 @@ function MinhaContaPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="telContato">Telefone de contato</Label>
+                  <Label htmlFor="telContato">Telefone de contato (Whatsapp conectado à instância)</Label>
                   <Input
                     id="telContato"
                     value={telContato}
