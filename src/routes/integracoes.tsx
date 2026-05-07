@@ -15,33 +15,44 @@ export const Route = createFileRoute("/integracoes" as any)({
 
 function IntegracoesPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
+  const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingFinish, setSavingFinish] = useState(false);
   const [integrationId, setIntegrationId] = useState<string | null>(null);
+  const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchIntegration();
+    fetchIntegrations();
   }, []);
 
-  const fetchIntegration = async () => {
+  const fetchIntegrations = async () => {
     try {
       const { data, error } = await supabase
         .from("integracoes")
-        .select("*")
-        .eq("tipo", "atendimentos")
-        .maybeSingle();
+        .select("*");
 
       if (error) {
-        console.error("Erro ao buscar integração:", error);
+        console.error("Erro ao buscar integrações:", error);
         return;
       }
 
       if (data) {
-        setWebhookUrl(data.webhook_url);
-        setIntegrationId(data.id);
+        const standard = data.find(i => i.tipo === "atendimentos");
+        const finalizacao = data.find(i => i.tipo === "finalizacao");
+
+        if (standard) {
+          setWebhookUrl(standard.webhook_url);
+          setIntegrationId(standard.id);
+        }
+
+        if (finalizacao) {
+          setFinishWebhookUrl(finalizacao.webhook_url);
+          setFinishIntegrationId(finalizacao.id);
+        }
       }
     } catch (error) {
-      console.error("Exceção ao buscar integração:", error);
+      console.error("Exceção ao buscar integrações:", error);
     } finally {
       setLoading(false);
     }
@@ -79,6 +90,41 @@ function IntegracoesPage() {
       toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveFinish = async () => {
+    if (!finishWebhookUrl) {
+      toast.error("Por favor, insira uma URL de webhook válida.");
+      return;
+    }
+
+    setSavingFinish(true);
+    try {
+      if (finishIntegrationId) {
+        const { error } = await supabase
+          .from("integracoes")
+          .update({ webhook_url: finishWebhookUrl })
+          .eq("id", finishIntegrationId);
+        
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from("integracoes")
+          .insert({ webhook_url: finishWebhookUrl, tipo: "finalizacao" })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        if (data) setFinishIntegrationId(data.id);
+      }
+
+      toast.success("Configuração de webhook de finalização salva com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao salvar integração de finalização:", error);
+      toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
+    } finally {
+      setSavingFinish(false);
     }
   };
 
@@ -139,6 +185,47 @@ function IntegracoesPage() {
               </ul>
               <p className="mt-4 text-xs italic">
                 Nota: O webhook é disparado apenas para ações realizadas por usuários de Nível 3 (Clientes).
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Link2 className="h-5 w-5" />
+              Webhook de Finalização
+            </CardTitle>
+            <CardDescription>
+              A URL abaixo receberá notificações POST em formato JSON sempre que um atendimento for marcado como "Finalizado" ou "Não compareceu".
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="finish-webhook-url">URL do Webhook</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="finish-webhook-url"
+                  placeholder="https://exemplo.com/webhook-finalizacao"
+                  value={finishWebhookUrl}
+                  onChange={(e) => setFinishWebhookUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSaveFinish} disabled={savingFinish}>
+                  {savingFinish ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  Salvar
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
+              <p className="font-semibold">Eventos disparados:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>Finalizado (Mudança para status "Finalizado" ou criado com esse status)</li>
+                <li>Não compareceu (Mudança para status "Não compareceu" ou criado com esse status)</li>
+              </ul>
+              <p className="mt-4 text-xs italic">
+                Nota: O webhook é disparado automaticamente para qualquer atendimento que mude para esses estados.
               </p>
             </div>
           </CardContent>
