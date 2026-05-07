@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, Mail, Video } from "lucide-react";
+import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, Mail, Video, Search } from "lucide-react";
 
 export const Route = createFileRoute("/minhaconta" as any)({
   component: MinhaContaPage,
@@ -24,6 +24,7 @@ function MinhaContaPage() {
   const [email, setEmail] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [googleAvaliacao, setGoogleAvaliacao] = useState("");
   
   const [imagens, setImagens] = useState<(string | null)[]>(Array(8).fill(null));
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
@@ -51,7 +52,7 @@ function MinhaContaPage() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local")
+          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao")
           .eq("userrr", "admin")
           .maybeSingle());
 
@@ -64,6 +65,7 @@ function MinhaContaPage() {
           setEmail(infoData.email || "");
           setInfoId(infoData.id);
           setVideoUrl(infoData.video_local || null);
+          setGoogleAvaliacao(infoData.google_avaliacao || "");
           setImagens([
             infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
             infoData.imagem_5, infoData.imagem_6, infoData.imagem_7, infoData.imagem_8
@@ -380,6 +382,38 @@ function MinhaContaPage() {
     }
   };
 
+  const handleUpdateGoogleAvaliacao = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data: existingInfo } = await (supabase
+        .from("informacoes" as any)
+        .select("id")
+        .eq("userrr", "admin")
+        .maybeSingle());
+
+      if (existingInfo) {
+        const { error } = await (supabase
+          .from("informacoes" as any)
+          .update({ google_avaliacao: googleAvaliacao } as any)
+          .eq("id", (existingInfo as any).id));
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase
+          .from("informacoes" as any)
+          .insert({ google_avaliacao: googleAvaliacao, userrr: "admin", user_id: user?.id, usuario_id: user?.id } as any));
+        if (error) throw error;
+      }
+
+      toast.success("Google Avaliação atualizada com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao atualizar Google Avaliação: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-2xl mx-auto space-y-8 pb-10">
@@ -573,6 +607,33 @@ function MinhaContaPage() {
                   Formatos aceitos: MP4, WebM, OGG. Tamanho máximo: 50MB.
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Google Avaliação */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Search className="h-5 w-5 text-primary" />
+                Google Avaliação
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateGoogleAvaliacao} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="googleAvaliacao">Link ou texto do Google Avaliação</Label>
+                  <Input
+                    id="googleAvaliacao"
+                    value={googleAvaliacao}
+                    onChange={(e) => setGoogleAvaliacao(e.target.value)}
+                    placeholder="Cole o link ou texto da sua avaliação do Google"
+                  />
+                </div>
+                <Button type="submit" disabled={loading} className="gap-2">
+                  <Save className="h-4 w-4" />
+                  Salvar Google Avaliação
+                </Button>
+              </form>
             </CardContent>
           </Card>
 
