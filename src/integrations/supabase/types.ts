@@ -64,6 +64,7 @@ export type Database = {
           created_at: string
           data: string
           id: string
+          servicos_atendimento: string | null
           status: string
           updated_at: string
           valor: number
@@ -75,6 +76,7 @@ export type Database = {
           created_at?: string
           data: string
           id?: string
+          servicos_atendimento?: string | null
           status: string
           updated_at?: string
           valor?: number
@@ -86,6 +88,7 @@ export type Database = {
           created_at?: string
           data?: string
           id?: string
+          servicos_atendimento?: string | null
           status?: string
           updated_at?: string
           valor?: number
@@ -507,7 +510,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_atendimento_servicos_names: {
+        Args: { atendimento_id_val: string }
+        Returns: string
+      }
     }
     Enums: {
       tipo_transacao: "receita" | "despesa"
