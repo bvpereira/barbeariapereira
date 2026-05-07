@@ -486,19 +486,21 @@ function AtendimentosPage() {
   };
 
   const AtendimentoCard = ({ item }: { item: Atendimento }) => (
-    <Card className="hover:bg-accent/5 transition-colors cursor-pointer" onClick={() => {
-      setEditingAtendimento(item);
-      setSelectedCliente(item.cliente);
-      setSearchCliente(item.cliente.nome);
-      setSelectedColaborador(item.colaborador.id);
-      setSelectedDatePart(format(parseISO(item.data), "yyyy-MM-dd"));
-      setSelectedTimePart(format(parseISO(item.data), "HH:mm"));
-      setSelectedServicos(item.servicos.map(s => s.id));
-      setValorFinal(item.valor.toString());
-      setComissaoFinal(item.comissao?.toString() || "0");
-      setStatus(item.status);
-      setIsDialogOpen(true);
-    }}>
+    <div className="relative group">
+      <Card className="hover:bg-accent/5 transition-colors cursor-pointer" onClick={() => {
+        setEditingAtendimento(item);
+        setSelectedCliente(item.cliente);
+        setSearchCliente(item.cliente.nome);
+        setSelectedColaborador(item.colaborador.id);
+        setSelectedDatePart(format(parseISO(item.data), "yyyy-MM-dd"));
+        setSelectedTimePart(format(parseISO(item.data), "HH:mm"));
+        setSelectedServicos(item.servicos.map(s => s.id));
+        setValorFinal(item.valor.toString());
+        setComissaoFinal(item.comissao?.toString() || "0");
+        setStatus(item.status);
+        setIsDialogOpen(true);
+      }}>
+
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" /><span className="font-bold">{item.cliente.nome}</span></div>
@@ -512,6 +514,22 @@ function AtendimentosPage() {
         <div className="mt-3 pt-3 border-t flex justify-between items-center">
           <span className="font-bold text-primary">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+             <BookingButton 
+              onSuccess={fetchAgendados} 
+              variant="ghost" 
+              className="h-8 w-8 p-0"
+              label=""
+              icon={<Clock className="h-4 w-4" />}
+              initialData={{
+                id: item.id,
+                cliente_id: item.cliente.id,
+                cliente_nome: item.cliente.nome,
+                colaborador_id: item.colaborador.id,
+                data: item.data,
+                valor: item.valor,
+                servicos_ids: item.servicos.map(s => s.id)
+              }}
+            />
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -537,6 +555,7 @@ function AtendimentosPage() {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 
   return (
@@ -646,12 +665,43 @@ function AtendimentosPage() {
                           setIsCalendarOpen(false);
                         }
                       }}
+                      disabled={(date) => {
+                        const dateStr = format(date, "yyyy-MM-dd");
+                        const today = startOfToday();
+                        return (
+                          date < today || 
+                          (maxDate && dateStr > maxDate) || 
+                          (colabActiveDates.length > 0 && !colabActiveDates.includes(dateStr))
+                        );
+                      }}
                       initialFocus
                       locale={ptBR}
                     />
                   </PopoverContent>
                 </Popover>
               </div>
+
+              {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
+                <div className="space-y-2">
+                  <Label>Horário do Atendimento</Label>
+                  {loadingTimes ? <p className="text-sm animate-pulse">Consultando horários...</p> : (
+                    <div className="grid grid-cols-4 gap-2 max-h-[120px] overflow-auto border p-2 rounded-md">
+                      {availableTimes.length > 0 ? availableTimes.map(t => (
+                        <Button 
+                          key={t} 
+                          variant={selectedTimePart === t ? "default" : "outline"} 
+                          size="sm" 
+                          className="h-8 text-xs"
+                          onClick={() => setSelectedTimePart(t)}
+                        >
+                          {t}
+                        </Button>
+                      )) : <p className="text-xs text-destructive col-span-full">Sem horários disponíveis.</p>}
+                    </div>
+                  )}
+                </div>
+              )}
+
 
               <div className="space-y-2">
                 <Label>Serviços</Label>
