@@ -290,6 +290,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          google_avaliacao: string | null
           id: string
           imagem_1: string | null
           imagem_2: string | null
@@ -309,6 +310,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email?: string | null
+          google_avaliacao?: string | null
           id?: string
           imagem_1?: string | null
           imagem_2?: string | null
@@ -328,6 +330,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string | null
+          google_avaliacao?: string | null
           id?: string
           imagem_1?: string | null
           imagem_2?: string | null
