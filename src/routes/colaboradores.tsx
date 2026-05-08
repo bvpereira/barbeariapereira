@@ -286,6 +286,7 @@ function CollaboratorsPage() {
             senha, 
             nivel: ativo ? 2 : 10,
             registro: "sim"
+          }]);
         
         if (userError) {
           if (userError.code === "23505") throw new Error("Este telefone já está cadastrado.");
