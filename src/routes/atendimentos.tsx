@@ -649,7 +649,11 @@ function AtendimentosPage() {
                         key={c.id}
                         onClick={() => { 
                           setSelectedColaborador(c.id);
-                          if (selectedServicos.length > 0) calculateComissao(selectedServicos, c.id);
+                          setSelectedServicos([]);
+                          setSelectedDatePart("");
+                          setSelectedTimePart("");
+                          fetchColabServicos(c.id);
+                          if (selectedServicos.length > 0) calculateComissao([], c.id);
                         }}
                         className={cn(
                           "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
