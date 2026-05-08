@@ -744,14 +744,33 @@ function AtendimentosPage() {
 
               <div className="space-y-2">
                 <Label>Serviços</Label>
-                <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto">
-                  {allServicos.map(s => (
-                    <div key={s.id} className="flex items-center gap-2">
-                      <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} />
-                      <span>{s.name} - R${s.price}</span>
-                    </div>
-                  ))}
-                </div>
+                <ScrollArea className="h-[150px] rounded-md border p-2 bg-muted/10">
+                  <div className="space-y-2">
+                    {allServicos.map(s => (
+                      <div 
+                        key={s.id} 
+                        className={cn(
+                          "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
+                          selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
+                        )}
+                        onClick={() => handleSelectServico(s.id)}
+                      >
+                        <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} onClick={(e) => e.stopPropagation()} />
+                        {s.image_url ? (
+                          <img src={s.image_url} alt={s.name} className="w-8 h-8 rounded object-cover border" />
+                        ) : (
+                          <div className="w-8 h-8 rounded bg-muted flex items-center justify-center border">
+                            <Scissors className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium leading-none">{s.name}</p>
+                          <p className="text-xs text-muted-foreground mt-1">R${s.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
               {!editingAtendimento ? (
                 <div className="space-y-2">
