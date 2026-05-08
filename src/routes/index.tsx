@@ -57,7 +57,7 @@ function Hero() {
       className="relative min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url(${heroBg})` }}
     >
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/50 opacity-100" />
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
