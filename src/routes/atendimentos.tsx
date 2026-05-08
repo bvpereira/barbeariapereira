@@ -373,6 +373,7 @@ function AtendimentosPage() {
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
           cliente: selectedCliente.nome,
+          login_cliente: selectedCliente.login,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
           tel_colaborador: formattedTel,
           data: format(newData, "dd/MM/yyyy"),
