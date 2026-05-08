@@ -216,6 +216,7 @@ function ClientePage() {
       triggerWebhook("Exclusao", {
         tipo: "Exclusao",
         cliente: user.nome,
+        login_cliente: user.login,
         colaborador: itemToDelete.colaborador?.nome || "",
         tel_colaborador: formattedTel,
         data: format(parseISO(itemToDelete.data), "dd/MM/yyyy"),
