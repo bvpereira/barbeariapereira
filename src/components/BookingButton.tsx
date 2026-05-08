@@ -6,9 +6,12 @@ import {
   User, 
   Scissors, 
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +45,8 @@ interface Colaborador {
   id: string;
   nome: string;
   ativo: boolean;
+  foto_url?: string | null;
+  servicos?: string[];
 }
 
 interface Servico {
@@ -49,6 +54,7 @@ interface Servico {
   name: string;
   price: number;
   duration: number;
+  image_url?: string | null;
 }
 
 interface BookingButtonProps {
@@ -106,9 +112,19 @@ export function BookingButton({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo').order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').order('name');
-    setColaboradores(colabs || []);
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').order('name');
+    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id');
+    
+    const formattedColabs = colabs?.map(c => ({
+      ...c,
+      servicos: rels?.filter(r => r.colaborador_id === c.id).map(r => {
+        const s = servs?.find(srv => srv.id === r.servico_id);
+        return s?.name || "";
+      }).filter(Boolean)
+    })) || [];
+
+    setColaboradores(formattedColabs as Colaborador[]);
     setAllServicos(servs || []);
   };
 
@@ -422,26 +438,56 @@ export function BookingButton({
             {!fixedColaboradorId ? (
               <div className="space-y-2">
                 <Label>{(fixedClientId || initialData?.cliente_id) ? "1" : "2"}. Selecione o Colaborador</Label>
-                <Select 
-                  value={selectedColaborador} 
-                  onValueChange={(v) => { setSelectedColaborador(v); setSelectedServicos([]); fetchColabServicos(v); }}
-                >
-                  <SelectTrigger><SelectValue placeholder="Selecione o profissional" /></SelectTrigger>
-                  <SelectContent>
+                <ScrollArea className="h-[200px] rounded-md border p-2">
+                  <div className="space-y-2">
                     {colaboradores.filter(c => c.ativo).map(c => (
-                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                      <div 
+                        key={c.id}
+                        onClick={() => { setSelectedColaborador(c.id); setSelectedServicos([]); fetchColabServicos(c.id); }}
+                        className={cn(
+                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
+                          selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border"
+                        )}
+                      >
+                        <Avatar className="h-12 w-12 border">
+                          <AvatarImage src={c.foto_url || ""} />
+                          <AvatarFallback><User className="h-6 w-6" /></AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm leading-none mb-1">{c.nome}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {c.servicos?.join(", ") || "Sem serviços vinculados"}
+                          </p>
+                        </div>
+                        {selectedColaborador === c.id && (
+                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                        )}
+                      </div>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </div>
+                </ScrollArea>
               </div>
             ) : (
               <div className="space-y-2">
                 <Label>{(fixedClientId || initialData?.cliente_id) ? "" : "2. "}Colaborador Selecionado</Label>
-                <div className="p-2 border rounded bg-muted/50 flex items-center gap-2">
-                  <User className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-medium">
-                    {colaboradores.find(c => c.id === fixedColaboradorId)?.nome || "Carregando..."}
-                  </span>
+                <div className="p-3 border rounded-lg bg-muted/30 flex items-center gap-3">
+                  {(() => {
+                    const c = colaboradores.find(col => col.id === (fixedColaboradorId || selectedColaborador));
+                    return (
+                      <>
+                        <Avatar className="h-10 w-10 border">
+                          <AvatarImage src={c?.foto_url || ""} />
+                          <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm leading-none">{c?.nome || "Carregando..."}</p>
+                          <p className="text-xs text-muted-foreground mt-1 truncate">
+                            {c?.servicos?.join(", ")}
+                          </p>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -449,21 +495,41 @@ export function BookingButton({
             {selectedColaborador && (
               <div className="space-y-2">
                 <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "1" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
-                <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto bg-muted/20">
-                  {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
-                    <div key={s.id} className="flex items-center gap-2">
-                      <Checkbox 
-                        id={`sch-${s.id}`} 
-                        checked={selectedServicos.includes(s.id)} 
-                        onCheckedChange={() => handleSelectServico(s.id)} 
-                      />
-                      <label htmlFor={`sch-${s.id}`} className="text-sm flex-1 flex justify-between">
-                        <span>{s.name}</span>
-                        <span className="opacity-60">{s.duration}min - R${s.price}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                <ScrollArea className="h-[180px] rounded-md border p-2 bg-muted/10">
+                  <div className="space-y-2">
+                    {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
+                      <div 
+                        key={s.id} 
+                        className={cn(
+                          "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
+                          selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
+                        )}
+                        onClick={() => handleSelectServico(s.id)}
+                      >
+                        <Checkbox 
+                          id={`sch-${s.id}`} 
+                          checked={selectedServicos.includes(s.id)} 
+                          onCheckedChange={() => handleSelectServico(s.id)} 
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        {s.image_url ? (
+                          <img src={s.image_url} alt={s.name} className="w-10 h-10 rounded object-cover border" />
+                        ) : (
+                          <div className="w-10 h-10 rounded bg-muted flex items-center justify-center border">
+                            <Scissors className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium leading-none">{s.name}</p>
+                          <div className="flex justify-between mt-1">
+                            <span className="text-xs text-muted-foreground">{s.duration}min</span>
+                            <span className="text-xs font-semibold">R${s.price}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
             )}
 

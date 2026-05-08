@@ -20,6 +20,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookingButton } from "@/components/BookingButton";
 import {
@@ -78,6 +80,8 @@ interface Colaborador {
   id: string;
   nome: string;
   ativo: boolean;
+  foto_url?: string | null;
+  servicos?: string[];
 }
 
 interface Servico {
@@ -85,6 +89,7 @@ interface Servico {
   name: string;
   price: number;
   duration: number;
+  image_url?: string | null;
 }
 
 function AtendimentosPage() {
@@ -178,9 +183,19 @@ function AtendimentosPage() {
   }, [limitConcluidos, filtroConcluidos]);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo').order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').order('name');
-    setColaboradores(colabs || []);
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').order('name');
+    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id');
+    
+    const formattedColabs = colabs?.map(c => ({
+      ...c,
+      servicos: rels?.filter(r => r.colaborador_id === c.id).map(r => {
+        const s = servs?.find(srv => srv.id === r.servico_id);
+        return s?.name || "";
+      }).filter(Boolean)
+    })) || [];
+
+    setColaboradores(formattedColabs as Colaborador[]);
     setAllServicos(servs || []);
   };
 
@@ -624,19 +639,40 @@ function AtendimentosPage() {
               </div>
               <div className="space-y-2">
                 <Label>Colaborador</Label>
-                <Select value={selectedColaborador} onValueChange={(v) => { 
-                  setSelectedColaborador(v);
-                  if (selectedServicos.length > 0) calculateComissao(selectedServicos, v);
-                }}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>
+                <ScrollArea className="h-[180px] rounded-md border p-2">
+                  <div className="space-y-2">
                     {colaboradores.map(c => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nome} {!c.ativo && "(Inativo)"}
-                      </SelectItem>
+                      <div 
+                        key={c.id}
+                        onClick={() => { 
+                          setSelectedColaborador(c.id);
+                          if (selectedServicos.length > 0) calculateComissao(selectedServicos, c.id);
+                        }}
+                        className={cn(
+                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
+                          selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border",
+                          !c.ativo && "opacity-50"
+                        )}
+                      >
+                        <Avatar className="h-10 w-10 border">
+                          <AvatarImage src={c.foto_url || ""} />
+                          <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm leading-none mb-1">
+                            {c.nome} {!c.ativo && "(Inativo)"}
+                          </p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {c.servicos?.join(", ") || "Sem serviços"}
+                          </p>
+                        </div>
+                        {selectedColaborador === c.id && (
+                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                        )}
+                      </div>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </div>
+                </ScrollArea>
               </div>
 
               <div className="space-y-2">
@@ -708,14 +744,33 @@ function AtendimentosPage() {
 
               <div className="space-y-2">
                 <Label>Serviços</Label>
-                <div className="grid gap-2 border p-3 rounded-md max-h-[150px] overflow-auto">
-                  {allServicos.map(s => (
-                    <div key={s.id} className="flex items-center gap-2">
-                      <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} />
-                      <span>{s.name} - R${s.price}</span>
-                    </div>
-                  ))}
-                </div>
+                <ScrollArea className="h-[150px] rounded-md border p-2 bg-muted/10">
+                  <div className="space-y-2">
+                    {allServicos.map(s => (
+                      <div 
+                        key={s.id} 
+                        className={cn(
+                          "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
+                          selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
+                        )}
+                        onClick={() => handleSelectServico(s.id)}
+                      >
+                        <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} onClick={(e) => e.stopPropagation()} />
+                        {s.image_url ? (
+                          <img src={s.image_url} alt={s.name} className="w-8 h-8 rounded object-cover border" />
+                        ) : (
+                          <div className="w-8 h-8 rounded bg-muted flex items-center justify-center border">
+                            <Scissors className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium leading-none">{s.name}</p>
+                          <p className="text-xs text-muted-foreground mt-1">R${s.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
               {!editingAtendimento ? (
                 <div className="space-y-2">
