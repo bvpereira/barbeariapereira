@@ -108,6 +108,8 @@ function AtendimentosPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingAtendimento, setEditingAtendimento] = useState<Atendimento | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<any>(null);
 
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
@@ -346,11 +348,43 @@ function AtendimentosPage() {
     setColabServicosIds([]);
   };
 
-  const handleSave = async (isScheduling: boolean) => {
+  const handleSave = async (isScheduling: boolean, force: boolean = false) => {
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || (isScheduling && !selectedTimePart)) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+
+    const userData = localStorage.getItem("user");
+    const user = userData ? JSON.parse(userData) : null;
+    const isLevel3 = user?.nivel === 3;
+
+    if (isLevel3 && isScheduling && !force) {
+      const colab = colaboradores.find(c => c.id === selectedColaborador);
+      const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
+      
+      const newDate = parseISO(`${selectedDatePart}T${selectedTimePart}`);
+      
+      const data: any = {
+        isUpdate: !!editingAtendimento,
+        cliente: selectedCliente.nome,
+        colaborador: colab?.nome || "",
+        data: format(newDate, "dd/MM/yyyy"),
+        horario: selectedTimePart,
+        servicos: servs.join(", "),
+      };
+
+      if (editingAtendimento) {
+        const oldDate = parseISO(editingAtendimento.data);
+        data.oldData = format(oldDate, "dd/MM/yyyy");
+        data.oldHorario = format(oldDate, "HH:mm");
+        data.isReschedule = oldDate.getTime() !== newDate.getTime();
+      }
+
+      setConfirmationData(data);
+      setShowConfirmation(true);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload = {
@@ -417,6 +451,7 @@ function AtendimentosPage() {
 
       toast.success("Salvo com sucesso");
       setIsDialogOpen(false);
+      setShowConfirmation(false);
       fetchAgendados();
       fetchConcluidos();
     } catch (e: any) { toast.error(e.message); }
