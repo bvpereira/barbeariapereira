@@ -78,6 +78,8 @@ interface Colaborador {
   id: string;
   nome: string;
   ativo: boolean;
+  foto_url?: string | null;
+  servicos?: string[];
 }
 
 interface Servico {
@@ -85,6 +87,7 @@ interface Servico {
   name: string;
   price: number;
   duration: number;
+  image_url?: string | null;
 }
 
 function AtendimentosPage() {
