@@ -160,6 +160,10 @@ function PromocaoPage() {
   };
 
   const handleSaveTexto = async () => {
+    if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
+      toast.error("O texto da promoção não pode ultrapassar 920 caracteres.");
+      return;
+    }
     setSaving(true);
     try {
       const { error } = await supabase
@@ -236,6 +240,10 @@ function PromocaoPage() {
   };
 
   const handleEnviarTeste = async () => {
+    if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
+      toast.error("O texto ultrapassa o limite de 920 caracteres.");
+      return;
+    }
     setSendingTest(true);
     const success = await triggerWebhook("Teste_promo");
     if (success) toast.success("Teste enviado com sucesso!");
@@ -369,10 +377,18 @@ function PromocaoPage() {
                 <Textarea
                   id="texto-promo"
                   placeholder="Ex: Corte + Barba com 20% de desconto nesta quarta!"
-                  className="min-h-[120px]"
+                  className={`min-h-[120px] ${promoAtual.texto_promo?.length > 920 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   value={promoAtual.texto_promo || ""}
                   onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
                 />
+                <div className="flex justify-between text-xs">
+                  <span className={promoAtual.texto_promo?.length > 920 ? "text-red-500 font-medium" : "text-muted-foreground"}>
+                    {promoAtual.texto_promo?.length || 0}/920 caracteres
+                  </span>
+                  {promoAtual.texto_promo?.length > 920 && (
+                    <span className="text-red-500 font-medium italic">Limite excedido</span>
+                  )}
+                </div>
                 <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleSaveTexto} disabled={saving}>
                   <Save className="h-4 w-4" />
                   Salvar Texto
@@ -393,7 +409,13 @@ function PromocaoPage() {
                 
                 <Button 
                   className="gap-2" 
-                  onClick={() => setIsConfirmOpen(true)}
+                  onClick={() => {
+                    if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
+                      toast.error("O texto ultrapassa o limite de 920 caracteres.");
+                      return;
+                    }
+                    setIsConfirmOpen(true);
+                  }}
                   disabled={sendingPromo || !promoAtual.texto_promo}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
