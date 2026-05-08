@@ -373,10 +373,18 @@ function PromocaoPage() {
                 <Textarea
                   id="texto-promo"
                   placeholder="Ex: Corte + Barba com 20% de desconto nesta quarta!"
-                  className="min-h-[120px]"
+                  className={`min-h-[120px] ${promoAtual.texto_promo?.length > 920 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   value={promoAtual.texto_promo || ""}
                   onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
                 />
+                <div className="flex justify-between text-xs">
+                  <span className={promoAtual.texto_promo?.length > 920 ? "text-red-500 font-medium" : "text-muted-foreground"}>
+                    {promoAtual.texto_promo?.length || 0}/920 caracteres
+                  </span>
+                  {promoAtual.texto_promo?.length > 920 && (
+                    <span className="text-red-500 font-medium italic">Limite excedido</span>
+                  )}
+                </div>
                 <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleSaveTexto} disabled={saving}>
                   <Save className="h-4 w-4" />
                   Salvar Texto
