@@ -81,6 +81,8 @@ export function BookingButton({
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<any>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -261,11 +263,43 @@ export function BookingButton({
     }
   }, [selectedDatePart, selectedColaborador, selectedServicos, isOpen, fetchAvailableTimes]);
 
-  const handleSave = async () => {
+  const handleSave = async (force: boolean = false) => {
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || !selectedTimePart) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+
+    const userData = localStorage.getItem("user");
+    const user = userData ? JSON.parse(userData) : null;
+    const isLevel3 = user?.nivel === 3;
+
+    if (isLevel3 && !force) {
+      const colab = colaboradores.find(c => c.id === selectedColaborador);
+      const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
+      
+      const newDate = parseISO(`${selectedDatePart}T${selectedTimePart}`);
+      
+      const data: any = {
+        isUpdate: !!initialData?.id,
+        cliente: selectedCliente.nome,
+        colaborador: colab?.nome || "",
+        data: format(newDate, "dd/MM/yyyy"),
+        horario: selectedTimePart,
+        servicos: servs.join(", "),
+      };
+
+      if (initialData?.id) {
+        const oldDate = parseISO(initialData.data);
+        data.oldData = format(oldDate, "dd/MM/yyyy");
+        data.oldHorario = format(oldDate, "HH:mm");
+        data.isReschedule = oldDate.getTime() !== newDate.getTime();
+      }
+
+      setConfirmationData(data);
+      setShowConfirmation(true);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Calculate commission
@@ -317,18 +351,15 @@ export function BookingButton({
       })));
 
       // Trigger Webhook
+      const colab = colaboradores.find(c => c.id === selectedColaborador);
+      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
+      const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
+      
+      const newData = parseISO(`${selectedDatePart}T${selectedTimePart}:00-03:00`);
+
       if (initialData?.id) {
         const oldData = parseISO(initialData.data);
-        const newData = parseISO(`${selectedDatePart}T${selectedTimePart}:00-03:00`);
-        
-        // Always trigger if it was an update, but follow "Remarcacao" rules for fields
         const isRemarcacao = oldData.getTime() !== newData.getTime();
-        const colab = colaboradores.find(c => c.id === selectedColaborador);
-        const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
-        console.log("Colab data found:", colabData);
-        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
-        
-        
         
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
@@ -345,11 +376,6 @@ export function BookingButton({
           })
         });
       } else {
-        const colab = colaboradores.find(c => c.id === selectedColaborador);
-        const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
-        console.log("Colab data found:", colabData);
-        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
-
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
@@ -364,9 +390,12 @@ export function BookingButton({
 
       toast.success(initialData?.id ? "Agendamento atualizado" : "Agendamento realizado com sucesso");
       setIsOpen(false);
+      setShowConfirmation(false);
       resetForm();
       if (onSuccess) onSuccess();
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) { 
+      toast.error(e.message); 
+    }
     setIsSubmitting(false);
   };
 
