@@ -231,18 +231,21 @@ function PromocaoPage() {
     };
 
     try {
-      const response = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+      // Use edge function proxy to avoid CORS issues
+      const { data, error } = await supabase.functions.invoke('proxy-webhook', {
+        body: {
+          url: webhookUrl,
+          method: "POST",
+          body: payload
+        }
       });
 
-      if (!response.ok) throw new Error("Erro na resposta do webhook");
+      if (error) throw error;
       
       return true;
     } catch (error: any) {
       console.error("Erro webhook:", error);
-      toast.error("Erro ao disparar webhook: " + error.message);
+      toast.error("Erro ao disparar webhook: " + (error.message || "Erro desconhecido"));
       return false;
     }
   };
