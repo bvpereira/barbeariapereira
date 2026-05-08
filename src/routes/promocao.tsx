@@ -276,6 +276,27 @@ function PromocaoPage() {
     setSendingPromo(false);
   };
 
+  const handleDeletePromo = async () => {
+    if (!promoToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from("promocao")
+        .delete()
+        .eq("id", promoToDelete.id);
+      
+      if (error) throw error;
+      
+      toast.success("Registro de promoção excluído!");
+      setHistorico(historico.filter(h => h.id !== promoToDelete.id));
+    } catch (error: any) {
+      toast.error("Erro ao excluir: " + error.message);
+    } finally {
+      setIsDeleteConfirmOpen(false);
+      setPromoToDelete(null);
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
