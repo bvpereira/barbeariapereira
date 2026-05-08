@@ -365,7 +365,7 @@ function PromocaoPage() {
 
               {/* Texto */}
               <div className="space-y-2">
-                <Label htmlFor="texto-promo">Texto da Promoção</Label>
+                <Label htmlFor="texto-promo">Texto da Promoção (cole aqui um texto escrito no WhatsApp)</Label>
                 <Textarea
                   id="texto-promo"
                   placeholder="Ex: Corte + Barba com 20% de desconto nesta quarta!"
