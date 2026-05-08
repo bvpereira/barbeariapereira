@@ -30,13 +30,14 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
       return;
     }
 
-    // 2. Fetch the webhook URL
+    // 3. Fetch the webhook URL
     const { data: config, error } = await supabase
       .from("integracoes")
       .select("webhook_url")
+      .eq("tipo", "atendimentos")
       .order("created_at", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (error || !config?.webhook_url) {
       if (error && error.code !== "PGRST116") {
