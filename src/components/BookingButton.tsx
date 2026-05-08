@@ -647,8 +647,48 @@ export function BookingButton({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={isSubmitting || !selectedTimePart}>
+            <Button onClick={() => handleSave()} disabled={isSubmitting || !selectedTimePart}>
               {isSubmitting ? "Agendando..." : "Agendar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Confirmar Agendamento</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Dados do Agendamento:</p>
+              <div className="bg-muted p-3 rounded-md text-sm space-y-1">
+                <p><strong>Colaborador:</strong> {confirmationData?.colaborador}</p>
+                <p><strong>Serviços:</strong> {confirmationData?.servicos}</p>
+                <p><strong>Data:</strong> {confirmationData?.data}</p>
+                <p><strong>Horário:</strong> {confirmationData?.horario}</p>
+              </div>
+            </div>
+
+            {confirmationData?.isReschedule && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-amber-600">Dados do Agendamento Anterior:</p>
+                <div className="bg-amber-50 p-3 rounded-md text-sm space-y-1 border border-amber-200">
+                  <p><strong>Data Anterior:</strong> {confirmationData?.oldData}</p>
+                  <p><strong>Horário Anterior:</strong> {confirmationData?.oldHorario}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-700 border border-blue-200 flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <p>Ao clicar em confirmar, você receberá uma mensagem no WhatsApp com a confirmação do agendamento.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmation(false)}>Voltar</Button>
+            <Button onClick={() => handleSave(true)} disabled={isSubmitting}>
+              {isSubmitting ? "Confirmando..." : "Confirmar"}
             </Button>
           </DialogFooter>
         </DialogContent>
