@@ -263,7 +263,8 @@ function AtendimentosPage() {
 
   const fetchColabServicos = async (colabId: string) => {
     const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('colaborador_id', colabId);
-    setColabServicosIds(data?.map(d => d.servico_id).filter((id): id is string => !!id) || []);
+    const ids = data?.map(d => d.servico_id).filter((id): id is string => !!id) || [];
+    setColabServicosIds(ids);
     
     // Fetch active dates
     const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
@@ -273,6 +274,8 @@ function AtendimentosPage() {
     if (selectedDatePart && !dates.includes(selectedDatePart)) {
       setSelectedDatePart("");
     }
+
+    return ids;
   };
 
   const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
