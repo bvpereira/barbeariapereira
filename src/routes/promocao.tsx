@@ -61,7 +61,9 @@ function PromocaoPage() {
   const [telContato, setTelContato] = useState("");
   const [historico, setHistorico] = useState<any[]>([]);
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
+  const [promoToDelete, setPromoToDelete] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -274,6 +276,27 @@ function PromocaoPage() {
     setSendingPromo(false);
   };
 
+  const handleDeletePromo = async () => {
+    if (!promoToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from("promocao")
+        .delete()
+        .eq("id", promoToDelete.id);
+      
+      if (error) throw error;
+      
+      toast.success("Registro de promoção excluído!");
+      setHistorico(historico.filter(h => h.id !== promoToDelete.id));
+    } catch (error: any) {
+      toast.error("Erro ao excluir: " + error.message);
+    } finally {
+      setIsDeleteConfirmOpen(false);
+      setPromoToDelete(null);
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -438,9 +461,22 @@ function PromocaoPage() {
                             {format(new Date(item.data_promo), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                           </div>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedPromo(item)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => setSelectedPromo(item)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              setPromoToDelete(item);
+                              setIsDeleteConfirmOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -464,6 +500,26 @@ function PromocaoPage() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleEnviarConfirmado}>
               Sim, enviar agora
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir registro de promoção?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação removerá permanentemente o registro desta promoção do histórico.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeletePromo}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
