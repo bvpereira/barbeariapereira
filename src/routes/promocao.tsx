@@ -240,6 +240,10 @@ function PromocaoPage() {
   };
 
   const handleEnviarTeste = async () => {
+    if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
+      toast.error("O texto ultrapassa o limite de 920 caracteres.");
+      return;
+    }
     setSendingTest(true);
     const success = await triggerWebhook("Teste_promo");
     if (success) toast.success("Teste enviado com sucesso!");
