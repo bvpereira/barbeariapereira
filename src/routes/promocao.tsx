@@ -505,6 +505,26 @@ function PromocaoPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir registro de promoção?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação removerá permanentemente o registro desta promoção do histórico.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeletePromo}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Detalhes da Promoção */}
       <Dialog open={!!selectedPromo} onOpenChange={(open) => !open && setSelectedPromo(null)}>
         <DialogContent className="max-w-2xl">
