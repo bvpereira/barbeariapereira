@@ -81,6 +81,8 @@ export function BookingButton({
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<any>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -261,11 +263,43 @@ export function BookingButton({
     }
   }, [selectedDatePart, selectedColaborador, selectedServicos, isOpen, fetchAvailableTimes]);
 
-  const handleSave = async () => {
+  const handleSave = async (force: boolean = false) => {
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || !selectedTimePart) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+
+    const userData = localStorage.getItem("user");
+    const user = userData ? JSON.parse(userData) : null;
+    const isLevel3 = user?.nivel === 3;
+
+    if (isLevel3 && !force) {
+      const colab = colaboradores.find(c => c.id === selectedColaborador);
+      const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
+      
+      const newDate = parseISO(`${selectedDatePart}T${selectedTimePart}`);
+      
+      const data: any = {
+        isUpdate: !!initialData?.id,
+        cliente: selectedCliente.nome,
+        colaborador: colab?.nome || "",
+        data: format(newDate, "dd/MM/yyyy"),
+        horario: selectedTimePart,
+        servicos: servs.join(", "),
+      };
+
+      if (initialData?.id) {
+        const oldDate = parseISO(initialData.data);
+        data.oldData = format(oldDate, "dd/MM/yyyy");
+        data.oldHorario = format(oldDate, "HH:mm");
+        data.isReschedule = oldDate.getTime() !== newDate.getTime();
+      }
+
+      setConfirmationData(data);
+      setShowConfirmation(true);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Calculate commission
@@ -317,18 +351,15 @@ export function BookingButton({
       })));
 
       // Trigger Webhook
+      const colab = colaboradores.find(c => c.id === selectedColaborador);
+      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
+      const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
+      
+      const newData = parseISO(`${selectedDatePart}T${selectedTimePart}:00-03:00`);
+
       if (initialData?.id) {
         const oldData = parseISO(initialData.data);
-        const newData = parseISO(`${selectedDatePart}T${selectedTimePart}:00-03:00`);
-        
-        // Always trigger if it was an update, but follow "Remarcacao" rules for fields
         const isRemarcacao = oldData.getTime() !== newData.getTime();
-        const colab = colaboradores.find(c => c.id === selectedColaborador);
-        const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
-        console.log("Colab data found:", colabData);
-        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
-        
-        
         
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
@@ -345,11 +376,6 @@ export function BookingButton({
           })
         });
       } else {
-        const colab = colaboradores.find(c => c.id === selectedColaborador);
-        const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
-        console.log("Colab data found:", colabData);
-        const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
-
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
@@ -364,9 +390,12 @@ export function BookingButton({
 
       toast.success(initialData?.id ? "Agendamento atualizado" : "Agendamento realizado com sucesso");
       setIsOpen(false);
+      setShowConfirmation(false);
       resetForm();
       if (onSuccess) onSuccess();
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) { 
+      toast.error(e.message); 
+    }
     setIsSubmitting(false);
   };
 
@@ -618,8 +647,48 @@ export function BookingButton({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={isSubmitting || !selectedTimePart}>
+            <Button onClick={() => handleSave()} disabled={isSubmitting || !selectedTimePart}>
               {isSubmitting ? "Agendando..." : "Agendar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Confirmar Agendamento</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Dados do Agendamento:</p>
+              <div className="bg-muted p-3 rounded-md text-sm space-y-1">
+                <p><strong>Colaborador:</strong> {confirmationData?.colaborador}</p>
+                <p><strong>Serviços:</strong> {confirmationData?.servicos}</p>
+                <p><strong>Data:</strong> {confirmationData?.data}</p>
+                <p><strong>Horário:</strong> {confirmationData?.horario}</p>
+              </div>
+            </div>
+
+            {confirmationData?.isReschedule && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-amber-600">Dados do Agendamento Anterior:</p>
+                <div className="bg-amber-50 p-3 rounded-md text-sm space-y-1 border border-amber-200">
+                  <p><strong>Data Anterior:</strong> {confirmationData?.oldData}</p>
+                  <p><strong>Horário Anterior:</strong> {confirmationData?.oldHorario}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-blue-50 p-3 rounded-md text-sm text-blue-700 border border-blue-200 flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <p>Ao clicar em confirmar, você receberá uma mensagem no WhatsApp com a confirmação do agendamento.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmation(false)}>Voltar</Button>
+            <Button onClick={() => handleSave(true)} disabled={isSubmitting}>
+              {isSubmitting ? "Confirmando..." : "Confirmar"}
             </Button>
           </DialogFooter>
         </DialogContent>
