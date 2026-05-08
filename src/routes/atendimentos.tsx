@@ -682,103 +682,108 @@ function AtendimentosPage() {
                 </ScrollArea>
               </div>
 
-              <div className="space-y-2">
-                <Label>Data do Atendimento</Label>
-                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !selectedDatePart && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {selectedDatePart ? (
-                        format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                      ) : (
-                        <span>Selecione uma data</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
-                      onSelect={(date) => {
-                        if (date) {
-                          setSelectedDatePart(format(date, "yyyy-MM-dd"));
-                          setIsCalendarOpen(false);
-                        }
-                      }}
-                      disabled={(date) => {
-                        const dateStr = format(date, "yyyy-MM-dd");
-                        const today = startOfToday();
-                        return (
-                          date < today || 
-                          (maxDate && dateStr > maxDate) || 
-                          (colabActiveDates.length > 0 && !colabActiveDates.includes(dateStr))
-                        );
-                      }}
-                      initialFocus
-                      locale={ptBR}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+               {selectedColaborador && (
+                 <>
+                  <div className="space-y-2">
+                    <Label>Serviços</Label>
+                    <ScrollArea className="h-[150px] rounded-md border p-2 bg-muted/10">
+                      <div className="space-y-2">
+                        {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
+                          <div 
+                            key={s.id} 
+                            className={cn(
+                              "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
+                              selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
+                            )}
+                            onClick={() => handleSelectServico(s.id)}
+                          >
+                            <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} onClick={(e) => e.stopPropagation()} />
+                            {s.image_url ? (
+                              <img src={s.image_url} alt={s.name} className="w-8 h-8 rounded object-cover border" />
+                            ) : (
+                              <div className="w-8 h-8 rounded bg-muted flex items-center justify-center border">
+                                <Scissors className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium leading-none">{s.name}</p>
+                              <p className="text-xs text-muted-foreground mt-1">R${s.price}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
 
-              {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
-                <div className="space-y-2">
-                  <Label>Horário do Atendimento</Label>
-                  {loadingTimes ? <p className="text-sm animate-pulse">Consultando horários...</p> : (
-                    <div className="grid grid-cols-4 gap-2 max-h-[120px] overflow-auto border p-2 rounded-md">
-                      {availableTimes.length > 0 ? availableTimes.map(t => (
-                        <Button 
-                          key={t} 
-                          variant={selectedTimePart === t ? "default" : "outline"} 
-                          size="sm" 
-                          className="h-8 text-xs"
-                          onClick={() => setSelectedTimePart(t)}
-                        >
-                          {t}
-                        </Button>
-                      )) : <p className="text-xs text-destructive col-span-full">Sem horários disponíveis.</p>}
+                  {selectedServicos.length > 0 && (
+                    <div className="space-y-2">
+                      <Label>Data do Atendimento</Label>
+                      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !selectedDatePart && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDatePart ? (
+                              format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                            ) : (
+                              <span>Selecione uma data</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                            onSelect={(date) => {
+                              if (date) {
+                                setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                                setIsCalendarOpen(false);
+                              }
+                            }}
+                            disabled={(date) => {
+                              const dateStr = format(date, "yyyy-MM-dd");
+                              const today = startOfToday();
+                              return (
+                                date < today || 
+                                (maxDate && dateStr > maxDate) || 
+                                (colabActiveDates.length > 0 && !colabActiveDates.includes(dateStr))
+                              );
+                            }}
+                            initialFocus
+                            locale={ptBR}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   )}
-                </div>
-              )}
 
-
-              <div className="space-y-2">
-                <Label>Serviços</Label>
-                <ScrollArea className="h-[150px] rounded-md border p-2 bg-muted/10">
-                  <div className="space-y-2">
-                    {allServicos.map(s => (
-                      <div 
-                        key={s.id} 
-                        className={cn(
-                          "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
-                          selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
-                        )}
-                        onClick={() => handleSelectServico(s.id)}
-                      >
-                        <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} onClick={(e) => e.stopPropagation()} />
-                        {s.image_url ? (
-                          <img src={s.image_url} alt={s.name} className="w-8 h-8 rounded object-cover border" />
-                        ) : (
-                          <div className="w-8 h-8 rounded bg-muted flex items-center justify-center border">
-                            <Scissors className="w-4 h-4 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium leading-none">{s.name}</p>
-                          <p className="text-xs text-muted-foreground mt-1">R${s.price}</p>
+                  {selectedDatePart && selectedServicos.length > 0 && (
+                    <div className="space-y-2">
+                      <Label>Horário do Atendimento</Label>
+                      {loadingTimes ? <p className="text-sm animate-pulse">Consultando horários...</p> : (
+                        <div className="grid grid-cols-4 gap-2 max-h-[120px] overflow-auto border p-2 rounded-md">
+                          {availableTimes.length > 0 ? availableTimes.map(t => (
+                            <Button 
+                              key={t} 
+                              variant={selectedTimePart === t ? "default" : "outline"} 
+                              size="sm" 
+                              className="h-8 text-xs"
+                              onClick={() => setSelectedTimePart(t)}
+                            >
+                              {t}
+                            </Button>
+                          )) : <p className="text-xs text-destructive col-span-full">Sem horários disponíveis.</p>}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
+                      )}
+                    </div>
+                  )}
+                 </>
+               )}
               {!editingAtendimento ? (
                 <div className="space-y-2">
                   <Label>Status</Label>
