@@ -45,7 +45,7 @@ interface Colaborador {
   id: string;
   nome: string;
   ativo: boolean;
-  foto_url?: string;
+  foto_url?: string | null;
   servicos?: string[];
 }
 
@@ -54,7 +54,7 @@ interface Servico {
   name: string;
   price: number;
   duration: number;
-  image_url?: string;
+  image_url?: string | null;
 }
 
 interface BookingButtonProps {
