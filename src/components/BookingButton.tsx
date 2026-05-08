@@ -132,6 +132,8 @@ export function BookingButton({
       
       if (initialData) {
         setSelectedCliente({ id: initialData.cliente_id, nome: initialData.cliente_nome, login: "" });
+        // Fetch full client data to get the login
+        fetchFixedClient(initialData.cliente_id);
         setSearchCliente(initialData.cliente_nome || "");
         setSelectedColaborador(initialData.colaborador_id);
         setSelectedDatePart(format(parseISO(initialData.data), "yyyy-MM-dd"));
@@ -312,6 +314,7 @@ export function BookingButton({
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
           cliente: selectedCliente.nome,
+          login_cliente: selectedCliente.login,
           colaborador: colab?.nome || "",
           tel_colaborador: formattedTel,
           data: format(newData, "dd/MM/yyyy"),
@@ -331,6 +334,7 @@ export function BookingButton({
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
+          login_cliente: selectedCliente.login,
           colaborador: colab?.nome || "",
           tel_colaborador: formattedTel,
           data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),

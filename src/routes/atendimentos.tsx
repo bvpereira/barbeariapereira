@@ -373,6 +373,7 @@ function AtendimentosPage() {
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
           cliente: selectedCliente.nome,
+          login_cliente: selectedCliente.login,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
           tel_colaborador: formattedTel,
           data: format(newData, "dd/MM/yyyy"),
@@ -387,6 +388,7 @@ function AtendimentosPage() {
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
+          login_cliente: selectedCliente.login,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
           tel_colaborador: formattedTel,
           data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
@@ -459,7 +461,7 @@ function AtendimentosPage() {
       // Fetch data for webhook before deleting
       const { data: item } = await supabase
         .from('atendimentos')
-        .select('*, cliente:usuarios!cliente_id(nome), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
+        .select('*, cliente:usuarios!cliente_id(nome, login), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
         .eq('id', id)
         .single();
 
@@ -470,6 +472,7 @@ function AtendimentosPage() {
         triggerWebhook("Exclusao", {
           tipo: "Exclusao",
           cliente: (item.cliente as any)?.nome || "Cliente",
+          login_cliente: (item.cliente as any)?.login || "",
           colaborador: (item.colaborador as any)?.nome || "Colaborador",
           data: format(parseISO(item.data), "dd/MM/yyyy"),
           horario: format(parseISO(item.data), "HH:mm"),
