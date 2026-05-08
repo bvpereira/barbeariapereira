@@ -461,7 +461,7 @@ function AtendimentosPage() {
       // Fetch data for webhook before deleting
       const { data: item } = await supabase
         .from('atendimentos')
-        .select('*, cliente:usuarios!cliente_id(nome), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
+        .select('*, cliente:usuarios!cliente_id(nome, login), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
         .eq('id', id)
         .single();
 
