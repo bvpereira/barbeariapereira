@@ -18,17 +18,19 @@ interface WebhookData {
 export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
   try {
     // 1. Log for debugging
-    console.log("Triggering Webhook:", event, data);
-
-    // 2. Check if the user is level 3
+    // 1. Check user level (skip check if it's for debug/internal use)
     const userData = localStorage.getItem("user");
-    if (!userData) return;
-    
-    const user = JSON.parse(userData);
-    if (user.nivel !== 3) {
-      console.log("Webhook skipped: User is not Level 3 (Nível:", user.nivel, ")");
-      return;
+    if (userData) {
+      const user = JSON.parse(userData);
+      // Only skip if we explicitly know the user is NOT level 3
+      // If we can't find the user level or it IS level 3, we continue
+      if (user.nivel && user.nivel !== 3) {
+        console.log("Webhook skipped: User is level", user.nivel, "(only level 3 triggers webhooks)");
+        return;
+      }
     }
+
+    console.log("Triggering Webhook:", event, data);
 
     // 3. Fetch the webhook URL
     const { data: config, error } = await supabase
