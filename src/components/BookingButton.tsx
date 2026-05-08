@@ -191,7 +191,8 @@ export function BookingButton({
 
   const fetchColabServicos = async (colabId: string) => {
     const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('colaborador_id', colabId);
-    setColabServicosIds(data?.map(d => d.servico_id).filter((id): id is string => !!id) || []);
+    const ids = data?.map(d => d.servico_id).filter((id): id is string => !!id) || [];
+    setColabServicosIds(ids);
     
     const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
     const dates = activeDates?.map(d => d.data) || [];
@@ -200,6 +201,8 @@ export function BookingButton({
     if (selectedDatePart && !dates.includes(selectedDatePart)) {
       setSelectedDatePart("");
     }
+
+    return ids;
   };
 
   const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
@@ -443,7 +446,7 @@ export function BookingButton({
                     {colaboradores.filter(c => c.ativo).map(c => (
                       <div 
                         key={c.id}
-                        onClick={() => { setSelectedColaborador(c.id); setSelectedServicos([]); fetchColabServicos(c.id); }}
+                        onClick={() => { setSelectedColaborador(c.id); setSelectedServicos([]); setSelectedDatePart(""); setSelectedTimePart(""); fetchColabServicos(c.id); }}
                         className={cn(
                           "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
                           selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border"
@@ -493,111 +496,113 @@ export function BookingButton({
             )}
 
             {selectedColaborador && (
-              <div className="space-y-2">
-                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "1" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
-                <ScrollArea className="h-[180px] rounded-md border p-2 bg-muted/10">
-                  <div className="space-y-2">
-                    {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
-                      <div 
-                        key={s.id} 
-                        className={cn(
-                          "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
-                          selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
-                        )}
-                        onClick={() => handleSelectServico(s.id)}
-                      >
-                        <Checkbox 
-                          id={`sch-${s.id}`} 
-                          checked={selectedServicos.includes(s.id)} 
-                          onCheckedChange={() => handleSelectServico(s.id)} 
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        {s.image_url ? (
-                          <img src={s.image_url} alt={s.name} className="w-10 h-10 rounded object-cover border" />
-                        ) : (
-                          <div className="w-10 h-10 rounded bg-muted flex items-center justify-center border">
-                            <Scissors className="w-5 h-5 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium leading-none">{s.name}</p>
-                          <div className="flex justify-between mt-1">
-                            <span className="text-xs text-muted-foreground">{s.duration}min</span>
-                            <span className="text-xs font-semibold">R${s.price}</span>
+              <>
+                <div className="space-y-2">
+                  <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "1" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
+                  <ScrollArea className="h-[180px] rounded-md border p-2 bg-muted/10">
+                    <div className="space-y-2">
+                      {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
+                        <div 
+                          key={s.id} 
+                          className={cn(
+                            "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
+                            selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
+                          )}
+                          onClick={() => handleSelectServico(s.id)}
+                        >
+                          <Checkbox 
+                            id={`sch-${s.id}`} 
+                            checked={selectedServicos.includes(s.id)} 
+                            onCheckedChange={() => handleSelectServico(s.id)} 
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          {s.image_url ? (
+                            <img src={s.image_url} alt={s.name} className="w-10 h-10 rounded object-cover border" />
+                          ) : (
+                            <div className="w-10 h-10 rounded bg-muted flex items-center justify-center border">
+                              <Scissors className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium leading-none">{s.name}</p>
+                            <div className="flex justify-between mt-1">
+                              <span className="text-xs text-muted-foreground">{s.duration}min</span>
+                              <span className="text-xs font-semibold">R${s.price}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-            )}
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
 
-            {selectedServicos.length > 0 && (
-              <div className="space-y-2">
-                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "2" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "4" : "3"}. Selecione a Data</Label>
-                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal pl-3",
-                        !selectedDatePart && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
-                      {selectedDatePart ? (
-                        format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                      ) : (
-                        <span>Selecione uma data</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
-                      onSelect={(date) => {
-                        if (date) {
-                          setSelectedDatePart(format(date, "yyyy-MM-dd"));
-                          setIsCalendarOpen(false);
-                        }
-                      }}
-                      disabled={(date) => {
-                        const dateStr = format(date, "yyyy-MM-dd");
-                        const today = startOfToday();
-                        return (
-                          date < today || 
-                          (maxDate && dateStr > maxDate) || 
-                          !colabActiveDates.includes(dateStr)
-                        );
-                      }}
-                      initialFocus
-                      locale={ptBR}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
-
-            {selectedDatePart && selectedServicos.length > 0 && selectedColaborador && (
-              <div className="space-y-2">
-                <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "3" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "5" : "4"}. Horários Disponíveis</Label>
-                {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
-                  <div className="grid grid-cols-4 gap-2">
-                    {availableTimes.length > 0 ? availableTimes.map(t => (
-                      <Button 
-                        key={t} 
-                        variant={selectedTimePart === t ? "default" : "outline"} 
-                        size="sm" 
-                        onClick={() => setSelectedTimePart(t)}
-                      >
-                        {t}
-                      </Button>
-                    )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
+                {selectedServicos.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "2" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "4" : "3"}. Selecione a Data</Label>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal pl-3",
+                            !selectedDatePart && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 text-primary" />
+                          {selectedDatePart ? (
+                            format(parseISO(selectedDatePart), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              setSelectedDatePart(format(date, "yyyy-MM-dd"));
+                              setIsCalendarOpen(false);
+                            }
+                          }}
+                          disabled={(date) => {
+                            const dateStr = format(date, "yyyy-MM-dd");
+                            const today = startOfToday();
+                            return (
+                              date < today || 
+                              (maxDate && dateStr > maxDate) || 
+                              !colabActiveDates.includes(dateStr)
+                            );
+                          }}
+                          initialFocus
+                          locale={ptBR}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 )}
-              </div>
+
+                {selectedDatePart && selectedServicos.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "3" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "5" : "4"}. Horários Disponíveis</Label>
+                    {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
+                      <div className="grid grid-cols-4 gap-2">
+                        {availableTimes.length > 0 ? availableTimes.map(t => (
+                          <Button 
+                            key={t} 
+                            variant={selectedTimePart === t ? "default" : "outline"} 
+                            size="sm" 
+                            onClick={() => setSelectedTimePart(t)}
+                          >
+                            {t}
+                          </Button>
+                        )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
             <div className="space-y-2">
               <Label htmlFor="valor-agendar">Valor Total (R$)</Label>
