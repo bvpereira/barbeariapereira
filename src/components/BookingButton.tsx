@@ -132,6 +132,8 @@ export function BookingButton({
       
       if (initialData) {
         setSelectedCliente({ id: initialData.cliente_id, nome: initialData.cliente_nome, login: "" });
+        // Fetch full client data to get the login
+        fetchFixedClient(initialData.cliente_id);
         setSearchCliente(initialData.cliente_nome || "");
         setSelectedColaborador(initialData.colaborador_id);
         setSelectedDatePart(format(parseISO(initialData.data), "yyyy-MM-dd"));
