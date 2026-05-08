@@ -673,7 +673,7 @@ export function BookingButton({
             {confirmationData?.isReschedule && (
               <div className="space-y-2">
                 <p className="text-sm font-medium text-amber-600">Dados do Agendamento Anterior:</p>
-                <div className="bg-amber-50 p-3 rounded-md text-sm space-y-1 border border-amber-200">
+                <div className="bg-muted p-3 rounded-md text-sm space-y-1">
                   <p><strong>Data Anterior:</strong> {confirmationData?.oldData}</p>
                   <p><strong>Horário Anterior:</strong> {confirmationData?.oldHorario}</p>
                 </div>
