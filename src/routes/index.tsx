@@ -27,6 +27,7 @@ import {
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { cn } from "../lib/utils";
+import heroBg from "@/assets/fundo_barbearia_escuro.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { BeamsBackground } from "@/components/ui/beams-background";
 
@@ -52,7 +53,10 @@ function Index() {
 
 function Hero() {
   return (
-    <section className="min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-black">
+    <section
+      className="relative min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${heroBg})` }}
+    >
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
