@@ -61,7 +61,9 @@ function PromocaoPage() {
   const [telContato, setTelContato] = useState("");
   const [historico, setHistorico] = useState<any[]>([]);
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
+  const [promoToDelete, setPromoToDelete] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
