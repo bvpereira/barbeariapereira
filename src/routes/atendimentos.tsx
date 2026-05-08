@@ -472,6 +472,7 @@ function AtendimentosPage() {
         triggerWebhook("Exclusao", {
           tipo: "Exclusao",
           cliente: (item.cliente as any)?.nome || "Cliente",
+          login_cliente: (item.cliente as any)?.login || "",
           colaborador: (item.colaborador as any)?.nome || "Colaborador",
           data: format(parseISO(item.data), "dd/MM/yyyy"),
           horario: format(parseISO(item.data), "HH:mm"),
