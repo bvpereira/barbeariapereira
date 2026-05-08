@@ -446,7 +446,7 @@ export function BookingButton({
                     {colaboradores.filter(c => c.ativo).map(c => (
                       <div 
                         key={c.id}
-                        onClick={() => { setSelectedColaborador(c.id); setSelectedServicos([]); fetchColabServicos(c.id); }}
+                        onClick={() => { setSelectedColaborador(c.id); setSelectedServicos([]); setSelectedDatePart(""); setSelectedTimePart(""); fetchColabServicos(c.id); }}
                         className={cn(
                           "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
                           selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border"
