@@ -380,6 +380,7 @@ export type Database = {
           id: string
           imagem_promo: string | null
           numero_promo: number
+          testada: string | null
           texto_promo: string | null
         }
         Insert: {
@@ -388,6 +389,7 @@ export type Database = {
           id?: string
           imagem_promo?: string | null
           numero_promo: number
+          testada?: string | null
           texto_promo?: string | null
         }
         Update: {
@@ -396,6 +398,7 @@ export type Database = {
           id?: string
           imagem_promo?: string | null
           numero_promo?: number
+          testada?: string | null
           texto_promo?: string | null
         }
         Relationships: []

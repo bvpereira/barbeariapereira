@@ -54,7 +54,8 @@ function PromocaoPage() {
   
   const [promoAtual, setPromoAtual] = useState<any>({
     texto_promo: "",
-    imagem_promo: null
+    imagem_promo: null,
+    testada: "nao"
   });
   
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -140,15 +141,18 @@ function PromocaoPage() {
         .from("promocoes")
         .getPublicUrl(fileName);
 
-      // Save to Row 0 immediately
+      // Save to Row 0 immediately and reset testada to "nao"
       const { error: updateError } = await supabase
         .from("promocao")
-        .update({ imagem_promo: publicUrl })
+        .update({ 
+          imagem_promo: publicUrl,
+          testada: "nao"
+        })
         .eq("numero_promo", 0);
 
       if (updateError) throw updateError;
 
-      setPromoAtual({ ...promoAtual, imagem_promo: publicUrl });
+      setPromoAtual({ ...promoAtual, imagem_promo: publicUrl, testada: "nao" });
       toast.success("Imagem enviada com sucesso!");
     } catch (error: any) {
       console.error(error);
@@ -168,10 +172,14 @@ function PromocaoPage() {
     try {
       const { error } = await supabase
         .from("promocao")
-        .update({ texto_promo: promoAtual.texto_promo })
+        .update({ 
+          texto_promo: promoAtual.texto_promo,
+          testada: "nao"
+        })
         .eq("numero_promo", 0);
       
       if (error) throw error;
+      setPromoAtual({ ...promoAtual, testada: "nao" });
       toast.success("Texto da promoção salvo!");
     } catch (error: any) {
       toast.error("Erro ao salvar texto: " + error.message);
@@ -246,7 +254,18 @@ function PromocaoPage() {
     }
     setSendingTest(true);
     const success = await triggerWebhook("Teste_promo");
-    if (success) toast.success("Teste enviado com sucesso!");
+    if (success) {
+      // Update testada to "sim"
+      const { error } = await supabase
+        .from("promocao")
+        .update({ testada: "sim" })
+        .eq("numero_promo", 0);
+      
+      if (!error) {
+        setPromoAtual({ ...promoAtual, testada: "sim" });
+      }
+      toast.success("Teste enviado com sucesso!");
+    }
     setSendingTest(false);
   };
 
@@ -410,6 +429,10 @@ function PromocaoPage() {
                 <Button 
                   className="gap-2" 
                   onClick={() => {
+                    if (promoAtual.testada !== "sim") {
+                      toast.error("Você precisa enviar um teste antes de enviar a promoção real.");
+                      return;
+                    }
                     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
                       toast.error("O texto ultrapassa o limite de 920 caracteres.");
                       return;
