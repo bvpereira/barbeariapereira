@@ -112,9 +112,19 @@ export function BookingButton({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo').order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').order('name');
-    setColaboradores(colabs || []);
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').order('name');
+    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id');
+    
+    const formattedColabs = colabs?.map(c => ({
+      ...c,
+      servicos: rels?.filter(r => r.colaborador_id === c.id).map(r => {
+        const s = servs?.find(srv => srv.id === r.servico_id);
+        return s?.name || "";
+      }).filter(Boolean)
+    })) || [];
+
+    setColaboradores(formattedColabs as Colaborador[]);
     setAllServicos(servs || []);
   };
 
