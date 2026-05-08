@@ -388,6 +388,7 @@ function AtendimentosPage() {
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
           cliente: selectedCliente.nome,
+          login_cliente: selectedCliente.login,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
           tel_colaborador: formattedTel,
           data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
