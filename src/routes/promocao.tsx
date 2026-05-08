@@ -409,7 +409,13 @@ function PromocaoPage() {
                 
                 <Button 
                   className="gap-2" 
-                  onClick={() => setIsConfirmOpen(true)}
+                  onClick={() => {
+                    if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
+                      toast.error("O texto ultrapassa o limite de 920 caracteres.");
+                      return;
+                    }
+                    setIsConfirmOpen(true);
+                  }}
                   disabled={sendingPromo || !promoAtual.texto_promo}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
