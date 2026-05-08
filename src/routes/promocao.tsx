@@ -160,6 +160,10 @@ function PromocaoPage() {
   };
 
   const handleSaveTexto = async () => {
+    if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
+      toast.error("O texto da promoção não pode ultrapassar 920 caracteres.");
+      return;
+    }
     setSaving(true);
     try {
       const { error } = await supabase
