@@ -639,19 +639,40 @@ function AtendimentosPage() {
               </div>
               <div className="space-y-2">
                 <Label>Colaborador</Label>
-                <Select value={selectedColaborador} onValueChange={(v) => { 
-                  setSelectedColaborador(v);
-                  if (selectedServicos.length > 0) calculateComissao(selectedServicos, v);
-                }}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>
+                <ScrollArea className="h-[180px] rounded-md border p-2">
+                  <div className="space-y-2">
                     {colaboradores.map(c => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nome} {!c.ativo && "(Inativo)"}
-                      </SelectItem>
+                      <div 
+                        key={c.id}
+                        onClick={() => { 
+                          setSelectedColaborador(c.id);
+                          if (selectedServicos.length > 0) calculateComissao(selectedServicos, c.id);
+                        }}
+                        className={cn(
+                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
+                          selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border",
+                          !c.ativo && "opacity-50"
+                        )}
+                      >
+                        <Avatar className="h-10 w-10 border">
+                          <AvatarImage src={c.foto_url || ""} />
+                          <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm leading-none mb-1">
+                            {c.nome} {!c.ativo && "(Inativo)"}
+                          </p>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {c.servicos?.join(", ") || "Sem serviços"}
+                          </p>
+                        </div>
+                        {selectedColaborador === c.id && (
+                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                        )}
+                      </div>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </div>
+                </ScrollArea>
               </div>
 
               <div className="space-y-2">
