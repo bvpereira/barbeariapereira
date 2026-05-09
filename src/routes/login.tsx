@@ -231,17 +231,19 @@ function Login() {
 
       const telContato = (info as any)?.tel_contato || "";
 
-      // 5. Disparar o webhook
+      // 5. Disparar o webhook via proxy para evitar problemas de CORS
       try {
-        await fetch(integracao.webhook_url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            Tel_cliente: usuario.login,
-            Nome_cliente: usuario.nome,
-            Tel_contato: telContato,
-            link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
-          }),
+        await supabase.functions.invoke('proxy-webhook', {
+          body: {
+            url: integracao.webhook_url,
+            method: "POST",
+            body: {
+              Tel_cliente: usuario.login,
+              Nome_cliente: usuario.nome,
+              Tel_contato: telContato,
+              link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
+            }
+          }
         });
       } catch (webhookErr) {
         console.error("Webhook error:", webhookErr);
