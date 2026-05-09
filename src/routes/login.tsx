@@ -233,7 +233,7 @@ function Login() {
 
       // 5. Disparar o webhook via proxy para evitar problemas de CORS
       try {
-        await supabase.functions.invoke('proxy-webhook', {
+        const { error: invokeError } = await supabase.functions.invoke('proxy-webhook', {
           body: {
             url: integracao.webhook_url,
             method: "POST",
@@ -245,6 +245,21 @@ function Login() {
             }
           }
         });
+        
+        if (invokeError) {
+          console.error("Erro ao invocar function:", invokeError);
+          // Fallback para fetch direto se a function falhar (CORS pode ocorrer, mas é uma tentativa)
+          await fetch(integracao.webhook_url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              Tel_cliente: usuario.login,
+              Nome_cliente: usuario.nome,
+              Tel_contato: telContato,
+              link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
+            }),
+          }).catch(e => console.error("Fallback fetch error:", e));
+        }
       } catch (webhookErr) {
         console.error("Webhook error:", webhookErr);
       }
