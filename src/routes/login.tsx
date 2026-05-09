@@ -224,7 +224,8 @@ function Login() {
           body: JSON.stringify({
             Tel_cliente: usuario.login,
             Nome_cliente: usuario.nome,
-            Tel_contato: telContato
+            Tel_contato: telContato,
+            link_recuperacao: `${window.location.origin}/redefinir-senha?user=${usuario.login}`
           }),
         });
       } catch (webhookErr) {
