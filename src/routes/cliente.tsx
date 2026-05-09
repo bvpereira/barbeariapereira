@@ -96,7 +96,21 @@ function ClientePage() {
   }, []);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
+    const getUserData = () => {
+      const stored = localStorage.getItem("user");
+      if (stored) return stored;
+
+      const cookies = document.cookie.split(';');
+      const userCookie = cookies.find(c => c.trim().startsWith('user='));
+      if (userCookie) {
+        const value = decodeURIComponent(userCookie.split('=')[1]);
+        localStorage.setItem("user", value);
+        return value;
+      }
+      return null;
+    };
+
+    const userData = getUserData();
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
@@ -209,6 +223,7 @@ function ClientePage() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     window.location.href = "/login";
   };
 

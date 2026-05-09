@@ -40,7 +40,24 @@ function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userJson = localStorage.getItem("user");
+    const getUser = () => {
+      // Tenta pegar do localStorage primeiro
+      const userJson = localStorage.getItem("user");
+      if (userJson) return userJson;
+
+      // Tenta pegar do cookie se não estiver no localStorage
+      const cookies = document.cookie.split(';');
+      const userCookie = cookies.find(c => c.trim().startsWith('user='));
+      if (userCookie) {
+        const value = decodeURIComponent(userCookie.split('=')[1]);
+        // Restaura no localStorage para consistência
+        localStorage.setItem("user", value);
+        return value;
+      }
+      return null;
+    };
+
+    const userJson = getUser();
     if (userJson) {
       try {
         const user = JSON.parse(userJson);
@@ -58,7 +75,7 @@ function Index() {
           }
         }
       } catch (err) {
-        console.error("Erro ao analisar usuário do localStorage:", err);
+        console.error("Erro ao analisar usuário:", err);
       }
     }
   }, [navigate]);
