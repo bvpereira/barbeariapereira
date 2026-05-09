@@ -476,9 +476,11 @@ function MinhaContaPage() {
                       if (val.length > 11) val = val.slice(0, 11);
                       
                       let masked = val;
-                      if (val.length > 0) masked = "(" + val;
-                      if (val.length > 2) masked = "(" + val.slice(0, 2) + ") " + val.slice(2);
-                      if (val.length > 7) masked = "(" + val.slice(0, 2) + ") " + val.slice(2, 7) + "-" + val.slice(7);
+                      if (val.length > 2 && val.length <= 7) {
+                        masked = `(${val.slice(0, 2)}) ${val.slice(2)}`;
+                      } else if (val.length > 7) {
+                        masked = `(${val.slice(0, 2)}) ${val.slice(2, 7)}-${val.slice(7, 11)}`;
+                      }
                       
                       setTelContato(masked);
                     }}
