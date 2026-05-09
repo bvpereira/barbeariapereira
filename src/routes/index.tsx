@@ -461,7 +461,30 @@ function Colaboradores() {
 // Galeria removida conforme solicitação
 
 function Contato() {
-  const whatsappLink = "https://wa.me/5522998770113?text=Olá, gostaria de agendar um horário";
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  useEffect(() => {
+    const fetchWhatsapp = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("informacoes" as any)
+          .select("tel_contato")
+          .eq("userrr", "admin")
+          .maybeSingle();
+
+        if (!error && data) {
+          const rawTel = (data as any).tel_contato || "";
+          const cleaned = rawTel.replace(/\D/g, "");
+          setWhatsappNumber(cleaned.startsWith("55") ? cleaned : `55${cleaned}`);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar whatsapp:", err);
+      }
+    };
+    fetchWhatsapp();
+  }, []);
+
+  const whatsappLink = `https://wa.me/${whatsappNumber}`;
   
   return (
     <section className="py-20 bg-primary/5 px-4">
@@ -471,17 +494,10 @@ function Contato() {
           Pronto para dar um trato no visual?
         </h2>
         <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Estamos prontos para te atender. Entre em contato caso tenha alguma dúvida ou agende diretamente pelo botão abaixo.
+          Estamos prontos para te atender. Entre em contato caso tenha alguma dúvida pelo botão abaixo.
         </p>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button asChild size="lg" className="rounded-full bg-primary text-primary-foreground font-bold h-auto py-4 px-8 text-lg hover:scale-105 transition-transform">
-            <Link to="/login">
-              <Calendar className="mr-2 h-6 w-6" />
-              <span>Agendar Agora</span>
-            </Link>
-          </Button>
-
           <Button asChild size="lg" className="rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold h-auto py-4 px-8 text-lg hover:scale-105 transition-transform border-none">
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
               <Phone className="mr-2 h-6 w-6" />
