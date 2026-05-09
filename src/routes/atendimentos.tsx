@@ -129,6 +129,7 @@ function AtendimentosPage() {
   const [loadingTimes, setLoadingTimes] = useState(false);
   const [maxDate, setMaxDate] = useState<string>("");
   const [status, setStatus] = useState<Atendimento['status']>('Finalizado');
+  const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const fetchAgendados = useCallback(async () => {
@@ -201,9 +202,12 @@ function AtendimentosPage() {
     setAllServicos(servs || []);
   };
 
-  const fetchMaxDate = async () => {
-    const { data } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
-    if (data && data.length > 0) setMaxDate(data[0].data);
+  const fetchBookingSettings = async () => {
+    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
+
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('userrr', 'admin').maybeSingle();
+    if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
   };
 
   useEffect(() => {
@@ -216,7 +220,7 @@ function AtendimentosPage() {
 
   useEffect(() => {
     fetchFormData();
-    fetchMaxDate();
+    fetchBookingSettings();
   }, []);
 
   const searchClientes = async (term: string) => {
@@ -299,7 +303,7 @@ function AtendimentosPage() {
       const requestedDuration = servs.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.duration || 0), 0);
       const possibleTimes: string[] = [];
       const now = new Date();
-      const minAllowed = addMinutes(now, 60);
+      const minAllowed = addMinutes(now, tempoMarcar);
 
       const checkOverlap = (start: Date, duration: number) => {
         const end = addMinutes(start, duration);
@@ -328,7 +332,7 @@ function AtendimentosPage() {
       setAvailableTimes(possibleTimes);
     } catch (e) { console.error(e); }
     setLoadingTimes(false);
-  }, [allServicos]);
+  }, [allServicos, tempoMarcar]);
 
   useEffect(() => {
     fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
