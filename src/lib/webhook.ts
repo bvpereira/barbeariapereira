@@ -48,16 +48,13 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
       return;
     }
 
-    // 3. Send the POST request
-    // We use fetch and don't await/block the UI if it fails
-    fetch(config.webhook_url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }).catch(err => {
-      console.error("Webhook call failed:", err);
+    // 3. Send the POST request via proxy to avoid CORS issues
+    await supabase.functions.invoke('proxy-webhook', {
+      body: {
+        url: config.webhook_url,
+        method: "POST",
+        body: data,
+      }
     });
 
   } catch (error) {
