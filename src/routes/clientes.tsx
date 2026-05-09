@@ -665,6 +665,18 @@ function ClientesPage() {
                             <Button
                               variant="ghost"
                               size="icon"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                              onClick={() => {
+                                const phone = cliente.login.replace(/\D/g, "");
+                                window.open(`https://wa.me/55${phone}`, "_blank");
+                              }}
+                              title="Enviar mensagem no WhatsApp"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               onClick={() => openEditDialog(cliente)}
                             >
                               <Edit2 className="w-4 h-4" />
