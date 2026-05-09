@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -38,8 +39,7 @@ function Login() {
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [displaySenha, setDisplaySenha] = useState("");
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showSenha, setShowSenha] = useState(false);
   const [recoveryLogin, setRecoveryLogin] = useState("");
   const [isRecoveryLoading, setIsRecoveryLoading] = useState(false);
   const [alertState, setAlertState] = useState<{
@@ -54,42 +54,8 @@ function Login() {
     setLogin(formatted);
   };
 
-  const handleSenhaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    
-    // Detectar se foi uma deleção
-    if (value.length < senha.length) {
-      const newSenha = value; // Simplificado para deleção
-      setSenha(newSenha);
-      setDisplaySenha("•".repeat(newSenha.length));
-      return;
-    }
-
-    // Se adicionou caracteres
-    const addedChars = value.length - senha.length;
-    const newChars = value.slice(-addedChars);
-    const newSenha = senha + newChars;
-    setSenha(newSenha);
-
-    // Mostrar os anteriores mascarados e o último visível
-    const masked = "•".repeat(newSenha.length - 1) + newSenha.slice(-1);
-    setDisplaySenha(masked);
-
-    // Limpar timeout anterior se existir
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    // Ocultar após 1 segundo
-    timeoutRef.current = setTimeout(() => {
-      setDisplaySenha("•".repeat(newSenha.length));
-    }, 1000);
-  };
-
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
+    // Limpeza se necessário
   }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -314,15 +280,28 @@ function Login() {
 
           <div className="space-y-2">
             <Label htmlFor="senha">Senha</Label>
-            <Input
-              id="senha"
-              type="text"
-              value={displaySenha}
-              onChange={handleSenhaChange}
-              required
-              className="bg-background"
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <Input
+                id="senha"
+                type={showSenha ? "text" : "password"}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+                className="bg-background pr-10"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSenha(!showSenha)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showSenha ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
