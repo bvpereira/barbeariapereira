@@ -250,7 +250,7 @@ function Login() {
       setAlertState({
         open: true,
         title: "Solicitação enviada",
-        description: "Se o seu número estiver correto, você receberá as instruções de recuperação via WhatsApp em instantes.",
+        description: "Você receberá as instruções de recuperação via WhatsApp em instantes.",
       });
       
     } catch (err) {
