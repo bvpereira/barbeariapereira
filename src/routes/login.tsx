@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ function Login() {
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [displaySenha, setDisplaySenha] = useState("");
+  const [showSenha, setShowSenha] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [recoveryLogin, setRecoveryLogin] = useState("");
   const [isRecoveryLoading, setIsRecoveryLoading] = useState(false);
@@ -314,15 +316,28 @@ function Login() {
 
           <div className="space-y-2">
             <Label htmlFor="senha">Senha</Label>
-            <Input
-              id="senha"
-              type="text"
-              value={displaySenha}
-              onChange={handleSenhaChange}
-              required
-              className="bg-background"
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <Input
+                id="senha"
+                type={showSenha ? "text" : "password"}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+                className="bg-background pr-10"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSenha(!showSenha)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showSenha ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
