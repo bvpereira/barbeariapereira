@@ -173,8 +173,10 @@ function Login() {
   };
 
   const handleRecovery = async () => {
+    console.log("Starting handleRecovery...");
     setIsRecoveryLoading(true);
     const cleanLogin = recoveryLogin.replace(/[^\d]/g, "");
+    console.log("Clean login:", cleanLogin);
 
     try {
       // 1. Verificar se o usuário existe - usando query direta para garantir bypass de RLS se configurado
