@@ -132,7 +132,7 @@ function Cadastro() {
           <img
             src="/logo.png"
             alt="Barbearia Pereira Logo"
-            className="w-48 h-auto mb-6"
+            className="w-32 h-auto mb-6"
           />
           <h2 className="text-3xl font-bold text-primary">Criar Conta</h2>
           <p className="mt-2 text-muted-foreground">Preencha seus dados abaixo</p>
