@@ -214,7 +214,7 @@ function Login() {
         .eq("userrr", "admin")
         .maybeSingle());
 
-      const telContato = info?.tel_contato || "";
+      const telContato = (info as any)?.tel_contato || "";
 
       // 4. Disparar o webhook
       try {
