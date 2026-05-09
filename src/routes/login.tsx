@@ -232,12 +232,14 @@ function Login() {
         return;
       }
 
-      // 4. Buscar o telefone de contato (admin)
+      console.log("Fetching admin contact...");
       const { data: info, error: infoError } = await (supabase
         .from("informacoes" as any)
         .select("tel_contato")
         .eq("userrr", "admin")
         .maybeSingle());
+
+      console.log("Admin info fetch result:", { info, infoError });
 
       const telContato = (info as any)?.tel_contato || "";
 
