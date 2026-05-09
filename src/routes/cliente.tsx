@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, addMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { triggerWebhook } from "@/lib/webhook";
@@ -51,6 +51,7 @@ function ClientePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [tempoExcluir, setTempoExcluir] = useState<number>(60);
 
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
@@ -82,6 +83,18 @@ function ClientePage() {
     }
   }, []);
 
+  const fetchTempoExcluir = useCallback(async () => {
+    const { data } = await supabase
+      .from('informacoes')
+      .select('tempo_excluir')
+      .eq('userrr', 'admin')
+      .maybeSingle();
+    
+    if (data) {
+      setTempoExcluir(data.tempo_excluir ?? 60);
+    }
+  }, []);
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -90,8 +103,9 @@ function ClientePage() {
       setNewName(parsedUser.nome);
       fetchAgendamentos(parsedUser.id);
       fetchUserPromocao(parsedUser.id);
+      fetchTempoExcluir();
     }
-  }, [fetchAgendamentos, fetchUserPromocao]);
+  }, [fetchAgendamentos, fetchUserPromocao, fetchTempoExcluir]);
 
   const handlePromocaoToggle = async (checked: boolean) => {
     if (!user) return;
@@ -235,6 +249,15 @@ function ClientePage() {
   };
 
   const confirmDelete = (item: any) => {
+    const now = new Date();
+    const appointmentDate = parseISO(item.data);
+    const minAllowedToDelete = addMinutes(now, tempoExcluir);
+
+    if (appointmentDate < minAllowedToDelete) {
+      toast.error(`Não é possível cancelar agendamentos com menos de ${tempoExcluir} minutos de antecedência.`);
+      return;
+    }
+
     setItemToDelete(item);
     setIsDeleteDialogOpen(true);
   };
