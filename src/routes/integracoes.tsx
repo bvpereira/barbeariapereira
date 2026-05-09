@@ -309,7 +309,8 @@ function IntegracoesPage() {
 {`{
   "Tel_cliente": "...",
   "Nome_cliente": "...",
-  "Tel_contato": "..."
+  "Tel_contato": "...",
+  "link_recuperacao": "..."
 }`}
               </pre>
             </div>

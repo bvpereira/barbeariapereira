@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as PromocaoRouteImport } from './routes/promocao'
 import { Route as MinhacontaRouteImport } from './routes/minhaconta'
 import { Route as LoginRouteImport } from './routes/login'
@@ -35,6 +36,11 @@ const ServicosRoute = ServicosRouteImport.update({
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
   path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PromocaoRoute = PromocaoRouteImport.update({
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/promocao': typeof PromocaoRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
 }
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/promocao': typeof PromocaoRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
 }
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/promocao': typeof PromocaoRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
 }
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/minhaconta'
     | '/promocao'
+    | '/redefinir-senha'
     | '/registro'
     | '/servicos'
   fileRoutesByTo: FileRoutesByTo
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/minhaconta'
     | '/promocao'
+    | '/redefinir-senha'
     | '/registro'
     | '/servicos'
   id:
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/minhaconta'
     | '/promocao'
+    | '/redefinir-senha'
     | '/registro'
     | '/servicos'
   fileRoutesById: FileRoutesById
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MinhacontaRoute: typeof MinhacontaRoute
   PromocaoRoute: typeof PromocaoRoute
+  RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RegistroRoute: typeof RegistroRoute
   ServicosRoute: typeof ServicosRoute
 }
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/registro'
       fullPath: '/registro'
       preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/promocao': {
@@ -391,18 +411,10 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MinhacontaRoute: MinhacontaRoute,
   PromocaoRoute: PromocaoRoute,
+  RedefinirSenhaRoute: RedefinirSenhaRoute,
   RegistroRoute: RegistroRoute,
   ServicosRoute: ServicosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
