@@ -86,7 +86,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/clientes")({
   component: ClientesPage,
@@ -662,6 +662,18 @@ function ClientesPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                              onClick={() => {
+                                const phone = cliente.login.replace(/\D/g, "");
+                                window.open(`https://wa.me/55${phone}`, "_blank");
+                              }}
+                              title="Enviar mensagem no WhatsApp"
+                            >
+                              <MessageCircle className="w-4 h-4" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"
