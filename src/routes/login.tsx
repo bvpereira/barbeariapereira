@@ -309,7 +309,7 @@ function Login() {
           </Button>
         </form>
 
-        <div className="flex flex-col items-center gap-4 text-sm">
+        <div className="flex flex-col items-center gap-4 text-sm w-full">
           <Link to="/cadastro" className="text-primary hover:underline">
             Criar conta
           </Link>
@@ -344,6 +344,10 @@ function Login() {
               </div>
             </DialogContent>
           </Dialog>
+
+          <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
+            Voltar para página inicial
+          </Link>
         </div>
       </div>
 
