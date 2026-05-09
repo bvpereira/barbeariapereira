@@ -94,7 +94,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <Button
             variant="ghost"
             className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-            onClick={() => window.location.href = '/login'}
+            onClick={() => {
+              localStorage.removeItem("user");
+              document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              window.location.href = '/login';
+            }}
           >
             <LogOut className="w-5 h-5" />
             Sair
