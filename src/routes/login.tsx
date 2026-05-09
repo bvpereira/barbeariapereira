@@ -199,14 +199,17 @@ function Login() {
         return;
       }
 
-      // 2. Gerar token de 4 caracteres aleatórios e salvar
+      console.log("Generating recovery token...");
       const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
       const recoveryToken = `${usuario.login}${randomChars}`;
+      console.log("Recovery token generated:", recoveryToken);
       
       const { error: updateError } = await supabase
         .from("usuarios")
         .update({ recovery_token: recoveryToken })
         .eq("login", usuario.login);
+
+      console.log("Token update result:", updateError);
 
       if (updateError) {
         toast.error("Erro ao preparar recuperação. Tente novamente.");
