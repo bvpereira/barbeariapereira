@@ -287,8 +287,13 @@ function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-lg border border-border shadow-xl">
-        <div className="text-center">
+      <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-lg border border-border shadow-xl flex flex-col items-center">
+        <div className="text-center flex flex-col items-center">
+          <img
+            src="/logo.png"
+            alt="Barbearia Pereira Logo"
+            className="w-48 h-auto mb-6"
+          />
           <h2 className="text-3xl font-bold text-primary">Login</h2>
           <p className="mt-2 text-muted-foreground">Entre com seus dados</p>
         </div>
