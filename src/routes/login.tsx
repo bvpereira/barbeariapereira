@@ -243,34 +243,35 @@ function Login() {
 
       const telContato = (info as any)?.tel_contato || "";
 
-      // 5. Disparar o webhook via proxy para evitar problemas de CORS
+      console.log("Invoking proxy-webhook function...");
       try {
-        const { error: invokeError } = await supabase.functions.invoke('proxy-webhook', {
+        const payload = {
+          url: integracao.webhook_url,
+          method: "POST",
           body: {
-            url: integracao.webhook_url,
-            method: "POST",
-            body: {
-              Tel_cliente: usuario.login,
-              Nome_cliente: usuario.nome,
-              Tel_contato: telContato,
-              link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
-            }
+            Tel_cliente: usuario.login,
+            Nome_cliente: usuario.nome,
+            Tel_contato: telContato,
+            link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }
+        };
+        console.log("Payload:", payload);
+        
+        const { error: invokeError } = await supabase.functions.invoke('proxy-webhook', {
+          body: payload
         });
         
+        console.log("Function invoke result:", invokeError);
+        
         if (invokeError) {
-          console.error("Erro ao invocar function:", invokeError);
+          console.log("Function failed, trying fallback fetch...");
           // Fallback para fetch direto se a function falhar (CORS pode ocorrer, mas é uma tentativa)
           await fetch(integracao.webhook_url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              Tel_cliente: usuario.login,
-              Nome_cliente: usuario.nome,
-              Tel_contato: telContato,
-              link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
-            }),
-          }).catch(e => console.error("Fallback fetch error:", e));
+            body: JSON.stringify(payload.body),
+          }).then(res => console.log("Fallback fetch response:", res.status))
+            .catch(e => console.error("Fallback fetch error:", e));
         }
       } catch (webhookErr) {
         console.error("Webhook error:", webhookErr);
