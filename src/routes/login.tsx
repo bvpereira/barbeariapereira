@@ -217,12 +217,14 @@ function Login() {
         return;
       }
 
-      // 3. Buscar o webhook de recuperação de senha
+      console.log("Fetching webhook URL...");
       const { data: integracao, error: intError } = await supabase
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "recupera_senha")
         .maybeSingle();
+
+      console.log("Integration fetch result:", { integracao, intError });
 
       if (intError || !integracao?.webhook_url) {
         toast.error("Serviço de recuperação indisponível no momento. Por favor, contate o suporte.");
