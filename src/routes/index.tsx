@@ -30,6 +30,7 @@ import { cn } from "../lib/utils";
 import heroBg from "@/assets/fundo_barbearia_escuro.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { BeamsBackground } from "@/components/ui/beams-background";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   component: Index,
