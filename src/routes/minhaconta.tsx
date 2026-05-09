@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, Mail, Video, Search } from "lucide-react";
+import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, Mail, Video, Search, Clock } from "lucide-react";
 
 export const Route = createFileRoute("/minhaconta" as any)({
   component: MinhaContaPage,
@@ -25,6 +25,8 @@ function MinhaContaPage() {
   const [infoId, setInfoId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [googleAvaliacao, setGoogleAvaliacao] = useState("");
+  const [tempoMarcar, setTempoMarcar] = useState<number>(60);
+  const [tempoExcluir, setTempoExcluir] = useState<number>(60);
   
   const [imagens, setImagens] = useState<(string | null)[]>(Array(8).fill(null));
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
@@ -52,7 +54,7 @@ function MinhaContaPage() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao")
+          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir")
           .eq("userrr", "admin")
           .maybeSingle());
 
@@ -66,6 +68,8 @@ function MinhaContaPage() {
           setInfoId(infoData.id);
           setVideoUrl(infoData.video_local || null);
           setGoogleAvaliacao(infoData.google_avaliacao || "");
+          setTempoMarcar(infoData.tempo_marcar ?? 60);
+          setTempoExcluir(infoData.tempo_excluir ?? 60);
           setImagens([
             infoData.imagem_1, infoData.imagem_2, infoData.imagem_3, infoData.imagem_4,
             infoData.imagem_5, infoData.imagem_6, infoData.imagem_7, infoData.imagem_8
@@ -414,6 +418,47 @@ function MinhaContaPage() {
     }
   };
 
+  const handleUpdateTempos = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data: existingInfo } = await (supabase
+        .from("informacoes" as any)
+        .select("id")
+        .eq("userrr", "admin")
+        .maybeSingle());
+
+      if (existingInfo) {
+        const { error } = await (supabase
+          .from("informacoes" as any)
+          .update({ 
+            tempo_marcar: tempoMarcar, 
+            tempo_excluir: tempoExcluir 
+          } as any)
+          .eq("id", (existingInfo as any).id));
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase
+          .from("informacoes" as any)
+          .insert({ 
+            tempo_marcar: tempoMarcar, 
+            tempo_excluir: tempoExcluir,
+            userrr: "admin", 
+            user_id: user?.id, 
+            usuario_id: user?.id 
+          } as any));
+        if (error) throw error;
+      }
+
+      toast.success("Logística de tempos atualizada com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao atualizar tempos: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-2xl mx-auto space-y-8 pb-10">
@@ -491,6 +536,48 @@ function MinhaContaPage() {
                 <Button type="submit" disabled={loading} className="gap-2">
                   <Save className="h-4 w-4" />
                   Salvar Alterações
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Tempos */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-primary" />
+                Tempos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateTempos} className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="tempoMarcar">Tempo para marcar (em minutos)</Label>
+                    <Input
+                      id="tempoMarcar"
+                      type="number"
+                      value={tempoMarcar}
+                      onChange={(e) => setTempoMarcar(Number(e.target.value))}
+                      placeholder="Ex: 60"
+                    />
+                    <p className="text-xs text-muted-foreground">Antecedência mínima para um cliente agendar.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tempoExcluir">Tempo para excluir (em minutos)</Label>
+                    <Input
+                      id="tempoExcluir"
+                      type="number"
+                      value={tempoExcluir}
+                      onChange={(e) => setTempoExcluir(Number(e.target.value))}
+                      placeholder="Ex: 60"
+                    />
+                    <p className="text-xs text-muted-foreground">Antecedência mínima para excluir ou reagendar.</p>
+                  </div>
+                </div>
+                <Button type="submit" disabled={loading} className="gap-2">
+                  <Save className="h-4 w-4" />
+                  Salvar Tempos
                 </Button>
               </form>
             </CardContent>

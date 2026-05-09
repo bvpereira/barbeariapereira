@@ -111,7 +111,9 @@ export function BookingButton({
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [loadingTimes, setLoadingTimes] = useState(false);
   const [maxDate, setMaxDate] = useState<string>("");
+  const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [tempoExcluir, setTempoExcluir] = useState<number>(60);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
@@ -130,9 +132,15 @@ export function BookingButton({
     setAllServicos(servs || []);
   };
 
-  const fetchMaxDate = async () => {
-    const { data } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
-    if (data && data.length > 0) setMaxDate(data[0].data);
+  const fetchBookingSettings = async () => {
+    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
+
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, tempo_excluir').eq('userrr', 'admin').maybeSingle();
+    if (infoData) {
+      setTempoMarcar(infoData.tempo_marcar ?? 60);
+      setTempoExcluir(infoData.tempo_excluir ?? 60);
+    }
   };
 
   const fetchFixedClient = async (id: string) => {
@@ -146,7 +154,7 @@ export function BookingButton({
   useEffect(() => {
     if (isOpen) {
       fetchFormData();
-      fetchMaxDate();
+      fetchBookingSettings();
       
       if (initialData) {
         setSelectedCliente({ id: initialData.cliente_id, nome: initialData.cliente_nome, login: "" });
@@ -226,7 +234,7 @@ export function BookingButton({
       const requestedDuration = servs.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.duration || 0), 0);
       const possibleTimes: string[] = [];
       const now = new Date();
-      const minAllowed = addMinutes(now, 60);
+      const minAllowed = addMinutes(now, tempoMarcar);
 
       const checkOverlap = (start: Date, duration: number) => {
         const end = addMinutes(start, duration);
@@ -255,7 +263,7 @@ export function BookingButton({
       setAvailableTimes(possibleTimes);
     } catch (e) { console.error(e); }
     setLoadingTimes(false);
-  }, [allServicos]);
+  }, [allServicos, tempoMarcar]);
 
   useEffect(() => {
     if (isOpen) {
@@ -417,7 +425,25 @@ export function BookingButton({
   return (
     <>
       <Button 
-        onClick={() => setIsOpen(true)} 
+        onClick={() => {
+          if (initialData?.data) {
+            const userData = localStorage.getItem("user");
+            const user = userData ? JSON.parse(userData) : null;
+            const isLevel3 = user?.nivel === 3;
+
+            if (isLevel3) {
+              const now = new Date();
+              const appDate = parseISO(initialData.data);
+              const minAllowedToChange = addMinutes(now, tempoExcluir);
+              
+              if (appDate < minAllowedToChange) {
+                toast.error(`Não é possível reagendar atendimentos com menos de ${tempoExcluir} minutos de antecedência.`);
+                return;
+              }
+            }
+          }
+          setIsOpen(true);
+        }} 
         variant={variant} 
         className={cn("gap-2", className)}
       >
