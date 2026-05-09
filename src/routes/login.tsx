@@ -27,17 +27,11 @@ export const Route = createFileRoute("/login" as any)({
 });
 
 const formatPhone = (value: string) => {
-  if (!value) return value;
-  const phoneNumber = value.replace(/[^\d]/g, "");
-  const phoneNumberLength = phoneNumber.length;
-  if (phoneNumberLength < 3) return phoneNumber;
-  if (phoneNumberLength < 7) {
-    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
-  }
-  return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(
-    2,
-    7
-  )}-${phoneNumber.slice(7, 11)}`;
+  if (!value) return "";
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
 };
 
 function Login() {
