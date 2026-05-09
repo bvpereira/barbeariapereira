@@ -113,6 +113,7 @@ export function BookingButton({
   const [maxDate, setMaxDate] = useState<string>("");
   const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [tempoExcluir, setTempoExcluir] = useState<number>(60);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
@@ -135,8 +136,11 @@ export function BookingButton({
     const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('userrr', 'admin').maybeSingle();
-    if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, tempo_excluir').eq('userrr', 'admin').maybeSingle();
+    if (infoData) {
+      setTempoMarcar(infoData.tempo_marcar ?? 60);
+      setTempoExcluir(infoData.tempo_excluir ?? 60);
+    }
   };
 
   const fetchFixedClient = async (id: string) => {
