@@ -179,12 +179,15 @@ function Login() {
     console.log("Clean login:", cleanLogin);
 
     try {
-      // 1. Verificar se o usuário existe - usando query direta para garantir bypass de RLS se configurado
+      // 1. Verificar se o usuário existe
+      console.log("Checking if user exists...");
       const { data: usuario, error: userError } = await supabase
         .from("usuarios")
         .select("nome, login")
         .eq("login", cleanLogin)
         .maybeSingle();
+      
+      console.log("User check result:", { usuario, userError });
 
       if (userError || !usuario) {
         setAlertState({
