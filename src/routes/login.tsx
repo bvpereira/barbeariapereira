@@ -173,16 +173,21 @@ function Login() {
   };
 
   const handleRecovery = async () => {
+    console.log("Starting handleRecovery...");
     setIsRecoveryLoading(true);
     const cleanLogin = recoveryLogin.replace(/[^\d]/g, "");
+    console.log("Clean login:", cleanLogin);
 
     try {
-      // 1. Verificar se o usuário existe - usando query direta para garantir bypass de RLS se configurado
+      // 1. Verificar se o usuário existe
+      console.log("Checking if user exists...");
       const { data: usuario, error: userError } = await supabase
         .from("usuarios")
         .select("nome, login")
         .eq("login", cleanLogin)
         .maybeSingle();
+      
+      console.log("User check result:", { usuario, userError });
 
       if (userError || !usuario) {
         setAlertState({
@@ -194,14 +199,17 @@ function Login() {
         return;
       }
 
-      // 2. Gerar token de 4 caracteres aleatórios e salvar
+      console.log("Generating recovery token...");
       const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
       const recoveryToken = `${usuario.login}${randomChars}`;
+      console.log("Recovery token generated:", recoveryToken);
       
       const { error: updateError } = await supabase
         .from("usuarios")
         .update({ recovery_token: recoveryToken })
         .eq("login", usuario.login);
+
+      console.log("Token update result:", updateError);
 
       if (updateError) {
         toast.error("Erro ao preparar recuperação. Tente novamente.");
@@ -209,12 +217,14 @@ function Login() {
         return;
       }
 
-      // 3. Buscar o webhook de recuperação de senha
+      console.log("Fetching webhook URL...");
       const { data: integracao, error: intError } = await supabase
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "recupera_senha")
         .maybeSingle();
+
+      console.log("Integration fetch result:", { integracao, intError });
 
       if (intError || !integracao?.webhook_url) {
         toast.error("Serviço de recuperação indisponível no momento. Por favor, contate o suporte.");
@@ -222,43 +232,46 @@ function Login() {
         return;
       }
 
-      // 4. Buscar o telefone de contato (admin)
+      console.log("Fetching admin contact...");
       const { data: info, error: infoError } = await (supabase
         .from("informacoes" as any)
         .select("tel_contato")
         .eq("userrr", "admin")
         .maybeSingle());
 
+      console.log("Admin info fetch result:", { info, infoError });
+
       const telContato = (info as any)?.tel_contato || "";
 
-      // 5. Disparar o webhook via proxy para evitar problemas de CORS
+      console.log("Invoking proxy-webhook function...");
       try {
-        const { error: invokeError } = await supabase.functions.invoke('proxy-webhook', {
+        const payload = {
+          url: integracao.webhook_url,
+          method: "POST",
           body: {
-            url: integracao.webhook_url,
-            method: "POST",
-            body: {
-              Tel_cliente: usuario.login,
-              Nome_cliente: usuario.nome,
-              Tel_contato: telContato,
-              link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
-            }
+            Tel_cliente: usuario.login,
+            Nome_cliente: usuario.nome,
+            Tel_contato: telContato,
+            link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }
+        };
+        console.log("Payload:", payload);
+        
+        const { error: invokeError } = await supabase.functions.invoke('proxy-webhook', {
+          body: payload
         });
         
+        console.log("Function invoke result:", invokeError);
+        
         if (invokeError) {
-          console.error("Erro ao invocar function:", invokeError);
+          console.log("Function failed, trying fallback fetch...");
           // Fallback para fetch direto se a function falhar (CORS pode ocorrer, mas é uma tentativa)
           await fetch(integracao.webhook_url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              Tel_cliente: usuario.login,
-              Nome_cliente: usuario.nome,
-              Tel_contato: telContato,
-              link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
-            }),
-          }).catch(e => console.error("Fallback fetch error:", e));
+            body: JSON.stringify(payload.body),
+          }).then(res => console.log("Fallback fetch response:", res.status))
+            .catch(e => console.error("Fallback fetch error:", e));
         }
       } catch (webhookErr) {
         console.error("Webhook error:", webhookErr);
