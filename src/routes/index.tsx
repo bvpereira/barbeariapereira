@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { 
   Check, 
@@ -37,6 +37,32 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userJson = localStorage.getItem("user");
+    if (userJson) {
+      try {
+        const user = JSON.parse(userJson);
+        if (user && user.nivel) {
+          switch (user.nivel) {
+            case 1:
+              navigate({ to: "/admin" });
+              break;
+            case 2:
+              navigate({ to: "/colaborador" });
+              break;
+            case 3:
+              navigate({ to: "/cliente" });
+              break;
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao analisar usuário do localStorage:", err);
+      }
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
       <Hero />
