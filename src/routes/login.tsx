@@ -177,7 +177,7 @@ function Login() {
     const cleanLogin = recoveryLogin.replace(/[^\d]/g, "");
 
     try {
-      // 1. Verificar se o usuário existe
+      // 1. Verificar se o usuário existe - usando query direta para garantir bypass de RLS se configurado
       const { data: usuario, error: userError } = await supabase
         .from("usuarios")
         .select("nome, login")
