@@ -481,6 +481,7 @@ export type Database = {
           nome: string
           observacao: string | null
           promocao: string | null
+          recovery_token: string | null
           registro: string | null
           senha: string
           updated_at: string
@@ -493,6 +494,7 @@ export type Database = {
           nome: string
           observacao?: string | null
           promocao?: string | null
+          recovery_token?: string | null
           registro?: string | null
           senha: string
           updated_at?: string
@@ -505,6 +507,7 @@ export type Database = {
           nome?: string
           observacao?: string | null
           promocao?: string | null
+          recovery_token?: string | null
           registro?: string | null
           senha?: string
           updated_at?: string
