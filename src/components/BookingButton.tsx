@@ -425,7 +425,25 @@ export function BookingButton({
   return (
     <>
       <Button 
-        onClick={() => setIsOpen(true)} 
+        onClick={() => {
+          if (initialData?.data) {
+            const userData = localStorage.getItem("user");
+            const user = userData ? JSON.parse(userData) : null;
+            const isLevel3 = user?.nivel === 3;
+
+            if (isLevel3) {
+              const now = new Date();
+              const appDate = parseISO(initialData.data);
+              const minAllowedToChange = addMinutes(now, tempoExcluir);
+              
+              if (appDate < minAllowedToChange) {
+                toast.error(`Não é possível reagendar atendimentos com menos de ${tempoExcluir} minutos de antecedência.`);
+                return;
+              }
+            }
+          }
+          setIsOpen(true);
+        }} 
         variant={variant} 
         className={cn("gap-2", className)}
       >
