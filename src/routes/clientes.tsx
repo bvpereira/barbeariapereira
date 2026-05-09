@@ -86,7 +86,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/clientes")({
   component: ClientesPage,
