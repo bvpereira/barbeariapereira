@@ -381,7 +381,10 @@ function Login() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <AlertDialogAction 
+              onClick={() => navigate({ to: "/" })}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
               Entendido
             </AlertDialogAction>
           </AlertDialogFooter>
