@@ -104,6 +104,8 @@ function Login() {
         });
       } else {
         localStorage.setItem("user", JSON.stringify(data));
+        // Adicionando cookie para persistência entre sessões (30 dias)
+        document.cookie = `user=${encodeURIComponent(JSON.stringify(data))}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
         
         // Verifica se o registro está confirmado
         if (data.registro === "nao") {
