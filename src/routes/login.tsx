@@ -177,42 +177,71 @@ function Login() {
     const cleanLogin = recoveryLogin.replace(/[^\d]/g, "");
 
     try {
-      const { data, error } = await supabase
+      // 1. Verificar se o usuário existe
+      const { data: usuario, error: userError } = await supabase
         .from("usuarios")
-        .select("id")
+        .select("nome, login")
         .eq("login", cleanLogin)
         .maybeSingle();
 
-      if (error || !data) {
+      if (userError || !usuario) {
         setAlertState({
           open: true,
-          title: "Usuário não encontrado",
-          description: "Esse número de usuário não foi encontrado no nosso banco de dados. Crie um novo usuário e cadastre sua senha",
+          title: "Número não cadastrado",
+          description: "Este número não está cadastrado no sistema. Por favor, verifique o número informado ou crie uma nova conta.",
         });
-      } else {
-        const resetLink = `${window.location.origin}/recuperarsenha?user=${cleanLogin}`;
-        
-        try {
-          await fetch("https://n8n.servidorpereira.shop/webhook-test/barbeariaoereira", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              login: cleanLogin,
-              link: resetLink
-            }),
-          });
-        } catch (webhookErr) {
-          console.error("Webhook error:", webhookErr);
-        }
-
-        setAlertState({
-          open: true,
-          title: "Recuperação enviada",
-          description: "O link para redefinir sua senha será enviado pelo WhatsApp do seu telefone cadastrado",
-        });
+        setIsRecoveryLoading(false);
+        return;
       }
+
+      // 2. Buscar o webhook de recuperação de senha
+      const { data: integracao, error: intError } = await supabase
+        .from("integracoes")
+        .select("webhook_url")
+        .eq("tipo", "recupera_senha")
+        .maybeSingle();
+
+      if (intError || !integracao?.webhook_url) {
+        toast.error("Serviço de recuperação indisponível no momento. Por favor, contate o suporte.");
+        setIsRecoveryLoading(false);
+        return;
+      }
+
+      // 3. Buscar o telefone de contato (admin)
+      const { data: info, error: infoError } = await (supabase
+        .from("informacoes" as any)
+        .select("tel_contato")
+        .eq("userrr", "admin")
+        .maybeSingle());
+
+      const telContato = info?.tel_contato || "";
+
+      // 4. Disparar o webhook
+      try {
+        await fetch(integracao.webhook_url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            Tel_cliente: usuario.login,
+            Nome_cliente: usuario.nome,
+            Tel_contato: telContato
+          }),
+        });
+      } catch (webhookErr) {
+        console.error("Webhook error:", webhookErr);
+        // Continuamos mesmo se o fetch falhar para mostrar a mensagem de sucesso ao usuário, 
+        // já que o webhook pode ser assíncrono ou ter problemas de CORS mas ainda funcionar no servidor
+      }
+
+      setAlertState({
+        open: true,
+        title: "Solicitação enviada",
+        description: "Se o seu número estiver correto, você receberá as instruções de recuperação via WhatsApp em instantes.",
+      });
+      
     } catch (err) {
       console.error(err);
+      toast.error("Ocorreu um erro ao processar sua solicitação.");
     } finally {
       setIsRecoveryLoading(false);
     }

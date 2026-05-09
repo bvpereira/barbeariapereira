@@ -16,11 +16,14 @@ export const Route = createFileRoute("/integracoes" as any)({
 function IntegracoesPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
+  const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingFinish, setSavingFinish] = useState(false);
+  const [savingRecuperaSenha, setSavingRecuperaSenha] = useState(false);
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
+  const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchIntegrations();
@@ -40,6 +43,7 @@ function IntegracoesPage() {
       if (data) {
         const standard = data.find(i => i.tipo === "atendimentos");
         const finalizacao = data.find(i => i.tipo === "finalizacao");
+        const recupera = data.find(i => i.tipo === "recupera_senha");
 
         if (standard) {
           setWebhookUrl(standard.webhook_url);
@@ -49,6 +53,11 @@ function IntegracoesPage() {
         if (finalizacao) {
           setFinishWebhookUrl(finalizacao.webhook_url);
           setFinishIntegrationId(finalizacao.id);
+        }
+
+        if (recupera) {
+          setRecuperaSenhaWebhookUrl(recupera.webhook_url);
+          setRecuperaSenhaIntegrationId(recupera.id);
         }
       }
     } catch (error) {
@@ -227,6 +236,45 @@ function IntegracoesPage() {
               <p className="mt-4 text-xs italic">
                 Nota: O webhook é disparado automaticamente para qualquer atendimento que mude para esses estados.
               </p>
+            </div>
+          </CardContent>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Link2 className="h-5 w-5" />
+              Webhook de Recuperação de Senha
+            </CardTitle>
+            <CardDescription>
+              A URL abaixo receberá uma notificação POST em formato JSON contendo os dados do cliente e do sistema sempre que alguém solicitar a recuperação de senha via login.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="recupera-webhook-url">URL do Webhook</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="recupera-webhook-url"
+                  placeholder="https://exemplo.com/webhook-recupera"
+                  value={recuperaSenhaWebhookUrl}
+                  onChange={(e) => setRecuperaSenhaWebhookUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSaveRecuperaSenha} disabled={savingRecuperaSenha}>
+                  {savingRecuperaSenha ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  Salvar
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
+              <p className="font-semibold">JSON enviado:</p>
+              <pre className="p-2 bg-background rounded border text-xs overflow-x-auto">
+{`{
+  "Tel_cliente": "...",
+  "Nome_cliente": "...",
+  "Tel_contato": "..."
+}`}
+              </pre>
             </div>
           </CardContent>
         </Card>
