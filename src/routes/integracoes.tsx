@@ -137,6 +137,41 @@ function IntegracoesPage() {
     }
   };
 
+  const handleSaveRecuperaSenha = async () => {
+    if (!recuperaSenhaWebhookUrl) {
+      toast.error("Por favor, insira uma URL de webhook válida.");
+      return;
+    }
+
+    setSavingRecuperaSenha(true);
+    try {
+      if (recuperaSenhaIntegrationId) {
+        const { error } = await supabase
+          .from("integracoes")
+          .update({ webhook_url: recuperaSenhaWebhookUrl })
+          .eq("id", recuperaSenhaIntegrationId);
+        
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from("integracoes")
+          .insert({ webhook_url: recuperaSenhaWebhookUrl, tipo: "recupera_senha" })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        if (data) setRecuperaSenhaIntegrationId(data.id);
+      }
+
+      toast.success("Configuração de webhook de recuperação de senha salva com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao salvar integração de recuperação de senha:", error);
+      toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
+    } finally {
+      setSavingRecuperaSenha(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -149,7 +184,7 @@ function IntegracoesPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-10">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Integrações</h1>
           <p className="text-muted-foreground">
@@ -238,6 +273,8 @@ function IntegracoesPage() {
               </p>
             </div>
           </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
