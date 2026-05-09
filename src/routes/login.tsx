@@ -187,14 +187,29 @@ function Login() {
       if (userError || !usuario) {
         setAlertState({
           open: true,
-          title: "Número não cadastrado",
-          description: "Este número não está cadastrado no sistema. Por favor, verifique o número informado ou crie uma nova conta.",
+          title: "Atenção",
+          description: "Este número não está cadastrado no sistema.",
         });
         setIsRecoveryLoading(false);
         return;
       }
 
-      // 2. Buscar o webhook de recuperação de senha
+      // 2. Gerar token de 4 caracteres aleatórios e salvar
+      const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const recoveryToken = `${usuario.login}${randomChars}`;
+      
+      const { error: updateError } = await supabase
+        .from("usuarios")
+        .update({ recovery_token: recoveryToken })
+        .eq("login", usuario.login);
+
+      if (updateError) {
+        toast.error("Erro ao preparar recuperação. Tente novamente.");
+        setIsRecoveryLoading(false);
+        return;
+      }
+
+      // 3. Buscar o webhook de recuperação de senha
       const { data: integracao, error: intError } = await supabase
         .from("integracoes")
         .select("webhook_url")
@@ -207,7 +222,7 @@ function Login() {
         return;
       }
 
-      // 3. Buscar o telefone de contato (admin)
+      // 4. Buscar o telefone de contato (admin)
       const { data: info, error: infoError } = await (supabase
         .from("informacoes" as any)
         .select("tel_contato")
@@ -216,7 +231,7 @@ function Login() {
 
       const telContato = (info as any)?.tel_contato || "";
 
-      // 4. Disparar o webhook
+      // 5. Disparar o webhook
       try {
         await fetch(integracao.webhook_url, {
           method: "POST",
@@ -225,13 +240,11 @@ function Login() {
             Tel_cliente: usuario.login,
             Nome_cliente: usuario.nome,
             Tel_contato: telContato,
-            link_recuperacao: `${window.location.origin}/redefinir-senha?user=${usuario.login}`
+            link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }),
         });
       } catch (webhookErr) {
         console.error("Webhook error:", webhookErr);
-        // Continuamos mesmo se o fetch falhar para mostrar a mensagem de sucesso ao usuário, 
-        // já que o webhook pode ser assíncrono ou ter problemas de CORS mas ainda funcionar no servidor
       }
 
       setAlertState({

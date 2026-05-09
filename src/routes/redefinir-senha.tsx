@@ -17,14 +17,14 @@ function RedefinirSenha() {
   const navigate = useNavigate();
   
   const searchParams = new URLSearchParams(window.location.search);
-  const userPhone = searchParams.get("user");
+  const token = searchParams.get("user");
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!userPhone) {
+    if (!token) {
       toast.error("Erro", {
-        description: "Informações de usuário ausentes na URL.",
+        description: "Token de recuperação ausente ou inválido.",
       });
       return;
     }
@@ -46,12 +46,31 @@ function RedefinirSenha() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase
+      // 1. Verificar se o token é válido e encontrar o usuário
+      const { data: usuario, error: fetchError } = await supabase
         .from("usuarios")
-        .update({ senha: novaSenha })
-        .eq("login", userPhone);
+        .select("id, login")
+        .eq("recovery_token", token)
+        .maybeSingle();
 
-      if (error) {
+      if (fetchError || !usuario) {
+        toast.error("Erro", {
+          description: "Token de recuperação inválido ou expirado.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Atualizar a senha e limpar o token
+      const { error: updateError } = await supabase
+        .from("usuarios")
+        .update({ 
+          senha: novaSenha,
+          recovery_token: null 
+        })
+        .eq("id", usuario.id);
+
+      if (updateError) {
         toast.error("Erro ao atualizar senha", {
           description: "Não foi possível atualizar sua senha. Tente novamente.",
         });
