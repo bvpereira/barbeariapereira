@@ -39,9 +39,7 @@ function Login() {
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [displaySenha, setDisplaySenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [recoveryLogin, setRecoveryLogin] = useState("");
   const [isRecoveryLoading, setIsRecoveryLoading] = useState(false);
   const [alertState, setAlertState] = useState<{
@@ -56,42 +54,8 @@ function Login() {
     setLogin(formatted);
   };
 
-  const handleSenhaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    
-    // Detectar se foi uma deleção
-    if (value.length < senha.length) {
-      const newSenha = value; // Simplificado para deleção
-      setSenha(newSenha);
-      setDisplaySenha("•".repeat(newSenha.length));
-      return;
-    }
-
-    // Se adicionou caracteres
-    const addedChars = value.length - senha.length;
-    const newChars = value.slice(-addedChars);
-    const newSenha = senha + newChars;
-    setSenha(newSenha);
-
-    // Mostrar os anteriores mascarados e o último visível
-    const masked = "•".repeat(newSenha.length - 1) + newSenha.slice(-1);
-    setDisplaySenha(masked);
-
-    // Limpar timeout anterior se existir
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    // Ocultar após 1 segundo
-    timeoutRef.current = setTimeout(() => {
-      setDisplaySenha("•".repeat(newSenha.length));
-    }, 1000);
-  };
-
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
+    // Limpeza se necessário
   }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
