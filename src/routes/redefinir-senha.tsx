@@ -17,7 +17,7 @@ function RedefinirSenha() {
   const navigate = useNavigate();
   
   const searchParams = new URLSearchParams(window.location.search);
-  const token = searchParams.get("token");
+  const token = searchParams.get("user");
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();

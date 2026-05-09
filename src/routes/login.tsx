@@ -240,7 +240,7 @@ function Login() {
             Tel_cliente: usuario.login,
             Nome_cliente: usuario.nome,
             Tel_contato: telContato,
-            link_recuperacao: `${window.location.origin}/redefinir-senha?token=${recoveryToken}`
+            link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }),
         });
       } catch (webhookErr) {
