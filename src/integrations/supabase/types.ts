@@ -301,6 +301,8 @@ export type Database = {
           imagem_7: string | null
           imagem_8: string | null
           tel_contato: string | null
+          tempo_excluir: number | null
+          tempo_marcar: number | null
           updated_at: string
           user_id: string | null
           userrr: string | null
@@ -321,6 +323,8 @@ export type Database = {
           imagem_7?: string | null
           imagem_8?: string | null
           tel_contato?: string | null
+          tempo_excluir?: number | null
+          tempo_marcar?: number | null
           updated_at?: string
           user_id?: string | null
           userrr?: string | null
@@ -341,6 +345,8 @@ export type Database = {
           imagem_7?: string | null
           imagem_8?: string | null
           tel_contato?: string | null
+          tempo_excluir?: number | null
+          tempo_marcar?: number | null
           updated_at?: string
           user_id?: string | null
           userrr?: string | null
