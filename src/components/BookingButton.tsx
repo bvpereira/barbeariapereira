@@ -452,11 +452,11 @@ export function BookingButton({
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden flex flex-col max-h-[90vh]">
+          <DialogHeader className="p-6 pb-2">
             <DialogTitle>Agendar Atendimento</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-4">
             {(!fixedClientId && !initialData?.cliente_id) && (
               <div className="space-y-2">
                 <Label>1. Selecione o Cliente</Label>
@@ -496,7 +496,7 @@ export function BookingButton({
             {!fixedColaboradorId ? (
               <div className="space-y-2">
                 <Label>{(fixedClientId || initialData?.cliente_id) ? "1" : "2"}. Selecione o Colaborador</Label>
-                <ScrollArea className="h-[200px] rounded-md border p-2">
+                <div className="rounded-md border p-2 bg-muted/5">
                   <div className="space-y-2">
                     {colaboradores.filter(c => c.ativo).map(c => (
                       <div 
@@ -523,7 +523,7 @@ export function BookingButton({
                       </div>
                     ))}
                   </div>
-                </ScrollArea>
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
@@ -554,7 +554,7 @@ export function BookingButton({
               <>
                 <div className="space-y-2">
                   <Label>{(fixedClientId || initialData?.cliente_id) && fixedColaboradorId ? "1" : (!fixedClientId && !initialData?.cliente_id && !fixedColaboradorId) ? "3" : "2"}. Selecione os Serviços</Label>
-                  <ScrollArea className="h-[180px] rounded-md border p-2 bg-muted/10">
+                  <div className="rounded-md border p-2 bg-muted/5">
                     <div className="space-y-2">
                       {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
                         <div 
@@ -588,7 +588,7 @@ export function BookingButton({
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </div>
 
                 {selectedServicos.length > 0 && (
@@ -671,7 +671,7 @@ export function BookingButton({
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="p-6 pt-2">
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
             <Button onClick={() => handleSave()} disabled={isSubmitting || !selectedTimePart}>
               {isSubmitting ? "Agendando..." : "Agendar"}

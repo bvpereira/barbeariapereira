@@ -558,6 +558,7 @@ function AtendimentosPage() {
         setValorFinal(item.valor.toString());
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
+        fetchColabServicos(item.colaborador.id);
         setIsDialogOpen(true);
       }}>
 
@@ -671,9 +672,11 @@ function AtendimentosPage() {
 
         {/* Dialog Novo/Editar */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader><DialogTitle>{editingAtendimento ? "Editar Atendimento" : "Novo Atendimento"}</DialogTitle></DialogHeader>
-            <div className="space-y-4 py-4">
+          <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden flex flex-col max-h-[90vh]">
+            <DialogHeader className="p-6 pb-2">
+              <DialogTitle>{editingAtendimento ? "Editar Atendimento" : "Novo Atendimento"}</DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-4">
                <div className="space-y-2">
                 <Label>Cliente</Label>
                 <Input placeholder="Buscar cliente..." value={searchCliente} onChange={(e) => searchClientes(e.target.value)} />
@@ -681,7 +684,7 @@ function AtendimentosPage() {
               </div>
               <div className="space-y-2">
                 <Label>Colaborador</Label>
-                <ScrollArea className="h-[180px] rounded-md border p-2">
+                <div className="rounded-md border p-2 bg-muted/5">
                   <div className="space-y-2">
                     {colaboradores.map(c => (
                       <div 
@@ -718,14 +721,14 @@ function AtendimentosPage() {
                       </div>
                     ))}
                   </div>
-                </ScrollArea>
+                </div>
               </div>
 
                {selectedColaborador && (
                  <>
                   <div className="space-y-2">
                     <Label>Serviços</Label>
-                    <ScrollArea className="h-[150px] rounded-md border p-2 bg-muted/10">
+                    <div className="rounded-md border p-2 bg-muted/5">
                       <div className="space-y-2">
                         {allServicos.filter(s => colabServicosIds.includes(s.id)).map(s => (
                           <div 
@@ -751,7 +754,7 @@ function AtendimentosPage() {
                           </div>
                         ))}
                       </div>
-                    </ScrollArea>
+                    </div>
                   </div>
 
                   {selectedServicos.length > 0 && (
@@ -867,7 +870,7 @@ function AtendimentosPage() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="p-6 pt-2">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
               <Button onClick={() => handleSave(true)} disabled={isSubmitting}>Salvar</Button>
             </DialogFooter>
