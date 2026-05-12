@@ -678,7 +678,6 @@ export function BookingButton({
             </Button>
           </DialogFooter>
         </DialogContent>
-        </DialogContent>
       </Dialog>
 
       <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
