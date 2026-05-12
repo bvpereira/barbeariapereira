@@ -838,7 +838,7 @@ function AtendimentosPage() {
                 <div className="space-y-2">
                   <Label>Status</Label>
                   <Select value={status} onValueChange={(v: any) => setStatus(v)}>
-                    <SelectTrigger><SelectValue /></SelectValue></SelectTrigger>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Agendado">Agendado</SelectItem>
                       <SelectItem value="Finalizado">Finalizado</SelectItem>
