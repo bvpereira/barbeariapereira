@@ -13,9 +13,9 @@ const menuItems = [
   { title: "Horários", icon: Clock, href: "/horarios" },
   { title: "Gastos", icon: Wallet, href: "/gastos" },
   { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
-  { title: "Minha Conta", icon: UserCircle, href: "/minhaconta" },
-  { title: "Integrações", icon: Link2, href: "/integracoes" },
   { title: "Promoções", icon: Megaphone, href: "/promocao" },
+  { title: "Integrações", icon: Link2, href: "/integracoes" },
+  { title: "Minha Conta", icon: UserCircle, href: "/minhaconta" },
 ];
 
 function handleLogout() {
