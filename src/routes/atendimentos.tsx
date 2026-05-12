@@ -558,6 +558,7 @@ function AtendimentosPage() {
         setValorFinal(item.valor.toString());
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
+        fetchColabServicos(item.colaborador.id);
         setIsDialogOpen(true);
       }}>
 
