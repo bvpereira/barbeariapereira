@@ -875,7 +875,6 @@ function AtendimentosPage() {
               <Button onClick={() => handleSave(true)} disabled={isSubmitting}>Salvar</Button>
             </DialogFooter>
           </DialogContent>
-          </DialogContent>
         </Dialog>
 
         <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
