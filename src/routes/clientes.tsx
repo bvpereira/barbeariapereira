@@ -613,94 +613,171 @@ function ClientesPage() {
             <CardTitle>Lista de Clientes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>Observação</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading && clientes.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8">
-                        Carregando clientes...
-                      </TableCell>
-                    </TableRow>
-                  ) : clientes.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                        Nenhum cliente encontrado
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    clientes.map((cliente) => (
-                      <TableRow 
-                        key={cliente.id} 
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() => fetchHistorico(cliente)}
-                      >
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            {cliente.nome}
-                            {cliente.hasAtendimentos && (
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-[10px] py-0 px-1.5 border-blue-200">
-                                <History className="w-3 h-3 mr-1" />
-                                Histórico
-                              </Badge>
+            {isMobile ? (
+              <div className="space-y-4">
+                {loading && clientes.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Carregando clientes...
+                  </div>
+                ) : clientes.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Nenhum cliente encontrado
+                  </div>
+                ) : (
+                  clientes.map((cliente) => (
+                    <Card 
+                      key={cliente.id} 
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => fetchHistorico(cliente)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <span className="font-bold text-lg truncate">{cliente.nome}</span>
+                              {cliente.hasAtendimentos && (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-[10px] py-0 px-1.5 border-blue-200">
+                                  <History className="w-3 h-3 mr-1" />
+                                  Histórico
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                              <Phone className="w-4 h-4" />
+                              <span className="text-sm">{formatPhone(cliente.login)}</span>
+                            </div>
+                            {cliente.observacao ? (
+                              <p className="text-xs text-muted-foreground line-clamp-2 italic border-l-2 pl-2 py-1 bg-muted/30 rounded-r">
+                                {cliente.observacao}
+                              </p>
+                            ) : (
+                              <p className="text-xs text-muted-foreground/30 italic">Sem observações</p>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell>{formatPhone(cliente.login)}</TableCell>
-                        <TableCell>
-                          {cliente.observacao ? (
-                            <span className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]" title={cliente.observacao}>
-                              {cliente.observacao}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground/30 italic">Sem observações</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="icon"
-                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                              className="text-green-600 border-green-200 hover:bg-green-50"
                               onClick={() => {
                                 const phone = cliente.login.replace(/\D/g, "");
                                 window.open(`https://wa.me/55${phone}`, "_blank");
                               }}
-                              title="Enviar mensagem no WhatsApp"
                             >
                               <MessageCircle className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="icon"
                               onClick={() => openEditDialog(cliente)}
                             >
                               <Edit2 className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="icon"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              className="text-destructive border-destructive/20 hover:bg-destructive/10"
                               onClick={() => confirmDelete(cliente.id)}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Telefone</TableHead>
+                      <TableHead>Observação</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {loading && clientes.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8">
+                          Carregando clientes...
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    ) : clientes.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                          Nenhum cliente encontrado
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      clientes.map((cliente) => (
+                        <TableRow 
+                          key={cliente.id} 
+                          className="cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={() => fetchHistorico(cliente)}
+                        >
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              {cliente.nome}
+                              {cliente.hasAtendimentos && (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 text-[10px] py-0 px-1.5 border-blue-200">
+                                  <History className="w-3 h-3 mr-1" />
+                                  Histórico
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>{formatPhone(cliente.login)}</TableCell>
+                          <TableCell>
+                            {cliente.observacao ? (
+                              <span className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]" title={cliente.observacao}>
+                                {cliente.observacao}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground/30 italic">Sem observações</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                onClick={() => {
+                                  const phone = cliente.login.replace(/\D/g, "");
+                                  window.open(`https://wa.me/55${phone}`, "_blank");
+                                }}
+                                title="Enviar mensagem no WhatsApp"
+                              >
+                                <MessageCircle className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openEditDialog(cliente)}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => confirmDelete(cliente.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
 
             {hasMore && (
               <div className="mt-4 flex justify-center">
@@ -792,11 +869,11 @@ function ClientesPage() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancelar
               </Button>
-              <Button onClick={handleSave}>
+              <Button onClick={handleSave} className="w-full sm:w-auto">
                 {isEditing ? "Salvar Alterações" : "Cadastrar Cliente"}
               </Button>
             </DialogFooter>
@@ -959,11 +1036,11 @@ function ClientesPage() {
                 <div className="space-y-2">
                   <Label>Horários Disponíveis</Label>
                   {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {availableTimes.length > 0 ? availableTimes.map(t => (
-                        <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" onClick={() => setSelectedTimePart(t)}>{t}</Button>
+                        <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" className="px-2" onClick={() => setSelectedTimePart(t)}>{t}</Button>
                       )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
-                </div>
+                    </div>
               )}
               <div className="space-y-2">
                 <Label htmlFor="valor-agendar">Valor Total (R$)</Label>
@@ -1113,8 +1190,8 @@ function ClientesPage() {
                 </div>
               </div>
 
-              <div className="mt-3 flex justify-between items-center">
-                <div onClick={(e) => e.stopPropagation()}>
+              <div className="mt-3 flex justify-between items-center gap-4">
+                <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -1136,8 +1213,12 @@ function ClientesPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                    Clique para editar
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-primary">
+                <span className="text-sm font-bold text-primary whitespace-nowrap">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(atendimento.valor)}
                 </span>
               </div>
