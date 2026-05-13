@@ -311,7 +311,7 @@ function Localizacao() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="space-y-8"
+            className="space-y-8 flex flex-col items-center md:items-start text-center md:text-left"
           >
             <div className="flex gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -343,7 +343,7 @@ function Localizacao() {
                   <span className="font-bold uppercase tracking-tight">Ver como chegar</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-4xl w-fit p-0 overflow-hidden bg-black border-primary/20">
+              <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-4xl w-full md:w-fit p-0 overflow-hidden bg-black border-primary/20">
                 <DialogHeader className="p-4 absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
                   <DialogTitle className="text-primary font-josefin uppercase tracking-widest">Vídeo de Localização</DialogTitle>
                 </DialogHeader>
@@ -353,7 +353,7 @@ function Localizacao() {
                       src={videoUrl} 
                       controls 
                       autoPlay 
-                      className="max-w-full max-h-[85vh] w-auto h-auto shadow-2xl"
+                      className="w-full md:max-w-full max-h-[90vh] md:max-h-[85vh] w-auto h-auto shadow-2xl"
                     />
                   )}
                 </div>
@@ -421,7 +421,7 @@ function Servicos() {
           <div className="w-20 h-1 bg-primary mx-auto" />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {servicos.map((s, i) => (
             <motion.div
               key={i}
