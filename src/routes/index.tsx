@@ -96,7 +96,7 @@ function Index() {
 
 // Seção de frases removida conforme solicitação
 
-function Hero() {
+function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => void }) {
   return (
     <section
       className="relative min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-cover bg-center"
@@ -109,6 +109,7 @@ function Hero() {
         transition={{ duration: 0.8 }}
         className="z-10 flex flex-col items-center text-center"
       >
+
         <motion.img
           src="/logo.png"
           alt="Barbearia Pereira Logo"
