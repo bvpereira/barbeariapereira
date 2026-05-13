@@ -343,7 +343,7 @@ function Localizacao() {
                   <span className="font-bold uppercase tracking-tight">Ver como chegar</span>
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-4xl w-fit p-0 overflow-hidden bg-black border-primary/20">
+              <DialogContent className="max-w-[95vw] md:max-w-[80vw] lg:max-w-4xl w-full md:w-fit p-0 overflow-hidden bg-black border-primary/20">
                 <DialogHeader className="p-4 absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
                   <DialogTitle className="text-primary font-josefin uppercase tracking-widest">Vídeo de Localização</DialogTitle>
                 </DialogHeader>
