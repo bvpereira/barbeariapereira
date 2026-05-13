@@ -431,7 +431,7 @@ function Servicos() {
               transition={{ delay: i * 0.1 }}
               className="group bg-card p-6 rounded-3xl border border-primary/10 hover:border-primary/40 transition-all hover:-translate-y-2 flex flex-col items-center text-center"
             >
-              <div className="relative w-full aspect-square mb-6 overflow-hidden rounded-2xl">
+              <div className="relative w-full aspect-[4/5] mb-6 overflow-hidden rounded-2xl">
                 <img src={s.img} alt={s.nome} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
               </div>
               <h3 className="text-xl font-bold mb-3">{s.nome}</h3>
