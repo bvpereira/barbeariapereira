@@ -388,6 +388,8 @@ export type Database = {
           numero_promo: number
           testada: string | null
           texto_promo: string | null
+          texto_promo_ia_2: string | null
+          texto_promo_ia_3: string | null
         }
         Insert: {
           created_at?: string | null
@@ -397,6 +399,8 @@ export type Database = {
           numero_promo: number
           testada?: string | null
           texto_promo?: string | null
+          texto_promo_ia_2?: string | null
+          texto_promo_ia_3?: string | null
         }
         Update: {
           created_at?: string | null
@@ -406,6 +410,8 @@ export type Database = {
           numero_promo?: number
           testada?: string | null
           texto_promo?: string | null
+          texto_promo_ia_2?: string | null
+          texto_promo_ia_3?: string | null
         }
         Relationships: []
       }
