@@ -312,9 +312,12 @@ function Login() {
         </form>
 
         <div className="flex flex-col items-center gap-4 text-sm w-full">
-          <Link to="/cadastro" className="text-primary hover:underline">
-            Criar conta
-          </Link>
+          <div className="text-center text-muted-foreground">
+            Ainda não tem uma conta?{" "}
+            <Link to="/cadastro" className="text-primary hover:underline font-medium">
+              Clique aqui para criar agora
+            </Link>
+          </div>
           
           <Dialog>
             <DialogTrigger asChild>
