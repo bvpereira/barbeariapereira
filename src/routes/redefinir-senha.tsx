@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,18 @@ function RedefinirSenha() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [tempShowNovaSenha, setTempShowNovaSenha] = useState(false);
+  const [tempShowConfirmarSenha, setTempShowConfirmarSenha] = useState(false);
+  const timerNovaSenha = useRef<NodeJS.Timeout | null>(null);
+  const timerConfirmarSenha = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => {
+      if (timerNovaSenha.current) clearTimeout(timerNovaSenha.current);
+      if (timerConfirmarSenha.current) clearTimeout(timerConfirmarSenha.current);
+    };
+  }, []);
   
   const searchParams = new URLSearchParams(window.location.search);
   const token = searchParams.get("user");
@@ -107,10 +118,15 @@ function RedefinirSenha() {
             <div className="relative">
               <Input
                 id="novaSenha"
-                type={showPassword ? "text" : "password"}
+                type={(showPassword || tempShowNovaSenha) ? "text" : "password"}
                 placeholder="Digite sua nova senha"
                 value={novaSenha}
-                onChange={(e) => setNovaSenha(e.target.value)}
+                onChange={(e) => {
+                  setNovaSenha(e.target.value);
+                  setTempShowNovaSenha(true);
+                  if (timerNovaSenha.current) clearTimeout(timerNovaSenha.current);
+                  timerNovaSenha.current = setTimeout(() => setTempShowNovaSenha(false), 1000);
+                }}
                 required
                 className="bg-background pr-10"
               />
@@ -129,10 +145,15 @@ function RedefinirSenha() {
             <div className="relative">
               <Input
                 id="confirmarSenha"
-                type={showConfirmPassword ? "text" : "password"}
+                type={(showConfirmPassword || tempShowConfirmarSenha) ? "text" : "password"}
                 placeholder="Confirme sua nova senha"
                 value={confirmarSenha}
-                onChange={(e) => setConfirmarSenha(e.target.value)}
+                onChange={(e) => {
+                  setConfirmarSenha(e.target.value);
+                  setTempShowConfirmarSenha(true);
+                  if (timerConfirmarSenha.current) clearTimeout(timerConfirmarSenha.current);
+                  timerConfirmarSenha.current = setTimeout(() => setTempShowConfirmarSenha(false), 1000);
+                }}
                 required
                 className="bg-background pr-10"
               />
