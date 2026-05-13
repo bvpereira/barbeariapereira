@@ -1036,11 +1036,11 @@ function ClientesPage() {
                 <div className="space-y-2">
                   <Label>Horários Disponíveis</Label>
                   {loadingTimes ? <p className="text-sm animate-pulse">Consultando agenda...</p> : (
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {availableTimes.length > 0 ? availableTimes.map(t => (
-                        <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" onClick={() => setSelectedTimePart(t)}>{t}</Button>
+                        <Button key={t} variant={selectedTimePart === t ? "default" : "outline"} size="sm" className="px-2" onClick={() => setSelectedTimePart(t)}>{t}</Button>
                       )) : <p className="text-sm text-destructive col-span-full">Sem horários disponíveis para este dia.</p>}
-                </div>
+                    </div>
               )}
               <div className="space-y-2">
                 <Label htmlFor="valor-agendar">Valor Total (R$)</Label>
