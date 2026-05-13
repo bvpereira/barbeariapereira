@@ -1190,8 +1190,8 @@ function ClientesPage() {
                 </div>
               </div>
 
-              <div className="mt-3 flex justify-between items-center">
-                <div onClick={(e) => e.stopPropagation()}>
+              <div className="mt-3 flex justify-between items-center gap-4">
+                <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -1213,8 +1213,12 @@ function ClientesPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                    Clique para editar
+                  </span>
                 </div>
-                <span className="text-sm font-bold text-primary">
+                <span className="text-sm font-bold text-primary whitespace-nowrap">
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(atendimento.valor)}
                 </span>
               </div>
