@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,69 @@ function RedefinirSenha() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [tempShowNovaSenha, setTempShowNovaSenha] = useState(false);
-  const [tempShowConfirmarSenha, setTempShowConfirmarSenha] = useState(false);
+  
+  // States for masked display
+  const [novaSenhaMasked, setNovaSenhaMasked] = useState("");
+  const [confirmarSenhaMasked, setConfirmarSenhaMasked] = useState("");
+  
   const timerNovaSenha = useRef<NodeJS.Timeout | null>(null);
   const timerConfirmarSenha = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
+
+  const maskValue = (value: string, isLastVisible: boolean) => {
+    if (!value) return "";
+    if (!isLastVisible) return "•".repeat(value.length);
+    if (value.length === 1) return value;
+    return "•".repeat(value.length - 1) + value.slice(-1);
+  };
+
+  const handleNovaSenhaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = e.target.value;
+    
+    // If user is deleting, we just update the actual password
+    if (newVal.length < novaSenha.length) {
+      const diff = novaSenha.length - newVal.length;
+      const updatedValue = novaSenha.slice(0, -diff);
+      setNovaSenha(updatedValue);
+      setNovaSenhaMasked(maskValue(updatedValue, false));
+      return;
+    }
+
+    // If user is adding characters
+    const charAdded = newVal.slice(novaSenhaMasked.length);
+    const updatedValue = novaSenha + charAdded;
+    
+    setNovaSenha(updatedValue);
+    setNovaSenhaMasked(maskValue(updatedValue, true));
+
+    if (timerNovaSenha.current) clearTimeout(timerNovaSenha.current);
+    timerNovaSenha.current = setTimeout(() => {
+      setNovaSenhaMasked(maskValue(updatedValue, false));
+    }, 1500); // Small delay to mask the last char
+  };
+
+  const handleConfirmarSenhaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = e.target.value;
+    
+    if (newVal.length < confirmarSenha.length) {
+      const diff = confirmarSenha.length - newVal.length;
+      const updatedValue = confirmarSenha.slice(0, -diff);
+      setConfirmarSenha(updatedValue);
+      setConfirmarSenhaMasked(maskValue(updatedValue, false));
+      return;
+    }
+
+    const charAdded = newVal.slice(confirmarSenhaMasked.length);
+    const updatedValue = confirmarSenha + charAdded;
+    
+    setConfirmarSenha(updatedValue);
+    setConfirmarSenhaMasked(maskValue(updatedValue, true));
+
+    if (timerConfirmarSenha.current) clearTimeout(timerConfirmarSenha.current);
+    timerConfirmarSenha.current = setTimeout(() => {
+      setConfirmarSenhaMasked(maskValue(updatedValue, false));
+    }, 1500);
+  };
 
   useEffect(() => {
     return () => {
@@ -118,17 +176,12 @@ function RedefinirSenha() {
             <div className="relative">
               <Input
                 id="novaSenha"
-                type={(showPassword || tempShowNovaSenha) ? "text" : "password"}
+                type={showPassword ? "text" : "text"}
                 placeholder="Digite sua nova senha"
-                value={novaSenha}
-                onChange={(e) => {
-                  setNovaSenha(e.target.value);
-                  setTempShowNovaSenha(true);
-                  if (timerNovaSenha.current) clearTimeout(timerNovaSenha.current);
-                  timerNovaSenha.current = setTimeout(() => setTempShowNovaSenha(false), 1000);
-                }}
+                value={showPassword ? novaSenha : novaSenhaMasked}
+                onChange={handleNovaSenhaChange}
                 required
-                className="bg-background pr-10"
+                className="bg-background pr-10 font-mono"
               />
               <button
                 type="button"
@@ -145,17 +198,12 @@ function RedefinirSenha() {
             <div className="relative">
               <Input
                 id="confirmarSenha"
-                type={(showConfirmPassword || tempShowConfirmarSenha) ? "text" : "password"}
+                type={showConfirmPassword ? "text" : "text"}
                 placeholder="Confirme sua nova senha"
-                value={confirmarSenha}
-                onChange={(e) => {
-                  setConfirmarSenha(e.target.value);
-                  setTempShowConfirmarSenha(true);
-                  if (timerConfirmarSenha.current) clearTimeout(timerConfirmarSenha.current);
-                  timerConfirmarSenha.current = setTimeout(() => setTempShowConfirmarSenha(false), 1000);
-                }}
+                value={showConfirmPassword ? confirmarSenha : confirmarSenhaMasked}
+                onChange={handleConfirmarSenhaChange}
                 required
-                className="bg-background pr-10"
+                className="bg-background pr-10 font-mono"
               />
               <button
                 type="button"
