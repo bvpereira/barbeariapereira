@@ -27,7 +27,7 @@ import {
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { cn } from "../lib/utils";
-import heroBg from "@/assets/fundo_barbearia_escuro.jpg";
+// Import removed as it was replaced by a direct URL for the hero background
 import { supabase } from "@/integrations/supabase/client";
 import { BeamsBackground } from "@/components/ui/beams-background";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,7 @@ function Hero() {
   return (
     <section
       className="relative min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: `url(${heroBg})` }}
+      style={{ backgroundImage: `url('https://qtbkvshbmqlszncxlcuc.supabase.co/storage/v1/object/public/dsl-uploads/ZSa4ABaA8WhDeRG7upgnp8DS0oz1/152a2c78-1f2d-4258-b1e6-38dec8d6917a.png')` }}
     >
       <div className="absolute inset-0 bg-black/50 opacity-100" />
       <motion.div
