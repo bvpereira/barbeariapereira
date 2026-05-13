@@ -197,7 +197,8 @@ function SobreNos() {
   const features = [
     { icon: Snowflake, text: "Ambiente climatizado e confortável" },
     { icon: Car, text: "Fácil localização com estacionamento" },
-    { icon: Coffee, text: "Atendimento personalizado e café cortesia" }
+    { icon: Coffee, text: "Atendimento personalizado e café cortesia" },
+    { icon: Scissors, text: "Profissionais experientes e qualificados" }
   ];
 
   return (
@@ -220,7 +221,7 @@ function SobreNos() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-16 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 max-w-6xl mx-auto">
           {features.map((item, i) => {
             const Icon = item.icon;
             return (
