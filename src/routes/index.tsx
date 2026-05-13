@@ -197,7 +197,8 @@ function SobreNos() {
   const features = [
     { icon: Snowflake, text: "Ambiente climatizado e confortável" },
     { icon: Car, text: "Fácil localização com estacionamento" },
-    { icon: Coffee, text: "Atendimento personalizado e café cortesia" }
+    { icon: Coffee, text: "Atendimento personalizado e café cortesia" },
+    { icon: Scissors, text: "Profissionais experientes e qualificados" }
   ];
 
   return (
