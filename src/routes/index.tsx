@@ -353,7 +353,7 @@ function Localizacao() {
                       src={videoUrl} 
                       controls 
                       autoPlay 
-                      className="max-w-full max-h-[85vh] w-auto h-auto shadow-2xl"
+                      className="w-full md:max-w-full max-h-[90vh] md:max-h-[85vh] w-auto h-auto shadow-2xl"
                     />
                   )}
                 </div>
