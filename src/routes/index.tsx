@@ -39,18 +39,16 @@ export const Route = createFileRoute("/")({
 function Index() {
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const handleAgendarClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     const getUser = () => {
-      // Tenta pegar do localStorage primeiro
       const userJson = localStorage.getItem("user");
       if (userJson) return userJson;
 
-      // Tenta pegar do cookie se não estiver no localStorage
       const cookies = document.cookie.split(';');
       const userCookie = cookies.find(c => c.trim().startsWith('user='));
       if (userCookie) {
         const value = decodeURIComponent(userCookie.split('=')[1]);
-        // Restaura no localStorage para consistência
         localStorage.setItem("user", value);
         return value;
       }
@@ -65,20 +63,22 @@ function Index() {
           switch (user.nivel) {
             case 1:
               navigate({ to: "/admin" });
-              break;
+              return;
             case 2:
               navigate({ to: "/colaborador" });
-              break;
+              return;
             case 3:
               navigate({ to: "/cliente" });
-              break;
+              return;
           }
         }
       } catch (err) {
         console.error("Erro ao analisar usuário:", err);
       }
     }
-  }, [navigate]);
+    navigate({ to: "/login" });
+  };
+
 
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
