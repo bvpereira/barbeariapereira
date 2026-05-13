@@ -311,7 +311,7 @@ function Localizacao() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="space-y-8"
+            className="space-y-8 flex flex-col items-center md:items-start text-center md:text-left"
           >
             <div className="flex gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
