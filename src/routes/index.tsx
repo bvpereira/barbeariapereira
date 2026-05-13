@@ -82,7 +82,7 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
-      <Hero />
+      <Hero onAgendarClick={handleAgendarClick} />
       <SobreNos />
       <Localizacao />
       <Servicos />
@@ -92,6 +92,7 @@ function Index() {
     </div>
   );
 }
+
 
 // Seção de frases removida conforme solicitação
 
