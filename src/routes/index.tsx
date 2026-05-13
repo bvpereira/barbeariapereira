@@ -39,18 +39,16 @@ export const Route = createFileRoute("/")({
 function Index() {
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const handleAgendarClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     const getUser = () => {
-      // Tenta pegar do localStorage primeiro
       const userJson = localStorage.getItem("user");
       if (userJson) return userJson;
 
-      // Tenta pegar do cookie se não estiver no localStorage
       const cookies = document.cookie.split(';');
       const userCookie = cookies.find(c => c.trim().startsWith('user='));
       if (userCookie) {
         const value = decodeURIComponent(userCookie.split('=')[1]);
-        // Restaura no localStorage para consistência
         localStorage.setItem("user", value);
         return value;
       }
@@ -65,24 +63,26 @@ function Index() {
           switch (user.nivel) {
             case 1:
               navigate({ to: "/admin" });
-              break;
+              return;
             case 2:
               navigate({ to: "/colaborador" });
-              break;
+              return;
             case 3:
               navigate({ to: "/cliente" });
-              break;
+              return;
           }
         }
       } catch (err) {
         console.error("Erro ao analisar usuário:", err);
       }
     }
-  }, [navigate]);
+    navigate({ to: "/login" });
+  };
+
 
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
-      <Hero />
+      <Hero onAgendarClick={handleAgendarClick} />
       <SobreNos />
       <Localizacao />
       <Servicos />
@@ -93,9 +93,10 @@ function Index() {
   );
 }
 
+
 // Seção de frases removida conforme solicitação
 
-function Hero() {
+function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => void }) {
   return (
     <section
       className="relative min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-cover bg-center"
@@ -108,6 +109,7 @@ function Hero() {
         transition={{ duration: 0.8 }}
         className="z-10 flex flex-col items-center text-center"
       >
+
         <motion.img
           src="/logo.png"
           alt="Barbearia Pereira Logo"
@@ -146,11 +148,13 @@ function Hero() {
         >
           <Link
             to="/login"
+            onClick={onAgendarClick}
             className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-primary-foreground bg-primary rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95"
           >
             <Calendar className="mr-2 h-5 w-5" />
             <span>AGENDAR AGORA</span>
           </Link>
+
         </motion.div>
       </motion.div>
     </section>
