@@ -317,8 +317,8 @@ function Localizacao() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <MapPin className="text-primary w-6 h-6" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Endereço</h3>
+              <div className="text-left">
+                <h3 className="text-muted-foreground text-left mb-2">Endereço</h3>
                 <p className="text-muted-foreground">Rua Resende, 561, Jardim Mariléa,<br />Rio das Ostras – RJ</p>
               </div>
             </div>
@@ -327,8 +327,8 @@ function Localizacao() {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Clock className="text-primary w-6 h-6" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Horário de Funcionamento</h3>
+              <div className="text-left">
+                <h3 className="text-muted-foreground text-left mb-2">Horário de Funcionamento</h3>
                 <p className="text-muted-foreground">Terça a sábado de 09h às 20h<br />(Exceto feriados)</p>
               </div>
             </div>
