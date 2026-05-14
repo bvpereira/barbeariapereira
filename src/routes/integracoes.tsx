@@ -37,7 +37,7 @@ function IntegracoesPage() {
       const { data, error } = await supabase
         .from("informacoes")
         .select("instancia_evo")
-        .eq("id", 1)
+        .eq("id", "1")
         .maybeSingle();
 
       if (error) {
@@ -201,7 +201,7 @@ function IntegracoesPage() {
       const { error } = await supabase
         .from("informacoes")
         .update({ instancia_evo: instanciaEvo })
-        .eq("id", 1);
+        .eq("id", "1");
 
       if (error) throw error;
 
