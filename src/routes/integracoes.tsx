@@ -26,6 +26,7 @@ function IntegracoesPage() {
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
   const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
+  const [infoId, setInfoId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchIntegrations();
@@ -36,8 +37,8 @@ function IntegracoesPage() {
     try {
       const { data, error } = await supabase
         .from("informacoes")
-        .select("instancia_evo")
-        .eq("id", "1")
+        .select("id, instancia_evo")
+        .limit(1)
         .maybeSingle();
 
       if (error) {
@@ -45,8 +46,9 @@ function IntegracoesPage() {
         return;
       }
 
-      if (data?.instancia_evo) {
-        setInstanciaEvo(data.instancia_evo);
+      if (data) {
+        if (data.instancia_evo) setInstanciaEvo(data.instancia_evo);
+        setInfoId(data.id);
       }
     } catch (error) {
       console.error("Exceção ao buscar informações:", error);
@@ -198,10 +200,12 @@ function IntegracoesPage() {
   const handleSaveInstancia = async () => {
     setSavingInstancia(true);
     try {
+      if (!infoId) throw new Error("ID das informações não encontrado.");
+
       const { error } = await supabase
         .from("informacoes")
         .update({ instancia_evo: instanciaEvo })
-        .eq("id", "1");
+        .eq("id", infoId);
 
       if (error) throw error;
 
