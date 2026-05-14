@@ -25,6 +25,7 @@ function IntegracoesPage() {
   const [savingInstancia, setSavingInstancia] = useState(false);
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
+  const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
   const [infoId, setInfoId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -199,6 +200,8 @@ function IntegracoesPage() {
   const handleSaveInstancia = async () => {
     setSavingInstancia(true);
     try {
+      if (!infoId) throw new Error("ID das informações não encontrado.");
+
       const { error } = await supabase
         .from("informacoes")
         .update({ instancia_evo: instanciaEvo })
