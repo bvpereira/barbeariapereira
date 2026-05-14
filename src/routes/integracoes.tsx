@@ -72,6 +72,7 @@ function IntegracoesPage() {
       if (data) {
         const standard = data.find(i => i.tipo === "atendimentos");
         const finalizacao = data.find(i => i.tipo === "finalizacao");
+        const promocao = data.find(i => i.tipo === "promocao");
         const recupera = data.find(i => i.tipo === "recupera_senha");
 
         if (standard) {
@@ -82,6 +83,11 @@ function IntegracoesPage() {
         if (finalizacao) {
           setFinishWebhookUrl(finalizacao.webhook_url);
           setFinishIntegrationId(finalizacao.id);
+        }
+
+        if (promocao) {
+          setPromocaoWebhookUrl(promocao.webhook_url);
+          setPromocaoIntegrationId(promocao.id);
         }
 
         if (recupera) {
@@ -163,6 +169,41 @@ function IntegracoesPage() {
       toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
     } finally {
       setSavingFinish(false);
+    }
+  };
+
+  const handleSavePromocao = async () => {
+    if (!promocaoWebhookUrl) {
+      toast.error("Por favor, insira uma URL de webhook válida.");
+      return;
+    }
+
+    setSavingPromocao(true);
+    try {
+      if (promocaoIntegrationId) {
+        const { error } = await supabase
+          .from("integracoes")
+          .update({ webhook_url: promocaoWebhookUrl })
+          .eq("id", promocaoIntegrationId);
+        
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from("integracoes")
+          .insert({ webhook_url: promocaoWebhookUrl, tipo: "promocao" })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        if (data) setPromocaoIntegrationId(data.id);
+      }
+
+      toast.success("Configuração de webhook de promoção salva com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao salvar integração de promoção:", error);
+      toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
+    } finally {
+      setSavingPromocao(false);
     }
   };
 
