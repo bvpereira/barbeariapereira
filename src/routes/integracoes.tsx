@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link2, Save, Loader2 } from "lucide-react";
+import { Link2, Save, Loader2, Database } from "lucide-react";
 
 export const Route = createFileRoute("/integracoes" as any)({
   component: IntegracoesPage,
@@ -17,17 +17,41 @@ function IntegracoesPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
   const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
+  const [instanciaEvo, setInstanciaEvo] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingFinish, setSavingFinish] = useState(false);
   const [savingRecuperaSenha, setSavingRecuperaSenha] = useState(false);
+  const [savingInstancia, setSavingInstancia] = useState(false);
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
   const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchIntegrations();
+    fetchInformacoes();
   }, []);
+
+  const fetchInformacoes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("informacoes")
+        .select("instancia_evo")
+        .eq("id", 1)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Erro ao buscar informações:", error);
+        return;
+      }
+
+      if (data?.instancia_evo) {
+        setInstanciaEvo(data.instancia_evo);
+      }
+    } catch (error) {
+      console.error("Exceção ao buscar informações:", error);
+    }
+  };
 
   const fetchIntegrations = async () => {
     try {
@@ -171,6 +195,24 @@ function IntegracoesPage() {
       setSavingRecuperaSenha(false);
     }
   };
+  const handleSaveInstancia = async () => {
+    setSavingInstancia(true);
+    try {
+      const { error } = await supabase
+        .from("informacoes")
+        .update({ instancia_evo: instanciaEvo })
+        .eq("id", 1);
+
+      if (error) throw error;
+
+      toast.success("Instância salva com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao salvar instância:", error);
+      toast.error(`Erro ao salvar instância: ${error.message || "Erro desconhecido"}`);
+    } finally {
+      setSavingInstancia(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -191,6 +233,36 @@ function IntegracoesPage() {
             Configure webhooks para integrar a Barbearia Pereira com outros sistemas.
           </p>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Configurações Gerais
+            </CardTitle>
+            <CardDescription>
+              Configurações básicas para a conexão com o sistema Evolution.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="instancia-evo">Instância</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="instancia-evo"
+                  placeholder="Ex: MinhaInstancia"
+                  value={instanciaEvo}
+                  onChange={(e) => setInstanciaEvo(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSaveInstancia} disabled={savingInstancia}>
+                  {savingInstancia ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
