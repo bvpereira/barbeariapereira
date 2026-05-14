@@ -16,15 +16,18 @@ export const Route = createFileRoute("/integracoes" as any)({
 function IntegracoesPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
+  const [promocaoWebhookUrl, setPromocaoWebhookUrl] = useState("");
   const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
   const [instanciaEvo, setInstanciaEvo] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingFinish, setSavingFinish] = useState(false);
+  const [savingPromocao, setSavingPromocao] = useState(false);
   const [savingRecuperaSenha, setSavingRecuperaSenha] = useState(false);
   const [savingInstancia, setSavingInstancia] = useState(false);
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
+  const [promocaoIntegrationId, setPromocaoIntegrationId] = useState<string | null>(null);
   const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
   const [infoId, setInfoId] = useState<string | null>(null);
 
