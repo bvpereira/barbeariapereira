@@ -284,89 +284,36 @@ function IntegracoesPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Configurações Gerais
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Link2 className="h-5 w-5" />
+              Webhooks de Envio
             </CardTitle>
             <CardDescription>
-              Configurações básicas para a conexão com o sistema Evolution.
+              Configure os endereços de destino para os eventos do sistema.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            {/* Webhook Promoção */}
             <div className="space-y-2">
-              <Label htmlFor="instancia-evo">Instância</Label>
+              <Label htmlFor="promocao-webhook-url" className="text-sm font-medium">webhook promoção</Label>
               <div className="flex gap-2">
                 <Input
-                  id="instancia-evo"
-                  placeholder="Ex: MinhaInstancia"
-                  value={instanciaEvo}
-                  onChange={(e) => setInstanciaEvo(e.target.value)}
+                  id="promocao-webhook-url"
+                  placeholder="https://exemplo.com/webhook-promocao"
+                  value={promocaoWebhookUrl}
+                  onChange={(e) => setPromocaoWebhookUrl(e.target.value)}
                   className="flex-1"
                 />
-                <Button onClick={handleSaveInstancia} disabled={savingInstancia}>
-                  {savingInstancia ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                <Button onClick={handleSavePromocao} disabled={savingPromocao} size="sm">
+                  {savingPromocao ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                   Salvar
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5" />
-              Webhook de Agendamentos
-            </CardTitle>
-            <CardDescription>
-              A URL abaixo receberá notificações POST em formato JSON sempre que um cliente (Nível 3) realizar, alterar ou excluir um agendamento.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            {/* Webhook Finalização */}
             <div className="space-y-2">
-              <Label htmlFor="webhook-url">URL do Webhook</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="webhook-url"
-                  placeholder="https://exemplo.com/webhook"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                  Salvar
-                </Button>
-              </div>
-            </div>
-            
-            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
-              <p className="font-semibold">Eventos disparados:</p>
-              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>Agendamento (Criação)</li>
-                <li>Remarcacao (Alteração de data ou horário)</li>
-                <li>Exclusao (Cancelamento)</li>
-              </ul>
-              <p className="mt-4 text-xs italic">
-                Nota: O webhook é disparado apenas para ações realizadas por usuários de Nível 3 (Clientes).
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5" />
-              Webhook de Finalização
-            </CardTitle>
-            <CardDescription>
-              A URL abaixo receberá notificações POST em formato JSON sempre que um atendimento for marcado como "Finalizado" ou "Não compareceu".
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="finish-webhook-url">URL do Webhook</Label>
+              <Label htmlFor="finish-webhook-url" className="text-sm font-medium">webhook finalização</Label>
               <div className="flex gap-2">
                 <Input
                   id="finish-webhook-url"
@@ -375,39 +322,52 @@ function IntegracoesPage() {
                   onChange={(e) => setFinishWebhookUrl(e.target.value)}
                   className="flex-1"
                 />
-                <Button onClick={handleSaveFinish} disabled={savingFinish}>
-                  {savingFinish ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                <Button onClick={handleSaveFinish} disabled={savingFinish} size="sm">
+                  {savingFinish ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                   Salvar
                 </Button>
               </div>
             </div>
-            
-            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
-              <p className="font-semibold">Eventos disparados:</p>
-              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>Finalizado (Mudança para status "Finalizado" ou criado com esse status)</li>
-                <li>Não compareceu (Mudança para status "Não compareceu" ou criado com esse status)</li>
-              </ul>
-              <p className="mt-4 text-xs italic">
-                Nota: O webhook é disparado automaticamente para qualquer atendimento que mude para esses estados.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5" />
-              Webhook de Recuperação de Senha
-            </CardTitle>
-            <CardDescription>
-              A URL abaixo receberá uma notificação POST em formato JSON contendo os dados do cliente e do sistema sempre que alguém solicitar a recuperação de senha via login.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            {/* Instância (Colocado acima do agendamentos conforme solicitado anteriormente) */}
             <div className="space-y-2">
-              <Label htmlFor="recupera-webhook-url">URL do Webhook</Label>
+              <Label htmlFor="instancia-evo" className="text-sm font-medium">instância</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="instancia-evo"
+                  placeholder="Ex: MinhaInstancia"
+                  value={instanciaEvo}
+                  onChange={(e) => setInstanciaEvo(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSaveInstancia} disabled={savingInstancia} size="sm">
+                  {savingInstancia ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  Salvar
+                </Button>
+              </div>
+            </div>
+
+            {/* Webhook de Agendamentos */}
+            <div className="space-y-2">
+              <Label htmlFor="webhook-url" className="text-sm font-medium">webhook de agendamentos</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="webhook-url"
+                  placeholder="https://exemplo.com/webhook"
+                  value={webhookUrl}
+                  onChange={(e) => setWebhookUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSave} disabled={saving} size="sm">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  Salvar
+                </Button>
+              </div>
+            </div>
+
+            {/* Webhook de Recuperação de Senha */}
+            <div className="space-y-2">
+              <Label htmlFor="recupera-webhook-url" className="text-sm font-medium">webhook recuperação de senha</Label>
               <div className="flex gap-2">
                 <Input
                   id="recupera-webhook-url"
@@ -416,26 +376,37 @@ function IntegracoesPage() {
                   onChange={(e) => setRecuperaSenhaWebhookUrl(e.target.value)}
                   className="flex-1"
                 />
-                <Button onClick={handleSaveRecuperaSenha} disabled={savingRecuperaSenha}>
-                  {savingRecuperaSenha ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                <Button onClick={handleSaveRecuperaSenha} disabled={savingRecuperaSenha} size="sm">
+                  {savingRecuperaSenha ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                   Salvar
                 </Button>
               </div>
             </div>
-            
-            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
-              <p className="font-semibold">JSON enviado:</p>
-              <pre className="p-2 bg-background rounded border text-xs overflow-x-auto">
-{`{
-  "Tel_cliente": "...",
-  "Nome_cliente": "...",
-  "Tel_contato": "...",
-  "link_recuperacao": "..."
-}`}
-              </pre>
-            </div>
           </CardContent>
         </Card>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Informações de Agendamento</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">
+                O webhook de agendamentos é disparado para criação, remarcação e exclusão de horários por clientes.
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Informações de Finalização</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">
+                Disparado quando um atendimento é marcado como "Finalizado" ou "Não compareceu".
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AdminLayout>
   );
