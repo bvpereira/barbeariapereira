@@ -211,9 +211,9 @@ function Login() {
           url: integracao.webhook_url,
           method: "POST",
           body: {
-            Tel_cliente: usuario.login,
-            Nome_cliente: usuario.nome,
-            Tel_contato: telContato,
+            tel_cliente: usuario.login,
+            nome_cliente: usuario.nome,
+            tel_contato: telContato,
             link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }
         };

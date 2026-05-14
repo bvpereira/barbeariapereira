@@ -18,21 +18,30 @@ interface WebhookData {
 export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
   try {
     // 1. Log for debugging
-    // 1. Check user level (skip check if it's for debug/internal use)
     const userData = localStorage.getItem("user");
     if (userData) {
       const user = JSON.parse(userData);
-      // Only skip if we explicitly know the user is NOT level 3
-      // If we can't find the user level or it IS level 3, we continue
       if (user.nivel && user.nivel !== 3) {
         console.log("Webhook skipped: User is level", user.nivel, "(only level 3 triggers webhooks)");
         return;
       }
     }
 
-    console.log("Triggering Webhook:", event, data);
+    // Function to lowercase all keys in an object
+    const lowercaseKeys = (obj: any): any => {
+      if (typeof obj !== 'object' || obj === null) return obj;
+      if (Array.isArray(obj)) return obj.map(lowercaseKeys);
+      
+      return Object.keys(obj).reduce((acc: any, key) => {
+        acc[key.toLowerCase()] = lowercaseKeys(obj[key]);
+        return acc;
+      }, {});
+    };
 
-    // 3. Fetch the webhook URL
+    const lowercasedData = lowercaseKeys(data);
+    console.log("Triggering Webhook:", event, lowercasedData);
+
+    // 2. Fetch the webhook URL
     const { data: config, error } = await supabase
       .from("integracoes")
       .select("webhook_url")
@@ -53,7 +62,7 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
       body: {
         url: config.webhook_url,
         method: "POST",
-        body: data,
+        body: lowercasedData,
       }
     });
 

@@ -216,14 +216,14 @@ function PromocaoPage() {
     }
   };
 
-  const triggerWebhook = async (tipo: "Teste_promo" | "envio_promo") => {
+  const triggerWebhook = async (tipo: "teste_promo" | "envio_promo") => {
     if (!webhookUrl) {
       toast.error("Configure a URL do webhook primeiro");
       return false;
     }
 
     const payload = {
-      tipo,
+      tipo: tipo.toLowerCase(),
       telefone: telContato,
       url_imagem: promoAtual.imagem_promo,
       texto_promo: promoAtual.texto_promo,
@@ -256,7 +256,7 @@ function PromocaoPage() {
       return;
     }
     setSendingTest(true);
-    const success = await triggerWebhook("Teste_promo");
+    const success = await triggerWebhook("teste_promo");
     if (success) {
       // Update testada to "sim"
       const { error } = await supabase
