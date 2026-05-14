@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link2, Save, Loader2, Database } from "lucide-react";
+import { Link2, Save, Loader2, Database, Megaphone, CheckCircle2, UserKey, Calendar } from "lucide-react";
 
 export const Route = createFileRoute("/integracoes" as any)({
   component: IntegracoesPage,
@@ -17,15 +17,19 @@ function IntegracoesPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
   const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
+  const [promocaoWebhookUrl, setPromocaoWebhookUrl] = useState("");
   const [instanciaEvo, setInstanciaEvo] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingFinish, setSavingFinish] = useState(false);
   const [savingRecuperaSenha, setSavingRecuperaSenha] = useState(false);
+  const [savingPromocao, setSavingPromocao] = useState(false);
   const [savingInstancia, setSavingInstancia] = useState(false);
+  
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
   const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
+  const [promocaoIntegrationId, setPromocaoIntegrationId] = useState<string | null>(null);
   const [infoId, setInfoId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,6 +74,7 @@ function IntegracoesPage() {
         const standard = data.find(i => i.tipo === "atendimentos");
         const finalizacao = data.find(i => i.tipo === "finalizacao");
         const recupera = data.find(i => i.tipo === "recupera_senha");
+        const promocao = data.find(i => i.tipo === "promocao");
 
         if (standard) {
           setWebhookUrl(standard.webhook_url);
@@ -85,6 +90,11 @@ function IntegracoesPage() {
           setRecuperaSenhaWebhookUrl(recupera.webhook_url);
           setRecuperaSenhaIntegrationId(recupera.id);
         }
+
+        if (promocao) {
+          setPromocaoWebhookUrl(promocao.webhook_url);
+          setPromocaoIntegrationId(promocao.id);
+        }
       }
     } catch (error) {
       console.error("Exceção ao buscar integrações:", error);
@@ -93,110 +103,48 @@ function IntegracoesPage() {
     }
   };
 
-  const handleSave = async () => {
-    if (!webhookUrl) {
+  const handleSaveGeneric = async (
+    url: string, 
+    tipo: string, 
+    id: string | null, 
+    setId: (id: string) => void, 
+    setSavingState: (s: boolean) => void,
+    successMsg: string
+  ) => {
+    if (!url) {
       toast.error("Por favor, insira uma URL de webhook válida.");
       return;
     }
 
-    setSaving(true);
+    setSavingState(true);
     try {
-      if (integrationId) {
+      if (id) {
         const { error } = await supabase
           .from("integracoes")
-          .update({ webhook_url: webhookUrl })
-          .eq("id", integrationId);
+          .update({ webhook_url: url })
+          .eq("id", id);
         
         if (error) throw error;
       } else {
         const { data, error } = await supabase
           .from("integracoes")
-          .insert({ webhook_url: webhookUrl, tipo: "atendimentos" })
+          .insert({ webhook_url: url, tipo })
           .select()
           .single();
         
         if (error) throw error;
-        if (data) setIntegrationId(data.id);
+        if (data) setId(data.id);
       }
 
-      toast.success("Configuração de webhook salva com sucesso!");
+      toast.success(successMsg);
     } catch (error: any) {
-      console.error("Erro ao salvar integração:", error);
+      console.error(`Erro ao salvar integração ${tipo}:`, error);
       toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
     } finally {
-      setSaving(false);
+      setSavingState(false);
     }
   };
 
-  const handleSaveFinish = async () => {
-    if (!finishWebhookUrl) {
-      toast.error("Por favor, insira uma URL de webhook válida.");
-      return;
-    }
-
-    setSavingFinish(true);
-    try {
-      if (finishIntegrationId) {
-        const { error } = await supabase
-          .from("integracoes")
-          .update({ webhook_url: finishWebhookUrl })
-          .eq("id", finishIntegrationId);
-        
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from("integracoes")
-          .insert({ webhook_url: finishWebhookUrl, tipo: "finalizacao" })
-          .select()
-          .single();
-        
-        if (error) throw error;
-        if (data) setFinishIntegrationId(data.id);
-      }
-
-      toast.success("Configuração de webhook de finalização salva com sucesso!");
-    } catch (error: any) {
-      console.error("Erro ao salvar integração de finalização:", error);
-      toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
-    } finally {
-      setSavingFinish(false);
-    }
-  };
-
-  const handleSaveRecuperaSenha = async () => {
-    if (!recuperaSenhaWebhookUrl) {
-      toast.error("Por favor, insira uma URL de webhook válida.");
-      return;
-    }
-
-    setSavingRecuperaSenha(true);
-    try {
-      if (recuperaSenhaIntegrationId) {
-        const { error } = await supabase
-          .from("integracoes")
-          .update({ webhook_url: recuperaSenhaWebhookUrl })
-          .eq("id", recuperaSenhaIntegrationId);
-        
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from("integracoes")
-          .insert({ webhook_url: recuperaSenhaWebhookUrl, tipo: "recupera_senha" })
-          .select()
-          .single();
-        
-        if (error) throw error;
-        if (data) setRecuperaSenhaIntegrationId(data.id);
-      }
-
-      toast.success("Configuração de webhook de recuperação de senha salva com sucesso!");
-    } catch (error: any) {
-      console.error("Erro ao salvar integração de recuperação de senha:", error);
-      toast.error(`Erro ao salvar: ${error.message || "Erro desconhecido"}`);
-    } finally {
-      setSavingRecuperaSenha(false);
-    }
-  };
   const handleSaveInstancia = async () => {
     setSavingInstancia(true);
     try {
@@ -230,31 +178,32 @@ function IntegracoesPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 pb-10">
+      <div className="space-y-8 pb-10">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Integrações</h1>
-          <p className="text-muted-foreground">
-            Configure webhooks para integrar a Barbearia Pereira com outros sistemas.
+          <p className="text-muted-foreground text-lg">
+            Configure e gerencie as conexões externas do sistema.
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
+        {/* Configurações Gerais */}
+        <Card className="border-primary/20">
+          <CardHeader className="bg-primary/5">
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Configurações Gerais
+              <Database className="h-5 w-5 text-primary" />
+              Configurações do Evolution
             </CardTitle>
             <CardDescription>
-              Configurações básicas para a conexão com o sistema Evolution.
+              Identificação da instância para envio de mensagens via WhatsApp.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="pt-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="instancia-evo">Instância</Label>
+              <Label htmlFor="instancia-evo">Nome da Instância</Label>
               <div className="flex gap-2">
                 <Input
                   id="instancia-evo"
-                  placeholder="Ex: MinhaInstancia"
+                  placeholder="Ex: BarbeariaPereira"
                   value={instanciaEvo}
                   onChange={(e) => setInstanciaEvo(e.target.value)}
                   className="flex-1"
@@ -268,130 +217,162 @@ function IntegracoesPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5" />
-              Webhook de Agendamentos
-            </CardTitle>
-            <CardDescription>
-              A URL abaixo receberá notificações POST em formato JSON sempre que um cliente (Nível 3) realizar, alterar ou excluir um agendamento.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="webhook-url">URL do Webhook</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="webhook-url"
-                  placeholder="https://exemplo.com/webhook"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                  Salvar
-                </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Webhook de Agendamentos */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-600">
+                <Calendar className="h-5 w-5" />
+                Agendamentos
+              </CardTitle>
+              <CardDescription>
+                Notifica sobre novos horários marcados, alterações ou cancelamentos realizados pelos clientes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <Label htmlFor="webhook-url">URL do Webhook</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="webhook-url"
+                    placeholder="https://exemplo.com/webhook"
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={() => handleSaveGeneric(webhookUrl, "atendimentos", integrationId, setIntegrationId, setSaving, "Configuração de agendamentos salva!")} 
+                    disabled={saving}
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
-            </div>
-            
-            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
-              <p className="font-semibold">Eventos disparados:</p>
-              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>Agendamento (Criação)</li>
-                <li>Remarcacao (Alteração de data ou horário)</li>
-                <li>Exclusao (Cancelamento)</li>
-              </ul>
-              <p className="mt-4 text-xs italic">
-                Nota: O webhook é disparado apenas para ações realizadas por usuários de Nível 3 (Clientes).
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="p-3 bg-blue-50 text-blue-700 rounded-md text-xs border border-blue-100">
+                <p className="font-semibold mb-1">Eventos:</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  <li>Criação de agendamento</li>
+                  <li>Remarcação (data/hora)</li>
+                  <li>Cancelamento (exclusão)</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5" />
-              Webhook de Finalização
-            </CardTitle>
-            <CardDescription>
-              A URL abaixo receberá notificações POST em formato JSON sempre que um atendimento for marcado como "Finalizado" ou "Não compareceu".
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="finish-webhook-url">URL do Webhook</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="finish-webhook-url"
-                  placeholder="https://exemplo.com/webhook-finalizacao"
-                  value={finishWebhookUrl}
-                  onChange={(e) => setFinishWebhookUrl(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={handleSaveFinish} disabled={savingFinish}>
-                  {savingFinish ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                  Salvar
-                </Button>
+          {/* Webhook de Finalização */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-green-600">
+                <CheckCircle2 className="h-5 w-5" />
+                Finalização
+              </CardTitle>
+              <CardDescription>
+                Disparado quando um atendimento é concluído ou marcado como "Não compareceu".
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <Label htmlFor="finish-webhook-url">URL do Webhook</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="finish-webhook-url"
+                    placeholder="https://exemplo.com/webhook-finalizacao"
+                    value={finishWebhookUrl}
+                    onChange={(e) => setFinishWebhookUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={() => handleSaveGeneric(finishWebhookUrl, "finalizacao", finishIntegrationId, setFinishIntegrationId, setSavingFinish, "Configuração de finalização salva!")} 
+                    disabled={savingFinish}
+                  >
+                    {savingFinish ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
-            </div>
-            
-            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
-              <p className="font-semibold">Eventos disparados:</p>
-              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>Finalizado (Mudança para status "Finalizado" ou criado com esse status)</li>
-                <li>Não compareceu (Mudança para status "Não compareceu" ou criado com esse status)</li>
-              </ul>
-              <p className="mt-4 text-xs italic">
-                Nota: O webhook é disparado automaticamente para qualquer atendimento que mude para esses estados.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="p-3 bg-green-50 text-green-700 rounded-md text-xs border border-green-100">
+                <p className="font-semibold mb-1">Eventos:</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  <li>Status alterado para "Finalizado"</li>
+                  <li>Status alterado para "Não compareceu"</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Link2 className="h-5 w-5" />
-              Webhook de Recuperação de Senha
-            </CardTitle>
-            <CardDescription>
-              A URL abaixo receberá uma notificação POST em formato JSON contendo os dados do cliente e do sistema sempre que alguém solicitar a recuperação de senha via login.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="recupera-webhook-url">URL do Webhook</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="recupera-webhook-url"
-                  placeholder="https://exemplo.com/webhook-recupera"
-                  value={recuperaSenhaWebhookUrl}
-                  onChange={(e) => setRecuperaSenhaWebhookUrl(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={handleSaveRecuperaSenha} disabled={savingRecuperaSenha}>
-                  {savingRecuperaSenha ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                  Salvar
-                </Button>
+          {/* Webhook de Promoções */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-purple-600">
+                <Megaphone className="h-5 w-5" />
+                Promoções
+              </CardTitle>
+              <CardDescription>
+                Utilizado para disparar campanhas de marketing e avisos para os clientes cadastrados.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <Label htmlFor="promocao-webhook-url">URL do Webhook</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="promocao-webhook-url"
+                    placeholder="https://exemplo.com/webhook-promocao"
+                    value={promocaoWebhookUrl}
+                    onChange={(e) => setPromocaoWebhookUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={() => handleSaveGeneric(promocaoWebhookUrl, "promocao", promocaoIntegrationId, setPromocaoIntegrationId, setSavingPromocao, "Configuração de promoções salva!")} 
+                    disabled={savingPromocao}
+                  >
+                    {savingPromocao ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
-            </div>
-            
-            <div className="p-4 bg-muted rounded-lg text-sm space-y-2">
-              <p className="font-semibold">JSON enviado:</p>
-              <pre className="p-2 bg-background rounded border text-xs overflow-x-auto">
-{`{
-  "Tel_cliente": "...",
-  "Nome_cliente": "...",
-  "Tel_contato": "...",
-  "link_recuperacao": "..."
-}`}
-              </pre>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="p-3 bg-purple-50 text-purple-700 rounded-md text-xs border border-purple-100">
+                <p className="font-semibold mb-1">Utilização:</p>
+                <p>Envia dados da promoção ativa (texto e imagem) para disparo em massa via sistema externo.</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Webhook de Recuperação de Senha */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-orange-600">
+                <UserKey className="h-5 w-5" />
+                Recuperação de Senha
+              </CardTitle>
+              <CardDescription>
+                Notifica quando um cliente solicita a redefinição de sua senha de acesso.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <Label htmlFor="recupera-webhook-url">URL do Webhook</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="recupera-webhook-url"
+                    placeholder="https://exemplo.com/webhook-recupera"
+                    value={recuperaSenhaWebhookUrl}
+                    onChange={(e) => setRecuperaSenhaWebhookUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={() => handleSaveGeneric(recuperaSenhaWebhookUrl, "recupera_senha", recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId, setSavingRecuperaSenha, "Configuração de recuperação salva!")} 
+                    disabled={savingRecuperaSenha}
+                  >
+                    {savingRecuperaSenha ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+              <div className="p-3 bg-orange-50 text-orange-700 rounded-md text-xs border border-orange-100">
+                <p className="font-semibold mb-1">Dados enviados:</p>
+                <p>Nome, Telefone e Link de Recuperação exclusivo para o cliente.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </AdminLayout>
   );
