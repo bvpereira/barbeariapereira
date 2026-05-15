@@ -247,7 +247,7 @@ function AdminPage() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{data.clientesAgendadosHoje}</div>
+              <div className="text-xl md:text-2xl font-bold">{data.clientesAgendadosHoje}</div>
               <p className="text-xs text-muted-foreground">Clientes marcados para hoje</p>
             </CardContent>
           </Card>
@@ -257,7 +257,7 @@ function AdminPage() {
               <PlusCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{data.novosAgendamentosHoje}</div>
+              <div className="text-xl md:text-2xl font-bold">{data.novosAgendamentosHoje}</div>
               <p className="text-xs text-muted-foreground">Criados hoje (desde 00:00)</p>
             </CardContent>
           </Card>
@@ -267,7 +267,7 @@ function AdminPage() {
               <DollarSign className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(data.faturamentoBrutoDia)}</div>
+              <div className="text-lg md:text-2xl font-bold">{formatCurrency(data.faturamentoBrutoDia)}</div>
               <p className="text-xs text-muted-foreground">Finalizados hoje</p>
             </CardContent>
           </Card>
@@ -277,7 +277,7 @@ function AdminPage() {
               <TrendingUp className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">{formatCurrency(data.previsaoBrutoMes)}</div>
+              <div className="text-lg md:text-2xl font-bold text-primary">{formatCurrency(data.previsaoBrutoMes)}</div>
               <p className="text-xs text-muted-foreground">Bruto + Agendados</p>
             </CardContent>
           </Card>
@@ -354,7 +354,7 @@ function AdminPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Bruto (Mês)</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(data.faturamentoBrutoMes)}</div>
+              <div className="text-lg md:text-2xl font-bold">{formatCurrency(data.faturamentoBrutoMes)}</div>
             </CardContent>
           </Card>
           <Card>
@@ -362,7 +362,7 @@ function AdminPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Líquido (Mês)</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={cn("text-2xl font-bold", data.faturamentoLiquidoMes >= 0 ? "text-green-600" : "text-destructive")}>
+              <div className={cn("text-lg md:text-2xl font-bold", data.faturamentoLiquidoMes >= 0 ? "text-green-600" : "text-destructive")}>
                 {formatCurrency(data.faturamentoLiquidoMes)}
               </div>
             </CardContent>
@@ -372,7 +372,7 @@ function AdminPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Comissões (Mês)</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-500">{formatCurrency(data.comissoesMes)}</div>
+              <div className="text-lg md:text-2xl font-bold text-orange-500">{formatCurrency(data.comissoesMes)}</div>
             </CardContent>
           </Card>
           <Card>
@@ -380,7 +380,7 @@ function AdminPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Despesas (Mês)</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
+              <div className="text-lg md:text-2xl font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
             </CardContent>
           </Card>
         </div>
