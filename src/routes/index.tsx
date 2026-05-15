@@ -16,7 +16,10 @@ import {
   Car,
   Coffee,
   X,
-  UsersRound
+  UsersRound,
+  Banknote,
+  QrCode,
+  CreditCard
 } from "lucide-react";
 import {
   Dialog,
@@ -439,6 +442,31 @@ function Servicos() {
               <p className="text-muted-foreground text-sm">{s.desc}</p>
             </motion.div>
           ))}
+        </div>
+
+        <div className="mt-20 text-center">
+          <h3 className="text-2xl md:text-3xl font-bold mb-8 text-primary uppercase tracking-widest">
+            Meios de Pagamento
+          </h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            {[
+              { icon: Banknote, label: "Dinheiro" },
+              { icon: QrCode, label: "Pix" },
+              { icon: CreditCard, label: "Cartão de Crédito" },
+            ].map((payment, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-card border border-primary/10 rounded-xl p-4 flex items-center gap-3 min-w-[160px] justify-center hover:border-primary/40 transition-all"
+              >
+                <payment.icon className="w-5 h-5 text-primary" />
+                <span className="font-bold uppercase tracking-wider text-sm">{payment.label}</span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
