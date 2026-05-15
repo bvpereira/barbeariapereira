@@ -564,7 +564,7 @@ function Contato() {
   const whatsappLink = `https://wa.me/${whatsappNumber}`;
   
   return (
-    <section className="py-20 bg-primary/5 px-4">
+    <section className="bg-card py-16 px-4 border-t border-primary/10 bg-black">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-8 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
           <Phone className="w-8 h-8" />
