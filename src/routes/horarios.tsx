@@ -532,11 +532,11 @@ function HorariosPage() {
                       </Button>
                     </div>
 
-                    <div className="border rounded-lg overflow-hidden">
-                      <table className="w-full text-sm">
+                    <div className="border rounded-lg overflow-x-auto">
+                      <table className="w-full text-sm min-w-[500px] md:min-w-0">
                         <thead className="bg-muted">
                           <tr>
-                            <th className="p-3 text-left w-10">
+                            <th className="p-2 md:p-3 text-left w-10">
                               <Checkbox 
                                 checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
                                 onCheckedChange={async (checked) => {
@@ -572,9 +572,9 @@ function HorariosPage() {
                                 }}
                               />
                             </th>
-                            <th className="p-3 text-left">Colaborador</th>
-                            <th className="p-3 text-left">Manhã</th>
-                            <th className="p-3 text-left">Tarde</th>
+                            <th className="p-2 md:p-3 text-left">Colaborador</th>
+                            <th className="p-2 md:p-3 text-left">Manhã</th>
+                            <th className="p-2 md:p-3 text-left">Tarde</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -584,42 +584,42 @@ function HorariosPage() {
                             
                             return (
                               <tr key={colab.id} className={isSelected ? "bg-primary/5" : ""}>
-                                <td className="p-3">
+                                <td className="p-2 md:p-3">
                                   <Checkbox 
                                     checked={isSelected}
                                     onCheckedChange={() => toggleCollaboratorSelection(dia.data, colab.id)}
                                   />
                                 </td>
-                                <td className="p-3 font-medium">{colab.nome}</td>
-                                <td className="p-3">
+                                <td className="p-2 md:p-3 font-medium text-xs md:text-sm">{colab.nome}</td>
+                                <td className="p-2 md:p-3">
                                   <div className="flex items-center gap-1">
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
                                       value={horario?.manha_inicio || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_inicio", e.target.value)}
                                     />
                                     <span className="text-muted-foreground">-</span>
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
                                       value={horario?.manha_fim || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_fim", e.target.value)}
                                     />
                                   </div>
                                 </td>
-                                <td className="p-3">
+                                <td className="p-2 md:p-3">
                                   <div className="flex items-center gap-1">
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
                                       value={horario?.tarde_inicio || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_inicio", e.target.value)}
                                     />
                                     <span className="text-muted-foreground">-</span>
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
                                       value={horario?.tarde_fim || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_fim", e.target.value)}
                                     />
