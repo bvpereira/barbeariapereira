@@ -394,53 +394,46 @@ function FinanceiroPage() {
             </CardContent>
           </Card>
 
-          <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6 order-1 lg:order-2">
-            <Card className="col-span-2 sm:col-span-1 lg:col-span-1">
-              <CardHeader className="p-3 md:p-6 pb-2 md:pb-2">
-                <CardTitle className="text-sm md:text-lg">Previsão</CardTitle>
+          <div className="lg:col-span-3 grid grid-cols-2 lg:grid-cols-1 gap-2 lg:gap-6 order-1 lg:order-2">
+            <Card className="col-span-1 lg:col-span-1 border-primary/20">
+              <CardHeader className="p-2 md:p-6 pb-1 md:pb-2">
+                <CardTitle className="text-[10px] md:text-lg uppercase font-bold text-muted-foreground">Previsão</CardTitle>
               </CardHeader>
-              <CardContent className="p-3 md:p-6 space-y-3 md:space-y-4 pt-0 md:pt-0">
+              <CardContent className="p-2 md:p-6 space-y-2 md:space-y-4 pt-0 md:pt-0">
                 <div className="flex flex-col gap-0.5 md:gap-1">
-                  <span className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Previsto</span>
-                  <div className="text-xl md:text-3xl font-black text-primary tracking-tight">
+                  <div className="text-sm md:text-3xl font-black text-primary tracking-tight">
                     {formatCurrency(data.previsaoTotalMes)}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/50">
+                <div className="grid grid-cols-1 gap-1 pt-1 border-t border-border/50">
                   <div className="flex justify-between items-center">
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase">Finalizado</p>
-                    <p className="text-xs font-semibold">{formatCurrency(data.brutoMes)}</p>
+                    <p className="text-[8px] font-medium text-muted-foreground uppercase">Fim</p>
+                    <p className="text-[9px] font-semibold">{formatCurrency(data.brutoMes)}</p>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase">Agendado</p>
-                    <p className="text-xs font-semibold text-primary/80">{formatCurrency(data.previsaoAgendadosMes)}</p>
+                    <p className="text-[8px] font-medium text-muted-foreground uppercase">Agend</p>
+                    <p className="text-[9px] font-semibold text-primary/80">{formatCurrency(data.previsaoAgendadosMes)}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="col-span-2 sm:col-span-1 lg:col-span-1">
-              <CardHeader className="p-3 md:p-6 pb-2 md:pb-2">
-                <CardTitle className="text-sm md:text-lg">Comissões</CardTitle>
+            <Card className="col-span-1 lg:col-span-1 border-primary/20">
+              <CardHeader className="p-2 md:p-6 pb-1 md:pb-2">
+                <CardTitle className="text-[10px] md:text-lg uppercase font-bold text-muted-foreground">Comissões</CardTitle>
               </CardHeader>
-              <CardContent className="p-3 md:p-6 space-y-3 md:space-y-4 pt-0 md:pt-0">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">Total</span>
-                  <div className="text-xl md:text-2xl font-bold">{formatCurrency(data.comissoesMes)}</div>
-                </div>
-                <div className="space-y-2">
-                  {data.comissoesPorColaborador.map((colab, i) => (
-                    <div key={i} className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        <span className="font-medium">{colab.nome}</span>
-                      </div>
-                      <span className="font-bold">{formatCurrency(colab.valor)}</span>
+              <CardContent className="p-2 md:p-6 space-y-2 md:space-y-4 pt-0 md:pt-0">
+                <div className="text-sm md:text-2xl font-bold border-b pb-1">{formatCurrency(data.comissoesMes)}</div>
+                <div className="space-y-1 overflow-hidden">
+                  {data.comissoesPorColaborador.slice(0, 3).map((colab, i) => (
+                    <div key={i} className="flex items-center justify-between text-[8px] leading-tight">
+                      <span className="font-medium truncate mr-1">{colab.nome}</span>
+                      <span className="font-bold shrink-0">{formatCurrency(colab.valor)}</span>
                     </div>
                   ))}
-                  {data.comissoesPorColaborador.length === 0 && (
-                    <p className="text-center text-[10px] text-muted-foreground py-1">Sem comissões</p>
+                  {data.comissoesPorColaborador.length > 3 && (
+                    <p className="text-[7px] text-muted-foreground text-center">...</p>
                   )}
                 </div>
               </CardContent>
