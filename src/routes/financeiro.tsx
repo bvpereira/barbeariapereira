@@ -359,8 +359,9 @@ function FinanceiroPage() {
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-base md:text-xl">Líquido (12 meses)</CardTitle>
             </CardHeader>
-            <CardContent className="p-2 md:p-6 overflow-x-auto">
-              <div className="h-[200px] md:h-[300px] min-w-[500px] md:min-w-0 w-full">
+            <CardContent className="p-2 md:p-6 overflow-hidden">
+              <div className="overflow-x-auto pb-4">
+                <div className="h-[200px] md:h-[300px] min-w-[500px] md:min-w-0 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.chartData}>
                     <defs>
@@ -454,7 +455,7 @@ function FinanceiroPage() {
           <CardHeader className="p-4 md:p-6">
             <CardTitle className="text-base md:text-xl">Histórico Detalhado</CardTitle>
           </CardHeader>
-          <CardContent className="p-0 md:p-6">
+          <CardContent className="p-0 md:p-6 overflow-hidden">
             <div className="overflow-x-auto">
               <div className="min-w-[600px] md:min-w-0">
                 <Table>
