@@ -298,7 +298,7 @@ function GastosPage() {
               if (!open) resetForm();
             }}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                <Button variant="default" className="gap-2 w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90">
                   <Plus className="w-4 h-4" />
                   Adicionar Salário
                 </Button>
