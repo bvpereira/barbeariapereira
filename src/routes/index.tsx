@@ -217,7 +217,7 @@ function SobreNos() {
           className="mb-16 max-w-4xl mx-auto text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary uppercase tracking-widest flex flex-col items-center gap-3">
-            <User className="w-8 h-8" />
+            <Users className="w-8 h-8" />
             Sobre Nós
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-8" />
