@@ -483,7 +483,8 @@ function FinanceiroPage() {
                 </TableBody>
               </Table>
             </div>
-          </CardContent>
+          </div>
+        </CardContent>
         </Card>
       </div>
     </AdminLayout>
