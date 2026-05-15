@@ -94,7 +94,7 @@
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.25 0.04 260);
   --input: oklch(0.25 0.04 260);
-  --ring: oklch(0.7 0.15 45);
+  --ring: oklch(0.7 0.15 250);
   --chart-1: oklch(0.7 0.15 45); /* Gold tone */
   --chart-2: oklch(0.7 0.15 45);
   --chart-3: oklch(0.7 0.15 45);
