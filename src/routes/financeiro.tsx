@@ -355,7 +355,7 @@ function FinanceiroPage() {
         </div>
 
         <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-7">
-          <Card className="lg:col-span-4">
+          <Card className="lg:col-span-4 order-2 lg:order-1">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-base md:text-xl">Líquido (12 meses)</CardTitle>
             </CardHeader>
@@ -399,7 +399,7 @@ function FinanceiroPage() {
             </CardContent>
           </Card>
 
-          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6">
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6 order-1 lg:order-2">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Previsão de Faturamento</CardTitle>
