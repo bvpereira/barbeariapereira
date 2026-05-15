@@ -129,8 +129,15 @@
     border-color: var(--color-border);
   }
 
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    min-height: 100vh;
   }
 }
