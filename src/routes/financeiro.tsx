@@ -488,5 +488,5 @@ function FinanceiroPage() {
       </Card>
     </div>
   </AdminLayout>
-);
+  );
 }
