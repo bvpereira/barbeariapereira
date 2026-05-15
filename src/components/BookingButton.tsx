@@ -572,7 +572,7 @@ export function BookingButton({
                             onClick={(e) => e.stopPropagation()}
                           />
                           {s.image_url ? (
-                            <img src="https://qtbkvshbmqlszncxlcuc.supabase.co/storage/v1/object/public/dsl-uploads/ZSa4ABaA8WhDeRG7upgnp8DS0oz1/9d9acc6c-a082-403c-91e4-78e730780dd4.png" alt={s.name} className="w-10 h-10 rounded object-cover border" />
+                            <img src={s.image_url} alt={s.name} className="w-10 h-10 rounded object-cover border" />
                           ) : (
                             <div className="w-10 h-10 rounded bg-muted flex items-center justify-center border">
                               <Scissors className="w-5 h-5 text-muted-foreground" />
