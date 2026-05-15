@@ -411,10 +411,21 @@ function PromocaoPage() {
                     <span className="text-red-500 font-medium italic">Limite excedido</span>
                   )}
                 </div>
-                <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleSaveTexto} disabled={saving}>
-                  <Save className="h-4 w-4" />
-                  Salvar Texto
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleSaveTexto} disabled={saving}>
+                    <Save className="h-4 w-4" />
+                    Salvar Texto
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                    onClick={() => setPromoAtual({ ...promoAtual, texto_promo: "" })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Apagar Texto
+                  </Button>
+                </div>
               </div>
 
               {/* Botões de Envio */}
