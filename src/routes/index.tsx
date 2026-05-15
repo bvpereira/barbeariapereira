@@ -16,7 +16,10 @@ import {
   Car,
   Coffee,
   X,
-  UsersRound
+  UsersRound,
+  Banknote,
+  QrCode,
+  CreditCard
 } from "lucide-react";
 import {
   Dialog,
