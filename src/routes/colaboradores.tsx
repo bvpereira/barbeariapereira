@@ -549,8 +549,8 @@ function CollaboratorsPage() {
                     <p className="text-sm text-muted-foreground truncate">{colab.resumo || "Sem resumo"}</p>
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 pt-0 space-y-3">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                <CardContent className="p-3 pt-0 md:p-4 md:pt-0 space-y-3">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Phone className="w-3 h-3" /> {colab.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
                     </div>
