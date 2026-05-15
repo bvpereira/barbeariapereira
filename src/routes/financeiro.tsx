@@ -291,58 +291,67 @@ function FinanceiroPage() {
         </div>
 
         {/* Resumo Hoje */}
-        <div className="grid gap-2 grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
           <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-              <CardTitle className="text-[9px] uppercase font-bold text-muted-foreground">Bruto Hoje</CardTitle>
-              <DollarSign className="h-3 w-3 text-primary" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Faturamento Bruto (Hoje)</CardTitle>
+              <DollarSign className="h-4 w-4 text-primary" />
             </CardHeader>
-            <CardContent className="p-2 pt-0">
-              <div className="text-sm font-bold text-primary">{formatCurrency(data.brutoDia)}</div>
+            <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+              <div className="text-2xl font-bold text-primary">{formatCurrency(data.brutoDia)}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Atendimentos finalizados hoje
+              </p>
             </CardContent>
           </Card>
           <Card className="bg-green-500/5 border-green-500/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-              <CardTitle className="text-[9px] uppercase font-bold text-muted-foreground">Líquido Hoje</CardTitle>
-              <TrendingUp className="h-3 w-3 text-green-500" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-sm font-medium uppercase tracking-wider text-green-600 dark:text-green-400">Faturamento Líquido (Hoje)</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-500" />
             </CardHeader>
-            <CardContent className="p-2 pt-0">
-              <div className="text-sm font-bold text-green-600 dark:text-green-400">{formatCurrency(data.liquidoDia)}</div>
+            <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(data.liquidoDia)}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Bruto menos comissões
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Detalhes Mês */}
-        <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
-          <Card className="col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2 md:p-6">
-              <CardTitle className="text-[10px] md:text-sm font-medium">Bruto Mês</CardTitle>
-              <ArrowUpRight className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Bruto do Mês</CardTitle>
+              <ArrowUpRight className="h-4 w-4 text-primary" />
             </CardHeader>
-            <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
-              <div className="text-sm md:text-2xl font-bold">{formatCurrency(data.brutoMes)}</div>
+            <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+              <div className="text-2xl font-bold">{formatCurrency(data.brutoMes)}</div>
+              <p className="text-xs text-muted-foreground mt-1">Total finalizado este mês</p>
             </CardContent>
           </Card>
-          <Card className="col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2 md:p-6">
-              <CardTitle className="text-[10px] md:text-sm font-medium">Líquido Mês</CardTitle>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Líquido do Mês</CardTitle>
               <div className={data.liquidoMes >= 0 ? "text-green-500" : "text-destructive"}>
-                {data.liquidoMes >= 0 ? <TrendingUp className="h-3 w-3 md:h-4 md:w-4" /> : <TrendingDown className="h-3 w-3 md:h-4 md:w-4" />}
+                {data.liquidoMes >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
               </div>
             </CardHeader>
-            <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
-              <div className={cn("text-sm md:text-2xl font-bold", data.liquidoMes >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
+            <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+              <div className={cn("text-2xl font-bold", data.liquidoMes >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
                 {formatCurrency(data.liquidoMes)}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">Bruto - comissões - gastos</p>
             </CardContent>
           </Card>
-          <Card className="col-span-2 md:col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2 md:p-6">
-              <CardTitle className="text-[10px] md:text-sm font-medium">Despesas Mês</CardTitle>
-              <ArrowDownRight className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 md:p-6">
+              <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Despesas do Mês</CardTitle>
+              <ArrowDownRight className="h-4 w-4 text-destructive" />
             </CardHeader>
-            <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
-              <div className="text-sm md:text-2xl font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
+            <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+              <div className="text-2xl font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
+              <p className="text-xs text-muted-foreground mt-1">Apenas tabela de gastos</p>
             </CardContent>
           </Card>
         </div>
@@ -394,46 +403,50 @@ function FinanceiroPage() {
             </CardContent>
           </Card>
 
-          <div className="lg:col-span-3 grid grid-cols-2 lg:grid-cols-1 gap-2 lg:gap-6 order-1 lg:order-2">
-            <Card className="col-span-1 lg:col-span-1 border-primary/20">
-              <CardHeader className="p-2 md:p-6 pb-1 md:pb-2">
-                <CardTitle className="text-[10px] md:text-lg uppercase font-bold text-muted-foreground">Previsão</CardTitle>
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6 order-1 lg:order-2">
+            <Card className="border-primary/20">
+              <CardHeader className="p-4 md:p-6 pb-2 md:pb-2">
+                <CardTitle className="text-sm md:text-lg uppercase font-bold text-muted-foreground">Previsão de Faturamento</CardTitle>
               </CardHeader>
-              <CardContent className="p-2 md:p-6 space-y-2 md:space-y-4 pt-0 md:pt-0">
-                <div className="flex flex-col gap-0.5 md:gap-1">
-                  <div className="text-sm md:text-3xl font-black text-primary tracking-tight">
+              <CardContent className="p-4 md:p-6 space-y-4 pt-0 md:pt-0">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Previsto (Fim + Agend)</span>
+                  <div className="text-2xl md:text-3xl font-black text-primary tracking-tight">
                     {formatCurrency(data.previsaoTotalMes)}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-1 pt-1 border-t border-border/50">
-                  <div className="flex justify-between items-center">
-                    <p className="text-[8px] font-medium text-muted-foreground uppercase">Fim</p>
-                    <p className="text-[9px] font-semibold">{formatCurrency(data.brutoMes)}</p>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase">Já Finalizado</p>
+                    <p className="text-base font-semibold">{formatCurrency(data.brutoMes)}</p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-[8px] font-medium text-muted-foreground uppercase">Agend</p>
-                    <p className="text-[9px] font-semibold text-primary/80">{formatCurrency(data.previsaoAgendadosMes)}</p>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase">Agendado</p>
+                    <p className="text-base font-semibold text-primary/80">{formatCurrency(data.previsaoAgendadosMes)}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="col-span-1 lg:col-span-1 border-primary/20">
-              <CardHeader className="p-2 md:p-6 pb-1 md:pb-2">
-                <CardTitle className="text-[10px] md:text-lg uppercase font-bold text-muted-foreground">Comissões</CardTitle>
+            <Card className="border-primary/20">
+              <CardHeader className="p-4 md:p-6 pb-2 md:pb-2">
+                <CardTitle className="text-sm md:text-lg uppercase font-bold text-muted-foreground">Comissões do Mês</CardTitle>
               </CardHeader>
-              <CardContent className="p-2 md:p-6 space-y-2 md:space-y-4 pt-0 md:pt-0">
-                <div className="text-sm md:text-2xl font-bold border-b pb-1">{formatCurrency(data.comissoesMes)}</div>
-                <div className="space-y-1 overflow-hidden">
-                  {data.comissoesPorColaborador.slice(0, 3).map((colab, i) => (
-                    <div key={i} className="flex items-center justify-between text-[8px] leading-tight">
-                      <span className="font-medium truncate mr-1">{colab.nome}</span>
-                      <span className="font-bold shrink-0">{formatCurrency(colab.valor)}</span>
+              <CardContent className="p-4 md:p-6 space-y-4 pt-0 md:pt-0">
+                <div className="text-2xl font-bold border-b pb-2">{formatCurrency(data.comissoesMes)}</div>
+                <div className="space-y-3">
+                  {data.comissoesPorColaborador.map((colab, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        <span className="font-medium">{colab.nome}</span>
+                      </div>
+                      <span className="font-bold">{formatCurrency(colab.valor)}</span>
                     </div>
                   ))}
-                  {data.comissoesPorColaborador.length > 3 && (
-                    <p className="text-[7px] text-muted-foreground text-center">...</p>
+                  {data.comissoesPorColaborador.length === 0 && (
+                    <p className="text-center text-sm text-muted-foreground py-2">Nenhuma comissão este mês.</p>
                   )}
                 </div>
               </CardContent>
