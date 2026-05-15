@@ -359,8 +359,8 @@ function FinanceiroPage() {
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-base md:text-xl">Líquido (12 meses)</CardTitle>
             </CardHeader>
-            <CardContent className="p-2 md:p-6">
-              <div className="h-[200px] md:h-[300px] w-full">
+            <CardContent className="p-2 md:p-6 overflow-x-auto">
+              <div className="h-[200px] md:h-[300px] min-w-[500px] md:min-w-0 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.chartData}>
                     <defs>
@@ -455,33 +455,35 @@ function FinanceiroPage() {
             <CardTitle className="text-base md:text-xl">Histórico Detalhado</CardTitle>
           </CardHeader>
           <CardContent className="p-0 md:p-6">
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mês</TableHead>
-                    <TableHead className="text-right">Faturamento Bruto</TableHead>
-                    <TableHead className="text-right">Comissões</TableHead>
-                    <TableHead className="text-right">Gastos</TableHead>
-                    <TableHead className="text-right hidden">Salários</TableHead>
-                    <TableHead className="text-right">Faturamento Líquido</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.historico.map((h, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium capitalize">{h.month}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(h.bruto)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatCurrency(h.comissoes)}</TableCell>
-                      <TableCell className="text-right text-destructive/80">{formatCurrency(h.gastos)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground hidden">{formatCurrency(h.salarios)}</TableCell>
-                      <TableCell className={cn("text-right font-bold", h.liquido >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
-                        {formatCurrency(h.liquido)}
-                      </TableCell>
+            <div className="overflow-x-auto">
+              <div className="min-w-[600px] md:min-w-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Mês</TableHead>
+                      <TableHead className="text-right">Faturamento Bruto</TableHead>
+                      <TableHead className="text-right">Comissões</TableHead>
+                      <TableHead className="text-right">Gastos</TableHead>
+                      <TableHead className="text-right hidden">Salários</TableHead>
+                      <TableHead className="text-right">Faturamento Líquido</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data.historico.map((h, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium capitalize">{h.month}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(h.bruto)}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{formatCurrency(h.comissoes)}</TableCell>
+                        <TableCell className="text-right text-destructive/80">{formatCurrency(h.gastos)}</TableCell>
+                        <TableCell className="text-right text-muted-foreground hidden">{formatCurrency(h.salarios)}</TableCell>
+                        <TableCell className={cn("text-right font-bold", h.liquido >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
+                          {formatCurrency(h.liquido)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </CardContent>
         </Card>
