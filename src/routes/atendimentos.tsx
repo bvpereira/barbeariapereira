@@ -545,6 +545,16 @@ function AtendimentosPage() {
     }
   };
 
+  const groupAppointmentsByDate = (items: Atendimento[]) => {
+    const groups: { [key: string]: Atendimento[] } = {};
+    items.forEach(item => {
+      const dateKey = format(parseISO(item.data), "yyyy-MM-dd");
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(item);
+    });
+    return groups;
+  };
+
   const AtendimentoCard = ({ item }: { item: Atendimento }) => (
     <div className="relative group">
       <Card className="hover:bg-accent/5 transition-colors cursor-pointer" onClick={() => {
