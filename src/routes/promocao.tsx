@@ -417,9 +417,9 @@ function PromocaoPage() {
                     Salvar Texto
                   </Button>
                   <Button 
-                    variant="ghost" 
+                    variant="destructive" 
                     size="sm" 
-                    className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                    className="w-full gap-2 bg-red-600 hover:bg-red-700 text-white border-none" 
                     onClick={() => setPromoAtual({ ...promoAtual, texto_promo: "" })}
                   >
                     <Trash2 className="h-4 w-4" />
