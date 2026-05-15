@@ -314,27 +314,35 @@ function FinanceiroPage() {
 
         {/* Detalhes Mês */}
         <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
-          <Card className="col-span-1 border-none shadow-none bg-accent/20">
-            <CardContent className="p-3">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Bruto Mês</p>
-              <div className="text-base font-bold">{formatCurrency(data.brutoMes)}</div>
+          <Card className="col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2 md:p-6">
+              <CardTitle className="text-[10px] md:text-sm font-medium">Bruto Mês</CardTitle>
+              <ArrowUpRight className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            </CardHeader>
+            <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
+              <div className="text-sm md:text-2xl font-bold">{formatCurrency(data.brutoMes)}</div>
             </CardContent>
           </Card>
-          <Card className="col-span-1 border-none shadow-none bg-accent/20">
-            <CardContent className="p-3">
-              <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Líquido Mês</p>
-              <div className={cn("text-base font-bold", data.liquidoMes >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
+          <Card className="col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2 md:p-6">
+              <CardTitle className="text-[10px] md:text-sm font-medium">Líquido Mês</CardTitle>
+              <div className={data.liquidoMes >= 0 ? "text-green-500" : "text-destructive"}>
+                {data.liquidoMes >= 0 ? <TrendingUp className="h-3 w-3 md:h-4 md:w-4" /> : <TrendingDown className="h-3 w-3 md:h-4 md:w-4" />}
+              </div>
+            </CardHeader>
+            <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
+              <div className={cn("text-sm md:text-2xl font-bold", data.liquidoMes >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
                 {formatCurrency(data.liquidoMes)}
               </div>
             </CardContent>
           </Card>
-          <Card className="col-span-2 md:col-span-1 border-none shadow-none bg-destructive/5">
-            <CardContent className="p-3 flex justify-between items-end">
-              <div>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Despesas Mês</p>
-                <div className="text-base font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
-              </div>
-              <ArrowDownRight className="h-4 w-4 text-destructive opacity-50" />
+          <Card className="col-span-2 md:col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2 md:p-6">
+              <CardTitle className="text-[10px] md:text-sm font-medium">Despesas Mês</CardTitle>
+              <ArrowDownRight className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
+            </CardHeader>
+            <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
+              <div className="text-sm md:text-2xl font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
             </CardContent>
           </Card>
         </div>
