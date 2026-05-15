@@ -325,7 +325,7 @@ function FinanceiroPage() {
             </CardHeader>
             <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
               <div className="text-lg md:text-2xl font-bold">{formatCurrency(data.brutoMes)}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Total finalizado</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1 line-clamp-1">Total finalizado</p>
             </CardContent>
           </Card>
           <Card className="col-span-1">
@@ -339,7 +339,7 @@ function FinanceiroPage() {
               <div className={cn("text-lg md:text-2xl font-bold", data.liquidoMes >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
                 {formatCurrency(data.liquidoMes)}
               </div>
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Lucro real</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1 line-clamp-1">Lucro real</p>
             </CardContent>
           </Card>
           <Card className="col-span-2 md:col-span-1">
@@ -349,12 +349,12 @@ function FinanceiroPage() {
             </CardHeader>
             <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
               <div className="text-lg md:text-2xl font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">Apenas gastos</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1 line-clamp-1">Apenas gastos</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-7">
           <Card className="lg:col-span-4">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-base md:text-xl">Líquido (12 meses)</CardTitle>
@@ -399,7 +399,7 @@ function FinanceiroPage() {
             </CardContent>
           </Card>
 
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Previsão de Faturamento</CardTitle>
