@@ -532,11 +532,12 @@ function HorariosPage() {
                       </Button>
                     </div>
 
-                    <div className="border rounded-lg overflow-x-auto">
-                      <table className="w-full text-sm min-w-[500px] md:min-w-0">
+                    {/* Desktop View Table */}
+                    <div className="hidden md:block border rounded-lg overflow-hidden">
+                      <table className="w-full text-sm">
                         <thead className="bg-muted">
                           <tr>
-                            <th className="p-2 md:p-3 text-left w-10">
+                            <th className="p-3 text-left w-10">
                               <Checkbox 
                                 checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
                                 onCheckedChange={async (checked) => {
@@ -554,7 +555,6 @@ function HorariosPage() {
 
                                     if (error) throw error;
                                     
-                                    // Update local state - merging with existing hours
                                     const newHorarios = [...horariosColaboradores];
                                     (data as any[]).forEach(updated => {
                                       const idx = newHorarios.findIndex(h => h.colaborador_id === updated.colaborador_id && h.data === updated.data);
@@ -572,9 +572,9 @@ function HorariosPage() {
                                 }}
                               />
                             </th>
-                            <th className="p-2 md:p-3 text-left">Colaborador</th>
-                            <th className="p-2 md:p-3 text-left">Manhã</th>
-                            <th className="p-2 md:p-3 text-left">Tarde</th>
+                            <th className="p-3 text-left">Colaborador</th>
+                            <th className="p-3 text-left">Manhã</th>
+                            <th className="p-3 text-left">Tarde</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -584,42 +584,42 @@ function HorariosPage() {
                             
                             return (
                               <tr key={colab.id} className={isSelected ? "bg-primary/5" : ""}>
-                                <td className="p-2 md:p-3">
+                                <td className="p-3">
                                   <Checkbox 
                                     checked={isSelected}
                                     onCheckedChange={() => toggleCollaboratorSelection(dia.data, colab.id)}
                                   />
                                 </td>
-                                <td className="p-2 md:p-3 font-medium text-xs md:text-sm">{colab.nome}</td>
-                                <td className="p-2 md:p-3">
+                                <td className="p-3 font-medium">{colab.nome}</td>
+                                <td className="p-3">
                                   <div className="flex items-center gap-1">
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
+                                      className="h-8 w-24 text-xs"
                                       value={horario?.manha_inicio || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_inicio", e.target.value)}
                                     />
                                     <span className="text-muted-foreground">-</span>
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
+                                      className="h-8 w-24 text-xs"
                                       value={horario?.manha_fim || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_fim", e.target.value)}
                                     />
                                   </div>
                                 </td>
-                                <td className="p-2 md:p-3">
+                                <td className="p-3">
                                   <div className="flex items-center gap-1">
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
+                                      className="h-8 w-24 text-xs"
                                       value={horario?.tarde_inicio || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_inicio", e.target.value)}
                                     />
                                     <span className="text-muted-foreground">-</span>
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-20 md:w-24 text-[10px] md:text-xs"
+                                      className="h-8 w-24 text-xs"
                                       value={horario?.tarde_fim || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_fim", e.target.value)}
                                     />
@@ -630,6 +630,112 @@ function HorariosPage() {
                           })}
                         </tbody>
                       </table>
+                    </div>
+
+                    {/* Mobile View Cards */}
+                    <div className="md:hidden space-y-3">
+                      <div className="flex items-center gap-2 px-1 pb-1 border-b">
+                        <Checkbox 
+                          id={`select-all-${dia.id}`}
+                          checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
+                          onCheckedChange={async (checked) => {
+                            const updates = collaborators.map(c => ({
+                              colaborador_id: c.id,
+                              data: dia.data,
+                              ativo: !!checked
+                            }));
+
+                            try {
+                              const { data, error } = await supabase
+                                .from("horarios_colaboradores")
+                                .upsert(updates, { onConflict: "colaborador_id, data" })
+                                .select();
+
+                              if (error) throw error;
+                              
+                              const newHorarios = [...horariosColaboradores];
+                              (data as any[]).forEach(updated => {
+                                const idx = newHorarios.findIndex(h => h.colaborador_id === updated.colaborador_id && h.data === updated.data);
+                                if (idx >= 0) {
+                                  newHorarios[idx] = updated;
+                                } else {
+                                  newHorarios.push(updated);
+                                }
+                              });
+                              setHorariosColaboradores(newHorarios);
+                              toast.success(checked ? "Todos ativados" : "Todos desativados");
+                            } catch (error: any) {
+                              toast.error("Erro ao atualizar colaboradores: " + error.message);
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`select-all-${dia.id}`} className="text-xs font-bold uppercase">Selecionar Todos</Label>
+                      </div>
+
+                      {collaborators.map((colab) => {
+                        const horario = horariosColaboradores.find(h => h.colaborador_id === colab.id && h.data === dia.data);
+                        const isSelected = !!horario?.ativo;
+                        
+                        return (
+                          <div key={colab.id} className={cn(
+                            "p-3 border rounded-lg space-y-3 transition-colors",
+                            isSelected ? "bg-primary/5 border-primary/20" : "bg-card border-border"
+                          )}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Checkbox 
+                                  id={`colab-${colab.id}-${dia.id}`}
+                                  checked={isSelected}
+                                  onCheckedChange={() => toggleCollaboratorSelection(dia.data, colab.id)}
+                                />
+                                <Label htmlFor={`colab-${colab.id}-${dia.id}`} className="font-bold">{colab.nome}</Label>
+                              </div>
+                              <Badge variant={isSelected ? "default" : "outline"} className="text-[10px] uppercase">
+                                {isSelected ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase text-muted-foreground">Manhã</Label>
+                                <div className="flex items-center gap-1">
+                                  <Input 
+                                    type="time" 
+                                    className="h-8 text-xs px-2"
+                                    value={horario?.manha_inicio || ""}
+                                    onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_inicio", e.target.value)}
+                                  />
+                                  <span className="text-muted-foreground">-</span>
+                                  <Input 
+                                    type="time" 
+                                    className="h-8 text-xs px-2"
+                                    value={horario?.manha_fim || ""}
+                                    onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_fim", e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase text-muted-foreground">Tarde</Label>
+                                <div className="flex items-center gap-1">
+                                  <Input 
+                                    type="time" 
+                                    className="h-8 text-xs px-2"
+                                    value={horario?.tarde_inicio || ""}
+                                    onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_inicio", e.target.value)}
+                                  />
+                                  <span className="text-muted-foreground">-</span>
+                                  <Input 
+                                    type="time" 
+                                    className="h-8 text-xs px-2"
+                                    value={horario?.tarde_fim || ""}
+                                    onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_fim", e.target.value)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </CardContent>
