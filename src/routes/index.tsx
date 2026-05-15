@@ -596,7 +596,7 @@ function Contato() {
 
 function Footer() {
   return (
-    <footer className="bg-card py-16 px-4 border-t border-primary/10 bg-black">
+    <footer className="bg-card px-4 border-t border-primary/10 bg-black py-[45px]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
         <div className="space-y-4">
           <img src="/logo.png" alt="Logo" className="w-32 opacity-80 text-left" />
