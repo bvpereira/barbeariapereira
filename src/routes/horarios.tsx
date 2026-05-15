@@ -361,11 +361,11 @@ function HorariosPage() {
               Configure a disponibilidade da barbearia e dos colaboradores.
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             {dias.length > 0 && (
               <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="gap-2 text-destructive border-destructive hover:bg-destructive/10">
+                  <Button variant="outline" className="gap-2 text-destructive border-destructive hover:bg-destructive/10 w-full sm:w-auto">
                     <Trash2 className="w-4 h-4" />
                     Excluir último dia
                   </Button>
@@ -392,7 +392,7 @@ function HorariosPage() {
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            <Button onClick={addDay} className="gap-2">
+            <Button onClick={addDay} className="gap-2 w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Adicionar dia
             </Button>
@@ -411,21 +411,21 @@ function HorariosPage() {
         <div className="grid gap-4">
           {dias.map((dia) => (
             <Card key={dia.id} className={!dia.ativo ? "opacity-60" : ""}>
-              <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
+              <CardHeader className="p-3 md:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                 <div 
-                  className="flex items-center gap-4 cursor-pointer flex-1"
+                  className="flex items-center gap-3 md:gap-4 cursor-pointer w-full sm:flex-1"
                   onClick={() => setExpandedDay(expandedDay === dia.id ? null : dia.id)}
                 >
-                  <div className="flex flex-col min-w-[100px]">
-                    <span className="font-bold text-lg">
+                  <div className="flex flex-col min-w-[80px] md:min-w-[100px]">
+                    <span className="font-bold text-base md:text-lg">
                       {format(parseISO(dia.data), "dd/MM/yyyy")}
                     </span>
-                    <span className="text-sm text-muted-foreground capitalize">
+                    <span className="text-xs md:text-sm text-muted-foreground capitalize">
                       {format(parseISO(dia.data), "EEEE", { locale: ptBR })}
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 flex-1">
+                  <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
                     {collaborators.some(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) ? (
                       collaborators
                         .filter(c => {
@@ -435,7 +435,7 @@ function HorariosPage() {
                         .map(c => {
                           const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
                           return (
-                            <div key={c.id} className="text-[10px] bg-secondary/50 px-2 py-0.5 rounded border border-secondary flex items-center gap-1">
+                            <div key={c.id} className="text-[9px] md:text-[10px] bg-secondary/30 px-1.5 py-0.5 rounded border border-secondary/50 flex items-center gap-1">
                               <span className="font-bold whitespace-nowrap">{c.nome}:</span>
                               <span className="text-muted-foreground whitespace-nowrap">
                                 {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio.substring(0, 5)}-${h.manha_fim.substring(0, 5)}` : ""}
@@ -447,16 +447,16 @@ function HorariosPage() {
                         })
                     ) : (
                       dia.ativo && (
-                        <div className="text-[10px] bg-destructive/10 text-destructive px-2 py-0.5 rounded border border-destructive/20 font-bold whitespace-nowrap">
-                          Nenhum colaborador ativo para este dia
+                        <div className="text-[9px] md:text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20 font-bold whitespace-nowrap">
+                          Nenhum colaborador ativo
                         </div>
                       )
                     )}
                   </div>
 
-                  {expandedDay === dia.id ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
+                  {expandedDay === dia.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-end sm:self-center bg-muted/20 px-2 py-1 rounded-md">
                   <Label htmlFor={`ativo-${dia.id}`} className="text-sm">
                     {dia.ativo ? "Ativo" : "Inativo"}
                   </Label>
