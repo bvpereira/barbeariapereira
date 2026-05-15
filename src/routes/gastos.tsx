@@ -461,38 +461,71 @@ function GastosPage() {
             ) : gastos.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">Nenhum gasto registrado para este mês.</div>
             ) : (
-              <div className="rounded-md border overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead className="text-right">Valor</TableHead>
-                      <TableHead className="w-[100px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {gastos.map((gasto) => (
-                      <TableRow key={gasto.id}>
-                        <TableCell className="font-medium">{gasto.nome}</TableCell>
-                        <TableCell>{format(parseISO(gasto.data), "dd/MM/yyyy")}</TableCell>
-                        <TableCell className="text-right font-semibold">
-                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(gasto)}>
-                              <Edit2 className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
+              <div className="rounded-md border overflow-hidden">
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                        <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {gastos.map((gasto) => (
+                        <TableRow key={gasto.id}>
+                          <TableCell className="font-medium">{gasto.nome}</TableCell>
+                          <TableCell>{format(parseISO(gasto.data), "dd/MM/yyyy")}</TableCell>
+                          <TableCell className="text-right font-semibold">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(gasto)}>
+                                <Edit2 className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile View */}
+                <div className="md:hidden divide-y">
+                  {gastos.map((gasto) => (
+                    <div key={gasto.id} className="p-4 space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-bold text-foreground">{gasto.nome}</p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                            <CalendarIcon className="w-3 h-3" />
+                            {format(parseISO(gasto.data), "dd/MM/yyyy")}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-primary">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button variant="outline" size="sm" className="h-8 gap-1.5 flex-1" onClick={() => openEditDialog(gasto)}>
+                          <Edit2 className="h-3 w-3" /> Editar
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 gap-1.5 flex-1 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
+                          <Trash2 className="h-3 w-3" /> Excluir
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>
