@@ -624,12 +624,12 @@ function AtendimentosPage() {
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Gestão de Atendimentos</h1>
+            <h1 className="text-3xl font-bold text-foreground">Atendimentos</h1>
             <p className="text-muted-foreground">Controle os agendamentos e atendimentos realizados</p>
           </div>
-          <div className="flex gap-2">
-            <BookingButton onSuccess={fetchAgendados} />
-            <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <BookingButton onSuccess={fetchAgendados} className="w-full sm:w-auto" />
+            <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2 w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Novo atendimento
             </Button>
@@ -808,13 +808,13 @@ function AtendimentosPage() {
                     <div className="space-y-2">
                       <Label>Horário do Atendimento</Label>
                       {loadingTimes ? <p className="text-sm animate-pulse">Consultando horários...</p> : (
-                        <div className="grid grid-cols-4 gap-2 max-h-[120px] overflow-auto border p-2 rounded-md">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[160px] overflow-auto border p-2 rounded-md">
                           {availableTimes.length > 0 ? availableTimes.map(t => (
                             <Button 
                               key={t} 
                               variant={selectedTimePart === t ? "default" : "outline"} 
                               size="sm" 
-                              className="h-8 text-xs"
+                              className="h-8 text-[10px] sm:text-xs px-1"
                               onClick={() => setSelectedTimePart(t)}
                             >
                               {t}
