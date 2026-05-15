@@ -503,7 +503,7 @@ function Colaboradores() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
-            <User className="w-8 h-8" />
+            <Users className="w-8 h-8" />
             Nossos Colaboradores
           </h2>
           <div className="w-24 h-1 bg-primary mx-auto" />
