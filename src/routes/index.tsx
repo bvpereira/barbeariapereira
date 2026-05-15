@@ -585,7 +585,7 @@ function Contato() {
 
           <Button asChild variant="outline" size="lg" className="rounded-full font-bold h-auto py-4 px-8 text-lg hover:scale-105 transition-transform border-primary/20">
             <a href="https://www.instagram.com/brunovital14/" target="_blank" rel="noopener noreferrer">
-              <UsersRound className="mr-2 h-6 w-6" />
+              <Users className="mr-2 h-6 w-6" />
               <span>Instagram</span>
             </a>
           </Button>
