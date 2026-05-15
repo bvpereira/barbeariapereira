@@ -106,7 +106,7 @@ function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => voi
       className="relative min-h-[90vh] pt-20 pb-10 px-4 flex flex-col items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url('https://qtbkvshbmqlszncxlcuc.supabase.co/storage/v1/object/public/dsl-uploads/ZSa4ABaA8WhDeRG7upgnp8DS0oz1/152a2c78-1f2d-4258-b1e6-38dec8d6917a.png')` }}
     >
-      <div className="w-32 opacity-80 text-left" />
+      {/* Removido o espaçador lateral para garantir a centralização no mobile */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
