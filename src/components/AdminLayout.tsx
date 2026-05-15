@@ -53,7 +53,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block">
         <div className="p-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            <LayoutDashboard className="w-5 h-5 text-primary" />
+            <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
             Admin
           </h2>
         </div>
@@ -73,7 +73,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       {/* Mobile Topbar */}
       <header className="md:hidden fixed top-0 inset-x-0 h-14 z-20 flex items-center justify-between px-4 border-b border-border bg-card/80 backdrop-blur-sm">
         <h2 className="text-lg font-bold flex items-center gap-2">
-          <LayoutDashboard className="w-5 h-5 text-primary" />
+          <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
           Admin
         </h2>
         <Sheet open={open} onOpenChange={setOpen}>
@@ -85,7 +85,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <SheetContent side="left" className="p-0 w-72">
             <SheetHeader className="p-6">
               <SheetTitle className="flex items-center gap-2">
-                <LayoutDashboard className="w-5 h-5 text-primary" />
+                <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
                 Admin
               </SheetTitle>
             </SheetHeader>

@@ -113,9 +113,12 @@ function ColaboradorPage() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Olá, {user.nome}!</h1>
-            <p className="text-muted-foreground">Área do Profissional</p>
+          <div className="flex items-center gap-4">
+            <img src="/logo.png" alt="Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain" />
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Olá, {user.nome}!</h1>
+              <p className="text-muted-foreground">Área do Profissional</p>
+            </div>
           </div>
           <Button variant="ghost" size="icon" onClick={handleLogout} className="text-muted-foreground hover:text-destructive">
             <LogOut className="w-5 h-5" />
