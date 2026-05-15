@@ -10,6 +10,7 @@ import {
   Play, 
   Calendar,
   User,
+  Users,
   Scissors,
   Image as ImageIcon,
   Snowflake,
@@ -216,7 +217,7 @@ function SobreNos() {
           className="mb-16 max-w-4xl mx-auto text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-primary uppercase tracking-widest flex flex-col items-center gap-3">
-            <User className="w-8 h-8" />
+            <Users className="w-8 h-8" />
             Sobre Nós
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-8" />
@@ -502,7 +503,7 @@ function Colaboradores() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
-            <User className="w-8 h-8" />
+            <Users className="w-8 h-8" />
             Nossos Colaboradores
           </h2>
           <div className="w-24 h-1 bg-primary mx-auto" />
@@ -584,7 +585,7 @@ function Contato() {
 
           <Button asChild variant="outline" size="lg" className="rounded-full font-bold h-auto py-4 px-8 text-lg hover:scale-105 transition-transform border-primary/20">
             <a href="https://www.instagram.com/brunovital14/" target="_blank" rel="noopener noreferrer">
-              <UsersRound className="mr-2 h-6 w-6" />
+              <Users className="mr-2 h-6 w-6" />
               <span>Instagram</span>
             </a>
           </Button>
