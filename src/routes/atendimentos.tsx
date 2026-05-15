@@ -41,7 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO, isAfter, addMinutes, startOfToday } from "date-fns";
+import { format, parseISO, isAfter, addMinutes, startOfToday, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   DropdownMenu, 
