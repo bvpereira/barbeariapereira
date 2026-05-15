@@ -399,20 +399,20 @@ function FinanceiroPage() {
             </CardContent>
           </Card>
 
-          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6 order-1 lg:order-2">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Previsão de Faturamento</CardTitle>
+          <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6 order-1 lg:order-2">
+            <Card className="col-span-2 sm:col-span-1 lg:col-span-1">
+              <CardHeader className="p-3 md:p-6 pb-2 md:pb-2">
+                <CardTitle className="text-sm md:text-lg">Previsão</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Previsto (Finalizado + Agendado)</span>
-                  <div className="text-3xl font-black text-primary tracking-tight">
+              <CardContent className="p-3 md:p-6 space-y-3 md:space-y-4 pt-0 md:pt-0">
+                <div className="flex flex-col gap-0.5 md:gap-1">
+                  <span className="text-[10px] md:text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Previsto</span>
+                  <div className="text-xl md:text-3xl font-black text-primary tracking-tight">
                     {formatCurrency(data.previsaoTotalMes)}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/50">
+                <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/50">
                   <div className="space-y-1">
                     <p className="text-xs font-medium text-muted-foreground uppercase">Já Finalizado</p>
                     <p className="text-lg font-semibold">{formatCurrency(data.brutoMes)}</p>
@@ -425,12 +425,12 @@ function FinanceiroPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Comissões do Mês</CardTitle>
+            <Card className="col-span-2 sm:col-span-1 lg:col-span-1">
+              <CardHeader className="p-3 md:p-6 pb-2 md:pb-2">
+                <CardTitle className="text-sm md:text-lg">Comissões</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-2xl font-bold border-b pb-2">{formatCurrency(data.comissoesMes)} <span className="text-xs font-normal text-muted-foreground block mt-1">Total a pagar em comissões</span></div>
+              <CardContent className="p-3 md:p-6 space-y-3 md:space-y-4 pt-0 md:pt-0">
+                <div className="text-xl md:text-2xl font-bold border-b pb-2">{formatCurrency(data.comissoesMes)}</div>
                 <div className="space-y-3">
                   {data.comissoesPorColaborador.map((colab, i) => (
                     <div key={i} className="flex items-center justify-between text-sm">
