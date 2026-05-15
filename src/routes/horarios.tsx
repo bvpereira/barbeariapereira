@@ -13,6 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format, addDays, parseISO, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
