@@ -741,7 +741,7 @@ function AtendimentosPage() {
                           >
                             <Checkbox checked={selectedServicos.includes(s.id)} onCheckedChange={() => handleSelectServico(s.id)} onClick={(e) => e.stopPropagation()} />
                             {s.image_url ? (
-                              <img src={s.image_url} alt={s.name} className="w-8 h-8 rounded object-cover border" />
+                              <img src="https://qtbkvshbmqlszncxlcuc.supabase.co/storage/v1/object/public/dsl-uploads/ZSa4ABaA8WhDeRG7upgnp8DS0oz1/9d9acc6c-a082-403c-91e4-78e730780dd4.png" alt={s.name} className="w-8 h-8 rounded object-cover border" />
                             ) : (
                               <div className="w-8 h-8 rounded bg-muted flex items-center justify-center border">
                                 <Scissors className="w-4 h-4 text-muted-foreground" />
