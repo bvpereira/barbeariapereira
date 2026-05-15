@@ -697,38 +697,38 @@ function HorariosPage() {
                               </Badge>
                             </div>
                             
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase text-muted-foreground">Manhã</Label>
-                                <div className="flex items-center gap-1">
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between gap-4">
+                                <Label className="text-[10px] uppercase text-muted-foreground min-w-[40px]">Manhã</Label>
+                                <div className="flex items-center gap-2 flex-1">
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2"
+                                    className="h-8 text-xs px-2 flex-1"
                                     value={horario?.manha_inicio || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_inicio", e.target.value)}
                                   />
-                                  <span className="text-muted-foreground">-</span>
+                                  <span className="text-muted-foreground text-xs">às</span>
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2"
+                                    className="h-8 text-xs px-2 flex-1"
                                     value={horario?.manha_fim || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_fim", e.target.value)}
                                   />
                                 </div>
                               </div>
-                              <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase text-muted-foreground">Tarde</Label>
-                                <div className="flex items-center gap-1">
+                              <div className="flex items-center justify-between gap-4">
+                                <Label className="text-[10px] uppercase text-muted-foreground min-w-[40px]">Tarde</Label>
+                                <div className="flex items-center gap-2 flex-1">
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2"
+                                    className="h-8 text-xs px-2 flex-1"
                                     value={horario?.tarde_inicio || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_inicio", e.target.value)}
                                   />
-                                  <span className="text-muted-foreground">-</span>
+                                  <span className="text-muted-foreground text-xs">às</span>
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2"
+                                    className="h-8 text-xs px-2 flex-1"
                                     value={horario?.tarde_fim || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_fim", e.target.value)}
                                   />
