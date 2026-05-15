@@ -290,111 +290,111 @@ function GastosPage() {
     <AdminLayout>
       <div className="space-y-6 animate-in fade-in duration-500">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold tracking-tight">Controle de Gastos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Gastos</h1>
           
-            <div className="flex gap-2">
-              <Dialog open={isSalarioDialogOpen} onOpenChange={(open) => {
-                setIsSalarioDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Adicionar Salário
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Registrar Salário de Funcionário</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="colaborador">Funcionário</Label>
-                      <Select value={selectedColaboradorId} onValueChange={setSelectedColaboradorId}>
-                        <SelectTrigger id="colaborador">
-                          <SelectValue placeholder="Selecione o funcionário" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {colaboradores.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="valor_salario">Valor do Salário (R$)</Label>
-                      <Input 
-                        id="valor_salario" 
-                        type="number" 
-                        step="0.01"
-                        value={valor} 
-                        onChange={(e) => setValor(e.target.value)} 
-                        placeholder="0,00"
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      O salário será registrado no primeiro dia do mês selecionado ({format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}).
-                    </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Dialog open={isSalarioDialogOpen} onOpenChange={(open) => {
+              setIsSalarioDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                  <Plus className="w-4 h-4" />
+                  Adicionar Salário
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Registrar Salário de Funcionário</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="colaborador">Funcionário</Label>
+                    <Select value={selectedColaboradorId} onValueChange={setSelectedColaboradorId}>
+                      <SelectTrigger id="colaborador">
+                        <SelectValue placeholder="Selecione o funcionário" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {colaboradores.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsSalarioDialogOpen(false)}>Cancelar</Button>
-                    <Button onClick={handleSaveSalario}>Salvar</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                  <div className="grid gap-2">
+                    <Label htmlFor="valor_salario">Valor do Salário (R$)</Label>
+                    <Input 
+                      id="valor_salario" 
+                      type="number" 
+                      step="0.01"
+                      value={valor} 
+                      onChange={(e) => setValor(e.target.value)} 
+                      placeholder="0,00"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    O salário será registrado no primeiro dia do mês selecionado ({format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}).
+                  </p>
+                </div>
+                <DialogFooter className="flex-col sm:flex-row gap-2">
+                  <Button variant="outline" onClick={() => setIsSalarioDialogOpen(false)} className="w-full sm:w-auto">Cancelar</Button>
+                  <Button onClick={handleSaveSalario} className="w-full sm:w-auto">Salvar</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Adicionar Gasto
-                  </Button>
-                </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingGasto ? "Editar Gasto" : "Novo Gasto"}</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="nome">Nome do gasto</Label>
-                  <Input 
-                    id="nome" 
-                    value={nome} 
-                    onChange={(e) => setNome(e.target.value)} 
-                    placeholder="Ex: Aluguel, Luz, Produtos..."
-                  />
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 w-full sm:w-auto">
+                  <Plus className="w-4 h-4" />
+                  Adicionar Gasto
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>{editingGasto ? "Editar Gasto" : "Novo Gasto"}</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="nome">Nome do gasto</Label>
+                    <Input 
+                      id="nome" 
+                      value={nome} 
+                      onChange={(e) => setNome(e.target.value)} 
+                      placeholder="Ex: Aluguel, Luz, Produtos..."
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="valor">Valor (R$)</Label>
+                    <Input 
+                      id="valor" 
+                      type="number" 
+                      step="0.01"
+                      value={valor} 
+                      onChange={(e) => setValor(e.target.value)} 
+                      placeholder="0,00"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="data">Data</Label>
+                    <Input 
+                      id="data" 
+                      type="date"
+                      value={dataGasto} 
+                      onChange={(e) => setDataGasto(e.target.value)} 
+                    />
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="valor">Valor (R$)</Label>
-                  <Input 
-                    id="valor" 
-                    type="number" 
-                    step="0.01"
-                    value={valor} 
-                    onChange={(e) => setValor(e.target.value)} 
-                    placeholder="0,00"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="data">Data</Label>
-                  <Input 
-                    id="data" 
-                    type="date"
-                    value={dataGasto} 
-                    onChange={(e) => setDataGasto(e.target.value)} 
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-                <Button onClick={handleSaveGasto}>Salvar</Button>
-              </DialogFooter>
-            </DialogContent>
-              </Dialog>
-            </div>
+                <DialogFooter className="flex-col sm:flex-row gap-2">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">Cancelar</Button>
+                  <Button onClick={handleSaveGasto} className="w-full sm:w-auto">Salvar</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Resumo */}
