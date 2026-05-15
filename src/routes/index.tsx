@@ -206,7 +206,7 @@ function SobreNos() {
   ];
 
   return (
-    <section id="sobre" className="py-20 bg-secondary/30">
+    <section id="sobre" className="bg-secondary/30 py-[60px] px-0">
       <div className="max-w-6xl mx-auto px-4">
         <motion.div
           initial={{ y: 30, opacity: 0 }}
