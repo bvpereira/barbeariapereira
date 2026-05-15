@@ -516,7 +516,7 @@ function HorariosPage() {
 
                   {/* Collaborators List */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <h3 className="font-semibold flex items-center gap-2">
                         <Users className="w-4 h-4" />
                         Horários dos Colaboradores
@@ -524,7 +524,7 @@ function HorariosPage() {
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="gap-2"
+                        className="gap-2 w-full sm:w-auto"
                         onClick={() => applyGlobalConfig(dia.data)}
                       >
                         <Copy className="w-4 h-4" />
