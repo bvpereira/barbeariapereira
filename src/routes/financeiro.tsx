@@ -394,8 +394,9 @@ function FinanceiroPage() {
                       fillOpacity={1} 
                       fill="url(#colorLiquido)" 
                     />
-                  </AreaChart>
-                </ResponsiveContainer>
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </CardContent>
           </Card>
