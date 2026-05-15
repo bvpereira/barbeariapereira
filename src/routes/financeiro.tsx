@@ -291,23 +291,23 @@ function FinanceiroPage() {
         </div>
 
         {/* Resumo Hoje */}
-        <div className="grid gap-3 grid-cols-2">
+        <div className="grid gap-2 grid-cols-2">
           <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-              <CardTitle className="text-[10px] uppercase font-bold text-muted-foreground">Bruto Hoje</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
+              <CardTitle className="text-[9px] uppercase font-bold text-muted-foreground">Bruto Hoje</CardTitle>
               <DollarSign className="h-3 w-3 text-primary" />
             </CardHeader>
-            <CardContent className="p-3 pt-0">
-              <div className="text-lg font-bold text-primary">{formatCurrency(data.brutoDia)}</div>
+            <CardContent className="p-2 pt-0">
+              <div className="text-sm font-bold text-primary">{formatCurrency(data.brutoDia)}</div>
             </CardContent>
           </Card>
           <Card className="bg-green-500/5 border-green-500/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-              <CardTitle className="text-[10px] uppercase font-bold text-muted-foreground">Líquido Hoje</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
+              <CardTitle className="text-[9px] uppercase font-bold text-muted-foreground">Líquido Hoje</CardTitle>
               <TrendingUp className="h-3 w-3 text-green-500" />
             </CardHeader>
-            <CardContent className="p-3 pt-0">
-              <div className="text-lg font-bold text-green-600 dark:text-green-400">{formatCurrency(data.liquidoDia)}</div>
+            <CardContent className="p-2 pt-0">
+              <div className="text-sm font-bold text-green-600 dark:text-green-400">{formatCurrency(data.liquidoDia)}</div>
             </CardContent>
           </Card>
         </div>
