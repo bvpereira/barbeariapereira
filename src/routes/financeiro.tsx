@@ -354,8 +354,8 @@ function FinanceiroPage() {
           </Card>
         </div>
 
-        <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-7">
-          <Card className="lg:col-span-4 order-2 lg:order-1">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-7 w-full overflow-hidden">
+          <Card className="lg:col-span-4 order-2 lg:order-1 w-full overflow-hidden">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-base md:text-xl">Líquido (12 meses)</CardTitle>
             </CardHeader>
@@ -450,7 +450,7 @@ function FinanceiroPage() {
           </div>
         </div>
 
-        <Card>
+        <Card className="w-full overflow-hidden">
           <CardHeader className="p-4 md:p-6">
             <CardTitle className="text-base md:text-xl">Histórico Detalhado</CardTitle>
           </CardHeader>
