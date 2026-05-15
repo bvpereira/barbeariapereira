@@ -290,111 +290,111 @@ function GastosPage() {
     <AdminLayout>
       <div className="space-y-6 animate-in fade-in duration-500">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold tracking-tight">Controle de Gastos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Gastos</h1>
           
-            <div className="flex gap-2">
-              <Dialog open={isSalarioDialogOpen} onOpenChange={(open) => {
-                setIsSalarioDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Adicionar Salário
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Registrar Salário de Funcionário</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="colaborador">Funcionário</Label>
-                      <Select value={selectedColaboradorId} onValueChange={setSelectedColaboradorId}>
-                        <SelectTrigger id="colaborador">
-                          <SelectValue placeholder="Selecione o funcionário" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {colaboradores.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="valor_salario">Valor do Salário (R$)</Label>
-                      <Input 
-                        id="valor_salario" 
-                        type="number" 
-                        step="0.01"
-                        value={valor} 
-                        onChange={(e) => setValor(e.target.value)} 
-                        placeholder="0,00"
-                      />
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      O salário será registrado no primeiro dia do mês selecionado ({format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}).
-                    </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Dialog open={isSalarioDialogOpen} onOpenChange={(open) => {
+              setIsSalarioDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                  <Plus className="w-4 h-4" />
+                  Adicionar Salário
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Registrar Salário de Funcionário</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="colaborador">Funcionário</Label>
+                    <Select value={selectedColaboradorId} onValueChange={setSelectedColaboradorId}>
+                      <SelectTrigger id="colaborador">
+                        <SelectValue placeholder="Selecione o funcionário" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {colaboradores.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsSalarioDialogOpen(false)}>Cancelar</Button>
-                    <Button onClick={handleSaveSalario}>Salvar</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                  <div className="grid gap-2">
+                    <Label htmlFor="valor_salario">Valor do Salário (R$)</Label>
+                    <Input 
+                      id="valor_salario" 
+                      type="number" 
+                      step="0.01"
+                      value={valor} 
+                      onChange={(e) => setValor(e.target.value)} 
+                      placeholder="0,00"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    O salário será registrado no primeiro dia do mês selecionado ({format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}).
+                  </p>
+                </div>
+                <DialogFooter className="flex-col sm:flex-row gap-2">
+                  <Button variant="outline" onClick={() => setIsSalarioDialogOpen(false)} className="w-full sm:w-auto">Cancelar</Button>
+                  <Button onClick={handleSaveSalario} className="w-full sm:w-auto">Salvar</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-              <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) resetForm();
-              }}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Adicionar Gasto
-                  </Button>
-                </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingGasto ? "Editar Gasto" : "Novo Gasto"}</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="nome">Nome do gasto</Label>
-                  <Input 
-                    id="nome" 
-                    value={nome} 
-                    onChange={(e) => setNome(e.target.value)} 
-                    placeholder="Ex: Aluguel, Luz, Produtos..."
-                  />
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 w-full sm:w-auto">
+                  <Plus className="w-4 h-4" />
+                  Adicionar Gasto
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>{editingGasto ? "Editar Gasto" : "Novo Gasto"}</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="nome">Nome do gasto</Label>
+                    <Input 
+                      id="nome" 
+                      value={nome} 
+                      onChange={(e) => setNome(e.target.value)} 
+                      placeholder="Ex: Aluguel, Luz, Produtos..."
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="valor">Valor (R$)</Label>
+                    <Input 
+                      id="valor" 
+                      type="number" 
+                      step="0.01"
+                      value={valor} 
+                      onChange={(e) => setValor(e.target.value)} 
+                      placeholder="0,00"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="data">Data</Label>
+                    <Input 
+                      id="data" 
+                      type="date"
+                      value={dataGasto} 
+                      onChange={(e) => setDataGasto(e.target.value)} 
+                    />
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="valor">Valor (R$)</Label>
-                  <Input 
-                    id="valor" 
-                    type="number" 
-                    step="0.01"
-                    value={valor} 
-                    onChange={(e) => setValor(e.target.value)} 
-                    placeholder="0,00"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="data">Data</Label>
-                  <Input 
-                    id="data" 
-                    type="date"
-                    value={dataGasto} 
-                    onChange={(e) => setDataGasto(e.target.value)} 
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancelar</Button>
-                <Button onClick={handleSaveGasto}>Salvar</Button>
-              </DialogFooter>
-            </DialogContent>
-              </Dialog>
-            </div>
+                <DialogFooter className="flex-col sm:flex-row gap-2">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">Cancelar</Button>
+                  <Button onClick={handleSaveGasto} className="w-full sm:w-auto">Salvar</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Resumo */}
@@ -461,38 +461,71 @@ function GastosPage() {
             ) : gastos.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">Nenhum gasto registrado para este mês.</div>
             ) : (
-              <div className="rounded-md border overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead className="text-right">Valor</TableHead>
-                      <TableHead className="w-[100px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {gastos.map((gasto) => (
-                      <TableRow key={gasto.id}>
-                        <TableCell className="font-medium">{gasto.nome}</TableCell>
-                        <TableCell>{format(parseISO(gasto.data), "dd/MM/yyyy")}</TableCell>
-                        <TableCell className="text-right font-semibold">
-                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-1">
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(gasto)}>
-                              <Edit2 className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
+              <div className="rounded-md border overflow-hidden">
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                        <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {gastos.map((gasto) => (
+                        <TableRow key={gasto.id}>
+                          <TableCell className="font-medium">{gasto.nome}</TableCell>
+                          <TableCell>{format(parseISO(gasto.data), "dd/MM/yyyy")}</TableCell>
+                          <TableCell className="text-right font-semibold">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(gasto)}>
+                                <Edit2 className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile View */}
+                <div className="md:hidden divide-y">
+                  {gastos.map((gasto) => (
+                    <div key={gasto.id} className="p-4 space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-bold text-foreground">{gasto.nome}</p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                            <CalendarIcon className="w-3 h-3" />
+                            {format(parseISO(gasto.data), "dd/MM/yyyy")}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-primary">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(gasto.valor)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button variant="outline" size="sm" className="h-8 gap-1.5 flex-1" onClick={() => openEditDialog(gasto)}>
+                          <Edit2 className="h-3 w-3" /> Editar
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 gap-1.5 flex-1 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGasto(gasto.id)}>
+                          <Trash2 className="h-3 w-3" /> Excluir
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>
