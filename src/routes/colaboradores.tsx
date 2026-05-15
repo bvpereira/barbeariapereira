@@ -385,9 +385,9 @@ function CollaboratorsPage() {
   return (
     <AdminLayout>
       <div className="flex flex-col gap-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h1 className="text-3xl font-bold">Colaboradores</h1>
-          <Button className="gap-2" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+          <Button className="gap-2 w-full md:w-auto" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
             <Plus className="w-4 h-4" />
             Adicionar colaborador
           </Button>
@@ -520,13 +520,13 @@ function CollaboratorsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collaborators.map((colab) => (
               <Card key={colab.id} className="overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-all">
-                <CardHeader className="flex flex-row items-center gap-4 p-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                <CardHeader className="flex flex-row items-center gap-3 p-3 md:gap-4 md:p-4">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden bg-muted flex-shrink-0">
                     {colab.foto_url ? (
                       <img src={colab.foto_url} alt={colab.nome} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
-                        <User className="w-8 h-8" />
+                        <User className="w-6 h-6 md:w-8 md:h-8" />
                       </div>
                     )}
                   </div>
@@ -549,8 +549,8 @@ function CollaboratorsPage() {
                     <p className="text-sm text-muted-foreground truncate">{colab.resumo || "Sem resumo"}</p>
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 pt-0 space-y-3">
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                <CardContent className="p-3 pt-0 md:p-4 md:pt-0 space-y-3">
+                  <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Phone className="w-3 h-3" /> {colab.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
                     </div>
@@ -574,11 +574,11 @@ function CollaboratorsPage() {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter className="p-4 pt-0 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => handleEdit(colab)}>
+                <CardFooter className="p-3 pt-0 md:p-4 md:pt-0 flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1 gap-1 h-8 md:h-9" onClick={() => handleEdit(colab)}>
                     <Pencil className="w-3 h-3" /> Editar
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1 gap-1 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(colab)}>
+                  <Button variant="ghost" size="sm" className="flex-1 gap-1 h-8 md:h-9 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(colab)}>
                     <Trash2 className="w-3 h-3" /> Remover
                   </Button>
                 </CardFooter>
