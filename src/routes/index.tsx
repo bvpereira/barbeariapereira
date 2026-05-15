@@ -10,6 +10,7 @@ import {
   Play, 
   Calendar,
   User,
+  Users,
   Scissors,
   Image as ImageIcon,
   Snowflake,
