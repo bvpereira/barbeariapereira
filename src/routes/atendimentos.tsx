@@ -41,7 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO, isAfter, addMinutes, startOfToday } from "date-fns";
+import { format, parseISO, isAfter, addMinutes, startOfToday, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   DropdownMenu, 
@@ -545,6 +545,16 @@ function AtendimentosPage() {
     }
   };
 
+  const groupAppointmentsByDate = (items: Atendimento[]) => {
+    const groups: { [key: string]: Atendimento[] } = {};
+    items.forEach(item => {
+      const dateKey = format(parseISO(item.data), "yyyy-MM-dd");
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(item);
+    });
+    return groups;
+  };
+
   const AtendimentoCard = ({ item }: { item: Atendimento }) => (
     <div className="relative group">
       <Card className="hover:bg-accent/5 transition-colors cursor-pointer" onClick={() => {
@@ -643,30 +653,109 @@ function AtendimentosPage() {
           </TabsList>
           
           <TabsContent value="agendados" className="space-y-6 mt-6">
-            {atencao.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-amber-500"><AlertTriangle className="w-5 h-5" /><h2 className="text-lg font-semibold">Requer Atenção</h2></div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {atencao.map(item => (
-                    <div key={item.id} className="relative">
-                      <div className="absolute -top-2 -right-2 z-10"><Badge variant="destructive" className="animate-pulse">Atrasado</Badge></div>
-                      <AtendimentoCard item={item} />
+            {loadingAgendados ? (
+              <p>Carregando...</p>
+            ) : (
+              <>
+                {/* Atrasados (Anteriores a Hoje) */}
+                {atencao.filter(item => !isToday(parseISO(item.data))).length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-amber-500">
+                      <AlertTriangle className="w-5 h-5" />
+                      <h2 className="text-lg font-semibold">Atrasados (Dias Anteriores)</h2>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {atencao
+                        .filter(item => !isToday(parseISO(item.data)))
+                        .map(item => (
+                          <div key={item.id} className="relative">
+                            <div className="absolute -top-2 -right-2 z-10">
+                              <Badge variant="destructive" className="animate-pulse">Atrasado</Badge>
+                            </div>
+                            <AtendimentoCard item={item} />
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Hoje */}
+                {([...atencao, ...agendados].filter(item => isToday(parseISO(item.data))).length > 0) && (
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-bold text-primary">Hoje</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {[...atencao, ...agendados]
+                        .filter(item => isToday(parseISO(item.data)))
+                        .sort((a, b) => a.data.localeCompare(b.data))
+                        .map(item => (
+                          <div key={item.id} className="relative">
+                            {new Date(item.data) < new Date() && (
+                              <div className="absolute -top-2 -right-2 z-10">
+                                <Badge variant="destructive" className="animate-pulse">Atrasado</Badge>
+                              </div>
+                            )}
+                            <AtendimentoCard item={item} />
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Futuros Agrupados por Data */}
+                {(() => {
+                  const futuros = agendados.filter(item => !isToday(parseISO(item.data)));
+                  const grouped = groupAppointmentsByDate(futuros);
+                  const sortedDates = Object.keys(grouped).sort();
+                  
+                  return sortedDates.map(dateKey => (
+                    <div key={dateKey} className="space-y-4">
+                      <h2 className="text-lg font-semibold text-muted-foreground capitalize">
+                        {format(parseISO(dateKey), "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                      </h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {grouped[dateKey].map(item => (
+                          <AtendimentoCard key={item.id} item={item} />
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+
+                {atencao.length === 0 && agendados.length === 0 && (
+                  <p className="text-muted-foreground text-center py-10">Nenhum agendamento encontrado.</p>
+                )}
+              </>
             )}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-muted-foreground">Próximos Agendamentos</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {loadingAgendados ? <p>Carregando...</p> : agendados.map(item => <AtendimentoCard key={item.id} item={item} />)}
-              </div>
-            </div>
           </TabsContent>
-          <TabsContent value="concluidos" className="space-y-4 mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {loadingConcluidos ? <p>Carregando...</p> : concluidos.map(item => <AtendimentoCard key={item.id} item={item} />)}
-            </div>
+
+          <TabsContent value="concluidos" className="space-y-8 mt-6">
+            {loadingConcluidos ? (
+              <p>Carregando...</p>
+            ) : (
+              <>
+                {(() => {
+                  const grouped = groupAppointmentsByDate(concluidos);
+                  const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+                  
+                  return sortedDates.map(dateKey => (
+                    <div key={dateKey} className="space-y-4">
+                      <h2 className="text-lg font-semibold text-muted-foreground capitalize border-b pb-2">
+                        {isToday(parseISO(dateKey)) ? "Hoje" : format(parseISO(dateKey), "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                      </h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {grouped[dateKey].map(item => (
+                          <AtendimentoCard key={item.id} item={item} />
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+                
+                {concluidos.length === 0 && (
+                  <p className="text-muted-foreground text-center py-10">Nenhum atendimento concluído encontrado.</p>
+                )}
+              </>
+            )}
           </TabsContent>
         </Tabs>
 
