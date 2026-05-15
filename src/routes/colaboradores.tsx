@@ -385,9 +385,9 @@ function CollaboratorsPage() {
   return (
     <AdminLayout>
       <div className="flex flex-col gap-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h1 className="text-3xl font-bold">Colaboradores</h1>
-          <Button className="gap-2" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+          <Button className="gap-2 w-full md:w-auto" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
             <Plus className="w-4 h-4" />
             Adicionar colaborador
           </Button>
