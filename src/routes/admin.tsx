@@ -372,7 +372,7 @@ function AdminPage() {
               <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground">Comissões (Mês)</CardTitle>
             </CardHeader>
             <CardContent className="px-3 pb-3">
-              <div className="text-lg md:text-2xl font-bold text-orange-500">{formatCurrency(data.comissoesMes)}</div>
+              <div className="text-lg md:text-2xl font-bold text-blue-500">{formatCurrency(data.comissoesMes)}</div>
             </CardContent>
           </Card>
           <Card className="p-0">

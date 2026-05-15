@@ -339,7 +339,7 @@ function IntegracoesPage() {
           {/* Webhook de Recuperação de Senha */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-orange-600">
+              <CardTitle className="flex items-center gap-2 text-blue-600">
                 <UserKey className="h-5 w-5" />
                 Recuperação de Senha
               </CardTitle>
@@ -366,7 +366,7 @@ function IntegracoesPage() {
                   </Button>
                 </div>
               </div>
-              <div className="p-3 bg-orange-50 text-orange-700 rounded-md text-xs border border-orange-100">
+              <div className="p-3 bg-blue-50 text-blue-700 rounded-md text-xs border border-blue-100">
                 <p className="font-semibold mb-1">Dados enviados:</p>
                 <p>Nome, Telefone e Link de Recuperação exclusivo para o cliente.</p>
               </div>
