@@ -111,7 +111,7 @@ function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => voi
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative min-h-[90vh] pt-20 pb-10 px-4 items-center justify-center bg-cover bg-center flex flex-col"
+        className="relative min-h-[90vh] pt-20 pb-10 px-4 items-center justify-center bg-cover bg-center flex flex-col text-center"
       >
 
         <motion.img
