@@ -15,7 +15,8 @@ import {
   Snowflake,
   Car,
   Coffee,
-  X
+  X,
+  UsersRound
 } from "lucide-react";
 import {
   Dialog,
@@ -102,7 +103,7 @@ function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => voi
       className="relative min-h-[90vh] pt-20 pb-10 px-4 flex items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url('https://qtbkvshbmqlszncxlcuc.supabase.co/storage/v1/object/public/dsl-uploads/ZSa4ABaA8WhDeRG7upgnp8DS0oz1/152a2c78-1f2d-4258-b1e6-38dec8d6917a.png')` }}
     >
-      <div className="absolute inset-0 bg-black/50 opacity-100" />
+      <div className="w-32 opacity-80 text-left" />
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -197,7 +198,7 @@ function SobreNos() {
   const features = [
     { icon: Snowflake, text: "Ambiente climatizado e confortável" },
     { icon: Car, text: "Fácil localização com estacionamento" },
-    { icon: Coffee, text: "Atendimento personalizado e café cortesia" },
+    { icon: Coffee, text: "Atendimento personalizado e café de cortesia" },
     { icon: Scissors, text: "Profissionais experientes e qualificados" }
   ];
 
@@ -555,9 +556,7 @@ function Contato() {
 
           <Button asChild variant="outline" size="lg" className="rounded-full font-bold h-auto py-4 px-8 text-lg hover:scale-105 transition-transform border-primary/20">
             <a href="https://www.instagram.com/brunovital14/" target="_blank" rel="noopener noreferrer">
-              <svg className="mr-2 h-6 w-6 fill-current" viewBox="0 0 24 24">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.335 3.608 1.31.975.975 1.248 2.242 1.31 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.335 2.633-1.31 3.608-.975.975-2.242 1.248-3.608 1.31-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.335-3.608-1.31-.975-.975-1.248-2.242-1.31-3.608-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.335-2.633 1.31-3.608.975-.975 2.242-1.248 3.608-1.31 1.266-.058 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.337 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072s3.667-.014 4.947-.072c4.337-.2 6.78-2.618 6.98-6.98.058-1.281.072-1.689.072-4.948s-.014-3.667-.072-4.947c-.2-4.337-2.618-6.78-6.98-6.98-1.281-.058-1.689-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-              </svg>
+              <UsersRound className="mr-2 h-6 w-6" />
               <span>Instagram</span>
             </a>
           </Button>
@@ -572,7 +571,7 @@ function Footer() {
     <footer className="bg-card py-16 px-4 border-t border-primary/10">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
         <div className="space-y-4">
-          <img src="/logo.png" alt="Logo" className="w-32 opacity-80" />
+          <img src="/logo.png" alt="Logo" className="w-32 opacity-80 text-left" />
           <p className="text-muted-foreground text-sm uppercase tracking-tighter">Barbearia Pereira</p>
           <div className="text-xs text-muted-foreground/60 space-y-1">
             <p>CNPJ: 19.411.344/0001-11</p>
