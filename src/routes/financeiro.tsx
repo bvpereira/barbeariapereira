@@ -413,13 +413,13 @@ function FinanceiroPage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-2 pt-2 border-t border-border/50">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase">Já Finalizado</p>
-                    <p className="text-lg font-semibold">{formatCurrency(data.brutoMes)}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase">Finalizado</p>
+                    <p className="text-xs font-semibold">{formatCurrency(data.brutoMes)}</p>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase">Agendado</p>
-                    <p className="text-lg font-semibold text-primary/80">{formatCurrency(data.previsaoAgendadosMes)}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase">Agendado</p>
+                    <p className="text-xs font-semibold text-primary/80">{formatCurrency(data.previsaoAgendadosMes)}</p>
                   </div>
                 </div>
               </CardContent>
