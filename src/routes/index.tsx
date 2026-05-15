@@ -103,7 +103,7 @@ function Index() {
 function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => void }) {
   return (
     <section
-      className="relative min-h-[90vh] pt-20 pb-10 px-4 flex flex-col items-center justify-center bg-cover bg-center"
+      className="relative min-h-[90vh] pt-10 pb-5 md:pt-20 md:pb-10 px-4 flex flex-col items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url('https://qtbkvshbmqlszncxlcuc.supabase.co/storage/v1/object/public/dsl-uploads/ZSa4ABaA8WhDeRG7upgnp8DS0oz1/152a2c78-1f2d-4258-b1e6-38dec8d6917a.png')` }}
     >
       {/* Removido o espaçador lateral para garantir a centralização no mobile */}
@@ -111,7 +111,7 @@ function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => voi
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative min-h-[90vh] pt-20 pb-10 px-4 items-center justify-center bg-cover bg-center flex flex-col text-center"
+        className="relative min-h-[90vh] pt-10 pb-5 md:pt-20 md:pb-10 px-4 items-center justify-center bg-cover bg-center flex flex-col text-center"
       >
 
         <motion.img
