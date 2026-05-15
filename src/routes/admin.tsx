@@ -234,17 +234,13 @@ function AdminPage() {
             </Button>
             <Button onClick={() => navigate({ to: "/atendimentos" } as any)} size="sm" className="gap-2">
               <Calendar className="h-4 w-4" />
-              Agendar
-            </Button>
-            <Button onClick={() => navigate({ to: "/atendimentos" } as any)} size="sm" className="gap-2">
-              <PlusCircle className="h-4 w-4" />
-              Novo Atendimento
+              Atendimento
             </Button>
           </div>
         </div>
 
         {/* Cards de Resumo Hoje */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Agendados (Hoje)</CardTitle>
@@ -352,7 +348,7 @@ function AdminPage() {
         </div>
 
         {/* Financeiro do Mês */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Bruto (Mês)</CardTitle>

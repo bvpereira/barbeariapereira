@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 
 const menuItems = [
-  { title: "Página Inicial", icon: Home, href: "/admin" },
+  { title: "Dashboard Inicial", icon: Home, href: "/admin" },
   { title: "Atendimentos", icon: Calendar, href: "/atendimentos" },
   { title: "Serviços", icon: Scissors, href: "/servicos" },
   { title: "Colaboradores", icon: Users, href: "/colaboradores" },
