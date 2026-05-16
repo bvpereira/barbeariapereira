@@ -65,6 +65,32 @@ function ColaboradorPage() {
     setLoading(false);
   }, []);
 
+  const fetchFuturos = useCallback(async (cId: string, pageNum: number, reset: boolean = false) => {
+    setLoadingFuturos(true);
+    const tomorrow = endOfDay(new Date());
+
+    const { data } = await supabase
+      .from('atendimentos')
+      .select(`
+        *,
+        cliente:usuarios!cliente_id(nome),
+        atendimento_servicos(servicos(name))
+      `)
+      .eq('colaborador_id', cId)
+      .eq('status', 'Agendado')
+      .gt('data', tomorrow.toISOString())
+      .order('data', { ascending: true })
+      .range(pageNum * itemsPerPage, (pageNum + 1) * itemsPerPage - 1);
+    
+    if (reset) {
+      setFuturos(data || []);
+    } else {
+      setFuturos(prev => [...prev, ...(data || [])]);
+    }
+    setHasMoreFuturos((data || []).length === itemsPerPage);
+    setLoadingFuturos(false);
+  }, []);
+
   const fetchHistorico = useCallback(async (cId: string, pageNum: number, search: string, reset: boolean = false) => {
     setLoadingHistorico(true);
     
@@ -76,11 +102,11 @@ function ColaboradorPage() {
         atendimento_servicos(servicos(name))
       `)
       .eq('colaborador_id', cId)
+      .neq('status', 'Agendado')
       .order('data', { ascending: false })
       .range(pageNum * itemsPerPage, (pageNum + 1) * itemsPerPage - 1);
 
     if (search) {
-      // Filtrando pelo nome do cliente na tabela usuários através do relacionamento
       query = query.filter('cliente.nome', 'ilike', `%${search}%`);
     }
 
@@ -105,6 +131,13 @@ function ColaboradorPage() {
       fetchHistorico(colabId, 0, searchTerm, true);
     }
   }, [searchTerm, colabId, fetchHistorico]);
+
+  useEffect(() => {
+    if (colabId) {
+      setPageFuturos(0);
+      fetchFuturos(colabId, 0, true);
+    }
+  }, [colabId, fetchFuturos]);
 
   useEffect(() => {
     const getUserData = () => {
