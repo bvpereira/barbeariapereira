@@ -283,10 +283,82 @@ function ColaboradorPage() {
           </Card>
 
           <Card className="md:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                Atendimentos Futuros
+              </CardTitle>
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                {futuros.length} agendados
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              {loadingFuturos && pageFuturos === 0 ? (
+                <p className="text-center py-4 text-muted-foreground">Carregando...</p>
+              ) : futuros.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                  Nenhum atendimento futuro agendado.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {futuros.map((item) => (
+                    <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+                      <div className="flex-shrink-0 w-16 text-center">
+                        <span className="text-lg font-bold block">{format(parseISO(item.data), "HH:mm")}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase">
+                          {format(parseISO(item.data), "dd/MM", { locale: ptBR })}
+                        </span>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold truncate">{item.cliente?.nome}</span>
+                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
+                        <Badge variant="outline" className="text-[10px] h-auto font-normal">
+                          {item.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+            {hasMoreFuturos && (
+              <CardFooter className="pt-0">
+                <Button 
+                  variant="outline" 
+                  className="w-full gap-2" 
+                  onClick={() => {
+                    const nextPage = pageFuturos + 1;
+                    setPageFuturos(nextPage);
+                    fetchFuturos(colabId!, nextPage);
+                  }}
+                  disabled={loadingFuturos}
+                >
+                  {loadingFuturos ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      Mostrar mais 10
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            )}
+          </Card>
+
+          <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <History className="w-5 h-5 text-primary" />
-                Meus Atendimentos
+                Histórico de Atendimentos
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -304,15 +376,26 @@ function ColaboradorPage() {
                 {historico.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/5 transition-colors">
                     <div className="flex-shrink-0 w-16 text-center">
-                      <span className="text-lg font-bold block">{format(parseISO(item.data), "HH:mm")}</span>
-                      <span className="text-[10px] text-muted-foreground uppercase">
+                      <span className="text-lg font-bold block">
                         {format(parseISO(item.data), "dd/MM", { locale: ptBR })}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground uppercase">
+                        {format(parseISO(item.data), "HH:mm")}
                       </span>
                     </div>
                     <div className="flex-grow min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold truncate">{item.cliente?.nome}</span>
-                        <Badge variant="outline" className="text-[10px] h-auto py-0 font-normal">
+                        <Badge 
+                          variant="outline" 
+                          className={`text-[10px] h-auto py-0 font-normal ${
+                            item.status === 'Finalizado' 
+                              ? 'bg-green-100 text-green-700 border-green-200' 
+                              : item.status === 'Não compareceu' 
+                                ? 'bg-red-100 text-red-700 border-red-200' 
+                                : ''
+                          }`}
+                        >
                           {item.status}
                         </Badge>
                       </div>
