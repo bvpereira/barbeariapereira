@@ -5,10 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical } from "lucide-react";
 import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/colaborador" as any)({
   component: ColaboradorPage,
@@ -28,6 +45,7 @@ function ColaboradorPage() {
   const [pageFuturos, setPageFuturos] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [hasMoreFuturos, setHasMoreFuturos] = useState(true);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const itemsPerPage = 10;
 
   const fetchColaboradorId = async (login: string) => {
@@ -170,6 +188,48 @@ function ColaboradorPage() {
     window.location.href = "/login";
   };
 
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('atendimentos')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success(`Status atualizado para ${newStatus}`);
+      if (colabId) {
+        fetchAgendamentos(colabId);
+        fetchFuturos(colabId, 0, true);
+        fetchHistorico(colabId, 0, searchTerm, true);
+      }
+    } catch (error: any) {
+      toast.error("Erro ao atualizar status: " + error.message);
+    }
+  };
+
+  const handleRequestDeletion = async () => {
+    if (!itemToDelete) return;
+    try {
+      const { error } = await supabase
+        .from('atendimentos')
+        .update({ pedido_exclusao: true })
+        .eq('id', itemToDelete);
+
+      if (error) throw error;
+      
+      toast.success("Pedido de exclusão enviado ao administrador");
+      setItemToDelete(null);
+      if (colabId) {
+        fetchAgendamentos(colabId);
+        fetchFuturos(colabId, 0, true);
+        fetchHistorico(colabId, 0, searchTerm, true);
+      }
+    } catch (error: any) {
+      toast.error("Erro ao solicitar exclusão: " + error.message);
+    }
+  };
+
   if (!user) return null;
 
   if (!colabId && !loading) return (
@@ -302,9 +362,11 @@ function ColaboradorPage() {
               ) : (
                 <div className="space-y-4">
                   {futuros.map((item) => (
-                    <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+                    <div key={item.id} className={`flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/5 transition-colors ${item.pedido_exclusao ? 'opacity-50 grayscale' : ''}`}>
                       <div className="flex-shrink-0 w-16 text-center">
-                        <span className="text-lg font-bold block">{format(parseISO(item.data), "HH:mm")}</span>
+                        <span className="text-lg font-bold block">
+                          {format(parseISO(item.data), "HH:mm")}
+                        </span>
                         <span className="text-[10px] text-muted-foreground uppercase">
                           {format(parseISO(item.data), "dd/MM", { locale: ptBR })}
                         </span>
@@ -318,11 +380,40 @@ function ColaboradorPage() {
                           {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
                         </p>
                       </div>
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
-                        <Badge variant="outline" className="text-[10px] h-auto font-normal">
-                          {item.status}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild disabled={item.pedido_exclusao}>
+                              <Button variant="ghost" size="sm" className="h-7 px-2">
+                                <Badge variant="outline" className="text-[10px] h-auto font-normal cursor-pointer hover:bg-accent">
+                                  {item.status}
+                                </Badge>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(item.id, 'Agendado')}>
+                                Agendado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(item.id, 'Finalizado')}>
+                                Finalizado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(item.id, 'Não compareceu')}>
+                                Não compareceu
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setItemToDelete(item.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Pedir Exclusão
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        {item.pedido_exclusao && (
+                          <span className="text-[9px] text-destructive font-bold uppercase">Exclusão Solicitada</span>
+                        )}
                       </div>
                     </div>
                   ))}
