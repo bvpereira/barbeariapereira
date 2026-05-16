@@ -448,7 +448,25 @@ function ColaboradorPage() {
                       </div>
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          {item.status === 'Agendado' && !item.pedido_exclusao && (
+                            <BookingButton 
+                              onSuccess={() => fetchFuturos(colabId!, 0, true)} 
+                              variant="ghost" 
+                              className="h-7 px-2 text-[10px]"
+                              label="Editar"
+                              icon={<Clock className="h-3 w-3" />}
+                              initialData={{
+                                id: item.id,
+                                cliente_id: item.cliente_id,
+                                cliente_nome: item.cliente?.nome,
+                                colaborador_id: item.colaborador_id,
+                                data: item.data,
+                                valor: item.valor,
+                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                              }}
+                            />
+                          )}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild disabled={item.pedido_exclusao}>
                               <Button variant="ghost" size="sm" className="h-7 px-2">
