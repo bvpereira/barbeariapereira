@@ -375,11 +375,31 @@ function ColaboradorPage() {
                           {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
                         </p>
                       </div>
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
-                        <Badge variant="outline" className="text-[10px] h-auto font-normal">
-                          {item.status}
-                        </Badge>
+                        <div className="flex items-center gap-1">
+                          {item.status === 'Agendado' && (
+                            <BookingButton 
+                              onSuccess={() => fetchAgendamentos(colabId!)} 
+                              variant="ghost" 
+                              className="h-7 px-2 text-[10px]"
+                              label="Editar"
+                              icon={<Clock className="h-3 w-3" />}
+                              initialData={{
+                                id: item.id,
+                                cliente_id: item.cliente_id,
+                                cliente_nome: item.cliente?.nome,
+                                colaborador_id: item.colaborador_id,
+                                data: item.data,
+                                valor: item.valor,
+                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                              }}
+                            />
+                          )}
+                          <Badge variant="outline" className="text-[10px] h-auto font-normal">
+                            {item.status}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   ))}
