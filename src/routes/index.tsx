@@ -143,7 +143,7 @@ function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => voi
           }}
           className="text-2xl md:text-4xl font-josefin font-bold tracking-wider mb-8 uppercase"
         >
-          Tradição e Estilo em Cada Corte
+          Tradição e Estilo <br /> em Cada Corte
         </motion.h1>
 
         <motion.div
