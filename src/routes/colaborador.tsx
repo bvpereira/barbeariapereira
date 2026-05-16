@@ -19,11 +19,15 @@ function ColaboradorPage() {
   const [colabId, setColabId] = useState<string | null>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [historico, setHistorico] = useState<any[]>([]);
+  const [futuros, setFuturos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [loadingFuturos, setLoadingFuturos] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
+  const [pageFuturos, setPageFuturos] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [hasMoreFuturos, setHasMoreFuturos] = useState(true);
   const itemsPerPage = 10;
 
   const fetchColaboradorId = async (login: string) => {
