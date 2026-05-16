@@ -449,7 +449,7 @@ function ColaboradorPage() {
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
                         <div className="flex items-center gap-1">
-                          {item.status === 'Agendado' && !item.pedido_exclusao && (
+                          {item.status === 'Agendado' && !item.pedido_exclusao && Number(user?.nivel) <= 2 && (
                             <BookingButton 
                               onSuccess={() => fetchFuturos(colabId!, 0, true)} 
                               variant="ghost" 
