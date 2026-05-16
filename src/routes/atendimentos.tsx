@@ -1127,35 +1127,4 @@ function AtendimentosPage() {
       </div>
     </AdminLayout>
   );
-
-  async function handleDelete() {
-    if (!deleteId) return;
-    setIsDeleting(true);
-    try {
-      // Delete from atendimento_servicos first
-      const { error: servError } = await supabase
-        .from('atendimento_servicos')
-        .delete()
-        .eq('atendimento_id', deleteId);
-
-      if (servError) throw servError;
-
-      const { error } = await supabase
-        .from('atendimentos')
-        .delete()
-        .eq('id', deleteId);
-
-      if (error) throw error;
-      
-      toast.success("Atendimento excluído com sucesso");
-      setDeleteId(null);
-      fetchAgendados();
-      fetchConcluidos();
-      fetchPedidosExclusao();
-    } catch (error: any) {
-      toast.error("Erro ao excluir: " + error.message);
-    } finally {
-      setIsDeleting(false);
-    }
-  }
 }
