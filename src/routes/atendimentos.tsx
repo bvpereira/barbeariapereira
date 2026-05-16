@@ -100,6 +100,8 @@ function AtendimentosPage() {
   const [loadingConcluidos, setLoadingConcluidos] = useState(true);
   const [limitAgendados, setLimitAgendados] = useState(10);
   const [limitConcluidos, setLimitConcluidos] = useState(10);
+  const [pedidosExclusao, setPedidosExclusao] = useState<Atendimento[]>([]);
+  const [loadingExclusao, setLoadingExclusao] = useState(false);
   const [hasMoreAgendados, setHasMoreAgendados] = useState(false);
   const [hasMoreConcluidos, setHasMoreConcluidos] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
@@ -185,6 +187,25 @@ function AtendimentosPage() {
     setLoadingConcluidos(false);
   }, [limitConcluidos, filtroConcluidos]);
 
+  const fetchPedidosExclusao = useCallback(async () => {
+    setLoadingExclusao(true);
+    const { data, error } = await supabase
+      .from('atendimentos')
+      .select(`
+        *,
+        cliente:usuarios!cliente_id(id, nome, login),
+        colaborador:colaboradores(id, nome),
+        atendimento_servicos(servico_id, servicos(id, name, price, duration))
+      `)
+      .eq('pedido_exclusao', true)
+      .order('data', { ascending: false });
+
+    if (error) { toast.error("Erro ao carregar pedidos de exclusão"); return; }
+
+    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: item.atendimento_servicos.map((as: any) => as.servicos) })));
+    setLoadingExclusao(false);
+  }, []);
+
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
     const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').order('name');
@@ -221,7 +242,8 @@ function AtendimentosPage() {
   useEffect(() => {
     fetchFormData();
     fetchBookingSettings();
-  }, []);
+    fetchPedidosExclusao();
+  }, [fetchPedidosExclusao]);
 
   const searchClientes = async (term: string) => {
     setSearchCliente(term);
@@ -525,6 +547,14 @@ function AtendimentosPage() {
         .eq('id', deleteId)
         .single();
 
+      // Delete from atendimento_servicos first (due to foreign key constraints)
+      const { error: servError } = await supabase
+        .from('atendimento_servicos')
+        .delete()
+        .eq('atendimento_id', deleteId);
+
+      if (servError) throw servError;
+
       const { error } = await supabase.from('atendimentos').delete().eq('id', deleteId);
       if (error) throw error;
 
@@ -540,10 +570,11 @@ function AtendimentosPage() {
         });
       }
 
-      toast.success("Atendimento excluído");
+      toast.success("Atendimento excluído com sucesso");
       setDeleteId(null);
       fetchAgendados();
       fetchConcluidos();
+      fetchPedidosExclusao();
     } catch (error: any) {
       toast.error("Erro ao excluir: " + error.message);
     } finally {
@@ -761,6 +792,66 @@ function AtendimentosPage() {
                   <p className="text-muted-foreground text-center py-10">Nenhum atendimento concluído encontrado.</p>
                 )}
               </>
+            )}
+          </TabsContent>
+
+          <TabsContent value="exclusao" className="mt-6 space-y-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-amber-50 p-4 rounded-lg border border-amber-100">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <p>Estes atendimentos foram marcados por colaboradores para exclusão. Apenas administradores podem confirmar a remoção definitiva.</p>
+            </div>
+
+            {loadingExclusao ? (
+              <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+            ) : pedidosExclusao.length === 0 ? (
+              <Card className="border-dashed"><CardContent className="p-8 text-center text-muted-foreground">Nenhum pedido de exclusão pendente.</CardContent></Card>
+            ) : (
+              <div className="grid gap-4">
+                {pedidosExclusao.map((item) => (
+                  <Card key={item.id} className="overflow-hidden border-destructive/20 bg-destructive/5">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-shrink-0 w-12 text-center">
+                            <span className="text-sm font-bold block">{format(parseISO(item.data), "dd/MM")}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase">{format(parseISO(item.data), "HH:mm")}</span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">{item.cliente?.nome}</p>
+                            <p className="text-xs text-muted-foreground">Colaborador: {item.colaborador?.nome}</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {item.servicos.map(s => s.name).join(", ")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 text-xs"
+                            onClick={async () => {
+                              const { error } = await supabase.from('atendimentos').update({ pedido_exclusao: false }).eq('id', item.id);
+                              if (error) toast.error("Erro ao cancelar pedido");
+                              else { toast.success("Pedido cancelado"); fetchPedidosExclusao(); }
+                            }}
+                          >
+                            Manter
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            className="h-8 text-xs gap-1"
+                            onClick={() => setDeleteId(item.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Excluir Definitivamente
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </TabsContent>
         </Tabs>
