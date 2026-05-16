@@ -547,6 +547,14 @@ function AtendimentosPage() {
         .eq('id', deleteId)
         .single();
 
+      // Delete from atendimento_servicos first (due to foreign key constraints)
+      const { error: servError } = await supabase
+        .from('atendimento_servicos')
+        .delete()
+        .eq('atendimento_id', deleteId);
+
+      if (servError) throw servError;
+
       const { error } = await supabase.from('atendimentos').delete().eq('id', deleteId);
       if (error) throw error;
 
@@ -562,10 +570,11 @@ function AtendimentosPage() {
         });
       }
 
-      toast.success("Atendimento excluído");
+      toast.success("Atendimento excluído com sucesso");
       setDeleteId(null);
       fetchAgendados();
       fetchConcluidos();
+      fetchPedidosExclusao();
     } catch (error: any) {
       toast.error("Erro ao excluir: " + error.message);
     } finally {
