@@ -612,15 +612,19 @@ function ColaboradorPage() {
             )}
           </Card>
 
-          {pedidosExclusao.length > 0 && (
-            <Card className="md:col-span-2 border-destructive/20 bg-destructive/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
-                  <AlertTriangle className="w-5 h-5" />
-                  Pedidos exclusão
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+          <Card className="md:col-span-2 border-destructive/20 bg-destructive/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="w-5 h-5" />
+                Pedidos exclusão
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {pedidosExclusao.length === 0 ? (
+                <p className="text-center py-4 text-muted-foreground text-sm">
+                  Nenhum pedido de exclusão pendente.
+                </p>
+              ) : (
                 <div className="space-y-4">
                   {pedidosExclusao.map((item) => (
                     <div key={item.id} className="flex items-center gap-4 p-4 border border-destructive/20 rounded-lg bg-background/50">
@@ -651,9 +655,27 @@ function ColaboradorPage() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </CardContent>
+          </Card>
+
+          <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar pedido de exclusão?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação enviará um pedido de exclusão para o administrador. 
+                  O atendimento continuará visível até que seja aprovado.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleRequestDeletion} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Confirmar Pedido
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
