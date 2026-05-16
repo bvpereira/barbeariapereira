@@ -196,10 +196,37 @@ function ColaboradorPage() {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
       fetchColaboradorId(parsedUser.login).then(id => {
-        if (id) fetchAgendamentos(id);
+        if (id) {
+          fetchAgendamentos(id);
+          fetchPedidosExclusao(id);
+          
+          // Subscription for real-time updates
+          const channel = supabase
+            .channel('atendimentos_colab')
+            .on(
+              'postgres_changes',
+              {
+                event: '*',
+                schema: 'public',
+                table: 'atendimentos',
+                filter: `colaborador_id=eq.${id}`
+              },
+              () => {
+                fetchAgendamentos(id);
+                fetchFuturos(id, 0, true);
+                fetchHistorico(id, 0, searchTerm, true);
+                fetchPedidosExclusao(id);
+              }
+            )
+            .subscribe();
+
+          return () => {
+            supabase.removeChannel(channel);
+          };
+        }
       });
     }
-  }, [fetchAgendamentos]);
+  }, [fetchAgendamentos, fetchFuturos, fetchHistorico, fetchPedidosExclusao, searchTerm]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
