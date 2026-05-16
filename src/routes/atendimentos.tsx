@@ -684,9 +684,10 @@ function AtendimentosPage() {
         </div>
 
         <Tabs defaultValue="agendados" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+          <TabsList className="grid w-full grid-cols-3 max-w-[600px]">
             <TabsTrigger value="agendados">Agendados</TabsTrigger>
             <TabsTrigger value="concluidos">Concluídos</TabsTrigger>
+            <TabsTrigger value="exclusao">Pedidos para exclusão</TabsTrigger>
           </TabsList>
           
           <TabsContent value="agendados" className="space-y-6 mt-6">
