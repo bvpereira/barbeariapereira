@@ -74,7 +74,7 @@ function ColaboradorPage() {
       .select(`
         *,
         cliente:usuarios!cliente_id(nome),
-        atendimento_servicos(servicos(name))
+        atendimento_servicos(servicos(id, name))
       `)
       .eq('colaborador_id', cId)
       .gte('data', today.toISOString())
