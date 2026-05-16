@@ -177,56 +177,45 @@ function ColaboradorPage() {
   }, [colabId, fetchFuturos]);
 
   useEffect(() => {
-    const getUserData = () => {
-      const stored = localStorage.getItem("user");
-      if (stored) return stored;
-
-      const cookies = document.cookie.split(';');
-      const userCookie = cookies.find(c => c.trim().startsWith('user='));
-      if (userCookie) {
-        const value = decodeURIComponent(userCookie.split('=')[1]);
-        localStorage.setItem("user", value);
-        return value;
-      }
-      return null;
-    };
-
-    const userData = getUserData();
+    const userData = localStorage.getItem("user") || (document.cookie.split(';').find(c => c.trim().startsWith('user=')) ? decodeURIComponent(document.cookie.split(';').find(c => c.trim().startsWith('user='))!.split('=')[1]) : null);
+    
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
       fetchColaboradorId(parsedUser.login).then(id => {
-        if (id) {
-          fetchAgendamentos(id);
-          fetchPedidosExclusao(id);
-          
-          // Subscription for real-time updates
-          const channel = supabase
-            .channel('atendimentos_colab')
-            .on(
-              'postgres_changes',
-              {
-                event: '*',
-                schema: 'public',
-                table: 'atendimentos',
-                filter: `colaborador_id=eq.${id}`
-              },
-              () => {
-                fetchAgendamentos(id);
-                fetchFuturos(id, 0, true);
-                fetchHistorico(id, 0, searchTerm, true);
-                fetchPedidosExclusao(id);
-              }
-            )
-            .subscribe();
-
-          return () => {
-            supabase.removeChannel(channel);
-          };
-        }
+        if (id) fetchAgendamentos(id);
       });
     }
-  }, [fetchAgendamentos, fetchFuturos, fetchHistorico, fetchPedidosExclusao, searchTerm]);
+  }, [fetchAgendamentos]);
+
+  useEffect(() => {
+    if (colabId) {
+      fetchPedidosExclusao(colabId);
+      
+      const channel = supabase
+        .channel('atendimentos_colab')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'atendimentos',
+            filter: `colaborador_id=eq.${colabId}`
+          },
+          () => {
+            fetchAgendamentos(colabId);
+            fetchFuturos(colabId, 0, true);
+            fetchHistorico(colabId, 0, searchTerm, true);
+            fetchPedidosExclusao(colabId);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [colabId, fetchAgendamentos, fetchFuturos, fetchHistorico, fetchPedidosExclusao, searchTerm]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
