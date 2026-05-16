@@ -39,7 +39,9 @@ export const Route = createFileRoute("/cliente" as any)({
 function ClientePage() {
   const [user, setUser] = useState<any>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
+  const [historico, setHistorico] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingHistorico, setLoadingHistorico] = useState(true);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPromocaoEnabled, setIsPromocaoEnabled] = useState(true);
@@ -69,6 +71,23 @@ function ClientePage() {
     
     setAgendamentos(data || []);
     setLoading(false);
+  }, []);
+
+  const fetchHistorico = useCallback(async (userId: string) => {
+    setLoadingHistorico(true);
+    const { data } = await supabase
+      .from('atendimentos')
+      .select(`
+        *,
+        colaborador:colaboradores(id, nome),
+        atendimento_servicos(servicos(id, name))
+      `)
+      .eq('cliente_id', userId)
+      .in('status', ['Finalizado', 'Não compareceu'])
+      .order('data', { ascending: false });
+    
+    setHistorico(data || []);
+    setLoadingHistorico(false);
   }, []);
 
   const fetchUserPromocao = useCallback(async (userId: string) => {
@@ -116,10 +135,11 @@ function ClientePage() {
       setUser(parsedUser);
       setNewName(parsedUser.nome);
       fetchAgendamentos(parsedUser.id);
+      fetchHistorico(parsedUser.id);
       fetchUserPromocao(parsedUser.id);
       fetchTempoExcluir();
     }
-  }, [fetchAgendamentos, fetchUserPromocao, fetchTempoExcluir]);
+  }, [fetchAgendamentos, fetchHistorico, fetchUserPromocao, fetchTempoExcluir]);
 
   const handlePromocaoToggle = async (checked: boolean) => {
     if (!user) return;
@@ -255,6 +275,7 @@ function ClientePage() {
       
       toast.success("Agendamento cancelado com sucesso");
       fetchAgendamentos(user.id);
+      fetchHistorico(user.id);
     } catch (error: any) {
       toast.error("Erro ao cancelar: " + error.message);
     } finally {
@@ -308,7 +329,10 @@ function ClientePage() {
               <p className="mb-4 text-muted-foreground">Agende seu próximo horário com facilidade.</p>
               <BookingButton 
                 fixedClientId={user.id} 
-                onSuccess={() => fetchAgendamentos(user.id)}
+                onSuccess={() => {
+                  fetchAgendamentos(user.id);
+                  fetchHistorico(user.id);
+                }}
                 className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
                 variant="default"
               />
@@ -382,7 +406,10 @@ function ClientePage() {
                               valor: item.valor,
                               servicos_ids: item.atendimento_servicos.map((as: any) => as.servicos?.id).filter(Boolean)
                             }}
-                            onSuccess={() => fetchAgendamentos(user.id)}
+                            onSuccess={() => {
+                              fetchAgendamentos(user.id);
+                              fetchHistorico(user.id);
+                            }}
                           />
                           <Button 
                             variant="outline" 
@@ -393,6 +420,73 @@ function ClientePage() {
                             <Trash2 className="w-3 h-3" />
                             Cancelar
                           </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section: Histórico */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-primary" />
+                Histórico
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingHistorico ? (
+                <p className="text-center py-4 text-muted-foreground">Carregando...</p>
+              ) : historico.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                  Você ainda não possui histórico de atendimentos.
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {historico.map((item) => (
+                    <Card key={item.id} className="bg-card hover:bg-accent/5 transition-colors border-border opacity-80">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-3">
+                          <Badge 
+                            variant="outline" 
+                            className={
+                              item.status === 'Finalizado' 
+                                ? "bg-green-500/10 text-green-500 border-green-500/20" 
+                                : "bg-red-500/10 text-red-500 border-red-500/20"
+                            }
+                          >
+                            {item.status}
+                          </Badge>
+                          <span className="font-bold text-primary">
+                            R$ {Number(item.valor).toFixed(2).replace(".", ",")}
+                          </span>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium">
+                              {format(parseISO(item.data), "dd 'de' MMMM", { locale: ptBR })}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-muted-foreground" />
+                            <span className="font-medium">
+                              {format(parseISO(item.data), "HH:mm")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-muted-foreground" />
+                            <span>Profissional: {item.colaborador?.nome}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Scissors className="w-4 h-4 text-muted-foreground" />
+                            <span className="line-clamp-1">
+                              {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
+                            </span>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
