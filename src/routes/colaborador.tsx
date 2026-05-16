@@ -37,9 +37,11 @@ function ColaboradorPage() {
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [historico, setHistorico] = useState<any[]>([]);
   const [futuros, setFuturos] = useState<any[]>([]);
+  const [pedidosExclusao, setPedidosExclusao] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [loadingFuturos, setLoadingFuturos] = useState(false);
+  const [loadingExclusao, setLoadingExclusao] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [pageFuturos, setPageFuturos] = useState(0);
