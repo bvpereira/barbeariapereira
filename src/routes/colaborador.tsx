@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { BookingButton } from "@/components/BookingButton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown } from "lucide-react";
 import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,13 @@ function ColaboradorPage() {
   const [user, setUser] = useState<any>(null);
   const [colabId, setColabId] = useState<string | null>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
+  const [historico, setHistorico] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const itemsPerPage = 10;
 
   const fetchColaboradorId = async (login: string) => {
     const { data } = await supabase
@@ -53,6 +60,49 @@ function ColaboradorPage() {
     setAgendamentos(data || []);
     setLoading(false);
   }, []);
+
+  const fetchHistorico = useCallback(async (cId: string, pageNum: number, search: string, reset: boolean = false) => {
+    setLoadingHistorico(true);
+    
+    let query = supabase
+      .from('atendimentos')
+      .select(`
+        *,
+        cliente:usuarios!cliente_id(nome),
+        atendimento_servicos(servicos(name))
+      `)
+      .eq('colaborador_id', cId)
+      .order('data', { ascending: false })
+      .range(pageNum * itemsPerPage, (pageNum + 1) * itemsPerPage - 1);
+
+    if (search) {
+      // In many cases in this project, cliente is a relation to usuarios table
+      // Supabase filter on joined tables can be tricky depending on how RLS/Views are set up
+      // But we'll try the common syntax
+      query = query.ilike('usuarios.nome', `%${search}%`);
+    }
+
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error("Erro ao buscar histórico:", error);
+    } else {
+      if (reset) {
+        setHistorico(data || []);
+      } else {
+        setHistorico(prev => [...prev, ...(data || [])]);
+      }
+      setHasMore((data || []).length === itemsPerPage);
+    }
+    setLoadingHistorico(false);
+  }, []);
+
+  useEffect(() => {
+    if (colabId) {
+      setPage(0);
+      fetchHistorico(colabId, 0, searchTerm, true);
+    }
+  }, [searchTerm, colabId, fetchHistorico]);
 
   useEffect(() => {
     const getUserData = () => {
@@ -195,6 +245,89 @@ function ColaboradorPage() {
                 </div>
               )}
             </CardContent>
+          </Card>
+
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="w-5 h-5 text-primary" />
+                Meus Atendimentos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Filtrar por nome do cliente..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-4">
+                {historico.map((item) => (
+                  <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+                    <div className="flex-shrink-0 w-16 text-center">
+                      <span className="text-lg font-bold block">{format(parseISO(item.data), "HH:mm")}</span>
+                      <span className="text-[10px] text-muted-foreground uppercase">
+                        {format(parseISO(item.data), "dd/MM", { locale: ptBR })}
+                      </span>
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold truncate">{item.cliente?.nome}</span>
+                        <Badge variant="outline" className="text-[10px] h-auto py-0 font-normal">
+                          {item.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {item.atendimento_servicos?.map((s: any) => s.servicos?.name).join(", ") || item.servicos_atendimento}
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
+                      <span className="text-[10px] text-green-600 font-medium">
+                        Comissão: R$ {Number(item.comissao || 0).toFixed(2).replace(".", ",")}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {loadingHistorico && page === 0 && (
+                  <p className="text-center py-4 text-muted-foreground">Carregando histórico...</p>
+                ) }
+
+                {!loadingHistorico && historico.length === 0 && (
+                  <p className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                    Nenhum atendimento encontrado.
+                  </p>
+                )}
+              </div>
+            </CardContent>
+            {hasMore && (
+              <CardFooter className="pt-0">
+                <Button 
+                  variant="outline" 
+                  className="w-full gap-2" 
+                  onClick={() => {
+                    const nextPage = page + 1;
+                    setPage(nextPage);
+                    fetchHistorico(colabId!, nextPage, searchTerm);
+                  }}
+                  disabled={loadingHistorico}
+                >
+                  {loadingHistorico ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4" />
+                      Mostrar mais 10
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            )}
           </Card>
         </div>
       </div>
