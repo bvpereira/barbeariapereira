@@ -279,9 +279,9 @@ export function BookingButton({
 
     const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
-    const isLevel3 = user?.nivel === 3;
+    const isClient = user?.nivel === 3 || user?.nivel === "3";
 
-    if (isLevel3 && !force) {
+    if (!isClient && !force) {
       const colab = colaboradores.find(c => c.id === selectedColaborador);
       const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
       
@@ -503,8 +503,8 @@ export function BookingButton({
                         key={c.id}
                         onClick={() => { setSelectedColaborador(c.id); setSelectedServicos([]); setSelectedDatePart(""); setSelectedTimePart(""); fetchColabServicos(c.id); }}
                         className={cn(
-                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
-                          selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border"
+                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                          selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border hover:bg-accent"
                         )}
                       >
                         <Avatar className="h-12 w-12 border">
@@ -560,8 +560,8 @@ export function BookingButton({
                         <div 
                           key={s.id} 
                           className={cn(
-                            "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
-                            selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
+                            "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors",
+                            selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent hover:bg-accent"
                           )}
                           onClick={() => handleSelectServico(s.id)}
                         >
