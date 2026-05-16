@@ -829,23 +829,30 @@ function AtendimentosPage() {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="h-8 text-xs"
+                            className="h-8 text-xs gap-1"
                             onClick={async () => {
+                              if (!confirm("Deseja negar o pedido de exclusão e manter este atendimento?")) return;
                               const { error } = await supabase.from('atendimentos').update({ pedido_exclusao: false }).eq('id', item.id);
-                              if (error) toast.error("Erro ao cancelar pedido");
-                              else { toast.success("Pedido cancelado"); fetchPedidosExclusao(); }
+                              if (error) toast.error("Erro ao negar pedido");
+                              else { toast.success("Pedido de exclusão negado"); fetchPedidosExclusao(); }
                             }}
                           >
-                            Manter
+                            <XCircle className="w-3 h-3" />
+                            Negar
                           </Button>
                           <Button 
                             variant="destructive" 
                             size="sm" 
                             className="h-8 text-xs gap-1"
-                            onClick={() => setDeleteId(item.id)}
+                            onClick={() => {
+                              if (confirm("Deseja aprovar a exclusão? O atendimento será removido permanentemente.")) {
+                                setDeleteId(item.id);
+                                handleDelete();
+                              }
+                            }}
                           >
-                            <Trash2 className="w-3 h-3" />
-                            Excluir Definitivamente
+                            <CheckCircle2 className="w-3 h-3" />
+                            Aprovar
                           </Button>
                         </div>
                       </div>
