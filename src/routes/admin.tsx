@@ -243,7 +243,7 @@ function AdminPage() {
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           <Card className="p-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium">Agendados (Hoje)</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium">Agendados (Hoje)</CardTitle>
               <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 pb-3">
@@ -253,7 +253,7 @@ function AdminPage() {
           </Card>
           <Card className="p-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium">Novos Agendamentos</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium">Novos Agendamentos</CardTitle>
               <PlusCircle className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="px-3 pb-3">
@@ -263,7 +263,7 @@ function AdminPage() {
           </Card>
           <Card className="p-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium">Bruto (Hoje)</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium">Bruto (Hoje)</CardTitle>
               <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
             </CardHeader>
             <CardContent className="px-3 pb-3">
@@ -273,7 +273,7 @@ function AdminPage() {
           </Card>
           <Card className="p-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium">Previsão (Mês)</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium">Previsão (Mês)</CardTitle>
               <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-primary" />
             </CardHeader>
             <CardContent className="px-3 pb-3">
@@ -351,7 +351,7 @@ function AdminPage() {
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
           <Card className="p-0">
             <CardHeader className="pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground">Bruto (Mês)</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium text-muted-foreground">Bruto (Mês)</CardTitle>
             </CardHeader>
             <CardContent className="px-3 pb-3">
               <div className="text-lg md:text-2xl font-bold">{formatCurrency(data.faturamentoBrutoMes)}</div>
@@ -359,7 +359,7 @@ function AdminPage() {
           </Card>
           <Card className="p-0">
             <CardHeader className="pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground">Líquido (Mês)</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium text-muted-foreground">Líquido (Mês)</CardTitle>
             </CardHeader>
             <CardContent className="px-3 pb-3">
               <div className={cn("text-lg md:text-2xl font-bold", data.faturamentoLiquidoMes >= 0 ? "text-green-600" : "text-destructive")}>
@@ -369,7 +369,7 @@ function AdminPage() {
           </Card>
           <Card className="p-0">
             <CardHeader className="pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground">Comissões (Mês)</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium text-muted-foreground">Comissões (Mês)</CardTitle>
             </CardHeader>
             <CardContent className="px-3 pb-3">
               <div className="text-lg md:text-2xl font-bold text-blue-500">{formatCurrency(data.comissoesMes)}</div>
@@ -377,7 +377,7 @@ function AdminPage() {
           </Card>
           <Card className="p-0">
             <CardHeader className="pb-1 pt-3 px-3">
-              <CardTitle className="text-[10px] md:text-sm font-medium text-muted-foreground">Despesas (Mês)</CardTitle>
+              <CardTitle className="text-[12px] md:text-sm font-medium text-muted-foreground">Despesas (Mês)</CardTitle>
             </CardHeader>
             <CardContent className="px-3 pb-3">
               <div className="text-lg md:text-2xl font-bold text-destructive">{formatCurrency(data.despesasMes)}</div>
