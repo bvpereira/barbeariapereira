@@ -622,6 +622,49 @@ function ColaboradorPage() {
               </CardFooter>
             )}
           </Card>
+
+          {pedidosExclusao.length > 0 && (
+            <Card className="md:col-span-2 border-destructive/20 bg-destructive/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  Pedidos para Exclusão
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {pedidosExclusao.map((item) => (
+                    <div key={item.id} className="flex items-center gap-4 p-4 border border-destructive/20 rounded-lg bg-background/50">
+                      <div className="flex-shrink-0 w-16 text-center">
+                        <span className="text-lg font-bold block">
+                          {format(parseISO(item.data), "dd/MM")}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground uppercase">
+                          {format(parseISO(item.data), "HH:mm")}
+                        </span>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold truncate">{item.cliente?.nome}</span>
+                          <Badge variant="outline" className="text-[10px] bg-amber-100 text-amber-700 border-amber-200">
+                            Aguardando Admin
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {item.atendimento_servicos?.map((s: any) => s.servicos?.name).join(", ")}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="font-bold text-sm block text-destructive">
+                          Exclusão Solicitada
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
