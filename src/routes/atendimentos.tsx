@@ -360,9 +360,9 @@ function AtendimentosPage() {
 
     const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
-    const isLevel3 = user?.nivel === 3;
+    const isClient = user?.nivel === 3 || user?.nivel === "3";
 
-    if (isLevel3 && isScheduling && !force) {
+    if (!isClient && !force) {
       const colab = colaboradores.find(c => c.id === selectedColaborador);
       const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
       
@@ -512,17 +512,20 @@ function AtendimentosPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Excluir este atendimento?")) return;
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
     try {
-      // Fetch data for webhook before deleting
       const { data: item } = await supabase
         .from('atendimentos')
         .select('*, cliente:usuarios!cliente_id(nome, login), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
-        .eq('id', id)
+        .eq('id', deleteId)
         .single();
 
-      const { error } = await supabase.from('atendimentos').delete().eq('id', id);
+      const { error } = await supabase.from('atendimentos').delete().eq('id', deleteId);
       if (error) throw error;
 
       if (item) {
@@ -538,10 +541,13 @@ function AtendimentosPage() {
       }
 
       toast.success("Atendimento excluído");
+      setDeleteId(null);
       fetchAgendados();
       fetchConcluidos();
     } catch (error: any) {
       toast.error("Erro ao excluir: " + error.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -617,7 +623,7 @@ function AtendimentosPage() {
                 <DropdownMenuItem onClick={() => updateStatus(item.id, 'Não compareceu')}>
                   <XCircle className="w-4 h-4 mr-2" /> Não compareceu
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(item.id)}>
+                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(item.id)}>
                   <Trash2 className="w-4 h-4 mr-2" /> Excluir
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -787,8 +793,8 @@ function AtendimentosPage() {
                           if (selectedServicos.length > 0) calculateComissao([], c.id);
                         }}
                         className={cn(
-                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent",
-                          selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border",
+                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                          selectedColaborador === c.id ? "border-primary bg-primary/5" : "border-border hover:bg-accent",
                           !c.ativo && "opacity-50"
                         )}
                       >
@@ -823,8 +829,8 @@ function AtendimentosPage() {
                           <div 
                             key={s.id} 
                             className={cn(
-                              "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors hover:bg-accent",
-                              selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent"
+                              "flex items-center gap-3 p-2 rounded-md border cursor-pointer transition-colors",
+                              selectedServicos.includes(s.id) ? "border-primary/50 bg-primary/5" : "border-transparent hover:bg-accent"
                             )}
                             onClick={() => handleSelectServico(s.id)}
                           >
@@ -1007,6 +1013,30 @@ function AtendimentosPage() {
               <Button variant="outline" onClick={() => setShowConfirmation(false)}>Voltar</Button>
               <Button onClick={() => handleSave(true, true)} disabled={isSubmitting}>
                 {isSubmitting ? "Confirmando..." : "Confirmar"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                Confirmar Exclusão
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-sm text-muted-foreground">
+                Tem certeza que deseja excluir este atendimento? Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteId(null)} disabled={isDeleting}>
+                Cancelar
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "Excluindo..." : "Confirmar Exclusão"}
               </Button>
             </DialogFooter>
           </DialogContent>
