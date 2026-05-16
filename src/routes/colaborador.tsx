@@ -367,7 +367,7 @@ function ColaboradorPage() {
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
                         <div className="flex items-center gap-1">
-                          {item.status === 'Agendado' && Number(user?.nivel) <= 2 && (
+                          {item.status === 'Agendado' && !item.pedido_exclusao && Number(user?.nivel) <= 2 && (
                             <BookingButton 
                               onSuccess={() => fetchAgendamentos(colabId!)} 
                               variant="ghost" 
@@ -385,10 +385,37 @@ function ColaboradorPage() {
                               }}
                             />
                           )}
-                          <Badge variant="outline" className="text-[10px] h-auto font-normal">
-                            {item.status}
-                          </Badge>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild disabled={item.pedido_exclusao}>
+                              <Button variant="ghost" size="sm" className="h-7 px-2">
+                                <Badge variant="outline" className="text-[10px] h-auto font-normal cursor-pointer hover:bg-accent">
+                                  {item.status}
+                                </Badge>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(item.id, 'Agendado')}>
+                                Agendado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(item.id, 'Finalizado')}>
+                                Finalizado
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(item.id, 'Não compareceu')}>
+                                Não compareceu
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setItemToDelete(item.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Pedir Exclusão
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
+                        {item.pedido_exclusao && (
+                          <span className="text-[9px] text-destructive font-bold uppercase">Exclusão Solicitada</span>
+                        )}
                       </div>
                     </div>
                   ))}
