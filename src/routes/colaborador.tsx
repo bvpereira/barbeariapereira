@@ -77,6 +77,7 @@ function ColaboradorPage() {
         atendimento_servicos(servicos(id, name))
       `)
       .eq('colaborador_id', cId)
+      .neq('pedido_exclusao', true)
       .gte('data', today.toISOString())
       .lte('data', tonight.toISOString())
       .order('data', { ascending: true });
@@ -98,6 +99,7 @@ function ColaboradorPage() {
       `)
       .eq('colaborador_id', cId)
       .eq('status', 'Agendado')
+      .neq('pedido_exclusao', true)
       .gt('data', tomorrow.toISOString())
       .order('data', { ascending: true })
       .range(pageNum * itemsPerPage, (pageNum + 1) * itemsPerPage - 1);
@@ -123,6 +125,7 @@ function ColaboradorPage() {
       `)
       .eq('colaborador_id', cId)
       .neq('status', 'Agendado')
+      .neq('pedido_exclusao', true)
       .order('data', { ascending: false })
       .range(pageNum * itemsPerPage, (pageNum + 1) * itemsPerPage - 1);
 
