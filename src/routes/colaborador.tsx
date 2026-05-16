@@ -76,10 +76,8 @@ function ColaboradorPage() {
       .range(pageNum * itemsPerPage, (pageNum + 1) * itemsPerPage - 1);
 
     if (search) {
-      // In many cases in this project, cliente is a relation to usuarios table
-      // Supabase filter on joined tables can be tricky depending on how RLS/Views are set up
-      // But we'll try the common syntax
-      query = query.ilike('usuarios.nome', `%${search}%`);
+      // Filtrando pelo nome do cliente na tabela usuários através do relacionamento
+      query = query.filter('cliente.nome', 'ilike', `%${search}%`);
     }
 
     const { data, error } = await query;
