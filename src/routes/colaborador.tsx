@@ -119,7 +119,7 @@ function ColaboradorPage() {
       .select(`
         *,
         cliente:usuarios!cliente_id(nome),
-        atendimento_servicos(servicos(name))
+        atendimento_servicos(servicos(id, name))
       `)
       .eq('colaborador_id', cId)
       .neq('status', 'Agendado')
@@ -143,6 +143,23 @@ function ColaboradorPage() {
       setHasMore((data || []).length === itemsPerPage);
     }
     setLoadingHistorico(false);
+  }, []);
+
+  const fetchPedidosExclusao = useCallback(async (cId: string) => {
+    setLoadingExclusao(true);
+    const { data } = await supabase
+      .from('atendimentos')
+      .select(`
+        *,
+        cliente:usuarios!cliente_id(nome),
+        atendimento_servicos(servicos(id, name))
+      `)
+      .eq('colaborador_id', cId)
+      .eq('pedido_exclusao', true)
+      .order('data', { ascending: false });
+    
+    setPedidosExclusao(data || []);
+    setLoadingExclusao(false);
   }, []);
 
   useEffect(() => {
