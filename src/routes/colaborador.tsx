@@ -617,7 +617,7 @@ function ColaboradorPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-destructive">
                   <AlertTriangle className="w-5 h-5" />
-                  Pedidos para Exclusão
+                  Pedidos exclusão
                 </CardTitle>
               </CardHeader>
               <CardContent>
