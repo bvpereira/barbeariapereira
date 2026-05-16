@@ -638,7 +638,7 @@ function AtendimentosPage() {
             <p className="text-muted-foreground">Controle os agendamentos e atendimentos realizados</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <BookingButton onSuccess={fetchAgendados} className="w-full sm:w-auto bg-[#ff3333] text-primary-foreground hover:bg-[#ff3333]/90" variant="default" />
+            <BookingButton onSuccess={fetchAgendados} className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90" variant="default" />
             <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="gap-2 w-full sm:w-auto">
               <Plus className="w-4 h-4" />
               Novo atendimento
