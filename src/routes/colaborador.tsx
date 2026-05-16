@@ -37,9 +37,11 @@ function ColaboradorPage() {
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [historico, setHistorico] = useState<any[]>([]);
   const [futuros, setFuturos] = useState<any[]>([]);
+  const [pedidosExclusao, setPedidosExclusao] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [loadingFuturos, setLoadingFuturos] = useState(false);
+  const [loadingExclusao, setLoadingExclusao] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [pageFuturos, setPageFuturos] = useState(0);
@@ -72,7 +74,7 @@ function ColaboradorPage() {
       .select(`
         *,
         cliente:usuarios!cliente_id(nome),
-        atendimento_servicos(servicos(name))
+        atendimento_servicos(servicos(id, name))
       `)
       .eq('colaborador_id', cId)
       .gte('data', today.toISOString())
@@ -92,7 +94,7 @@ function ColaboradorPage() {
       .select(`
         *,
         cliente:usuarios!cliente_id(nome),
-        atendimento_servicos(servicos(name))
+        atendimento_servicos(servicos(id, name))
       `)
       .eq('colaborador_id', cId)
       .eq('status', 'Agendado')
@@ -117,7 +119,7 @@ function ColaboradorPage() {
       .select(`
         *,
         cliente:usuarios!cliente_id(nome),
-        atendimento_servicos(servicos(name))
+        atendimento_servicos(servicos(id, name))
       `)
       .eq('colaborador_id', cId)
       .neq('status', 'Agendado')
@@ -143,6 +145,23 @@ function ColaboradorPage() {
     setLoadingHistorico(false);
   }, []);
 
+  const fetchPedidosExclusao = useCallback(async (cId: string) => {
+    setLoadingExclusao(true);
+    const { data } = await supabase
+      .from('atendimentos')
+      .select(`
+        *,
+        cliente:usuarios!cliente_id(nome),
+        atendimento_servicos(servicos(id, name))
+      `)
+      .eq('colaborador_id', cId)
+      .eq('pedido_exclusao', true)
+      .order('data', { ascending: false });
+    
+    setPedidosExclusao(data || []);
+    setLoadingExclusao(false);
+  }, []);
+
   useEffect(() => {
     if (colabId) {
       setPage(0);
@@ -158,21 +177,8 @@ function ColaboradorPage() {
   }, [colabId, fetchFuturos]);
 
   useEffect(() => {
-    const getUserData = () => {
-      const stored = localStorage.getItem("user");
-      if (stored) return stored;
-
-      const cookies = document.cookie.split(';');
-      const userCookie = cookies.find(c => c.trim().startsWith('user='));
-      if (userCookie) {
-        const value = decodeURIComponent(userCookie.split('=')[1]);
-        localStorage.setItem("user", value);
-        return value;
-      }
-      return null;
-    };
-
-    const userData = getUserData();
+    const userData = localStorage.getItem("user") || (document.cookie.split(';').find(c => c.trim().startsWith('user=')) ? decodeURIComponent(document.cookie.split(';').find(c => c.trim().startsWith('user='))!.split('=')[1]) : null);
+    
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
@@ -181,6 +187,35 @@ function ColaboradorPage() {
       });
     }
   }, [fetchAgendamentos]);
+
+  useEffect(() => {
+    if (colabId) {
+      fetchPedidosExclusao(colabId);
+      
+      const channel = supabase
+        .channel('atendimentos_colab')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'atendimentos',
+            filter: `colaborador_id=eq.${colabId}`
+          },
+          () => {
+            fetchAgendamentos(colabId);
+            fetchFuturos(colabId, 0, true);
+            fetchHistorico(colabId, 0, searchTerm, true);
+            fetchPedidosExclusao(colabId);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [colabId, fetchAgendamentos, fetchFuturos, fetchHistorico, fetchPedidosExclusao, searchTerm]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -329,11 +364,31 @@ function ColaboradorPage() {
                           {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
                         </p>
                       </div>
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
-                        <Badge variant="outline" className="text-[10px] h-auto font-normal">
-                          {item.status}
-                        </Badge>
+                        <div className="flex items-center gap-1">
+                          {item.status === 'Agendado' && Number(user?.nivel) <= 2 && (
+                            <BookingButton 
+                              onSuccess={() => fetchAgendamentos(colabId!)} 
+                              variant="ghost" 
+                              className="h-7 px-2 text-[10px]"
+                              label="Editar"
+                              icon={<Clock className="h-3 w-3" />}
+                              initialData={{
+                                id: item.id,
+                                cliente_id: item.cliente_id,
+                                cliente_nome: item.cliente?.nome,
+                                colaborador_id: item.colaborador_id,
+                                data: item.data,
+                                valor: item.valor,
+                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                              }}
+                            />
+                          )}
+                          <Badge variant="outline" className="text-[10px] h-auto font-normal">
+                            {item.status}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -382,7 +437,25 @@ function ColaboradorPage() {
                       </div>
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
                         <span className="font-bold text-sm block">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          {item.status === 'Agendado' && !item.pedido_exclusao && Number(user?.nivel) <= 2 && (
+                            <BookingButton 
+                              onSuccess={() => fetchFuturos(colabId!, 0, true)} 
+                              variant="ghost" 
+                              className="h-7 px-2 text-[10px]"
+                              label="Editar"
+                              icon={<Clock className="h-3 w-3" />}
+                              initialData={{
+                                id: item.id,
+                                cliente_id: item.cliente_id,
+                                cliente_nome: item.cliente?.nome,
+                                colaborador_id: item.colaborador_id,
+                                data: item.data,
+                                valor: item.valor,
+                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                              }}
+                            />
+                          )}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild disabled={item.pedido_exclusao}>
                               <Button variant="ghost" size="sm" className="h-7 px-2">
@@ -538,6 +611,49 @@ function ColaboradorPage() {
               </CardFooter>
             )}
           </Card>
+
+          {pedidosExclusao.length > 0 && (
+            <Card className="md:col-span-2 border-destructive/20 bg-destructive/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  Pedidos para Exclusão
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {pedidosExclusao.map((item) => (
+                    <div key={item.id} className="flex items-center gap-4 p-4 border border-destructive/20 rounded-lg bg-background/50">
+                      <div className="flex-shrink-0 w-16 text-center">
+                        <span className="text-lg font-bold block">
+                          {format(parseISO(item.data), "dd/MM")}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground uppercase">
+                          {format(parseISO(item.data), "HH:mm")}
+                        </span>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-semibold truncate">{item.cliente?.nome}</span>
+                          <Badge variant="outline" className="text-[10px] bg-amber-100 text-amber-700 border-amber-200">
+                            Aguardando Admin
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {item.atendimento_servicos?.map((s: any) => s.servicos?.name).join(", ")}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="font-bold text-sm block text-destructive">
+                          Exclusão Solicitada
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
