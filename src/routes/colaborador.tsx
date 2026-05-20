@@ -396,7 +396,7 @@ function ColaboradorPage() {
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
-                          {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
+                          {item.atendimento_servicos?.map((s: any) => s.servicos?.name).join(", ") || ""}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
@@ -494,7 +494,7 @@ function ColaboradorPage() {
                           <div className="w-2 h-2 rounded-full bg-blue-500" />
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
-                          {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
+                          {item.atendimento_servicos?.map((s: any) => s.servicos?.name).join(", ") || ""}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
