@@ -98,6 +98,7 @@ interface Cliente {
   login: string;
   senha?: string;
   observacao: string | null;
+  registro?: string;
   hasAtendimentos?: boolean;
 }
 
@@ -169,6 +170,7 @@ function ClientesPage() {
     login: "",
     senha: "",
     observacao: "",
+    registro: "sim",
   });
 
   const formatPhone = (value: string) => {
@@ -225,6 +227,7 @@ function ClientesPage() {
         login, 
         senha, 
         observacao,
+        registro,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
       .eq("nivel", 3)
@@ -454,7 +457,7 @@ function ClientesPage() {
       senha: formData.senha,
       observacao: formData.observacao,
       nivel: 3,
-      registro: "sim",
+      registro: formData.registro,
     };
 
     if (isEditing && selectedCliente) {
@@ -548,7 +551,7 @@ function ClientesPage() {
     setIsEditing(false);
     setSelectedCliente(null);
     setShowPassword(false);
-    setFormData({ nome: "", login: "", senha: "", observacao: "" });
+    setFormData({ nome: "", login: "", senha: "", observacao: "", registro: "sim" });
     setIsDialogOpen(true);
   };
 
@@ -561,6 +564,7 @@ function ClientesPage() {
       login: formatPhone(cliente.login),
       senha: cliente.senha || "",
       observacao: cliente.observacao || "",
+      registro: cliente.registro || "sim",
     });
     setIsDialogOpen(true);
   };
@@ -854,6 +858,18 @@ function ClientesPage() {
                       <Eye className="h-4 w-4 text-muted-foreground" />
                     )}
                   </Button>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="registro">Ativar registro</Label>
+                  <Checkbox
+                    id="registro"
+                    checked={formData.registro === "sim"}
+                    onCheckedChange={(checked) => 
+                      setFormData({ ...formData, registro: checked ? "sim" : "nao" })
+                    }
+                  />
                 </div>
               </div>
               <div className="grid gap-2">
