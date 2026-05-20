@@ -46,6 +46,7 @@ interface DashboardData {
   previsaoBrutoMes: number;
   agendamentosProximos: any[];
   agendamentosEmAberto: any[];
+  agendaAbertaAte: string | null;
 }
 
 function AdminPage() {
@@ -62,7 +63,8 @@ function AdminPage() {
     despesasMes: 0,
     previsaoBrutoMes: 0,
     agendamentosProximos: [],
-    agendamentosEmAberto: []
+    agendamentosEmAberto: [],
+    agendaAbertaAte: null
   });
 
   useEffect(() => {
@@ -82,6 +84,14 @@ function AdminPage() {
       const eDay = endOfDay(now);
       const sMonth = startOfMonth(now);
       const eMonth = endOfMonth(now);
+
+      // 0. Agenda aberta até
+      const { data: lastDayData } = await supabase
+        .from("dias_agenda")
+        .select("data")
+        .order("data", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       // 1. Clientes agendados hoje
       const { count: agendadosHojeCount } = await supabase
@@ -192,7 +202,8 @@ function AdminPage() {
         despesasMes: despesasMes,
         previsaoBrutoMes: brutoMes + previsaoAgendados,
         agendamentosProximos,
-        agendamentosEmAberto
+        agendamentosEmAberto,
+        agendaAbertaAte: lastDayData?.data || null
       });
 
     } catch (error) {
@@ -240,7 +251,19 @@ function AdminPage() {
         </div>
 
         {/* Cards de Resumo Hoje */}
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
+          <Card className="p-0 border-primary/20 bg-primary/5">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+              <CardTitle className="text-[12px] md:text-sm font-medium">Agenda Aberta Até</CardTitle>
+              <Clock className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-xl md:text-2xl font-bold text-primary">
+                {data.agendaAbertaAte ? format(parseISO(data.agendaAbertaAte), "dd/MM/yyyy") : "--/--/----"}
+              </div>
+              <p className="text-xs text-muted-foreground">Último dia disponível</p>
+            </CardContent>
+          </Card>
           <Card className="p-0">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
               <CardTitle className="text-[12px] md:text-sm font-medium">Agendados (Hoje)</CardTitle>
