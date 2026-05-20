@@ -170,6 +170,7 @@ function ClientesPage() {
     login: "",
     senha: "",
     observacao: "",
+    registro: "sim",
   });
 
   const formatPhone = (value: string) => {
