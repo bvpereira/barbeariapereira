@@ -74,6 +74,7 @@ function ColaboradorPage() {
   };
 
   const fetchAgendamentos = useCallback(async (cId: string) => {
+    if (!cId) return;
     setLoading(true);
     const today = startOfDay(new Date());
     const tonight = endOfDay(new Date());
@@ -415,7 +416,7 @@ function ColaboradorPage() {
                                 colaborador_id: item.colaborador_id,
                                 data: item.data,
                                 valor: item.valor,
-                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                                 servicos_ids: item.atendimento_servicos?.map((s: any) => s.servicos?.id) || []
                               }}
                             />
                           )}
@@ -513,7 +514,7 @@ function ColaboradorPage() {
                                 colaborador_id: item.colaborador_id,
                                 data: item.data,
                                 valor: item.valor,
-                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                                servicos_ids: item.atendimento_servicos?.map((s: any) => s.servicos?.id) || []
                               }}
                             />
                           )}
