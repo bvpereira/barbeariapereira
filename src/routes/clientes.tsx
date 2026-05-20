@@ -227,6 +227,7 @@ function ClientesPage() {
         login, 
         senha, 
         observacao,
+        registro,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
       .eq("nivel", 3)
