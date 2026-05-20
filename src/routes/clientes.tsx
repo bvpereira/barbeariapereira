@@ -861,6 +861,18 @@ function ClientesPage() {
                 </div>
               </div>
               <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="registro">Ativar registro</Label>
+                  <Checkbox
+                    id="registro"
+                    checked={formData.registro === "sim"}
+                    onCheckedChange={(checked) => 
+                      setFormData({ ...formData, registro: checked ? "sim" : "nao" })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2">
                 <Label htmlFor="observacao">Observação (opcional)</Label>
                 <div className="relative">
                   <StickyNote className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
