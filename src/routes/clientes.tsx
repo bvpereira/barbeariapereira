@@ -98,6 +98,7 @@ interface Cliente {
   login: string;
   senha?: string;
   observacao: string | null;
+  registro?: string;
   hasAtendimentos?: boolean;
 }
 
