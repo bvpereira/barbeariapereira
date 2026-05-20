@@ -551,7 +551,7 @@ function ClientesPage() {
     setIsEditing(false);
     setSelectedCliente(null);
     setShowPassword(false);
-    setFormData({ nome: "", login: "", senha: "", observacao: "" });
+    setFormData({ nome: "", login: "", senha: "", observacao: "", registro: "sim" });
     setIsDialogOpen(true);
   };
 
@@ -564,6 +564,7 @@ function ClientesPage() {
       login: formatPhone(cliente.login),
       senha: cliente.senha || "",
       observacao: cliente.observacao || "",
+      registro: cliente.registro || "sim",
     });
     setIsDialogOpen(true);
   };
