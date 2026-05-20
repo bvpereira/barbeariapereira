@@ -51,20 +51,30 @@ function ColaboradorPage() {
   const itemsPerPage = 10;
 
   const fetchColaboradorId = async (login: string) => {
-    const { data } = await supabase
-      .from('colaboradores')
-      .select('id')
-      .eq('login', login)
-      .maybeSingle();
-    
-    if (data) {
-      setColabId(data.id);
-      return data.id;
+    try {
+      const { data, error } = await supabase
+        .from('colaboradores')
+        .select('id')
+        .eq('login', login)
+        .maybeSingle();
+      
+      if (error) throw error;
+
+      if (data) {
+        setColabId(data.id);
+        return data.id;
+      }
+      setLoading(false);
+      return null;
+    } catch (error: any) {
+      console.error("Erro ao buscar ID do colaborador:", error);
+      setLoading(false);
+      return null;
     }
-    return null;
   };
 
   const fetchAgendamentos = useCallback(async (cId: string) => {
+    if (!cId) return;
     setLoading(true);
     const today = startOfDay(new Date());
     const tonight = endOfDay(new Date());
@@ -180,14 +190,36 @@ function ColaboradorPage() {
   }, [colabId, fetchFuturos]);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user") || (document.cookie.split(';').find(c => c.trim().startsWith('user=')) ? decodeURIComponent(document.cookie.split(';').find(c => c.trim().startsWith('user='))!.split('=')[1]) : null);
+    const getStoredUser = () => {
+      try {
+        const localUser = localStorage.getItem("user");
+        if (localUser && localUser !== "undefined") return JSON.parse(localUser);
+        
+        const cookieUser = document.cookie.split(';').find(c => c.trim().startsWith('user='));
+        if (cookieUser) {
+          const value = decodeURIComponent(cookieUser.split('=')[1]);
+          if (value && value !== "undefined") return JSON.parse(value);
+        }
+      } catch (e) {
+        console.error("Erro ao analisar usuário do storage:", e);
+      }
+      return null;
+    };
+
+    const userData = getStoredUser();
     
     if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      fetchColaboradorId(parsedUser.login).then(id => {
-        if (id) fetchAgendamentos(id);
+      setUser(userData);
+      fetchColaboradorId(userData.login).then(id => {
+        if (id) {
+          fetchAgendamentos(id);
+        } else {
+          setLoading(false);
+        }
       });
+    } else {
+      setLoading(false);
+      window.location.href = "/login";
     }
   }, [fetchAgendamentos]);
 
@@ -268,7 +300,7 @@ function ColaboradorPage() {
     }
   };
 
-  if (!user) return null;
+  if (!user && !loading) return null;
 
   if (!colabId && !loading) return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -364,7 +396,7 @@ function ColaboradorPage() {
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
-                          {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
+                          {item.atendimento_servicos?.map((s: any) => s.servicos?.name).join(", ") || ""}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
@@ -384,7 +416,7 @@ function ColaboradorPage() {
                                 colaborador_id: item.colaborador_id,
                                 data: item.data,
                                 valor: item.valor,
-                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                                 servicos_ids: item.atendimento_servicos?.map((s: any) => s.servicos?.id) || []
                               }}
                             />
                           )}
@@ -462,7 +494,7 @@ function ColaboradorPage() {
                           <div className="w-2 h-2 rounded-full bg-blue-500" />
                         </div>
                         <p className="text-xs text-muted-foreground truncate">
-                          {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
+                          {item.atendimento_servicos?.map((s: any) => s.servicos?.name).join(", ") || ""}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0 flex flex-col items-end gap-1">
@@ -482,7 +514,7 @@ function ColaboradorPage() {
                                 colaborador_id: item.colaborador_id,
                                 data: item.data,
                                 valor: item.valor,
-                                servicos_ids: item.atendimento_servicos.map((s: any) => s.servicos?.id)
+                                servicos_ids: item.atendimento_servicos?.map((s: any) => s.servicos?.id) || []
                               }}
                             />
                           )}
