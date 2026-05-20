@@ -454,6 +454,7 @@ function ClientesPage() {
       senha: formData.senha,
       observacao: formData.observacao,
       nivel: 3,
+      registro: "sim",
     };
 
     if (isEditing && selectedCliente) {
