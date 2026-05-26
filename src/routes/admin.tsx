@@ -31,7 +31,7 @@ import {
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/admin" as any)({
+export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 

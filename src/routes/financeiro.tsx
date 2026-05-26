@@ -50,7 +50,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/financeiro" as any)({
+export const Route = createFileRoute("/financeiro")({
   component: FinanceiroPage,
 });
 

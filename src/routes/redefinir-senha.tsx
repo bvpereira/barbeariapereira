@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 
-export const Route = createFileRoute("/redefinir-senha" as any)({
+export const Route = createFileRoute("/redefinir-senha")({
   component: RedefinirSenha,
 });
 

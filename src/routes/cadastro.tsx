@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 
-export const Route = createFileRoute("/cadastro" as any)({
+export const Route = createFileRoute("/cadastro")({
   component: Cadastro,
 });
 

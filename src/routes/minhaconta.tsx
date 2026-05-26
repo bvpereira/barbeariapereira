@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { User, Lock, Save, Phone, Image as ImageIcon, X, Upload, Loader2, Mail, Video, Search, Clock } from "lucide-react";
 
-export const Route = createFileRoute("/minhaconta" as any)({
+export const Route = createFileRoute("/minhaconta")({
   component: MinhaContaPage,
 });
 

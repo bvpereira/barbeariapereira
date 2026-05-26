@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link2, Save, Loader2, Database, Megaphone, CheckCircle2, UserKey, Calendar } from "lucide-react";
 
-export const Route = createFileRoute("/integracoes" as any)({
+export const Route = createFileRoute("/integracoes")({
   component: IntegracoesPage,
 });
 
