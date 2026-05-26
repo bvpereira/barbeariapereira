@@ -44,6 +44,7 @@ interface DashboardData {
   comissoesMes: number;
   despesasMes: number;
   previsaoBrutoMes: number;
+  colaboradoresAtivos: string[];
   agendamentosProximos: any[];
   agendamentosEmAberto: any[];
   agendaAbertaAte: string | null;
@@ -62,6 +63,7 @@ function AdminPage() {
     comissoesMes: 0,
     despesasMes: 0,
     previsaoBrutoMes: 0,
+    colaboradoresAtivos: [],
     agendamentosProximos: [],
     agendamentosEmAberto: [],
     agendaAbertaAte: null
@@ -92,6 +94,13 @@ function AdminPage() {
         .order("data", { ascending: false })
         .limit(1)
         .maybeSingle();
+
+      // 0.1. Colaboradores ativos
+      const { data: colaboradoresAtivosData } = await supabase
+        .from("colaboradores")
+        .select("nome")
+        .eq("ativo", true)
+        .order("nome", { ascending: true });
 
       // 1. Clientes agendados hoje
       const { count: agendadosHojeCount } = await supabase
@@ -201,6 +210,7 @@ function AdminPage() {
         comissoesMes: comissoesMes,
         despesasMes: despesasMes,
         previsaoBrutoMes: brutoMes + previsaoAgendados,
+        colaboradoresAtivos: (colaboradoresAtivosData || []).map(colaborador => colaborador.nome).filter(Boolean),
         agendamentosProximos,
         agendamentosEmAberto,
         agendaAbertaAte: lastDayData?.data || null
@@ -305,6 +315,29 @@ function AdminPage() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Colaboradores Ativos
+            </CardTitle>
+            <Badge variant="outline">{data.colaboradoresAtivos.length}</Badge>
+          </CardHeader>
+          <CardContent>
+            {data.colaboradoresAtivos.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum colaborador ativo cadastrado.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {data.colaboradoresAtivos.map(nome => (
+                  <Badge key={nome} variant="secondary" className="text-sm py-1 px-3">
+                    {nome}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Listas de Atenção e Próximos */}
         <div className="grid gap-6 lg:grid-cols-2">
