@@ -32,7 +32,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-export const Route = createFileRoute("/cliente" as any)({
+export const Route = createFileRoute("/cliente")({
   component: ClientePage,
 });
 

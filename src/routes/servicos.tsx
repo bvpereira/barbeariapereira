@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 
-export const Route = createFileRoute("/servicos" as any)({
+export const Route = createFileRoute("/servicos")({
   component: ServicesPage,
 });
 

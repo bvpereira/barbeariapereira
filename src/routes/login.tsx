@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export const Route = createFileRoute("/login" as any)({
+export const Route = createFileRoute("/login")({
   component: Login,
 });
 

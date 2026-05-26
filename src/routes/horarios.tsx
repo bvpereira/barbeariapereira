@@ -27,7 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export const Route = createFileRoute("/horarios" as any)({
+export const Route = createFileRoute("/horarios")({
   component: HorariosPage,
 });
 

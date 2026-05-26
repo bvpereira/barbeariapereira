@@ -41,7 +41,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-export const Route = createFileRoute("/promocao" as any)({
+export const Route = createFileRoute("/promocao")({
   component: PromocaoPage,
 });
 

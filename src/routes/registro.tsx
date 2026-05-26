@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 
-export const Route = createFileRoute("/registro" as any)({
+export const Route = createFileRoute("/registro")({
   component: Registro,
 });
 

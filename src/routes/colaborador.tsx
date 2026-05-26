@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export const Route = createFileRoute("/colaborador" as any)({
+export const Route = createFileRoute("/colaborador")({
   component: ColaboradorPage,
 });
 
