@@ -20,6 +20,7 @@ export type Database = {
           id: string
           imagem_formato: string
           linha: number | null
+          prompt_imagem: string | null
           updated_at: string
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           id?: string
           imagem_formato: string
           linha?: number | null
+          prompt_imagem?: string | null
           updated_at?: string
         }
         Update: {
@@ -34,6 +36,7 @@ export type Database = {
           id?: string
           imagem_formato?: string
           linha?: number | null
+          prompt_imagem?: string | null
           updated_at?: string
         }
         Relationships: []
