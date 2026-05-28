@@ -1,0 +1,1 @@
+GRANT SELECT ON public.agentes_ia TO anon;
