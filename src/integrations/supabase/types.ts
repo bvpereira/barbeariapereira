@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      agentes_ia: {
+        Row: {
+          created_at: string
+          id: string
+          imagem_formato: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imagem_formato: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imagem_formato?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       atendimento_servicos: {
         Row: {
           atendimento_id: string

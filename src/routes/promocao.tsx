@@ -44,6 +44,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -71,6 +78,8 @@ function PromocaoPage() {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [telContato, setTelContato] = useState("");
   const [historico, setHistorico] = useState<any[]>([]);
+  const [formatosIA, setFormatosIA] = useState<any[]>([]);
+  const [formatoSelecionado, setFormatoSelecionado] = useState("");
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
   const [promoToDelete, setPromoToDelete] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -125,6 +134,19 @@ function PromocaoPage() {
         .order("data_promo", { ascending: false });
       
       if (history) setHistorico(history);
+      
+      // 5. Fetch formatos_ia
+      const { data: formats, error: formatsError } = await supabase
+        .from("agentes_ia")
+        .select("*")
+        .order("created_at", { ascending: true });
+      
+      if (formats) {
+        setFormatosIA(formats);
+        if (formats.length > 0 && !formatoSelecionado) {
+          setFormatoSelecionado(formats[0].imagem_formato);
+        }
+      }
       
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
@@ -489,6 +511,22 @@ function PromocaoPage() {
                   <div className="flex items-center gap-2 font-semibold text-lg">
                     <ImageIcon className="h-5 w-5 text-primary" />
                     Imagem
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="formato-imagem">Formato da Imagem</Label>
+                    <Select value={formatoSelecionado} onValueChange={setFormatoSelecionado}>
+                      <SelectTrigger id="formato-imagem" className="bg-background">
+                        <SelectValue placeholder="Selecione o formato" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {formatosIA.map((f) => (
+                          <SelectItem key={f.id} value={f.imagem_formato}>
+                            {f.imagem_formato}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
