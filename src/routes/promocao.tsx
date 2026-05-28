@@ -217,6 +217,30 @@ function PromocaoPage() {
     }
   };
 
+  const handleDownloadImage = async () => {
+    if (!promoAtual.imagem_ia) return;
+    try {
+      const response = await fetch(promoAtual.imagem_ia);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `imagem_ia_${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar imagem:", error);
+      toast.error("Erro ao baixar imagem");
+    }
+  };
+
+  const handleRefazerImagem = () => {
+    toast.info("Lógica para refazer imagem solicitada com o prompt atual.");
+    console.log("Refazer imagem com prompt:", promoAtual.prompt_imagem);
+  };
+
   const handleSaveWebhook = async () => {
     setSaving(true);
     try {
