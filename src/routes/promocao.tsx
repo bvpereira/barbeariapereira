@@ -260,11 +260,11 @@ function PromocaoPage() {
     }
     setSaving(true);
     try {
-      // 1. Save the selected format to agentes_ia table at line 0
+      // 1. Save the selected format to agentes_ia table at line 0 with specific ID
       const { error: formatError } = await supabase
         .from("agentes_ia")
         .update({ imagem_formato: formatoExibicao })
-        .eq("linha", 0);
+        .eq("id", "6dd01103-085d-45c6-923f-430fd4ffc05b");
 
       if (formatError) throw formatError;
 
