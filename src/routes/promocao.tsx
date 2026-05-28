@@ -20,7 +20,10 @@ import {
   Link2,
   Calendar,
   Eye,
-  Save
+  Save,
+  Sparkles,
+  Type,
+  Wand2
 } from "lucide-react";
 import {
   AlertDialog,
@@ -55,7 +58,11 @@ function PromocaoPage() {
   const [promoAtual, setPromoAtual] = useState<any>({
     texto_promo: "",
     imagem_promo: null,
-    testada: "nao"
+    testada: "nao",
+    prompt_texto: "",
+    prompt_imagem: "",
+    imagem_ia: null,
+    texto_promo_ia_2: ""
   });
   
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -183,6 +190,26 @@ function PromocaoPage() {
       toast.success("Texto da promoção salvo!");
     } catch (error: any) {
       toast.error("Erro ao salvar texto: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSavePrompts = async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from("promocao")
+        .update({ 
+          prompt_texto: promoAtual.prompt_texto,
+          prompt_imagem: promoAtual.prompt_imagem
+        })
+        .eq("numero_promo", 0);
+      
+      if (error) throw error;
+      toast.success("Prompts salvos com sucesso!");
+    } catch (error: any) {
+      toast.error("Erro ao salvar prompts: " + error.message);
     } finally {
       setSaving(false);
     }
@@ -346,6 +373,86 @@ function PromocaoPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
+          {/* Gerados por IA */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Gerados por IA
+              </CardTitle>
+              <CardDescription>Utilize inteligência artificial para criar conteúdos para suas promoções.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Parte Texto */}
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                  <div className="flex items-center gap-2 font-semibold text-lg">
+                    <Type className="h-5 w-5 text-primary" />
+                    Texto
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="prompt-texto">Prompt para criar texto</Label>
+                    <Textarea
+                      id="prompt-texto"
+                      placeholder="Descreva como você quer o texto da promoção..."
+                      className="min-h-[100px] bg-background"
+                      value={promoAtual.prompt_texto || ""}
+                      onChange={(e) => setPromoAtual({ ...promoAtual, prompt_texto: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Texto gerado pela IA</Label>
+                    <div className="p-3 rounded-md bg-background border min-h-[100px] text-sm whitespace-pre-wrap italic text-muted-foreground">
+                      {promoAtual.texto_promo_ia_2 || "O texto gerado aparecerá aqui..."}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Parte Imagem */}
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                  <div className="flex items-center gap-2 font-semibold text-lg">
+                    <ImageIcon className="h-5 w-5 text-primary" />
+                    Imagem
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="prompt-imagem">Prompt para criar imagem</Label>
+                    <Textarea
+                      id="prompt-imagem"
+                      placeholder="Descreva como você quer a imagem da promoção..."
+                      className="min-h-[100px] bg-background"
+                      value={promoAtual.prompt_imagem || ""}
+                      onChange={(e) => setPromoAtual({ ...promoAtual, prompt_imagem: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Imagem gerada pela IA</Label>
+                    <div className="relative aspect-video rounded-lg border bg-background flex items-center justify-center overflow-hidden">
+                      {promoAtual.imagem_ia ? (
+                        <img src={promoAtual.imagem_ia} alt="IA Gerada" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-center p-4 text-sm text-muted-foreground">
+                          <ImageIcon className="h-8 w-8 mx-auto mb-2 opacity-20" />
+                          A imagem gerada aparecerá aqui
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <Button className="gap-2" onClick={handleSavePrompts} disabled={saving}>
+                  <Save className="h-4 w-4" />
+                  Salvar Prompts
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Cadastro de Promoção */}
           <Card className="md:row-span-2">
             <CardHeader>

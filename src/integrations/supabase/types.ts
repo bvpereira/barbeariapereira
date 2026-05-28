@@ -393,6 +393,8 @@ export type Database = {
           imagem_ia: string | null
           imagem_promo: string | null
           numero_promo: number
+          prompt_imagem: string | null
+          prompt_texto: string | null
           testada: string | null
           texto_promo: string | null
           texto_promo_ia_2: string | null
@@ -405,6 +407,8 @@ export type Database = {
           imagem_ia?: string | null
           imagem_promo?: string | null
           numero_promo: number
+          prompt_imagem?: string | null
+          prompt_texto?: string | null
           testada?: string | null
           texto_promo?: string | null
           texto_promo_ia_2?: string | null
@@ -417,6 +421,8 @@ export type Database = {
           imagem_ia?: string | null
           imagem_promo?: string | null
           numero_promo?: number
+          prompt_imagem?: string | null
+          prompt_texto?: string | null
           testada?: string | null
           texto_promo?: string | null
           texto_promo_ia_2?: string | null
