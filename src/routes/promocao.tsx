@@ -269,10 +269,6 @@ function PromocaoPage() {
     }
   };
 
-  const handleRefazerImagem = () => {
-    toast.info("Lógica para refazer imagem solicitada com o prompt atual.");
-    console.log("Refazer imagem com prompt:", promoAtual.prompt_imagem);
-  };
 
   const handleSaveWebhook = async () => {
     setSaving(true);
