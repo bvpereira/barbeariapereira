@@ -455,13 +455,32 @@ function PromocaoPage() {
                       value={promoAtual.prompt_texto || ""}
                       onChange={(e) => setPromoAtual({ ...promoAtual, prompt_texto: e.target.value })}
                     />
+                    <Button 
+                      className="w-full gap-2" 
+                      onClick={handleGerarTexto} 
+                      disabled={saving}
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Gerar Texto
+                    </Button>
                   </div>
 
                   <div className="space-y-2">
                     <Label>Texto gerado pela IA</Label>
-                    <div className="p-3 rounded-md bg-background border min-h-[100px] text-sm whitespace-pre-wrap italic text-muted-foreground">
-                      {promoAtual.texto_promo_ia_2 || "O texto gerado aparecerá aqui..."}
+                    <div className="p-3 rounded-md bg-background border min-h-[100px] text-sm whitespace-pre-wrap italic text-muted-foreground mb-2">
+                      {promoAtual.texto_promo_ia_2 || "O text gerado aparecerá aqui..."}
                     </div>
+                    {promoAtual.texto_promo_ia_2 && (
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="w-full gap-2" 
+                        onClick={handleCopyText}
+                      >
+                        <Copy className="h-4 w-4" />
+                        Copiar texto
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -481,6 +500,14 @@ function PromocaoPage() {
                       value={promoAtual.prompt_imagem || ""}
                       onChange={(e) => setPromoAtual({ ...promoAtual, prompt_imagem: e.target.value })}
                     />
+                    <Button 
+                      className="w-full gap-2" 
+                      onClick={handleGerarImagem} 
+                      disabled={saving}
+                    >
+                      <Wand2 className="h-4 w-4" />
+                      Gerar imagem
+                    </Button>
                   </div>
 
                   <div className="space-y-2">
@@ -497,36 +524,20 @@ function PromocaoPage() {
                     </div>
                     
                     {promoAtual.imagem_ia && (
-                      <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="mt-2">
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="gap-2" 
+                          className="w-full gap-2" 
                           onClick={handleDownloadImage}
                         >
                           <Download className="h-4 w-4" />
                           Download
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="gap-2 text-amber-600 hover:text-amber-700" 
-                          onClick={handleRefazerImagem}
-                        >
-                          <RefreshCw className="h-4 w-4" />
-                          Refazer Imagem
-                        </Button>
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <Button className="gap-2" onClick={handleSavePrompts} disabled={saving}>
-                  <Save className="h-4 w-4" />
-                  Salvar Prompts
-                </Button>
               </div>
             </CardContent>
           </Card>
