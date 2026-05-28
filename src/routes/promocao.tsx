@@ -65,7 +65,7 @@ function PromocaoPage() {
     prompt_texto: "",
     prompt_imagem: "",
     imagem_ia: null,
-    texto_promo_ia_2: ""
+    texto_ia: ""
   });
   
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -245,8 +245,8 @@ function PromocaoPage() {
   };
 
   const handleUseIAText = () => {
-    if (!promoAtual.texto_promo_ia_2) return;
-    setPromoAtual({ ...promoAtual, texto_promo: promoAtual.texto_promo_ia_2 });
+    if (!promoAtual.texto_ia) return;
+    setPromoAtual({ ...promoAtual, texto_promo: promoAtual.texto_ia });
     toast.success("Texto da IA aplicado à promoção!");
   };
 
