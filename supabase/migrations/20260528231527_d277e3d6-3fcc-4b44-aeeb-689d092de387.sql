@@ -1,0 +1,1 @@
+ALTER TABLE public.agentes_ia ADD COLUMN prompt_imagem TEXT;
