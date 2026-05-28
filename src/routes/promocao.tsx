@@ -136,22 +136,23 @@ function PromocaoPage() {
       if (history) setHistorico(history);
       
       // 5. Fetch formatos_ia
-      console.log("Fetching formatos_ia...");
+      console.log("Chamando supabase para buscar agentes_ia...");
       const { data: formats, error: formatsError } = await supabase
         .from("agentes_ia")
-        .select("*")
-        .order("created_at", { ascending: true });
+        .select("id, imagem_formato");
       
       if (formatsError) {
-        console.error("Erro ao buscar formatos IA:", formatsError);
+        console.error("Erro detalhado do Supabase ao buscar agentes_ia:", formatsError);
       }
 
       if (formats) {
-        console.log("Formatos IA carregados:", formats);
+        console.log("Sucesso ao carregar agentes_ia. Quantidade:", formats.length, "Dados:", formats);
         setFormatosIA(formats);
         if (formats.length > 0 && !formatoSelecionado) {
           setFormatoSelecionado(formats[0].imagem_formato);
         }
+      } else {
+        console.warn("Nenhum dado retornado para agentes_ia (data é null)");
       }
       
     } catch (error) {
