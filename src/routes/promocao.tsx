@@ -475,10 +475,10 @@ function PromocaoPage() {
                         variant="secondary" 
                         size="sm" 
                         className="w-full gap-2" 
-                        onClick={handleCopyText}
+                        onClick={handleUseIAText}
                       >
                         <Copy className="h-4 w-4" />
-                        Copiar texto
+                        Usar texto para promoção
                       </Button>
                     )}
                   </div>
