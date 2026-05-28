@@ -514,6 +514,22 @@ function PromocaoPage() {
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="formato-imagem">Formato da Imagem</Label>
+                    <Select value={formatoSelecionado} onValueChange={setFormatoSelecionado}>
+                      <SelectTrigger id="formato-imagem" className="bg-background">
+                        <SelectValue placeholder="Selecione o formato" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {formatosIA.map((f) => (
+                          <SelectItem key={f.id} value={f.imagem_formato}>
+                            {f.imagem_formato}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="prompt-imagem">Prompt para criar imagem</Label>
                     <Textarea
                       id="prompt-imagem"
