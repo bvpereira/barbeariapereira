@@ -135,6 +135,19 @@ function PromocaoPage() {
       
       if (history) setHistorico(history);
       
+      // 5. Fetch formatos_ia
+      const { data: formats, error: formatsError } = await supabase
+        .from("agentes_ia")
+        .select("*")
+        .order("created_at", { ascending: true });
+      
+      if (formats) {
+        setFormatosIA(formats);
+        if (formats.length > 0 && !formatoSelecionado) {
+          setFormatoSelecionado(formats[0].imagem_formato);
+        }
+      }
+      
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
       toast.error("Erro ao carregar dados da página");
