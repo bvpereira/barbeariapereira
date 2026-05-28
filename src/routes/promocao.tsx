@@ -198,24 +198,56 @@ function PromocaoPage() {
     }
   };
 
-  const handleSavePrompts = async () => {
+  const handleGerarTexto = async () => {
+    if (!promoAtual.prompt_texto) {
+      toast.error("Digite um prompt para gerar o texto.");
+      return;
+    }
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Save prompt first
+      await supabase
         .from("promocao")
-        .update({ 
-          prompt_texto: promoAtual.prompt_texto,
-          prompt_imagem: promoAtual.prompt_imagem
-        })
+        .update({ prompt_texto: promoAtual.prompt_texto })
         .eq("numero_promo", 0);
       
-      if (error) throw error;
-      toast.success("Prompts salvos com sucesso!");
+      toast.info("Solicitando geração de texto por IA...");
+      console.log("Gerar texto com prompt:", promoAtual.prompt_texto);
+      // Aqui entraria a chamada para a API de IA
     } catch (error: any) {
-      toast.error("Erro ao salvar prompts: " + error.message);
+      toast.error("Erro ao processar: " + error.message);
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleGerarImagem = async () => {
+    if (!promoAtual.prompt_imagem) {
+      toast.error("Digite um prompt para gerar a imagem.");
+      return;
+    }
+    setSaving(true);
+    try {
+      // Save prompt first
+      await supabase
+        .from("promocao")
+        .update({ prompt_imagem: promoAtual.prompt_imagem })
+        .eq("numero_promo", 0);
+      
+      toast.info("Solicitando geração de imagem por IA...");
+      console.log("Gerar imagem com prompt:", promoAtual.prompt_imagem);
+      // Aqui entraria a chamada para a API de IA
+    } catch (error: any) {
+      toast.error("Erro ao processar: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCopyText = () => {
+    if (!promoAtual.texto_promo_ia_2) return;
+    navigator.clipboard.writeText(promoAtual.texto_promo_ia_2);
+    toast.success("Texto copiado para a área de transferência!");
   };
 
   const handleDownloadImage = async () => {
