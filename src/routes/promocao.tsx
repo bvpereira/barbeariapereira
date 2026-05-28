@@ -23,7 +23,9 @@ import {
   Save,
   Sparkles,
   Type,
-  Wand2
+  Wand2,
+  Download,
+  RefreshCw
 } from "lucide-react";
 import {
   AlertDialog,
@@ -440,6 +442,29 @@ function PromocaoPage() {
                         </div>
                       )}
                     </div>
+                    
+                    {promoAtual.imagem_ia && (
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-2" 
+                          onClick={handleDownloadImage}
+                        >
+                          <Download className="h-4 w-4" />
+                          Download
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-2 text-amber-600 hover:text-amber-700" 
+                          onClick={handleRefazerImagem}
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                          Refazer Imagem
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
