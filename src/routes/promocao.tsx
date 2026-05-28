@@ -254,16 +254,28 @@ function PromocaoPage() {
       toast.error("Digite um prompt para gerar a imagem.");
       return;
     }
+    if (!formatoExibicao) {
+      toast.error("Selecione o formato da imagem.");
+      return;
+    }
     setSaving(true);
     try {
-      // Save prompt first
+      // 1. Save the selected format to agentes_ia table at line 0
+      const { error: formatError } = await supabase
+        .from("agentes_ia")
+        .update({ imagem_formato: formatoExibicao })
+        .eq("linha", 0);
+
+      if (formatError) throw formatError;
+
+      // 2. Save prompt
       await supabase
         .from("promocao")
         .update({ prompt_imagem: promoAtual.prompt_imagem })
         .eq("numero_promo", 0);
       
       toast.info("Solicitando geração de imagem por IA...");
-      console.log("Gerar imagem com prompt:", promoAtual.prompt_imagem);
+      console.log("Gerar imagem com prompt:", promoAtual.prompt_imagem, "Formato:", formatoExibicao);
       // Aqui entraria a chamada para a API de IA
     } catch (error: any) {
       toast.error("Erro ao processar: " + error.message);
