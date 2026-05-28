@@ -244,10 +244,10 @@ function PromocaoPage() {
     }
   };
 
-  const handleCopyText = () => {
+  const handleUseIAText = () => {
     if (!promoAtual.texto_promo_ia_2) return;
-    navigator.clipboard.writeText(promoAtual.texto_promo_ia_2);
-    toast.success("Texto copiado para a área de transferência!");
+    setPromoAtual({ ...promoAtual, texto_promo: promoAtual.texto_promo_ia_2 });
+    toast.success("Texto da IA aplicado à promoção!");
   };
 
   const handleDownloadImage = async () => {
@@ -475,10 +475,10 @@ function PromocaoPage() {
                         variant="secondary" 
                         size="sm" 
                         className="w-full gap-2" 
-                        onClick={handleCopyText}
+                        onClick={handleUseIAText}
                       >
                         <Copy className="h-4 w-4" />
-                        Copiar texto
+                        Usar texto para promoção
                       </Button>
                     )}
                   </div>
