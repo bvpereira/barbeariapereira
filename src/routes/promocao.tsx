@@ -136,12 +136,18 @@ function PromocaoPage() {
       if (history) setHistorico(history);
       
       // 5. Fetch formatos_ia
+      console.log("Fetching formatos_ia...");
       const { data: formats, error: formatsError } = await supabase
         .from("agentes_ia")
         .select("*")
         .order("created_at", { ascending: true });
       
+      if (formatsError) {
+        console.error("Erro ao buscar formatos IA:", formatsError);
+      }
+
       if (formats) {
+        console.log("Formatos IA carregados:", formats);
         setFormatosIA(formats);
         if (formats.length > 0 && !formatoSelecionado) {
           setFormatoSelecionado(formats[0].imagem_formato);
