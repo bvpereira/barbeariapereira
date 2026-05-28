@@ -65,7 +65,7 @@ function PromocaoPage() {
     prompt_texto: "",
     prompt_imagem: "",
     imagem_ia: null,
-    texto_promo_ia_2: ""
+    texto_ia: ""
   });
   
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -245,8 +245,8 @@ function PromocaoPage() {
   };
 
   const handleUseIAText = () => {
-    if (!promoAtual.texto_promo_ia_2) return;
-    setPromoAtual({ ...promoAtual, texto_promo: promoAtual.texto_promo_ia_2 });
+    if (!promoAtual.texto_ia) return;
+    setPromoAtual({ ...promoAtual, texto_promo: promoAtual.texto_ia });
     toast.success("Texto da IA aplicado à promoção!");
   };
 
@@ -468,9 +468,9 @@ function PromocaoPage() {
                   <div className="space-y-2">
                     <Label>Texto gerado pela IA</Label>
                     <div className="p-3 rounded-md bg-background border min-h-[100px] text-sm whitespace-pre-wrap italic text-muted-foreground mb-2">
-                      {promoAtual.texto_promo_ia_2 || "O text gerado aparecerá aqui..."}
+                      {promoAtual.texto_ia || "O texto gerado aparecerá aqui..."}
                     </div>
-                    {promoAtual.texto_promo_ia_2 && (
+                    {promoAtual.texto_ia && (
                       <Button 
                         variant="secondary" 
                         size="sm" 
