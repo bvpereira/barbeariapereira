@@ -139,7 +139,8 @@ function PromocaoPage() {
       console.log("Chamando supabase para buscar agentes_ia...");
       const { data: formats, error: formatsError } = await supabase
         .from("agentes_ia")
-        .select("id, imagem_formato");
+        .select("id, imagem_formato, linha")
+        .order("linha", { ascending: true });
       
       if (formatsError) {
         console.error("Erro detalhado do Supabase ao buscar agentes_ia:", formatsError);
@@ -148,9 +149,6 @@ function PromocaoPage() {
       if (formats) {
         console.log("Sucesso ao carregar agentes_ia. Quantidade:", formats.length, "Dados:", formats);
         setFormatosIA(formats);
-        if (formats.length > 0 && !formatoSelecionado) {
-          setFormatoSelecionado(formats[0].imagem_formato);
-        }
       } else {
         console.warn("Nenhum dado retornado para agentes_ia (data é null)");
       }
@@ -522,12 +520,23 @@ function PromocaoPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="formato-imagem">Formato da Imagem</Label>
-                    <Select value={formatoSelecionado} onValueChange={setFormatoSelecionado}>
+                    <Select 
+                      value={formatoSelecionado} 
+                      onValueChange={(val) => {
+                        // Se selecionar um item (que não é o 0), o valor salvo será o da linha 0
+                        const linhaZero = formatosIA.find(f => f.linha === 0);
+                        if (linhaZero) {
+                          setFormatoSelecionado(linhaZero.imagem_formato);
+                        } else {
+                          setFormatoSelecionado(val);
+                        }
+                      }}
+                    >
                       <SelectTrigger id="formato-imagem" className="bg-background">
-                        <SelectValue placeholder="Selecione o formato" />
+                        <SelectValue placeholder="Clique para selecionar o formato" />
                       </SelectTrigger>
                       <SelectContent>
-                        {formatosIA.map((f) => (
+                        {formatosIA.filter(f => f.linha !== 0).map((f) => (
                           <SelectItem key={f.id} value={f.imagem_formato}>
                             {f.imagem_formato}
                           </SelectItem>
