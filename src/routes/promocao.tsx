@@ -25,7 +25,8 @@ import {
   Type,
   Wand2,
   Download,
-  RefreshCw
+  RefreshCw,
+  Copy
 } from "lucide-react";
 import {
   AlertDialog,
@@ -197,24 +198,56 @@ function PromocaoPage() {
     }
   };
 
-  const handleSavePrompts = async () => {
+  const handleGerarTexto = async () => {
+    if (!promoAtual.prompt_texto) {
+      toast.error("Digite um prompt para gerar o texto.");
+      return;
+    }
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Save prompt first
+      await supabase
         .from("promocao")
-        .update({ 
-          prompt_texto: promoAtual.prompt_texto,
-          prompt_imagem: promoAtual.prompt_imagem
-        })
+        .update({ prompt_texto: promoAtual.prompt_texto })
         .eq("numero_promo", 0);
       
-      if (error) throw error;
-      toast.success("Prompts salvos com sucesso!");
+      toast.info("Solicitando geração de texto por IA...");
+      console.log("Gerar texto com prompt:", promoAtual.prompt_texto);
+      // Aqui entraria a chamada para a API de IA
     } catch (error: any) {
-      toast.error("Erro ao salvar prompts: " + error.message);
+      toast.error("Erro ao processar: " + error.message);
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleGerarImagem = async () => {
+    if (!promoAtual.prompt_imagem) {
+      toast.error("Digite um prompt para gerar a imagem.");
+      return;
+    }
+    setSaving(true);
+    try {
+      // Save prompt first
+      await supabase
+        .from("promocao")
+        .update({ prompt_imagem: promoAtual.prompt_imagem })
+        .eq("numero_promo", 0);
+      
+      toast.info("Solicitando geração de imagem por IA...");
+      console.log("Gerar imagem com prompt:", promoAtual.prompt_imagem);
+      // Aqui entraria a chamada para a API de IA
+    } catch (error: any) {
+      toast.error("Erro ao processar: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCopyText = () => {
+    if (!promoAtual.texto_promo_ia_2) return;
+    navigator.clipboard.writeText(promoAtual.texto_promo_ia_2);
+    toast.success("Texto copiado para a área de transferência!");
   };
 
   const handleDownloadImage = async () => {
@@ -236,10 +269,6 @@ function PromocaoPage() {
     }
   };
 
-  const handleRefazerImagem = () => {
-    toast.info("Lógica para refazer imagem solicitada com o prompt atual.");
-    console.log("Refazer imagem com prompt:", promoAtual.prompt_imagem);
-  };
 
   const handleSaveWebhook = async () => {
     setSaving(true);
@@ -426,13 +455,32 @@ function PromocaoPage() {
                       value={promoAtual.prompt_texto || ""}
                       onChange={(e) => setPromoAtual({ ...promoAtual, prompt_texto: e.target.value })}
                     />
+                    <Button 
+                      className="w-full gap-2" 
+                      onClick={handleGerarTexto} 
+                      disabled={saving}
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Gerar Texto
+                    </Button>
                   </div>
 
                   <div className="space-y-2">
                     <Label>Texto gerado pela IA</Label>
-                    <div className="p-3 rounded-md bg-background border min-h-[100px] text-sm whitespace-pre-wrap italic text-muted-foreground">
-                      {promoAtual.texto_promo_ia_2 || "O texto gerado aparecerá aqui..."}
+                    <div className="p-3 rounded-md bg-background border min-h-[100px] text-sm whitespace-pre-wrap italic text-muted-foreground mb-2">
+                      {promoAtual.texto_promo_ia_2 || "O text gerado aparecerá aqui..."}
                     </div>
+                    {promoAtual.texto_promo_ia_2 && (
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="w-full gap-2" 
+                        onClick={handleCopyText}
+                      >
+                        <Copy className="h-4 w-4" />
+                        Copiar texto
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -452,6 +500,14 @@ function PromocaoPage() {
                       value={promoAtual.prompt_imagem || ""}
                       onChange={(e) => setPromoAtual({ ...promoAtual, prompt_imagem: e.target.value })}
                     />
+                    <Button 
+                      className="w-full gap-2" 
+                      onClick={handleGerarImagem} 
+                      disabled={saving}
+                    >
+                      <Wand2 className="h-4 w-4" />
+                      Gerar imagem
+                    </Button>
                   </div>
 
                   <div className="space-y-2">
@@ -468,36 +524,20 @@ function PromocaoPage() {
                     </div>
                     
                     {promoAtual.imagem_ia && (
-                      <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="mt-2">
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="gap-2" 
+                          className="w-full gap-2" 
                           onClick={handleDownloadImage}
                         >
                           <Download className="h-4 w-4" />
                           Download
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="gap-2 text-amber-600 hover:text-amber-700" 
-                          onClick={handleRefazerImagem}
-                        >
-                          <RefreshCw className="h-4 w-4" />
-                          Refazer Imagem
-                        </Button>
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <Button className="gap-2" onClick={handleSavePrompts} disabled={saving}>
-                  <Save className="h-4 w-4" />
-                  Salvar Prompts
-                </Button>
               </div>
             </CardContent>
           </Card>
