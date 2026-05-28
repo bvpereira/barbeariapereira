@@ -25,7 +25,8 @@ import {
   Type,
   Wand2,
   Download,
-  RefreshCw
+  RefreshCw,
+  Copy
 } from "lucide-react";
 import {
   AlertDialog,
