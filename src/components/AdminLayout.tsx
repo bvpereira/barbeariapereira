@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 
@@ -15,6 +15,7 @@ const menuItems = [
   { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
   { title: "Promoções", icon: Megaphone, href: "/promocao" },
   { title: "Integrações", icon: Link2, href: "/integracoes" },
+  { title: "IA – CDC", icon: Scale, href: "/iacodconsumi" },
   { title: "Minha Conta", icon: UserCircle, href: "/minhaconta" },
 ];
 
