@@ -88,7 +88,20 @@ function IACodConsumiPage() {
       }
 
       const data = await response.json();
-      const botResponse = data.output || "Desculpe, não consegui processar sua dúvida no momento.";
+      console.log("Resposta do webhook:", data);
+      
+      // Garante que pegamos o campo 'output' conforme solicitado, 
+      // tratando possíveis variações de retorno (objeto único ou array)
+      let botResponse = "";
+      if (Array.isArray(data) && data.length > 0) {
+        botResponse = data[0].output;
+      } else if (data && typeof data === 'object') {
+        botResponse = data.output;
+      }
+
+      if (!botResponse) {
+        botResponse = "Desculpe, não consegui processar sua dúvida no momento.";
+      }
 
       setMessages((prev) => [...prev, { role: "assistant", content: botResponse }]);
     } catch (error) {
