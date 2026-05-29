@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link2, Save, Loader2, Database, Megaphone, CheckCircle2, UserKey, Calendar } from "lucide-react";
+import { Link2, Save, Loader2, Database, Megaphone, CheckCircle2, UserKey, Calendar, Code } from "lucide-react";
 
 export const Route = createFileRoute("/integracoes")({
   component: IntegracoesPage,
@@ -18,18 +18,21 @@ function IntegracoesPage() {
   const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
   const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
   const [promocaoWebhookUrl, setPromocaoWebhookUrl] = useState("");
+  const [iaCodConsumiWebhookUrl, setIaCodConsumiWebhookUrl] = useState("");
   const [instanciaEvo, setInstanciaEvo] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingFinish, setSavingFinish] = useState(false);
   const [savingRecuperaSenha, setSavingRecuperaSenha] = useState(false);
   const [savingPromocao, setSavingPromocao] = useState(false);
+  const [savingIaCodConsumi, setSavingIaCodConsumi] = useState(false);
   const [savingInstancia, setSavingInstancia] = useState(false);
   
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
   const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
   const [promocaoIntegrationId, setPromocaoIntegrationId] = useState<string | null>(null);
+  const [iaCodConsumiIntegrationId, setIaCodConsumiIntegrationId] = useState<string | null>(null);
   const [infoId, setInfoId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -75,6 +78,7 @@ function IntegracoesPage() {
         const finalizacao = data.find(i => i.tipo === "finalizacao");
         const recupera = data.find(i => i.tipo === "recupera_senha");
         const promocao = data.find(i => i.tipo === "promocao");
+        const iaCodConsumi = data.find(i => i.tipo === "ia_codconsumi");
 
         if (standard) {
           setWebhookUrl(standard.webhook_url);
@@ -94,6 +98,11 @@ function IntegracoesPage() {
         if (promocao) {
           setPromocaoWebhookUrl(promocao.webhook_url);
           setPromocaoIntegrationId(promocao.id);
+        }
+
+        if (iaCodConsumi) {
+          setIaCodConsumiWebhookUrl(iaCodConsumi.webhook_url);
+          setIaCodConsumiIntegrationId(iaCodConsumi.id);
         }
       }
     } catch (error) {
@@ -369,6 +378,42 @@ function IntegracoesPage() {
               <div className="p-3 bg-blue-50 text-blue-700 rounded-md text-xs border border-blue-100">
                 <p className="font-semibold mb-1">Dados enviados:</p>
                 <p>Nome, Telefone e Link de Recuperação exclusivo para o cliente.</p>
+              </div>
+            </CardContent>
+          </Card>
+          {/* Webhook de IA Assistente Código do Consumidor */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-orange-600">
+                <Code className="h-5 w-5" />
+                IA – Assistente Código do Consumidor
+              </CardTitle>
+              <CardDescription>
+                Webhook para o assistente de IA especializado no Código de Defesa do Consumidor.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <Label htmlFor="ia-codconsumi-webhook-url">URL do Webhook</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="ia-codconsumi-webhook-url"
+                    placeholder="https://exemplo.com/webhook-ia"
+                    value={iaCodConsumiWebhookUrl}
+                    onChange={(e) => setIaCodConsumiWebhookUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={() => handleSaveGeneric(iaCodConsumiWebhookUrl, "ia_codconsumi", iaCodConsumiIntegrationId, setIaCodConsumiIntegrationId, setSavingIaCodConsumi, "Configuração do assistente IA salva!")} 
+                    disabled={savingIaCodConsumi}
+                  >
+                    {savingIaCodConsumi ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+              <div className="p-3 bg-orange-50 text-orange-700 rounded-md text-xs border border-orange-100">
+                <p className="font-semibold mb-1">Finalidade:</p>
+                <p>Integração com o fluxo de IA para consultas e assistência baseada no Código de Defesa do Consumidor.</p>
               </div>
             </CardContent>
           </Card>
