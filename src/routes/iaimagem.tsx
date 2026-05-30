@@ -134,7 +134,10 @@ function IAImagemPage() {
       // Ativar o webhook
       if (webhookUrl) {
         try {
-          const response = await fetch(webhookUrl, {
+          const encodedUrl = webhookUrl.trim().replace(/\s/g, '%20');
+          console.log("Chamando webhook:", encodedUrl);
+          
+          const response = await fetch(encodedUrl, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
