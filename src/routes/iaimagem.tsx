@@ -41,10 +41,10 @@ function IAImagemPage() {
     { key: "imagem_objetivo", label: "Objetivo da Imagem" },
     { key: "imagem_campanha", label: "Campanha" },
     { key: "imagem_estilovisual", label: "Estilo Visual" },
-    { key: "imagem_informacoes", label: "Informações Adicionais" },
     { key: "imagem_imareferencia", label: "Imagem de Referência" },
     { key: "imagem_comlogo", label: "Com Logo?" },
     { key: "imagem_formato", label: "Formato de Imagem" },
+    { key: "imagem_informacoes", label: "Informações Adicionais" },
   ];
 
   useEffect(() => {
