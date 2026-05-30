@@ -18,7 +18,13 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          imagem_campanha: string | null
+          imagem_comlogo: string | null
+          imagem_estilovisual: string | null
           imagem_formato: string
+          imagem_imareferencia: string | null
+          imagem_informacoes: string | null
+          imagem_objetivo: string | null
           linha: number | null
           prompt_imagem: string | null
           updated_at: string
@@ -26,7 +32,13 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          imagem_campanha?: string | null
+          imagem_comlogo?: string | null
+          imagem_estilovisual?: string | null
           imagem_formato: string
+          imagem_imareferencia?: string | null
+          imagem_informacoes?: string | null
+          imagem_objetivo?: string | null
           linha?: number | null
           prompt_imagem?: string | null
           updated_at?: string
@@ -34,7 +46,13 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          imagem_campanha?: string | null
+          imagem_comlogo?: string | null
+          imagem_estilovisual?: string | null
           imagem_formato?: string
+          imagem_imareferencia?: string | null
+          imagem_informacoes?: string | null
+          imagem_objetivo?: string | null
           linha?: number | null
           prompt_imagem?: string | null
           updated_at?: string
