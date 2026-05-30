@@ -24,6 +24,7 @@ function IAImagemPage() {
     imagem_comlogo: [],
     imagem_formato: [],
   });
+  const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -47,7 +48,29 @@ function IAImagemPage() {
 
   useEffect(() => {
     fetchOptions();
+    fetchWebhookUrl();
   }, []);
+
+  const fetchWebhookUrl = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("integracoes")
+        .select("webhook_url")
+        .eq("tipo", "ia_gerarimagem")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Erro ao buscar webhook:", error);
+        return;
+      }
+
+      if (data) {
+        setWebhookUrl(data.webhook_url);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar webhook:", error);
+    }
+  };
 
   const fetchOptions = async () => {
     try {
@@ -108,7 +131,35 @@ function IAImagemPage() {
 
       if (error) throw error;
 
-      toast.success("Configurações de imagem salvas com sucesso!");
+      // Ativar o webhook
+      if (webhookUrl) {
+        try {
+          const response = await fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...selections,
+              timestamp: new Date().toISOString(),
+              action: "generate_image"
+            }),
+          });
+
+          if (!response.ok) {
+            console.error("Erro ao chamar o webhook:", response.statusText);
+            toast.warning("Configurações salvas, mas houve um erro ao iniciar a geração da imagem.");
+          } else {
+            toast.success("Geração de imagem iniciada com sucesso!");
+          }
+        } catch (webhookError) {
+          console.error("Erro de rede ao chamar o webhook:", webhookError);
+          toast.warning("Configurações salvas, mas o serviço de geração está indisponível.");
+        }
+      } else {
+        toast.success("Configurações salvas com sucesso!");
+        toast.info("Atenção: Webhook não configurado em Integrações.");
+      }
     } catch (error) {
       console.error("Erro ao salvar configurações:", error);
       toast.error("Erro ao salvar as configurações.");

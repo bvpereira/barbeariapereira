@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link2, Save, Loader2, Database, Megaphone, CheckCircle2, UserKey, Calendar, Code } from "lucide-react";
+import { Link2, Save, Loader2, Database, Megaphone, CheckCircle2, UserKey, Calendar, Code, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/integracoes")({
   component: IntegracoesPage,
@@ -19,6 +19,7 @@ function IntegracoesPage() {
   const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
   const [promocaoWebhookUrl, setPromocaoWebhookUrl] = useState("");
   const [iaCodConsumiWebhookUrl, setIaCodConsumiWebhookUrl] = useState("");
+  const [iaGerarImagemWebhookUrl, setIaGerarImagemWebhookUrl] = useState("");
   const [instanciaEvo, setInstanciaEvo] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,6 +27,7 @@ function IntegracoesPage() {
   const [savingRecuperaSenha, setSavingRecuperaSenha] = useState(false);
   const [savingPromocao, setSavingPromocao] = useState(false);
   const [savingIaCodConsumi, setSavingIaCodConsumi] = useState(false);
+  const [savingIaGerarImagem, setSavingIaGerarImagem] = useState(false);
   const [savingInstancia, setSavingInstancia] = useState(false);
   
   const [integrationId, setIntegrationId] = useState<string | null>(null);
@@ -33,6 +35,7 @@ function IntegracoesPage() {
   const [recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId] = useState<string | null>(null);
   const [promocaoIntegrationId, setPromocaoIntegrationId] = useState<string | null>(null);
   const [iaCodConsumiIntegrationId, setIaCodConsumiIntegrationId] = useState<string | null>(null);
+  const [iaGerarImagemIntegrationId, setIaGerarImagemIntegrationId] = useState<string | null>(null);
   const [infoId, setInfoId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,6 +82,7 @@ function IntegracoesPage() {
         const recupera = data.find(i => i.tipo === "recupera_senha");
         const promocao = data.find(i => i.tipo === "promocao");
         const iaCodConsumi = data.find(i => i.tipo === "ia_codconsumi");
+        const iaGerarImagem = data.find(i => i.tipo === "ia_gerarimagem");
 
         if (standard) {
           setWebhookUrl(standard.webhook_url);
@@ -103,6 +107,11 @@ function IntegracoesPage() {
         if (iaCodConsumi) {
           setIaCodConsumiWebhookUrl(iaCodConsumi.webhook_url);
           setIaCodConsumiIntegrationId(iaCodConsumi.id);
+        }
+
+        if (iaGerarImagem) {
+          setIaGerarImagemWebhookUrl(iaGerarImagem.webhook_url);
+          setIaGerarImagemIntegrationId(iaGerarImagem.id);
         }
       }
     } catch (error) {
@@ -414,6 +423,43 @@ function IntegracoesPage() {
               <div className="p-3 bg-orange-50 text-orange-700 rounded-md text-xs border border-orange-100">
                 <p className="font-semibold mb-1">Finalidade:</p>
                 <p>Integração com o fluxo de IA para consultas e assistência baseada no Código de Defesa do Consumidor.</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Webhook de IA Gerar Imagem */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-indigo-600">
+                <ImageIcon className="h-5 w-5" />
+                IA – Gerar Imagem
+              </CardTitle>
+              <CardDescription>
+                Webhook para criação de imagens personalizadas através de Inteligência Artificial.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <Label htmlFor="ia-gerarimagem-webhook-url">URL do Webhook</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="ia-gerarimagem-webhook-url"
+                    placeholder="https://exemplo.com/webhook-imagem"
+                    value={iaGerarImagemWebhookUrl}
+                    onChange={(e) => setIaGerarImagemWebhookUrl(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={() => handleSaveGeneric(iaGerarImagemWebhookUrl, "ia_gerarimagem", iaGerarImagemIntegrationId, setIaGerarImagemIntegrationId, setSavingIaGerarImagem, "Configuração de geração de imagem salva!")} 
+                    disabled={savingIaGerarImagem}
+                  >
+                    {savingIaGerarImagem ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+              <div className="p-3 bg-indigo-50 text-indigo-700 rounded-md text-xs border border-indigo-100">
+                <p className="font-semibold mb-1">Utilização:</p>
+                <p>Envia os parâmetros selecionados para o fluxo de geração de imagens via IA.</p>
               </div>
             </CardContent>
           </Card>
