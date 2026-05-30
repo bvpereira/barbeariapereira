@@ -119,7 +119,8 @@ function IAImagemPage() {
 
     setSaving(true);
     try {
-      const { error } = await supabase
+      // 1. Salvar as configurações na linha 0
+      const { error: updateError } = await supabase
         .from("agentes_ia")
         .update({
           imagem_objetivo: selections.imagem_objetivo,
@@ -132,43 +133,50 @@ function IAImagemPage() {
         })
         .eq("linha", 0);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      // Ativar o webhook
-      if (webhookUrl) {
-        try {
-          const encodedUrl = webhookUrl.trim().replace(/\s/g, '%20');
-          console.log("Chamando webhook:", encodedUrl);
-          
-          const response = await fetch(encodedUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              ...selections,
-              timestamp: new Date().toISOString(),
-              action: "generate_image"
-            }),
-          });
+      // 2. Buscar o webhook atualizado diretamente da tabela integracoes
+      const { data: webhookData, error: webhookFetchError } = await supabase
+        .from("integracoes")
+        .select("webhook_url")
+        .eq("tipo", "ia_gerarimagem")
+        .maybeSingle();
 
-          if (!response.ok) {
-            console.error("Erro ao chamar o webhook:", response.statusText);
-            toast.warning("Configurações salvas, mas houve um erro ao iniciar a geração da imagem.");
-          } else {
-            toast.success("Geração de imagem iniciada com sucesso!");
-          }
-        } catch (webhookError) {
-          console.error("Erro de rede ao chamar o webhook:", webhookError);
-          toast.warning("Configurações salvas, mas o serviço de geração está indisponível.");
-        }
-      } else {
-        toast.success("Configurações salvas com sucesso!");
-        toast.info("Atenção: Webhook não configurado em Integrações.");
+      if (webhookFetchError) {
+        console.error("Erro ao buscar webhook antes do disparo:", webhookFetchError);
+        throw new Error("Não foi possível localizar a URL do webhook.");
       }
-    } catch (error) {
-      console.error("Erro ao salvar configurações:", error);
-      toast.error("Erro ao salvar as configurações.");
+
+      if (!webhookData?.webhook_url) {
+        toast.success("Configurações salvas!");
+        toast.info("Atenção: Webhook 'ia_gerarimagem' não configurado em Integrações.");
+        return;
+      }
+
+      // 3. Ativar o webhook
+      const finalWebhookUrl = webhookData.webhook_url.trim().replace(/\s/g, '%20');
+      console.log("Disparando webhook:", finalWebhookUrl);
+      
+      const response = await fetch(finalWebhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: 'no-cors', // Adicionado para evitar bloqueios de CORS em webhooks simples
+        body: JSON.stringify({
+          ...selections,
+          timestamp: new Date().toISOString(),
+          action: "generate_image"
+        }),
+      });
+
+      // Nota: Com mode 'no-cors', não conseguimos ler response.ok ou status
+      // Mas o fetch dispara a requisição.
+      toast.success("Geração de imagem solicitada com sucesso!");
+
+    } catch (error: any) {
+      console.error("Erro no processo de geração:", error);
+      toast.error(error.message || "Erro ao processar a solicitação.");
     } finally {
       setSaving(false);
     }
