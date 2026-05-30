@@ -220,14 +220,14 @@ function IAImagemPage() {
                         value={selections[field.key]}
                         onChange={(e) => setSelections(prev => ({ ...prev, [field.key]: e.target.value }))}
                         placeholder={`Digite ${field.label.toLowerCase()}...`}
-                        className="w-full bg-white border-blue-50 focus:ring-blue-500 min-h-[100px]"
+                        className="w-full bg-white border-blue-50 focus:ring-blue-500 min-h-[100px] text-black"
                       />
                     ) : (
                       <Select
                         value={selections[field.key]}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, [field.key]: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500">
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
                           <SelectValue placeholder={`Selecione ${field.label.toLowerCase()}...`} />
                         </SelectTrigger>
                         <SelectContent>
