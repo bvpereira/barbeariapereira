@@ -1,0 +1,1 @@
+UPDATE public.integracoes SET webhook_url = 'https://n8n.servidorpereira.shop/webhook-test/ia_gerar%20imagem' WHERE tipo = 'ia_gerarimagem' AND webhook_url = 'https://n8n.servidorpereira.shop/webhook-test/ia_gerar imagem';
