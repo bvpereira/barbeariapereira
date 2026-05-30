@@ -65,7 +65,10 @@ function IAImagemPage() {
       }
 
       if (data) {
+        console.log("Webhook de imagem carregado:", data.webhook_url);
         setWebhookUrl(data.webhook_url);
+      } else {
+        console.warn("Nenhum webhook encontrado para ia_gerarimagem");
       }
     } catch (error) {
       console.error("Erro ao buscar webhook:", error);
