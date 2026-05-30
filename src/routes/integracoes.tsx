@@ -129,7 +129,8 @@ function IntegracoesPage() {
     setSavingState: (s: boolean) => void,
     successMsg: string
   ) => {
-    if (!url) {
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) {
       toast.error("Por favor, insira uma URL de webhook válida.");
       return;
     }
@@ -139,14 +140,14 @@ function IntegracoesPage() {
       if (id) {
         const { error } = await supabase
           .from("integracoes")
-          .update({ webhook_url: url })
+          .update({ webhook_url: trimmedUrl })
           .eq("id", id);
         
         if (error) throw error;
       } else {
         const { data, error } = await supabase
           .from("integracoes")
-          .insert({ webhook_url: url, tipo })
+          .insert({ webhook_url: trimmedUrl, tipo })
           .select()
           .single();
         
