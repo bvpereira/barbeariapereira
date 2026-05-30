@@ -16,6 +16,7 @@ import { Route as PromocaoRouteImport } from './routes/promocao'
 import { Route as MinhacontaRouteImport } from './routes/minhaconta'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
+import { Route as IaimagemRouteImport } from './routes/iaimagem'
 import { Route as IacodconsumiRouteImport } from './routes/iacodconsumi'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as GastosRouteImport } from './routes/gastos'
@@ -62,6 +63,11 @@ const LoginRoute = LoginRouteImport.update({
 const IntegracoesRoute = IntegracoesRouteImport.update({
   id: '/integracoes',
   path: '/integracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IaimagemRoute = IaimagemRouteImport.update({
+  id: '/iaimagem',
+  path: '/iaimagem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IacodconsumiRoute = IacodconsumiRouteImport.update({
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
   '/iacodconsumi': typeof IacodconsumiRoute
+  '/iaimagem': typeof IaimagemRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
   '/iacodconsumi': typeof IacodconsumiRoute
+  '/iaimagem': typeof IaimagemRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
   '/iacodconsumi': typeof IacodconsumiRoute
+  '/iaimagem': typeof IaimagemRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/gastos'
     | '/horarios'
     | '/iacodconsumi'
+    | '/iaimagem'
     | '/integracoes'
     | '/login'
     | '/minhaconta'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/gastos'
     | '/horarios'
     | '/iacodconsumi'
+    | '/iaimagem'
     | '/integracoes'
     | '/login'
     | '/minhaconta'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/gastos'
     | '/horarios'
     | '/iacodconsumi'
+    | '/iaimagem'
     | '/integracoes'
     | '/login'
     | '/minhaconta'
@@ -268,6 +280,7 @@ export interface RootRouteChildren {
   GastosRoute: typeof GastosRoute
   HorariosRoute: typeof HorariosRoute
   IacodconsumiRoute: typeof IacodconsumiRoute
+  IaimagemRoute: typeof IaimagemRoute
   IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MinhacontaRoute: typeof MinhacontaRoute
@@ -326,6 +339,13 @@ declare module '@tanstack/react-router' {
       path: '/integracoes'
       fullPath: '/integracoes'
       preLoaderRoute: typeof IntegracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/iaimagem': {
+      id: '/iaimagem'
+      path: '/iaimagem'
+      fullPath: '/iaimagem'
+      preLoaderRoute: typeof IaimagemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/iacodconsumi': {
@@ -428,6 +448,7 @@ const rootRouteChildren: RootRouteChildren = {
   GastosRoute: GastosRoute,
   HorariosRoute: HorariosRoute,
   IacodconsumiRoute: IacodconsumiRoute,
+  IaimagemRoute: IaimagemRoute,
   IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MinhacontaRoute: MinhacontaRoute,
@@ -439,3 +460,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
