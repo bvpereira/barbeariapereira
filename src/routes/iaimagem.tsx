@@ -113,7 +113,9 @@ function IAImagemPage() {
     }
   };
 
-  const isFormValid = fields.every((field) => selections[field.key] !== "");
+  const isFormValid = fields.every((field) => 
+    field.key === "imagem_informacoes" ? true : selections[field.key] !== ""
+  );
 
   const handleGenerate = async () => {
     if (!isFormValid) return;
