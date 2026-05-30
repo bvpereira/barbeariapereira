@@ -137,22 +137,26 @@ function IntegracoesPage() {
 
     setSavingState(true);
     try {
-      if (id) {
-        const { error } = await supabase
-          .from("integracoes")
-          .update({ webhook_url: trimmedUrl })
-          .eq("id", id);
-        
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase
-          .from("integracoes")
-          .insert({ webhook_url: trimmedUrl, tipo })
-          .select()
-          .single();
-        
-        if (error) throw error;
-        if (data) setId(data.id);
+      // Usamos upsert baseado no 'tipo' para garantir que sempre atualizamos a linha correta
+      const { data, error } = await supabase
+        .from("integracoes")
+        .upsert(
+          { 
+            webhook_url: trimmedUrl, 
+            tipo: tipo,
+            // Se tivermos o ID, incluímos para garantir que estamos tratando da mesma linha, 
+            // mas o constraint de unicidade no 'tipo' é o que realmente importa aqui
+            ...(id ? { id } : {}) 
+          },
+          { onConflict: 'tipo' }
+        )
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      if (data) {
+        setId(data.id);
       }
 
       toast.success(successMsg);
