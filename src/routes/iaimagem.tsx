@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Image as ImageIcon, Save } from "lucide-react";
 import { toast } from "sonner";
 
@@ -40,10 +41,10 @@ function IAImagemPage() {
     { key: "imagem_objetivo", label: "Objetivo da Imagem" },
     { key: "imagem_campanha", label: "Campanha" },
     { key: "imagem_estilovisual", label: "Estilo Visual" },
-    { key: "imagem_informacoes", label: "Informações Adicionais" },
     { key: "imagem_imareferencia", label: "Imagem de Referência" },
     { key: "imagem_comlogo", label: "Com Logo?" },
     { key: "imagem_formato", label: "Formato de Imagem" },
+    { key: "imagem_informacoes", label: "Informações Adicionais" },
   ];
 
   useEffect(() => {
@@ -112,7 +113,9 @@ function IAImagemPage() {
     }
   };
 
-  const isFormValid = fields.every((field) => selections[field.key] !== "");
+  const isFormValid = fields.every((field) => 
+    field.key === "imagem_informacoes" ? true : selections[field.key] !== ""
+  );
 
   const handleGenerate = async () => {
     if (!isFormValid) return;
@@ -210,28 +213,37 @@ function IAImagemPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {fields.map((field) => (
-                  <div key={field.key} className="space-y-2">
+                  <div key={field.key} className={`space-y-2 ${field.key === "imagem_informacoes" ? "md:col-span-2" : ""}`}>
                     <label className="text-sm font-medium text-gray-700">{field.label}</label>
-                    <Select
-                      value={selections[field.key]}
-                      onValueChange={(val) => setSelections(prev => ({ ...prev, [field.key]: val }))}
-                    >
-                      <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500">
-                        <SelectValue placeholder={`Selecione ${field.label.toLowerCase()}...`} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {options[field.key].map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            {opt}
-                          </SelectItem>
-                        ))}
-                        {options[field.key].length === 0 && (
-                          <div className="p-2 text-sm text-muted-foreground text-center">
-                            Nenhuma opção encontrada
-                          </div>
-                        )}
-                      </SelectContent>
-                    </Select>
+                    {field.key === "imagem_informacoes" ? (
+                      <Textarea
+                        value={selections[field.key]}
+                        onChange={(e) => setSelections(prev => ({ ...prev, [field.key]: e.target.value }))}
+                        placeholder={`Digite ${field.label.toLowerCase()}...`}
+                        className="w-full bg-white border-blue-50 focus:ring-blue-500 min-h-[100px]"
+                      />
+                    ) : (
+                      <Select
+                        value={selections[field.key]}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, [field.key]: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500">
+                          <SelectValue placeholder={`Selecione ${field.label.toLowerCase()}...`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options[field.key].map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                          {options[field.key].length === 0 && (
+                            <div className="p-2 text-sm text-muted-foreground text-center">
+                              Nenhuma opção encontrada
+                            </div>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                 ))}
               </div>
