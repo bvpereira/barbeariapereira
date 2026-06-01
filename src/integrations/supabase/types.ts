@@ -20,6 +20,7 @@ export type Database = {
           id: string
           imagem_campanha: string | null
           imagem_comlogo: string | null
+          imagem_criada_ia: string | null
           imagem_estilovisual: string | null
           imagem_formato: string
           imagem_imareferencia: string | null
@@ -34,6 +35,7 @@ export type Database = {
           id?: string
           imagem_campanha?: string | null
           imagem_comlogo?: string | null
+          imagem_criada_ia?: string | null
           imagem_estilovisual?: string | null
           imagem_formato: string
           imagem_imareferencia?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           id?: string
           imagem_campanha?: string | null
           imagem_comlogo?: string | null
+          imagem_criada_ia?: string | null
           imagem_estilovisual?: string | null
           imagem_formato?: string
           imagem_imareferencia?: string | null
