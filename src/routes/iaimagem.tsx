@@ -136,9 +136,14 @@ function IAImagemPage() {
     }
   };
 
-  const isFormValid = fields.every((field) => 
-    field.key === "imagem_informacoes" ? true : selections[field.key] !== ""
-  );
+  const isFormValid = fields.every((field) => {
+    if (field.key === "imagem_informacoes") return true;
+    const val = selections[field.key];
+    if (field.key === "imagem_imareferencia") {
+      return val === "Sem imagem de referência" || val.startsWith("http");
+    }
+    return val !== "";
+  });
 
   const handleGenerate = async () => {
     if (!isFormValid) return;
