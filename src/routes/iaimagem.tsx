@@ -205,6 +205,17 @@ function IAImagemPage() {
       // Mas o fetch dispara a requisição.
       toast.success("Geração de imagem solicitada com sucesso!");
 
+      // Limpar todos os campos após o sucesso
+      setSelections({
+        imagem_objetivo: "",
+        imagem_campanha: "",
+        imagem_estilovisual: "",
+        imagem_informacoes: "",
+        imagem_imareferencia: "",
+        imagem_comlogo: "",
+        imagem_formato: "",
+      });
+
     } catch (error: any) {
       console.error("Erro no processo de geração:", error);
       toast.error(error.message || "Erro ao processar a solicitação.");
