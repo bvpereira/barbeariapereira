@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Image as ImageIcon, Save } from "lucide-react";
+import { Loader2, Image as ImageIcon, Save, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/iaimagem")({
   component: IAImagemPage,
@@ -16,6 +17,8 @@ export const Route = createFileRoute("/iaimagem")({
 function IAImagemPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingRef, setUploadingRef] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [options, setOptions] = useState<Record<string, string[]>>({
     imagem_objetivo: [],
     imagem_campanha: [],
@@ -85,6 +88,26 @@ function IAImagemPage() {
 
       if (error) throw error;
 
+      const { data: selectionData, error: selectionError } = await supabase
+        .from("agentes_ia")
+        .select("*")
+        .eq("linha", 0)
+        .maybeSingle();
+
+      if (selectionError) throw selectionError;
+      
+      if (selectionData) {
+        setSelections({
+          imagem_objetivo: selectionData.imagem_objetivo || "",
+          imagem_campanha: selectionData.imagem_campanha || "",
+          imagem_estilovisual: selectionData.imagem_estilovisual || "",
+          imagem_informacoes: selectionData.imagem_informacoes || "",
+          imagem_imareferencia: selectionData.imagem_imareferencia || "Sem imagem de referência",
+          imagem_comlogo: selectionData.imagem_comlogo || "",
+          imagem_formato: selectionData.imagem_formato || "",
+        });
+      }
+
       const newOptions: Record<string, string[]> = {
         imagem_objetivo: [],
         imagem_campanha: [],
@@ -113,9 +136,14 @@ function IAImagemPage() {
     }
   };
 
-  const isFormValid = fields.every((field) => 
-    field.key === "imagem_informacoes" ? true : selections[field.key] !== ""
-  );
+  const isFormValid = fields.every((field) => {
+    if (field.key === "imagem_informacoes") return true;
+    const val = selections[field.key];
+    if (field.key === "imagem_imareferencia") {
+      return val === "Sem imagem de referência" || val.startsWith("http");
+    }
+    return val !== "";
+  });
 
   const handleGenerate = async () => {
     if (!isFormValid) return;
@@ -185,6 +213,43 @@ function IAImagemPage() {
     }
   };
 
+  const handleReferenceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingRef(true);
+    try {
+      // Nome fixo para sempre sobrepor, como solicitado
+      const fileName = `referencia/imagem_referencia.jpg`;
+      
+      // Upload para Supabase Storage (usando o balde informacoes_imagens que já existe)
+      const { error: uploadError } = await supabase.storage
+        .from("informacoes_imagens")
+        .upload(fileName, file, {
+          upsert: true // Importante para sobrepor o arquivo existente
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Obter URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from("informacoes_imagens")
+        .getPublicUrl(fileName);
+
+      // Adiciona um timestamp para evitar cache do navegador ao exibir a imagem nova
+      const finalUrl = `${publicUrl}?t=${Date.now()}`;
+      
+      setSelections(prev => ({ ...prev, imagem_imareferencia: finalUrl }));
+      toast.success("Imagem de referência enviada com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao enviar imagem:", error);
+      toast.error("Erro ao enviar imagem: " + error.message);
+    } finally {
+      setUploadingRef(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto space-y-6">
@@ -222,6 +287,74 @@ function IAImagemPage() {
                         placeholder={`Digite ${field.label.toLowerCase()}...`}
                         className="w-full bg-white border-blue-50 focus:ring-blue-500 min-h-[100px] text-black"
                       />
+                    ) : field.key === "imagem_imareferencia" ? (
+                      <div className="space-y-3">
+                        <Select
+                          value={selections[field.key]?.startsWith("http") ? "Upar imagem de referência" : selections[field.key]}
+                          onValueChange={(val) => {
+                            setSelections(prev => ({ ...prev, [field.key]: val }));
+                          }}
+                        >
+                          <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                            <SelectValue placeholder={`Selecione ${field.label.toLowerCase()}...`} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Sem imagem de referência">Sem imagem de referência</SelectItem>
+                            <SelectItem value="Upar imagem de referência">Upar imagem de referência</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        {(selections[field.key]?.startsWith("http") || selections[field.key] === "Upar imagem de referência") && (
+                          <div className="p-4 border-2 border-dashed border-blue-100 rounded-lg bg-blue-50/30 space-y-3">
+                            {selections[field.key]?.startsWith("http") ? (
+                              <div className="relative w-full aspect-video rounded-md overflow-hidden bg-gray-100 border border-blue-100">
+                                <img 
+                                  src={selections[field.key]} 
+                                  alt="Referência" 
+                                  className="w-full h-full object-contain"
+                                />
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2 h-8 w-8"
+                                  onClick={() => setSelections(prev => ({ ...prev, [field.key]: "Sem imagem de referência" }))}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center py-4 text-center">
+                                <Upload className="h-8 w-8 text-blue-400 mb-2" />
+                                <p className="text-sm text-gray-600 mb-2">Selecione uma imagem de referência</p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => fileInputRef.current?.click()}
+                                  disabled={uploadingRef}
+                                  className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                                >
+                                  {uploadingRef ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Enviando...
+                                    </>
+                                  ) : (
+                                    "Escolher Arquivo"
+                                  )}
+                                </Button>
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  ref={fileInputRef}
+                                  onChange={handleReferenceImageUpload}
+                                  accept="image/*"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <Select
                         value={selections[field.key]}
