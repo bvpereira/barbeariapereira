@@ -1,0 +1,1 @@
+ALTER TABLE public.agentes_ia ADD COLUMN imagem_criada_ia TEXT;

@@ -29,6 +29,7 @@ function IAImagemPage() {
     imagem_formato: [],
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
+  const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -53,6 +54,30 @@ function IAImagemPage() {
   useEffect(() => {
     fetchOptions();
     fetchWebhookUrl();
+
+    // Subscribe to changes in agentes_ia table for linha 0
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'agentes_ia',
+          filter: 'linha=eq.0'
+        },
+        (payload) => {
+          console.log('Change received!', payload);
+          if (payload.new && (payload.new as any).imagem_criada_ia !== undefined) {
+            setCreatedImageUrl((payload.new as any).imagem_criada_ia);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchWebhookUrl = async () => {
@@ -97,6 +122,7 @@ function IAImagemPage() {
       if (selectionError) throw selectionError;
       
       if (selectionData) {
+        setCreatedImageUrl(selectionData.imagem_criada_ia || null);
         setSelections({
           imagem_objetivo: selectionData.imagem_objetivo || "",
           imagem_campanha: selectionData.imagem_campanha || "",
@@ -412,6 +438,53 @@ function IAImagemPage() {
                 Gerar imagem com IA
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Área da Imagem Criada */}
+        <Card className="border-blue-100 shadow-md overflow-hidden bg-white">
+          <CardHeader className="bg-blue-50/50">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-blue-600" />
+              Resultado da Geração
+            </CardTitle>
+            <CardDescription>
+              A imagem gerada pela inteligência artificial aparecerá aqui.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center p-6 min-h-[400px]">
+            {createdImageUrl ? (
+              <div className="space-y-4 w-full flex flex-col items-center">
+                <div className="relative group rounded-xl overflow-hidden border-4 border-blue-50 shadow-lg max-w-full">
+                  <img 
+                    src={createdImageUrl} 
+                    alt="Imagem Gerada pela IA" 
+                    className="max-h-[600px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                </div>
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  className="mt-4 border-blue-200 text-blue-600 hover:bg-blue-50"
+                >
+                  <a href={createdImageUrl} target="_blank" rel="noopener noreferrer">
+                    Abrir em nova aba
+                  </a>
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center space-y-4">
+                <div className="p-6 bg-gray-100 rounded-full inline-block">
+                  <ImageIcon className="h-16 w-16 text-gray-300" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-lg font-medium text-gray-600">Nenhuma imagem gerada ainda</p>
+                  <p className="text-sm text-gray-400 max-w-xs mx-auto">
+                    Preencha todos os campos acima e clique em "Gerar imagem com IA" para criar sua arte.
+                  </p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
