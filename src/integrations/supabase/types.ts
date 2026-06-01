@@ -348,6 +348,7 @@ export type Database = {
           imagem_6: string | null
           imagem_7: string | null
           imagem_8: string | null
+          imagem_logo: string | null
           instancia_evo: string | null
           tel_contato: string | null
           tempo_excluir: number | null
@@ -371,6 +372,7 @@ export type Database = {
           imagem_6?: string | null
           imagem_7?: string | null
           imagem_8?: string | null
+          imagem_logo?: string | null
           instancia_evo?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null
@@ -394,6 +396,7 @@ export type Database = {
           imagem_6?: string | null
           imagem_7?: string | null
           imagem_8?: string | null
+          imagem_logo?: string | null
           instancia_evo?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null

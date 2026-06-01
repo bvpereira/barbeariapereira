@@ -1,0 +1,1 @@
+ALTER TABLE public.informacoes ADD COLUMN imagem_logo TEXT;

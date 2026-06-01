@@ -24,6 +24,7 @@ function MinhaContaPage() {
   const [email, setEmail] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [imagemLogo, setImagemLogo] = useState<string | null>(null);
   const [googleAvaliacao, setGoogleAvaliacao] = useState("");
   const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
@@ -31,8 +32,10 @@ function MinhaContaPage() {
   const [imagens, setImagens] = useState<(string | null)[]>(Array(8).fill(null));
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   
   // Password state
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -54,7 +57,7 @@ function MinhaContaPage() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir")
+          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo")
           .eq("userrr", "admin")
           .maybeSingle());
 
@@ -67,6 +70,7 @@ function MinhaContaPage() {
           setEmail(infoData.email || "");
           setInfoId(infoData.id);
           setVideoUrl(infoData.video_local || null);
+          setImagemLogo(infoData.imagem_logo || null);
           setGoogleAvaliacao(infoData.google_avaliacao || "");
           setTempoMarcar(infoData.tempo_marcar ?? 60);
           setTempoExcluir(infoData.tempo_excluir ?? 60);
@@ -386,6 +390,74 @@ function MinhaContaPage() {
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploadingLogo(true);
+
+    try {
+      const fileName = `logos/${user.id}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const { data, error: uploadError } = await supabase.storage
+        .from("informacoes_imagens")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("informacoes_imagens")
+        .getPublicUrl(fileName);
+
+      setImagemLogo(publicUrl);
+
+      const updateObj: any = { imagem_logo: publicUrl, usuario_id: user.id };
+      const { data: existingInfo } = await (supabase
+        .from("informacoes" as any)
+        .select("id")
+        .eq("userrr", "admin")
+        .maybeSingle());
+
+      if (existingInfo) {
+        await (supabase.from("informacoes") as any).update(updateObj).eq("id", (existingInfo as any).id);
+        setInfoId((existingInfo as any).id);
+      } else {
+        const { data: newInfo } = await (supabase
+          .from("informacoes") as any)
+          .insert({ ...updateObj, user_id: user.id, userrr: "admin" } as any)
+          .select()
+          .single();
+        if (newInfo) setInfoId(newInfo.id);
+      }
+
+      toast.success("Logo atualizado com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao enviar logo: " + error.message);
+    } finally {
+      setUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    }
+  };
+
+  const removeLogo = async () => {
+    if (!infoId) return;
+
+    try {
+      setImagemLogo(null);
+
+      const { error } = await (supabase
+        .from("informacoes" as any)
+        .update({ imagem_logo: null })
+        .eq("id", infoId));
+
+      if (error) throw error;
+      toast.success("Logo removido");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao remover logo");
+    }
+  };
+
   const handleUpdateGoogleAvaliacao = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -580,6 +652,70 @@ function MinhaContaPage() {
                   Salvar Tempos
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Logo do Sistema */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" />
+                Logo do Sistema
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col items-center justify-center border rounded-lg p-6 bg-muted/30">
+                {imagemLogo ? (
+                  <div className="relative group">
+                    <img src={imagemLogo} alt="Logo do sistema" className="max-h-32 object-contain rounded" />
+                    <button
+                      onClick={removeLogo}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-2">
+                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">Nenhum logo configurado</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="pt-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={logoInputRef}
+                  onChange={handleLogoUpload}
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full gap-2"
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={uploadingLogo}
+                >
+                  {uploadingLogo ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Enviando logo...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4" />
+                      {imagemLogo ? "Alterar Logo" : "Adicionar Logo"}
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  Recomendado: Imagem com fundo transparente (PNG) ou SVG.
+                </p>
+              </div>
             </CardContent>
           </Card>
 
