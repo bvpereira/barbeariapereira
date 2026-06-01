@@ -292,9 +292,7 @@ function IAImagemPage() {
                         <Select
                           value={selections[field.key]?.startsWith("http") ? "Upar imagem de referência" : selections[field.key]}
                           onValueChange={(val) => {
-                            if (val === "Sem imagem de referência") {
-                              setSelections(prev => ({ ...prev, [field.key]: val }));
-                            }
+                            setSelections(prev => ({ ...prev, [field.key]: val }));
                           }}
                         >
                           <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
