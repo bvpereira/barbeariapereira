@@ -136,17 +136,22 @@ function IAImagemPage() {
     }
   };
 
-  const isFormValid = fields.every((field) => {
-    if (field.key === "imagem_informacoes") return true;
-    const val = selections[field.key];
-    if (field.key === "imagem_imareferencia") {
-      return val === "Sem imagem de referência" || val.startsWith("http");
-    }
-    return val !== "";
-  });
-
   const handleGenerate = async () => {
-    if (!isFormValid) return;
+    const missingFields = fields
+      .filter((field) => {
+        const val = selections[field.key];
+        if (field.key === "imagem_imareferencia") {
+          return !(val === "Sem imagem de referência" || val.startsWith("http"));
+        }
+        return !val || (typeof val === 'string' && val.trim() === "");
+      })
+      .map((field) => field.label);
+
+    if (missingFields.length > 0) {
+      toast.error(`Por favor, preencha os seguintes campos: ${missingFields.join(", ")}`);
+      return;
+    }
+
 
     setSaving(true);
     try {
@@ -396,7 +401,7 @@ function IAImagemPage() {
             <div className="pt-4 border-t border-blue-50 flex justify-end">
               <Button
                 onClick={handleGenerate}
-                disabled={!isFormValid || saving}
+                disabled={saving}
                 className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 px-6"
               >
                 {saving ? (
