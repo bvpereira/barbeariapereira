@@ -97,6 +97,7 @@ function PromocaoPage() {
   }, [tenant, tenantLoading]);
 
   const fetchData = async () => {
+    if (!tenant) return;
     console.log("Fetching data for promotions page...");
     setLoading(true);
     try {
@@ -323,6 +324,7 @@ function PromocaoPage() {
 
 
   const handleSaveWebhook = async () => {
+    if (!tenant) return;
     setSaving(true);
     try {
       const { data: existing } = await supabase
@@ -409,6 +411,7 @@ function PromocaoPage() {
   };
 
   const handleEnviarConfirmado = async () => {
+    if (!tenant) return;
     setSendingPromo(true);
     setIsConfirmOpen(false);
     
