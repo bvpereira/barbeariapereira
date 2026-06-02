@@ -55,7 +55,7 @@ interface HorarioColaborador {
 }
 
 function HorariosPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [dias, setDias] = useState<DiaAgenda[]>([]);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [horariosColaboradores, setHorariosColaboradores] = useState<HorarioColaborador[]>([]);
@@ -77,12 +77,14 @@ function HorariosPage() {
   
 
   useEffect(() => {
+    if (tenantLoading || !tenant) return;
+    
     const cleanupAndFetch = async () => {
       await cleanupOldDays();
       await fetchData();
     };
     cleanupAndFetch();
-  }, []);
+  }, [tenant, tenantLoading]);
 
   const cleanupOldDays = async () => {
     if (!tenant?.id) return;
@@ -164,7 +166,7 @@ function HorariosPage() {
     try {
       const { data, error } = await supabase
         .from("dias_agenda")
-        .insert([{ barbearia_id: tenant!.id, data: dateStr, ativo: true }])
+        .insert([{ barbearia_id: tenant?.id, data: dateStr, ativo: true }])
         .select()
         .single();
 
