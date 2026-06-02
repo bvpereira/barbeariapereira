@@ -24,30 +24,36 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     const fetchTenant = async () => {
-      // Detect tenant from URL path: /barb0/dashboard -> slug is barb0
-      // If we are at root / without slug, we might want a default or a generic landing
+      // Prioritize explicit slug from URL
       const pathParts = window.location.pathname.split("/").filter(Boolean);
-      const slug = pathParts[0];
+      const slugFromUrl = pathParts[0];
+      
+      let targetSlug = "barb0"; // Default
+      
+      const reservedRoutes = ["admin", "login", "cadastro", "colaborador", "cliente", "atendimentos", "clientes", "colaboradores", "financeiro", "gastos", "horarios", "iacodconsumi", "iaimagem", "integracoes", "minhaconta", "promocao", "redefinir-senha", "registro", "servicos"];
 
-      if (slug && slug !== "admin" && slug !== "login" && slug !== "cadastro") {
-        const { data, error } = await supabase
-          .from("barbearias")
-          .select("*")
-          .eq("slug", slug)
-          .maybeSingle();
+      if (slugFromUrl && !reservedRoutes.includes(slugFromUrl)) {
+        targetSlug = slugFromUrl;
+      }
 
-        if (data) {
-          setTenant(data);
-        }
-      } else {
-        // Fallback for current transition: assume 'barb0' if no slug found yet
-        const { data } = await supabase
+      const { data, error } = await supabase
+        .from("barbearias")
+        .select("*")
+        .eq("slug", targetSlug)
+        .maybeSingle();
+
+      if (data) {
+        setTenant(data);
+      } else if (targetSlug !== "barb0") {
+         // Fallback if URL slug invalid
+         const { data: defaultData } = await supabase
           .from("barbearias")
           .select("*")
           .eq("slug", "barb0")
           .maybeSingle();
-        if (data) setTenant(data);
+         if (defaultData) setTenant(defaultData);
       }
+      
       setLoading(false);
     };
 
