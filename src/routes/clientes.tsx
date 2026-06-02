@@ -184,6 +184,7 @@ function ClientesPage() {
   };
 
   useEffect(() => {
+    if (tenantLoading) return;
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
@@ -192,11 +193,13 @@ function ClientesPage() {
         return;
       }
     }
-    fetchTotal();
-    fetchClientes();
-    fetchFormData();
-    fetchBookingSettings();
-  }, [search, limit, tenant]);
+    if (tenant) {
+      fetchTotal();
+      fetchClientes();
+      fetchFormData();
+      fetchBookingSettings();
+    }
+  }, [search, limit, tenant, tenantLoading]);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome').order('nome');
