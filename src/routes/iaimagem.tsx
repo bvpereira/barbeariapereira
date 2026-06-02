@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/iaimagem")({
 });
 
 function IAImagemPage() {
+  const { tenant } = useTenant();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingRef, setUploadingRef] = useState(false);
@@ -81,11 +83,13 @@ function IAImagemPage() {
   }, []);
 
   const fetchWebhookUrl = async () => {
+    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
 
       if (error) {

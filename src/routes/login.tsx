@@ -151,6 +151,7 @@ function Login() {
         .from("usuarios")
         .select("nome, login")
         .eq("login", cleanLogin)
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
       
       console.log("User check result:", { usuario, userError });
@@ -173,7 +174,8 @@ function Login() {
       const { error: updateError } = await supabase
         .from("usuarios")
         .update({ recovery_token: recoveryToken })
-        .eq("login", usuario.login);
+        .eq("login", usuario.login)
+        .eq("barbearia_id", tenant!.id);
 
       console.log("Token update result:", updateError);
 
@@ -188,6 +190,7 @@ function Login() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "recupera_senha")
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
 
       console.log("Integration fetch result:", { integracao, intError });
@@ -203,6 +206,7 @@ function Login() {
         .from("informacoes" as any)
         .select("tel_contato")
         .eq("userrr", "admin")
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle());
 
       console.log("Admin info fetch result:", { info, infoError });

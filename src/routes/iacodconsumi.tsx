@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ interface Message {
 }
 
 function IACodConsumiPage() {
+  const { tenant } = useTenant();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -32,11 +34,13 @@ function IACodConsumiPage() {
 
   useEffect(() => {
     const fetchWebhook = async () => {
+      if (!tenant?.id) return;
       try {
         const { data, error } = await supabase
           .from("integracoes")
           .select("webhook_url")
           .eq("tipo", "ia_codconsumi")
+          .eq("barbearia_id", tenant.id)
           .maybeSingle();
 
         if (error) {
