@@ -214,16 +214,17 @@ function CollaboratorsPage() {
     }
 
     try {
-      // 1. Verificações de Login Único (apenas para novos ou se mudar o login)
+      // 1. Verificações de Login Único dentro da mesma barbearia (apenas para novos ou se mudar o login)
       if (!editingCollaborator || cleanLogin !== editingCollaborator.login.replace(/\D/g, "")) {
         const { data: existingUser } = await supabase
           .from("usuarios")
           .select("login")
           .eq("login", cleanLogin)
+          .eq("barbearia_id", tenant.id)
           .maybeSingle();
         
         if (existingUser) {
-          throw new Error("Este telefone (login) já está sendo usado por outro usuário.");
+          throw new Error("Este telefone (login) já está sendo usado por outro usuário nesta barbearia.");
         }
       }
 
