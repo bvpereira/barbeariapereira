@@ -47,7 +47,7 @@ interface Collaborator {
 }
 
 function CollaboratorsPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [allServices, setAllServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,8 +67,10 @@ function CollaboratorsPage() {
   const [ativo, setAtivo] = useState(true);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!tenantLoading && tenant) {
+      fetchData();
+    }
+  }, [tenant, tenantLoading]);
 
   const fetchData = async () => {
     setIsLoading(true);

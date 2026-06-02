@@ -94,7 +94,7 @@ interface Servico {
 }
 
 function AtendimentosPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [agendados, setAgendados] = useState<Atendimento[]>([]);
   const [atencao, setAtencao] = useState<Atendimento[]>([]);
   const [concluidos, setConcluidos] = useState<Atendimento[]>([]);
@@ -137,6 +137,7 @@ function AtendimentosPage() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const fetchAgendados = useCallback(async () => {
+    if (!tenant) return;
     setLoadingAgendados(true);
     const { data, error, count } = await supabase
       .from('atendimentos')
@@ -235,6 +236,7 @@ function AtendimentosPage() {
   };
 
   useEffect(() => {
+    if (tenantLoading) return;
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
