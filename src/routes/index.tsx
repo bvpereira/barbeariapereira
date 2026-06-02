@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Scissors } from "lucide-react";
 import { WebhookSettings } from "@/components/WebhookSettings";
+import { EvolutionSettings } from "@/components/EvolutionSettings";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -82,8 +83,18 @@ function Index() {
           </h2>
           <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
         </div>
-        <div className="bg-card/50 backdrop-blur-sm border border-primary/10 rounded-3xl p-8">
+        <div className="bg-card/50 backdrop-blur-sm border border-primary/10 rounded-3xl p-8 mb-8">
           <WebhookSettings />
+        </div>
+
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
+            Configurações do Evolution
+          </h2>
+          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
+        </div>
+        <div className="max-w-2xl mx-auto">
+          <EvolutionSettings />
         </div>
       </motion.div>
     </div>
