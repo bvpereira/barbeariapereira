@@ -106,13 +106,6 @@ function IAImagemPage() {
 
   const fetchOptions = async () => {
     try {
-      const { data, error } = await supabase
-        .from("agentes_ia")
-        .select("*")
-        .neq("linha", 0);
-
-      if (error) throw error;
-
       const { data: selectionData, error: selectionError } = await supabase
         .from("agentes_ia")
         .select("*")
