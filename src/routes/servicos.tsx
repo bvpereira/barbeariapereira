@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, Clock, DollarSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -30,6 +31,7 @@ interface Service {
 }
 
 function ServicesPage() {
+  const { tenant } = useTenant();
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -49,10 +51,12 @@ function ServicesPage() {
   }, []);
 
   const fetchServices = async () => {
+    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("servicos")
         .select("*")
+        .eq("barbearia_id", tenant.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -122,6 +126,7 @@ function ServicesPage() {
       }
 
       const serviceData = {
+        barbearia_id: tenant!.id,
         name,
         price: parseFloat(price),
         duration: parseInt(duration),

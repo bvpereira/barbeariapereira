@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/integracoes")({
 });
 
 function IntegracoesPage() {
+  const { tenant } = useTenant();
   const [webhookUrl, setWebhookUrl] = useState("");
   const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
   const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
@@ -44,10 +46,12 @@ function IntegracoesPage() {
   }, []);
 
   const fetchInformacoes = async () => {
+    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("informacoes")
         .select("id, instancia_evo")
+        .eq("barbearia_id", tenant.id)
         .limit(1)
         .maybeSingle();
 
@@ -66,10 +70,12 @@ function IntegracoesPage() {
   };
 
   const fetchIntegrations = async () => {
+    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("integracoes")
-        .select("*");
+        .select("*")
+        .eq("barbearia_id", tenant.id);
 
       if (error) {
         console.error("Erro ao buscar integrações:", error);
@@ -142,6 +148,7 @@ function IntegracoesPage() {
         .from("integracoes")
         .upsert(
           { 
+            barbearia_id: tenant!.id,
             webhook_url: trimmedUrl, 
             tipo: tipo,
             // Se tivermos o ID, incluímos para garantir que estamos tratando da mesma linha, 

@@ -28,6 +28,7 @@ import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -124,6 +125,7 @@ interface AtendimentoHistorico {
 }
 
 function ClientesPage() {
+  const { tenant } = useTenant();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const isMobile = useIsMobile();
   const [totalClientes, setTotalClientes] = useState(0);
@@ -204,9 +206,11 @@ function ClientesPage() {
   };
 
   const fetchTotal = async () => {
+    if (!tenant?.id) return;
     const { count, error } = await supabase
       .from("usuarios")
       .select("*", { count: "exact", head: true })
+      .eq("barbearia_id", tenant.id)
       .eq("nivel", 3);
     
     if (error) {
@@ -219,6 +223,7 @@ function ClientesPage() {
   const fetchClientes = async () => {
     setLoading(true);
     
+    if (!tenant?.id) return;
     let finalQuery = supabase
       .from("usuarios")
       .select(`
@@ -230,6 +235,7 @@ function ClientesPage() {
         registro,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
+      .eq("barbearia_id", tenant.id)
       .eq("nivel", 3)
       .order("nome", { ascending: true });
 
@@ -369,6 +375,7 @@ function ClientesPage() {
     setIsSubmitting(true);
     try {
       const payload = {
+        barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
@@ -388,6 +395,7 @@ function ClientesPage() {
       }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
+        barbearia_id: tenant!.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
@@ -452,6 +460,7 @@ function ClientesPage() {
     }
 
     const payload = {
+      barbearia_id: tenant!.id,
       nome: formData.nome,
       login: loginNumeros,
       senha: formData.senha,
@@ -480,7 +489,7 @@ function ClientesPage() {
     } else {
       const { error } = await supabase
         .from("usuarios")
-        .insert([payload]);
+        .insert([{ ...payload, barbearia_id: tenant!.id }]);
 
       if (error) {
         if (error.code === "23505") {

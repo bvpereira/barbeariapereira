@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +37,7 @@ const formatPhone = (value: string) => {
 };
 
 function Login() {
+  const { tenant } = useTenant();
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +72,7 @@ function Login() {
         .from("usuarios")
         .select("login")
         .eq("login", cleanLogin)
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
 
       if (!userExists) {
@@ -88,6 +91,7 @@ function Login() {
         .select("*")
         .eq("login", cleanLogin)
         .eq("senha", senha)
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
 
       if (error || !data) {
@@ -147,6 +151,7 @@ function Login() {
         .from("usuarios")
         .select("nome, login")
         .eq("login", cleanLogin)
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
       
       console.log("User check result:", { usuario, userError });
@@ -169,7 +174,8 @@ function Login() {
       const { error: updateError } = await supabase
         .from("usuarios")
         .update({ recovery_token: recoveryToken })
-        .eq("login", usuario.login);
+        .eq("login", usuario.login)
+        .eq("barbearia_id", tenant!.id);
 
       console.log("Token update result:", updateError);
 
@@ -184,6 +190,7 @@ function Login() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "recupera_senha")
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
 
       console.log("Integration fetch result:", { integracao, intError });
@@ -199,6 +206,7 @@ function Login() {
         .from("informacoes" as any)
         .select("tel_contato")
         .eq("userrr", "admin")
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle());
 
       console.log("Admin info fetch result:", { info, infoError });

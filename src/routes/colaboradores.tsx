@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, User, Phone, Lock, DollarSign, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -46,6 +47,7 @@ interface Collaborator {
 }
 
 function CollaboratorsPage() {
+  const { tenant } = useTenant();
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [allServices, setAllServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,6 +76,7 @@ function CollaboratorsPage() {
       const { data: servicesData, error: servicesError } = await supabase
         .from("servicos")
         .select("id, name, price")
+        .eq("barbearia_id", tenant!.id)
         .order("name");
       
       if (servicesError) throw servicesError;
@@ -92,6 +95,7 @@ function CollaboratorsPage() {
             )
           )
         `)
+        .eq("barbearia_id", tenant!.id)
         .order("nome", { ascending: true });
 
       if (collaboratorsError) throw collaboratorsError;
@@ -241,6 +245,7 @@ function CollaboratorsPage() {
       }
 
       const colabData = {
+        barbearia_id: tenant!.id,
         nome,
         resumo,
         login: cleanLogin,
@@ -281,6 +286,7 @@ function CollaboratorsPage() {
         const { error: userError } = await supabase
           .from("usuarios")
           .insert([{ 
+            barbearia_id: tenant!.id,
             nome, 
             login: cleanLogin, 
             senha, 
@@ -311,6 +317,7 @@ function CollaboratorsPage() {
       // Insert services
       if (colabId && selectedServices.length > 0) {
         const servicesToInsert = selectedServices.map(s => ({
+          barbearia_id: tenant!.id,
           colaborador_id: colabId as string,
           servico_id: s.servico_id,
           tipo_comissao: s.tipo_comissao,

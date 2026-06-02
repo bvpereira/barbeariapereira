@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,7 @@ const formatPhone = (value: string) => {
 };
 
 function Cadastro() {
+  const { tenant } = useTenant();
   const [nome, setNome] = useState("");
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
@@ -92,6 +94,7 @@ function Cadastro() {
         .from("usuarios")
         .insert([
           {
+            barbearia_id: tenant!.id,
             nome,
             login: cleanLogin,
             senha,

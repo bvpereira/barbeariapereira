@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users, Trash2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -54,6 +55,7 @@ interface HorarioColaborador {
 }
 
 function HorariosPage() {
+  const { tenant } = useTenant();
   const [dias, setDias] = useState<DiaAgenda[]>([]);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [horariosColaboradores, setHorariosColaboradores] = useState<HorarioColaborador[]>([]);
@@ -83,6 +85,7 @@ function HorariosPage() {
   }, []);
 
   const cleanupOldDays = async () => {
+    if (!tenant?.id) return;
     try {
       const today = format(new Date(), "yyyy-MM-dd");
       
@@ -91,6 +94,7 @@ function HorariosPage() {
       const { error } = await supabase
         .from("dias_agenda")
         .delete()
+        .eq("barbearia_id", tenant.id)
         .lt("data", today);
 
       if (error) console.error("Erro ao limpar dias antigos:", error);
@@ -100,11 +104,13 @@ function HorariosPage() {
   };
 
   const fetchData = async () => {
+    if (!tenant?.id) return;
     setIsLoading(true);
     try {
       const { data: diasData, error: diasError } = await supabase
         .from("dias_agenda")
         .select("*")
+        .eq("barbearia_id", tenant.id)
         .order("data", { ascending: true });
 
       if (diasError) throw diasError;
@@ -113,6 +119,7 @@ function HorariosPage() {
       const { data: colabsData, error: colabsError } = await supabase
         .from("colaboradores")
         .select("id, nome")
+        .eq("barbearia_id", tenant.id)
         .order("nome");
 
       if (colabsError) throw colabsError;
@@ -120,7 +127,8 @@ function HorariosPage() {
 
       const { data: horariosData, error: horariosError } = await supabase
         .from("horarios_colaboradores")
-        .select("*");
+        .select("*")
+        .eq("barbearia_id", tenant.id);
 
       if (horariosError) throw horariosError;
       setHorariosColaboradores((horariosData as any) || []);
@@ -156,7 +164,7 @@ function HorariosPage() {
     try {
       const { data, error } = await supabase
         .from("dias_agenda")
-        .insert([{ data: dateStr, ativo: true }])
+        .insert([{ barbearia_id: tenant!.id, data: dateStr, ativo: true }])
         .select()
         .single();
 
@@ -240,6 +248,7 @@ function HorariosPage() {
     const newAtivo = existing ? !existing.ativo : true;
     
     const updatedData = {
+      barbearia_id: tenant!.id,
       colaborador_id: colabId,
       data: date,
       ativo: newAtivo,
@@ -290,6 +299,7 @@ function HorariosPage() {
     const updates = selected.map(colabId => {
       const existingIdx = newHorarios.findIndex(h => h.colaborador_id === colabId && h.data === date);
       const data = {
+        barbearia_id: tenant!.id,
         colaborador_id: colabId,
         data: date,
         manha_inicio: config.manha_inicio,
@@ -324,6 +334,7 @@ function HorariosPage() {
   const updateIndividualHorario = async (colabId: string, date: string, field: string, value: string) => {
     const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
     const updatedData = {
+      barbearia_id: tenant!.id,
       colaborador_id: colabId,
       data: date,
       ...(existing || {}),
@@ -544,6 +555,7 @@ function HorariosPage() {
                                 checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
                                 onCheckedChange={async (checked) => {
                                   const updates = collaborators.map(c => ({
+                                    barbearia_id: tenant!.id,
                                     colaborador_id: c.id,
                                     data: dia.data,
                                     ativo: !!checked
@@ -642,6 +654,7 @@ function HorariosPage() {
                           checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
                           onCheckedChange={async (checked) => {
                             const updates = collaborators.map(c => ({
+                              barbearia_id: tenant!.id,
                               colaborador_id: c.id,
                               data: dia.data,
                               ativo: !!checked

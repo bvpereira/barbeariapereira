@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ interface DashboardData {
 }
 
 function AdminPage() {
+  const { tenant } = useTenant();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
@@ -91,6 +93,7 @@ function AdminPage() {
       const { data: lastDayData } = await supabase
         .from("dias_agenda")
         .select("data")
+        .eq("barbearia_id", tenant!.id)
         .order("data", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -99,6 +102,7 @@ function AdminPage() {
       const { data: colaboradoresAtivosData } = await supabase
         .from("colaboradores")
         .select("nome")
+        .eq("barbearia_id", tenant!.id)
         .eq("ativo", true)
         .order("nome", { ascending: true });
 

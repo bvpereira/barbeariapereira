@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { triggerWebhook } from "@/lib/webhook";
 import { Button } from "@/components/ui/button";
 import { 
@@ -9,6 +9,7 @@ import {
   Clock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -78,6 +79,7 @@ export function BookingButton({
   label = "Agendar Atendimento",
   icon
 }: BookingButtonProps) {
+  const { tenant } = useTenant();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -330,6 +332,7 @@ export function BookingButton({
       });
 
       const payload = {
+        barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart}:00-03:00`,
@@ -353,6 +356,7 @@ export function BookingButton({
       }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
+        barbearia_id: tenant!.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0

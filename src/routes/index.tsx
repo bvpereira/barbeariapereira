@@ -32,6 +32,7 @@ import {
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { cn } from "../lib/utils";
+import { useTenant } from "@/contexts/TenantContext";
 // Import removed as it was replaced by a direct URL for the hero background
 import { supabase } from "@/integrations/supabase/client";
 import { BeamsBackground } from "@/components/ui/beams-background";
@@ -42,6 +43,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { tenant, loading: tenantLoading } = useTenant();
   const navigate = useNavigate();
 
   const handleAgendarClick = (e: React.MouseEvent) => {
@@ -85,15 +87,17 @@ function Index() {
   };
 
 
+  if (tenantLoading) return null;
+
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
-      <Hero onAgendarClick={handleAgendarClick} />
-      <SobreNos />
-      <Localizacao />
-      <Servicos />
-      <Colaboradores />
-      <Contato />
-      <Footer />
+      <Hero onAgendarClick={handleAgendarClick} tenantName={tenant?.nome} />
+      <SobreNos tenantId={tenant?.id} tenantName={tenant?.nome} />
+      <Localizacao tenantId={tenant?.id} />
+      <Servicos tenantId={tenant?.id} />
+      <Colaboradores tenantId={tenant?.id} />
+      <Contato tenantId={tenant?.id} />
+      <Footer tenantName={tenant?.nome} />
     </div>
   );
 }
@@ -101,7 +105,7 @@ function Index() {
 
 // Seção de frases removida conforme solicitação
 
-function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => void }) {
+function Hero({ onAgendarClick, tenantName }: { onAgendarClick: (e: React.MouseEvent) => void; tenantName?: string }) {
   return (
     <section
       className="relative min-h-[90vh] pt-10 pb-5 md:pt-20 md:pb-10 px-4 flex flex-col items-center justify-center bg-cover bg-center"
@@ -117,7 +121,7 @@ function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => voi
 
         <motion.img
           src="/logo.png"
-          alt="Barbearia Pereira Logo"
+          alt={`${tenantName || 'Barbearia'} Logo`}
           width={821}
           height={728}
           fetchPriority="high"
@@ -166,7 +170,7 @@ function Hero({ onAgendarClick }: { onAgendarClick: (e: React.MouseEvent) => voi
   );
 }
 
-function SobreNos() {
+function SobreNos({ tenantId, tenantName }: { tenantId?: string; tenantName?: string }) {
   const [images, setImages] = useState<string[]>([]);
   const [emblaRef] = useEmblaCarousel({ 
     loop: true,
@@ -175,12 +179,14 @@ function SobreNos() {
   }, [AutoScroll({ speed: 1, stopOnInteraction: false, stopOnMouseEnter: false })]);
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchImages = async () => {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
           .select("imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8")
           .eq("userrr", "admin")
+          .eq("barbearia_id", tenantId)
           .maybeSingle());
 
         if (error) throw error;
@@ -222,7 +228,7 @@ function SobreNos() {
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-8" />
           <p className="text-muted-foreground text-slate-100 text-base font-normal">
-            A Barbearia Pereira não é apenas um lugar para cortar o cabelo; é um espaço dedicado ao homem moderno que valoriza a tradição. Combinamos técnicas clássicas de barbearia com o que há de mais atual em tendências e cuidados masculinos, proporcionando uma experiência de relaxamento e renovação.
+            A {tenantName || 'Barbearia'} não é apenas um lugar para cortar o cabelo; é um espaço dedicado ao homem moderno que valoriza a tradição. Combinamos técnicas clássicas de barbearia com o que há de mais atual em tendências e cuidados masculinos, proporcionando uma experiência de relaxamento e renovação.
           </p>
         </motion.div>
 
@@ -277,16 +283,18 @@ function SobreNos() {
   );
 }
 
-function Localizacao() {
+function Localizacao({ tenantId }: { tenantId?: string }) {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchVideo = async () => {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
           .select("video_local")
           .eq("userrr", "admin")
+          .eq("barbearia_id", tenantId)
           .maybeSingle());
 
         if (error) throw error;
@@ -388,15 +396,17 @@ function Localizacao() {
   );
 }
 
-function Servicos() {
+function Servicos({ tenantId }: { tenantId?: string }) {
   const [servicos, setServicos] = useState<Array<{ img: string; nome: string; desc: string }>>([]);
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchServicos = async () => {
       try {
         const { data, error } = await supabase
           .from("servicos")
           .select("name, image_url, detalhes")
+          .eq("barbearia_id", tenantId)
           .order("created_at", { ascending: true });
         if (error) throw error;
         if (data) {
@@ -474,14 +484,16 @@ function Servicos() {
   );
 }
 
-function Colaboradores() {
+function Colaboradores({ tenantId }: { tenantId?: string }) {
   const [time, setTime] = useState<{ nome: string; img: string; desc: string }[]>([]);
 
   useEffect(() => {
+    if (!tenantId) return;
     (async () => {
       const { data, error } = await supabase
         .from("colaboradores")
         .select("nome, foto_url, resumo, ativo")
+        .eq("barbearia_id", tenantId)
         .eq("ativo", true)
         .order("nome", { ascending: true });
       if (!error && data) {
@@ -538,16 +550,18 @@ function Colaboradores() {
 
 // Galeria removida conforme solicitação
 
-function Contato() {
+function Contato({ tenantId }: { tenantId?: string }) {
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchWhatsapp = async () => {
       try {
         const { data, error } = await supabase
           .from("informacoes" as any)
           .select("tel_contato")
           .eq("userrr", "admin")
+          .eq("barbearia_id", tenantId)
           .maybeSingle();
 
         if (!error && data) {
@@ -595,13 +609,13 @@ function Contato() {
   );
 }
 
-function Footer() {
+function Footer({ tenantName }: { tenantName?: string }) {
   return (
     <footer className="px-4 border-t border-primary/10 bg-black py-[45px]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
         <div className="space-y-4">
           <img src="/logo.png" alt="Logo" className="w-32 opacity-80 text-left" />
-          <p className="text-muted-foreground text-sm uppercase tracking-tighter">Barbearia Pereira</p>
+          <p className="text-muted-foreground text-sm uppercase tracking-tighter">{tenantName || 'Barbearia'}</p>
           <div className="text-xs text-muted-foreground/60 space-y-1">
             <p>CNPJ: 19.411.344/0001-11</p>
             <p>Rio das Ostras - RJ</p>
@@ -627,7 +641,7 @@ function Footer() {
       </div>
       
       <div className="max-w-6xl mx-auto pt-8 border-t border-primary/5 text-center text-xs text-muted-foreground/40">
-        &copy; {new Date().getFullYear()} Barbearia Pereira. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} {tenantName || 'Barbearia'}. Todos os direitos reservados.
       </div>
     </footer>
   );

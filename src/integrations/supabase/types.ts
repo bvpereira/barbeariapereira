@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       agentes_ia: {
         Row: {
+          barbearia_id: string
           created_at: string
           id: string
           imagem_campanha: string | null
@@ -31,6 +32,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          barbearia_id: string
           created_at?: string
           id?: string
           imagem_campanha?: string | null
@@ -46,6 +48,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          barbearia_id?: string
           created_at?: string
           id?: string
           imagem_campanha?: string | null
@@ -60,11 +63,20 @@ export type Database = {
           prompt_imagem?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agentes_ia_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       atendimento_servicos: {
         Row: {
           atendimento_id: string
+          barbearia_id: string
           created_at: string
           id: string
           name_servico: string | null
@@ -73,6 +85,7 @@ export type Database = {
         }
         Insert: {
           atendimento_id: string
+          barbearia_id: string
           created_at?: string
           id?: string
           name_servico?: string | null
@@ -81,6 +94,7 @@ export type Database = {
         }
         Update: {
           atendimento_id?: string
+          barbearia_id?: string
           created_at?: string
           id?: string
           name_servico?: string | null
@@ -96,6 +110,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "atendimento_servicos_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "atendimento_servicos_servico_id_fkey"
             columns: ["servico_id"]
             isOneToOne: false
@@ -106,6 +127,7 @@ export type Database = {
       }
       atendimentos: {
         Row: {
+          barbearia_id: string
           cliente_id: string
           colaborador_id: string
           comissao: number
@@ -119,6 +141,7 @@ export type Database = {
           valor: number
         }
         Insert: {
+          barbearia_id: string
           cliente_id: string
           colaborador_id: string
           comissao?: number
@@ -132,6 +155,7 @@ export type Database = {
           valor?: number
         }
         Update: {
+          barbearia_id?: string
           cliente_id?: string
           colaborador_id?: string
           comissao?: number
@@ -145,6 +169,13 @@ export type Database = {
           valor?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "atendimentos_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "atendimentos_cliente_id_fkey"
             columns: ["cliente_id"]
@@ -161,8 +192,36 @@ export type Database = {
           },
         ]
       }
+      barbearias: {
+        Row: {
+          config: Json | null
+          created_at: string
+          id: string
+          nome: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          nome: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          nome?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       colaborador_servicos: {
         Row: {
+          barbearia_id: string
           colaborador_id: string | null
           created_at: string
           id: string
@@ -171,6 +230,7 @@ export type Database = {
           valor_comissao: number | null
         }
         Insert: {
+          barbearia_id: string
           colaborador_id?: string | null
           created_at?: string
           id?: string
@@ -179,6 +239,7 @@ export type Database = {
           valor_comissao?: number | null
         }
         Update: {
+          barbearia_id?: string
           colaborador_id?: string | null
           created_at?: string
           id?: string
@@ -187,6 +248,13 @@ export type Database = {
           valor_comissao?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "colaborador_servicos_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "colaborador_servicos_colaborador_id_fkey"
             columns: ["colaborador_id"]
@@ -206,6 +274,7 @@ export type Database = {
       colaboradores: {
         Row: {
           ativo: boolean
+          barbearia_id: string
           created_at: string
           foto_url: string | null
           id: string
@@ -218,6 +287,7 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean
+          barbearia_id: string
           created_at?: string
           foto_url?: string | null
           id?: string
@@ -230,6 +300,7 @@ export type Database = {
         }
         Update: {
           ativo?: boolean
+          barbearia_id?: string
           created_at?: string
           foto_url?: string | null
           id?: string
@@ -240,11 +311,20 @@ export type Database = {
           senha?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "colaboradores_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dias_agenda: {
         Row: {
           ativo: boolean
+          barbearia_id: string
           created_at: string
           data: string
           id: string
@@ -252,6 +332,7 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean
+          barbearia_id: string
           created_at?: string
           data: string
           id?: string
@@ -259,15 +340,25 @@ export type Database = {
         }
         Update: {
           ativo?: boolean
+          barbearia_id?: string
           created_at?: string
           data?: string
           id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "dias_agenda_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gastos: {
         Row: {
+          barbearia_id: string
           created_at: string
           data: string
           id: string
@@ -275,6 +366,7 @@ export type Database = {
           valor: number
         }
         Insert: {
+          barbearia_id: string
           created_at?: string
           data?: string
           id?: string
@@ -282,17 +374,27 @@ export type Database = {
           valor: number
         }
         Update: {
+          barbearia_id?: string
           created_at?: string
           data?: string
           id?: string
           nome?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gastos_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       horarios_colaboradores: {
         Row: {
           ativo: boolean | null
+          barbearia_id: string
           colaborador_id: string
           created_at: string
           data: string
@@ -305,6 +407,7 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean | null
+          barbearia_id: string
           colaborador_id: string
           created_at?: string
           data: string
@@ -317,6 +420,7 @@ export type Database = {
         }
         Update: {
           ativo?: boolean | null
+          barbearia_id?: string
           colaborador_id?: string
           created_at?: string
           data?: string
@@ -329,6 +433,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "horarios_colaboradores_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "horarios_colaboradores_colaborador_id_fkey"
             columns: ["colaborador_id"]
             isOneToOne: false
@@ -339,6 +450,7 @@ export type Database = {
       }
       informacoes: {
         Row: {
+          barbearia_id: string
           created_at: string
           email: string | null
           google_avaliacao: string | null
@@ -363,6 +475,7 @@ export type Database = {
           video_local: string | null
         }
         Insert: {
+          barbearia_id: string
           created_at?: string
           email?: string | null
           google_avaliacao?: string | null
@@ -387,6 +500,7 @@ export type Database = {
           video_local?: string | null
         }
         Update: {
+          barbearia_id?: string
           created_at?: string
           email?: string | null
           google_avaliacao?: string | null
@@ -410,10 +524,19 @@ export type Database = {
           usuario_id?: string | null
           video_local?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "informacoes_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       integracoes: {
         Row: {
+          barbearia_id: string
           created_at: string | null
           id: string
           tipo: string | null
@@ -421,6 +544,7 @@ export type Database = {
           webhook_url: string
         }
         Insert: {
+          barbearia_id: string
           created_at?: string | null
           id?: string
           tipo?: string | null
@@ -428,16 +552,26 @@ export type Database = {
           webhook_url: string
         }
         Update: {
+          barbearia_id?: string
           created_at?: string | null
           id?: string
           tipo?: string | null
           updated_at?: string | null
           webhook_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "integracoes_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       promocao: {
         Row: {
+          barbearia_id: string
           created_at: string | null
           data_promo: string | null
           id: string
@@ -453,6 +587,7 @@ export type Database = {
           texto_promo_ia_3: string | null
         }
         Insert: {
+          barbearia_id: string
           created_at?: string | null
           data_promo?: string | null
           id?: string
@@ -468,6 +603,7 @@ export type Database = {
           texto_promo_ia_3?: string | null
         }
         Update: {
+          barbearia_id?: string
           created_at?: string | null
           data_promo?: string | null
           id?: string
@@ -482,10 +618,19 @@ export type Database = {
           texto_promo_ia_2?: string | null
           texto_promo_ia_3?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "promocao_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       servicos: {
         Row: {
+          barbearia_id: string
           created_at: string
           detalhes: string | null
           duration: number
@@ -496,6 +641,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          barbearia_id: string
           created_at?: string
           detalhes?: string | null
           duration: number
@@ -506,6 +652,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          barbearia_id?: string
           created_at?: string
           detalhes?: string | null
           duration?: number
@@ -515,10 +662,19 @@ export type Database = {
           price?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "servicos_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transacoes_financeiras: {
         Row: {
+          barbearia_id: string
           categoria: string
           created_at: string
           data: string
@@ -530,6 +686,7 @@ export type Database = {
           valor: number
         }
         Insert: {
+          barbearia_id: string
           categoria: string
           created_at?: string
           data?: string
@@ -541,6 +698,7 @@ export type Database = {
           valor?: number
         }
         Update: {
+          barbearia_id?: string
           categoria?: string
           created_at?: string
           data?: string
@@ -551,10 +709,19 @@ export type Database = {
           updated_at?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transacoes_financeiras_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       usuarios: {
         Row: {
+          barbearia_id: string
           created_at: string
           id: string
           login: string
@@ -568,6 +735,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          barbearia_id: string
           created_at?: string
           id?: string
           login: string
@@ -581,6 +749,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          barbearia_id?: string
           created_at?: string
           id?: string
           login?: string
@@ -593,7 +762,15 @@ export type Database = {
           senha?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

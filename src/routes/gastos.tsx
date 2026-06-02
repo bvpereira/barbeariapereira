@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Wallet, Trash2, Edit2, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -66,6 +67,7 @@ interface Gasto {
 }
 
 function GastosPage() {
+  const { tenant } = useTenant();
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -91,10 +93,12 @@ function GastosPage() {
   }, [selectedMonth]);
 
   const fetchColaboradores = async () => {
+    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("colaboradores")
-        .select("id, nome");
+        .select("id, nome")
+        .eq("barbearia_id", tenant.id);
       if (error) throw error;
       setColaboradores(data || []);
     } catch (error: any) {
@@ -103,6 +107,7 @@ function GastosPage() {
   };
 
   const fetchGastos = async () => {
+    if (!tenant?.id) return;
     setIsLoading(true);
     try {
       const start = startOfMonth(selectedMonth);
@@ -111,6 +116,7 @@ function GastosPage() {
       const { data, error } = await supabase
         .from("gastos")
         .select("*")
+        .eq("barbearia_id", tenant.id)
         .gte("data", start.toISOString())
         .lte("data", end.toISOString())
         .order("data", { ascending: false });
@@ -189,6 +195,7 @@ function GastosPage() {
     try {
       const [year, month, day] = dataGasto.split("-").map(Number);
       const payload = {
+        barbearia_id: tenant!.id,
         nome,
         valor: parseFloat(valor),
         data: new Date(year, month - 1, day, 12, 0, 0).toISOString(),
@@ -253,6 +260,7 @@ function GastosPage() {
 
     try {
       const payload = {
+        barbearia_id: tenant!.id,
         nome: `Salário: ${colaborador.nome}`,
         valor: parseFloat(valor),
         data: startOfMonth(selectedMonth).toISOString(),
