@@ -267,7 +267,7 @@ function AtendimentosPage() {
       fetchBookingSettings();
       fetchPedidosExclusao();
     }
-  }, [tenant, tenantLoading, fetchPedidosExclusao]);
+  }, [tenant, tenantLoading, fetchFormData, fetchBookingSettings, fetchPedidosExclusao]);
 
   const searchClientes = async (term: string) => {
     if (!tenant?.id) return;
