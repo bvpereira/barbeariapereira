@@ -136,6 +136,7 @@ function IntegracoesPage() {
     setSavingState: (s: boolean) => void,
     successMsg: string
   ) => {
+    if (!tenant) return;
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
       toast.error("Por favor, insira uma URL de webhook válida.");
