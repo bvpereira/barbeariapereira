@@ -147,7 +147,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `, { count: 'exact' })
-      .eq('barbearia_id', tenant?.id)
+      .eq('barbearia_id', tenant.id)
       .eq('status', 'Agendado')
       .order('data', { ascending: true })
       .range(0, limitAgendados - 1);
@@ -167,6 +167,7 @@ function AtendimentosPage() {
   }, [limitAgendados]);
 
   const fetchConcluidos = useCallback(async () => {
+    if (!tenant?.id) return;
     setLoadingConcluidos(true);
     let query = supabase
       .from('atendimentos')
@@ -176,6 +177,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `, { count: 'exact' })
+      .eq('barbearia_id', tenant.id)
       .in('status', ['Finalizado', 'Não compareceu']);
 
     if (filtroConcluidos !== 'Todos') query = query.eq('status', filtroConcluidos);
@@ -192,6 +194,7 @@ function AtendimentosPage() {
   }, [limitConcluidos, filtroConcluidos]);
 
   const fetchPedidosExclusao = useCallback(async () => {
+    if (!tenant?.id) return;
     setLoadingExclusao(true);
     const { data, error } = await supabase
       .from('atendimentos')
@@ -201,6 +204,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `)
+      .eq('barbearia_id', tenant?.id)
       .eq('pedido_exclusao', true)
       .order('data', { ascending: false });
 
@@ -211,9 +215,10 @@ function AtendimentosPage() {
   }, []);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').order('name');
-    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id');
+    if (!tenant?.id) return;
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant.id).order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant.id).order('name');
+    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id').eq('barbearia_id', tenant.id);
     
     const formattedColabs = colabs?.map(c => ({
       ...c,
@@ -228,10 +233,11 @@ function AtendimentosPage() {
   };
 
   const fetchBookingSettings = async () => {
-    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    if (!tenant?.id) return;
+    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('userrr', 'admin').maybeSingle();
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('barbearia_id', tenant.id).maybeSingle();
     if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
   };
 
@@ -250,19 +256,24 @@ function AtendimentosPage() {
   }, [fetchAgendados, tenant]);
 
   useEffect(() => {
-    fetchConcluidos();
-  }, [fetchConcluidos]);
+    if (!tenantLoading && tenant) {
+      fetchConcluidos();
+    }
+  }, [fetchConcluidos, tenant, tenantLoading]);
 
   useEffect(() => {
-    fetchFormData();
-    fetchBookingSettings();
-    fetchPedidosExclusao();
-  }, [fetchPedidosExclusao]);
+    if (!tenantLoading && tenant) {
+      fetchFormData();
+      fetchBookingSettings();
+      fetchPedidosExclusao();
+    }
+  }, [tenant, tenantLoading, fetchPedidosExclusao]);
 
   const searchClientes = async (term: string) => {
+    if (!tenant?.id) return;
     setSearchCliente(term);
     if (term.length < 2) { setClientes([]); return; }
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('nivel', 3).or(`nome.ilike.%${term}%,login.ilike.%${term}%`).limit(5);
+    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('barbearia_id', tenant.id).eq('nivel', 3).or(`nome.ilike.%${term}%,login.ilike.%${term}%`).limit(5);
     setClientes(data || []);
   };
 
@@ -283,9 +294,11 @@ function AtendimentosPage() {
   };
 
   const calculateComissao = async (servicosIds: string[], colabId: string) => {
+    if (!tenant?.id) return;
     const { data: rules } = await supabase
       .from("colaborador_servicos")
       .select("servico_id, valor_comissao, tipo_comissao")
+      .eq("barbearia_id", tenant.id)
       .eq("colaborador_id", colabId);
     
     let totalComissao = 0;
@@ -304,12 +317,13 @@ function AtendimentosPage() {
   };
 
   const fetchColabServicos = async (colabId: string) => {
-    const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('colaborador_id', colabId);
+    if (!tenant?.id) return [];
+    const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('barbearia_id', tenant.id).eq('colaborador_id', colabId);
     const ids = data?.map(d => d.servico_id).filter((id): id is string => !!id) || [];
     setColabServicosIds(ids);
     
     // Fetch active dates
-    const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
+    const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('barbearia_id', tenant.id).eq('colaborador_id', colabId).eq('ativo', true);
     const dates = activeDates?.map(d => d.data) || [];
     setColabActiveDates(dates);
     
@@ -321,20 +335,20 @@ function AtendimentosPage() {
   };
 
   const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
-    if (!date || !colabId || servs.length === 0) {
+    if (!tenant?.id || !date || !colabId || servs.length === 0) {
       setAvailableTimes([]);
       return;
     }
     setLoadingTimes(true);
     try {
-      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
+      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('barbearia_id', tenant.id).eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
       if (!workingHours) { 
         setAvailableTimes([]); 
         setLoadingTimes(false);
         return; 
       }
 
-      const { data: appts } = await supabase.from('atendimentos').select('data, status, atendimento_servicos(servicos(duration))').eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
+      const { data: appts } = await supabase.from('atendimentos').select('data, status, atendimento_servicos(servicos(duration))').eq('barbearia_id', tenant.id).eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
 
       const requestedDuration = servs.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.duration || 0), 0);
       const possibleTimes: string[] = [];
@@ -457,7 +471,7 @@ function AtendimentosPage() {
       })));
 
       // Trigger Webhook
-      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
+      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('barbearia_id', tenant.id).eq('id', selectedColaborador).maybeSingle();
       const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
 
       if (editingAtendimento) {
@@ -511,6 +525,7 @@ function AtendimentosPage() {
   };
 
   const updateStatus = async (id: string, newStatus: Atendimento['status']) => {
+    if (!tenant?.id) return;
     try {
       const payload: any = { status: newStatus };
       
@@ -524,6 +539,7 @@ function AtendimentosPage() {
           const { data: rules } = await supabase
             .from("colaborador_servicos")
             .select("servico_id, valor_comissao, tipo_comissao")
+            .eq("barbearia_id", tenant.id)
             .eq("colaborador_id", item.colaborador.id);
           
           let totalComissao = 0;
@@ -540,8 +556,8 @@ function AtendimentosPage() {
           payload.comissao = totalComissao;
         }
       }
-
-      const { error } = await supabase.from('atendimentos').update(payload).eq('id', id);
+      
+      const { error } = await supabase.from('atendimentos').update(payload).eq('barbearia_id', tenant.id).eq('id', id);
       if (error) throw error;
       toast.success("Status atualizado");
       fetchAgendados();
@@ -555,12 +571,13 @@ function AtendimentosPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!deleteId) return;
+    if (!deleteId || !tenant?.id) return;
     setIsDeleting(true);
     try {
       const { data: item } = await supabase
         .from('atendimentos')
         .select('*, cliente:usuarios!cliente_id(nome, login), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
+        .eq('barbearia_id', tenant.id)
         .eq('id', deleteId)
         .single();
 
@@ -568,11 +585,12 @@ function AtendimentosPage() {
       const { error: servError } = await supabase
         .from('atendimento_servicos')
         .delete()
+        .eq('barbearia_id', tenant.id)
         .eq('atendimento_id', deleteId);
 
       if (servError) throw servError;
 
-      const { error } = await supabase.from('atendimentos').delete().eq('id', deleteId);
+      const { error } = await supabase.from('atendimentos').delete().eq('barbearia_id', tenant.id).eq('id', deleteId);
       if (error) throw error;
 
       if (item) {
@@ -1157,7 +1175,6 @@ function AtendimentosPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
       </div>
     </AdminLayout>
   );
