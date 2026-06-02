@@ -71,12 +71,10 @@ function IntegracoesPage() {
   };
 
   const fetchIntegrations = async () => {
-    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("integracoes")
-        .select("*")
-        .eq("barbearia_id", tenant.id);
+        .select("*");
 
       if (error) {
         console.error("Erro ao buscar integrações:", error);

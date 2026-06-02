@@ -35,13 +35,11 @@ function IACodConsumiPage() {
   useEffect(() => {
     if (tenantLoading || !tenant) return;
     const fetchWebhook = async () => {
-      if (!tenant?.id) return;
       try {
         const { data, error } = await supabase
           .from("integracoes")
           .select("webhook_url")
           .eq("tipo", "ia_codconsumi")
-          .eq("barbearia_id", tenant.id)
           .maybeSingle();
 
         if (error) {

@@ -41,7 +41,7 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
     const lowercasedData = lowercaseKeys(data);
     console.log("Triggering Webhook:", event, lowercasedData);
 
-    // 2. Fetch the webhook URL
+    // 2. Fetch the webhook URL (Unified for all barber shops)
     const { data: config, error } = await supabase
       .from("integracoes")
       .select("webhook_url")
