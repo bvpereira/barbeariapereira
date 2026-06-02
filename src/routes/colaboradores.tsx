@@ -198,6 +198,7 @@ function CollaboratorsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tenant) return;
     const cleanLogin = login.replace(/\D/g, "");
     if (cleanLogin.length !== 11) {
       toast.error("O login deve ter exatamente 11 números.");
@@ -247,7 +248,7 @@ function CollaboratorsPage() {
       }
 
       const colabData = {
-        barbearia_id: tenant!.id,
+        barbearia_id: tenant.id,
         nome,
         resumo,
         login: cleanLogin,
@@ -288,7 +289,7 @@ function CollaboratorsPage() {
         const { error: userError } = await supabase
           .from("usuarios")
           .insert([{ 
-            barbearia_id: tenant!.id,
+            barbearia_id: tenant.id,
             nome, 
             login: cleanLogin, 
             senha, 
@@ -319,7 +320,7 @@ function CollaboratorsPage() {
       // Insert services
       if (colabId && selectedServices.length > 0) {
         const servicesToInsert = selectedServices.map(s => ({
-          barbearia_id: tenant!.id,
+          barbearia_id: tenant.id,
           colaborador_id: colabId as string,
           servico_id: s.servico_id,
           tipo_comissao: s.tipo_comissao,
