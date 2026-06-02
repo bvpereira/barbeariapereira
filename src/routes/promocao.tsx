@@ -415,6 +415,7 @@ function PromocaoPage() {
         const { error: histError } = await supabase
           .from("promocao")
           .insert({
+            barbearia_id: tenant!.id,
             numero_promo: nextNumero,
             imagem_promo: promoAtual.imagem_promo,
             texto_promo: promoAtual.texto_promo,

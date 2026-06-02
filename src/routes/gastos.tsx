@@ -256,6 +256,7 @@ function GastosPage() {
 
     try {
       const payload = {
+        barbearia_id: tenant!.id,
         nome: `Salário: ${colaborador.nome}`,
         valor: parseFloat(valor),
         data: startOfMonth(selectedMonth).toISOString(),

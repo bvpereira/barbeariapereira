@@ -549,6 +549,7 @@ function HorariosPage() {
                                 checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
                                 onCheckedChange={async (checked) => {
                                   const updates = collaborators.map(c => ({
+                                    barbearia_id: tenant!.id,
                                     colaborador_id: c.id,
                                     data: dia.data,
                                     ativo: !!checked
@@ -647,6 +648,7 @@ function HorariosPage() {
                           checked={collaborators.every(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === dia.data)?.ativo) && collaborators.length > 0}
                           onCheckedChange={async (checked) => {
                             const updates = collaborators.map(c => ({
+                              barbearia_id: tenant!.id,
                               colaborador_id: c.id,
                               data: dia.data,
                               ativo: !!checked

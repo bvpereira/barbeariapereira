@@ -72,7 +72,7 @@ function Login() {
         .from("usuarios")
         .select("login")
         .eq("login", cleanLogin)
-        .eq("barbearia_id", tenant?.id)
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
 
       if (!userExists) {
@@ -91,7 +91,7 @@ function Login() {
         .select("*")
         .eq("login", cleanLogin)
         .eq("senha", senha)
-        .eq("barbearia_id", tenant?.id)
+        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
 
       if (error || !data) {
