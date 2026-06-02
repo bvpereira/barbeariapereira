@@ -485,7 +485,7 @@ function ClientesPage() {
     } else {
       const { error } = await supabase
         .from("usuarios")
-        .insert([payload]);
+        .insert([{ ...payload, barbearia_id: tenant!.id }]);
 
       if (error) {
         if (error.code === "23505") {
