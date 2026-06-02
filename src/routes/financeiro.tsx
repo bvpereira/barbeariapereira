@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -69,6 +70,7 @@ interface FinanceiroData {
 }
 
 function FinanceiroPage() {
+  const { tenant, loading: tenantLoading } = useTenant();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<FinanceiroData>({
     brutoDia: 0,
@@ -85,10 +87,14 @@ function FinanceiroPage() {
   });
 
   useEffect(() => {
-    fetchFinanceiro();
-  }, []);
+    if (tenantLoading) return;
+    if (tenant) {
+      fetchFinanceiro();
+    }
+  }, [tenant, tenantLoading]);
 
   const fetchFinanceiro = async () => {
+    if (!tenant) return;
     setLoading(true);
     try {
       const today = new Date();
@@ -99,7 +105,8 @@ function FinanceiroPage() {
 
       const { data: rules, error: errorRules } = await supabase
         .from("colaborador_servicos")
-        .select("colaborador_id, servico_id, valor_comissao, tipo_comissao");
+        .select("colaborador_id, servico_id, valor_comissao, tipo_comissao")
+        .eq("barbearia_id", tenant.id);
       
       if (errorRules) throw errorRules;
 
@@ -115,6 +122,7 @@ function FinanceiroPage() {
           ),
           colaborador_id
         `)
+        .eq("barbearia_id", tenant.id)
         .gte("data", startDay.toISOString())
         .lte("data", endDay.toISOString())
         .eq("status", "Finalizado");
@@ -143,6 +151,7 @@ function FinanceiroPage() {
             valor_servico
           )
         `)
+        .eq("barbearia_id", tenant.id)
         .gte("data", startMonth.toISOString())
         .lte("data", endMonth.toISOString());
 
@@ -150,13 +159,15 @@ function FinanceiroPage() {
       
       const { data: colaboradores, error: errorColab } = await supabase
         .from("colaboradores")
-        .select("id, nome");
+        .select("id, nome")
+        .eq("barbearia_id", tenant.id);
       
       if (errorColab) throw errorColab;
 
       const { data: gastosMes, error: errorGastos } = await supabase
         .from("gastos")
         .select("valor")
+        .eq("barbearia_id", tenant.id)
         .gte("data", startMonth.toISOString())
         .lte("data", endMonth.toISOString());
       
@@ -193,6 +204,7 @@ function FinanceiroPage() {
       const { data: allAtendimentos12, error: error12A } = await supabase
         .from("atendimentos")
         .select("valor, comissao, status, data, colaborador_id, atendimento_servicos(servico_id, valor_servico)")
+        .eq("barbearia_id", tenant.id)
         .gte("data", start12.toISOString())
         .lte("data", endMonth.toISOString())
         .eq("status", "Finalizado");
@@ -200,6 +212,7 @@ function FinanceiroPage() {
       const { data: allGastos12, error: error12G } = await supabase
         .from("gastos")
         .select("valor, data")
+        .eq("barbearia_id", tenant.id)
         .gte("data", start12.toISOString())
         .lte("data", endMonth.toISOString());
 

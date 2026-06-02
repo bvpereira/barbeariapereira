@@ -94,7 +94,7 @@ interface Servico {
 }
 
 function AtendimentosPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [agendados, setAgendados] = useState<Atendimento[]>([]);
   const [atencao, setAtencao] = useState<Atendimento[]>([]);
   const [concluidos, setConcluidos] = useState<Atendimento[]>([]);
@@ -137,6 +137,7 @@ function AtendimentosPage() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const fetchAgendados = useCallback(async () => {
+    if (!tenant?.id) return;
     setLoadingAgendados(true);
     const { data, error, count } = await supabase
       .from('atendimentos')
@@ -146,7 +147,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `, { count: 'exact' })
-      .eq('barbearia_id', tenant!.id)
+      .eq('barbearia_id', tenant?.id)
       .eq('status', 'Agendado')
       .order('data', { ascending: true })
       .range(0, limitAgendados - 1);
@@ -235,6 +236,7 @@ function AtendimentosPage() {
   };
 
   useEffect(() => {
+    if (tenantLoading) return;
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
@@ -387,6 +389,7 @@ function AtendimentosPage() {
   };
 
   const handleSave = async (isScheduling: boolean, force: boolean = false) => {
+    if (!tenant?.id) return;
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || (isScheduling && !selectedTimePart)) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
@@ -426,7 +429,7 @@ function AtendimentosPage() {
     setIsSubmitting(true);
     try {
       const payload = {
-        barbearia_id: tenant!.id,
+        barbearia_id: tenant.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
@@ -447,7 +450,7 @@ function AtendimentosPage() {
       }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
-        barbearia_id: tenant!.id,
+        barbearia_id: tenant.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0

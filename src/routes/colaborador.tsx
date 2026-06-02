@@ -33,7 +33,7 @@ export const Route = createFileRoute("/colaborador")({
 });
 
 function ColaboradorPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [colabId, setColabId] = useState<string | null>(null);
@@ -212,7 +212,7 @@ function ColaboradorPage() {
     const userData = getStoredUser();
     
     if (userData) {
-      if (tenant?.id && userData.barbearia_id !== tenant.id) {
+      if (!tenantLoading && tenant?.id && userData.barbearia_id !== tenant.id) {
         toast.error("Acesso negado.");
         navigate({ to: "/" });
         return;
@@ -229,7 +229,7 @@ function ColaboradorPage() {
       setLoading(false);
       window.location.href = "/login";
     }
-  }, [fetchAgendamentos]);
+  }, [fetchAgendamentos, tenant, tenantLoading, navigate]);
 
   useEffect(() => {
     if (colabId) {

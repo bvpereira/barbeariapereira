@@ -15,7 +15,7 @@ export const Route = createFileRoute("/integracoes")({
 });
 
 function IntegracoesPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [webhookUrl, setWebhookUrl] = useState("");
   const [finishWebhookUrl, setFinishWebhookUrl] = useState("");
   const [recuperaSenhaWebhookUrl, setRecuperaSenhaWebhookUrl] = useState("");
@@ -41,9 +41,10 @@ function IntegracoesPage() {
   const [infoId, setInfoId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (tenantLoading || !tenant) return;
     fetchIntegrations();
     fetchInformacoes();
-  }, []);
+  }, [tenant, tenantLoading]);
 
   const fetchInformacoes = async () => {
     if (!tenant?.id) return;
@@ -135,6 +136,7 @@ function IntegracoesPage() {
     setSavingState: (s: boolean) => void,
     successMsg: string
   ) => {
+    if (!tenant) return;
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
       toast.error("Por favor, insira uma URL de webhook válida.");
@@ -148,7 +150,7 @@ function IntegracoesPage() {
         .from("integracoes")
         .upsert(
           { 
-            barbearia_id: tenant!.id,
+            barbearia_id: tenant.id,
             webhook_url: trimmedUrl, 
             tipo: tipo,
             // Se tivermos o ID, incluímos para garantir que estamos tratando da mesma linha, 

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/iaimagem")({
 });
 
 function IAImagemPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingRef, setUploadingRef] = useState(false);
@@ -54,6 +54,7 @@ function IAImagemPage() {
   ];
 
   useEffect(() => {
+    if (tenantLoading || !tenant) return;
     fetchOptions();
     fetchWebhookUrl();
 
@@ -151,6 +152,7 @@ function IAImagemPage() {
   };
 
   const handleGenerate = async () => {
+    if (!tenant) return;
     const missingFields = fields
       .filter((field) => {
         const val = selections[field.key];
@@ -190,6 +192,7 @@ function IAImagemPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
 
       if (webhookFetchError) {

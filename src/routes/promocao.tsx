@@ -60,7 +60,7 @@ export const Route = createFileRoute("/promocao")({
 });
 
 function PromocaoPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -91,10 +91,13 @@ function PromocaoPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!tenantLoading && tenant) {
+      fetchData();
+    }
+  }, [tenant, tenantLoading]);
 
   const fetchData = async () => {
+    if (!tenant) return;
     console.log("Fetching data for promotions page...");
     setLoading(true);
     try {
@@ -103,7 +106,7 @@ function PromocaoPage() {
         .from("promocao")
         .select("*")
         .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
       if (promoError) {
@@ -117,7 +120,7 @@ function PromocaoPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "promocao")
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
       if (integration) setWebhookUrl(integration.webhook_url || "");
@@ -127,7 +130,7 @@ function PromocaoPage() {
         .from("informacoes")
         .select("tel_contato")
         .eq("userrr", "admin")
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
       if (info) setTelContato(info.tel_contato || "");
@@ -136,7 +139,7 @@ function PromocaoPage() {
       const { data: history, error: histError } = await supabase
         .from("promocao")
         .select("*")
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", tenant.id)
         .gt("numero_promo", 0)
         .order("data_promo", { ascending: false });
       
@@ -147,7 +150,7 @@ function PromocaoPage() {
       const { data: formats, error: formatsError } = await supabase
         .from("agentes_ia")
         .select("id, imagem_formato, linha")
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", tenant.id)
         .order("linha", { ascending: true });
       
       if (formatsError) {
@@ -321,13 +324,14 @@ function PromocaoPage() {
 
 
   const handleSaveWebhook = async () => {
+    if (!tenant) return;
     setSaving(true);
     try {
       const { data: existing } = await supabase
         .from("integracoes")
         .select("id")
         .eq("tipo", "promocao")
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
       if (existing) {
@@ -335,11 +339,11 @@ function PromocaoPage() {
           .from("integracoes")
           .update({ webhook_url: webhookUrl })
           .eq("tipo", "promocao")
-          .eq("barbearia_id", tenant!.id);
+          .eq("barbearia_id", tenant.id);
       } else {
         await supabase
           .from("integracoes")
-          .insert({ barbearia_id: tenant!.id, webhook_url: webhookUrl, tipo: "promocao" });
+          .insert({ barbearia_id: tenant.id, webhook_url: webhookUrl, tipo: "promocao" });
       }
       
       toast.success("Webhook salvo!");
@@ -407,6 +411,7 @@ function PromocaoPage() {
   };
 
   const handleEnviarConfirmado = async () => {
+    if (!tenant) return;
     setSendingPromo(true);
     setIsConfirmOpen(false);
     
@@ -422,7 +427,7 @@ function PromocaoPage() {
         const { error: histError } = await supabase
           .from("promocao")
           .insert({
-            barbearia_id: tenant!.id,
+            barbearia_id: tenant.id,
             numero_promo: nextNumero,
             imagem_promo: promoAtual.imagem_promo,
             texto_promo: promoAtual.texto_promo,

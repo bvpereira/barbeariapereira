@@ -52,7 +52,7 @@ interface DashboardData {
 }
 
 function AdminPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
@@ -72,6 +72,8 @@ function AdminPage() {
   });
 
   useEffect(() => {
+    if (tenantLoading) return;
+
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
@@ -83,15 +85,22 @@ function AdminPage() {
         return;
       }
 
+      if (!tenant) {
+        // Se não houver tenant e o usuário estiver logado, algo está errado
+        // ou o tenant não pôde ser carregado.
+        return;
+      }
+
       setUserName(parsedUser.nome || "");
+      fetchDashboardData();
     } else {
       navigate({ to: "/login" });
       return;
     }
-    fetchDashboardData();
-  }, [tenant, navigate]);
+  }, [tenant, tenantLoading, navigate]);
 
   const fetchDashboardData = async () => {
+    if (!tenant) return;
     setLoading(true);
     try {
       const now = new Date();

@@ -37,7 +37,7 @@ const formatPhone = (value: string) => {
 };
 
 function Login() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +62,10 @@ function Login() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tenant) {
+      toast.error("Unidade não identificada. Por favor, volte à página inicial.");
+      return;
+    }
     setIsLoading(true);
 
     const cleanLogin = login.replace(/[^\d]/g, "");
@@ -139,6 +143,7 @@ function Login() {
   };
 
   const handleRecovery = async () => {
+    if (!tenant) return;
     console.log("Starting handleRecovery...");
     setIsRecoveryLoading(true);
     const cleanLogin = recoveryLogin.replace(/[^\d]/g, "");
@@ -260,6 +265,14 @@ function Login() {
       setIsRecoveryLoading(false);
     }
   };
+
+  if (tenantLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">

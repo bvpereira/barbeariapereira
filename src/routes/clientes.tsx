@@ -125,7 +125,7 @@ interface AtendimentoHistorico {
 }
 
 function ClientesPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const isMobile = useIsMobile();
   const [totalClientes, setTotalClientes] = useState(0);
@@ -184,6 +184,7 @@ function ClientesPage() {
   };
 
   useEffect(() => {
+    if (tenantLoading) return;
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
@@ -192,11 +193,13 @@ function ClientesPage() {
         return;
       }
     }
-    fetchTotal();
-    fetchClientes();
-    fetchFormData();
-    fetchBookingSettings();
-  }, [search, limit, tenant]);
+    if (tenant) {
+      fetchTotal();
+      fetchClientes();
+      fetchFormData();
+      fetchBookingSettings();
+    }
+  }, [search, limit, tenant, tenantLoading]);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome').order('nome');
@@ -376,6 +379,7 @@ function ClientesPage() {
   };
 
   const handleSaveAtendimento = async (isScheduling: boolean) => {
+    if (!tenant) return;
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || (isScheduling && !selectedTimePart)) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
@@ -441,6 +445,7 @@ function ClientesPage() {
   };
 
   const handleSave = async () => {
+    if (!tenant) return;
     if (!formData.nome) {
       toast.error("O nome do cliente é obrigatório");
       return;

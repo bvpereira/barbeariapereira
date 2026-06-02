@@ -11,19 +11,22 @@ interface Barbearia {
 interface TenantContextType {
   tenant: Barbearia | null;
   loading: boolean;
+  refreshTenant: () => Promise<void>;
 }
 
 const TenantContext = createContext<TenantContextType>({
   tenant: null,
   loading: true,
+  refreshTenant: async () => {},
 });
 
 export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tenant, setTenant] = useState<Barbearia | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTenant = async () => {
+  const fetchTenant = async () => {
+    setLoading(true);
+    try {
       // Prioritize explicit slug from URL
       const url = new URL(window.location.href);
       const pathParts = url.pathname.split("/").filter(Boolean);
@@ -62,11 +65,10 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             console.error("Error parsing user data", e);
           }
         }
+        setTenant(null);
         setLoading(false);
         return;
       }
-
-
 
       const { data, error } = await supabase
         .from("barbearias")
@@ -85,15 +87,19 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           .maybeSingle();
          if (defaultData) setTenant(defaultData);
       }
-      
+    } catch (err) {
+      console.error("Error fetching tenant", err);
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchTenant();
   }, []);
 
   return (
-    <TenantContext.Provider value={{ tenant, loading }}>
+    <TenantContext.Provider value={{ tenant, loading, refreshTenant: fetchTenant }}>
       {children}
     </TenantContext.Provider>
   );

@@ -79,7 +79,7 @@ export function BookingButton({
   label = "Agendar Atendimento",
   icon
 }: BookingButtonProps) {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,9 +118,9 @@ export function BookingButton({
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').order('name');
-    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id');
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant!.id).order('name');
+    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id').eq('barbearia_id', tenant!.id);
     
     const formattedColabs = colabs?.map(c => ({
       ...c,
@@ -135,10 +135,10 @@ export function BookingButton({
   };
 
   const fetchBookingSettings = async () => {
-    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant!.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, tempo_excluir').eq('userrr', 'admin').maybeSingle();
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, tempo_excluir').eq('barbearia_id', tenant!.id).maybeSingle();
     if (infoData) {
       setTempoMarcar(infoData.tempo_marcar ?? 60);
       setTempoExcluir(infoData.tempo_excluir ?? 60);
@@ -154,7 +154,7 @@ export function BookingButton({
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && tenant) {
       fetchFormData();
       fetchBookingSettings();
       
@@ -274,6 +274,7 @@ export function BookingButton({
   }, [selectedDatePart, selectedColaborador, selectedServicos, isOpen, fetchAvailableTimes]);
 
   const handleSave = async (force: boolean = false) => {
+    if (!tenant) return;
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || !selectedTimePart) {
       toast.error("Preencha todos os campos obrigatórios");
       return;

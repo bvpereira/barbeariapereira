@@ -55,7 +55,7 @@ interface HorarioColaborador {
 }
 
 function HorariosPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [dias, setDias] = useState<DiaAgenda[]>([]);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [horariosColaboradores, setHorariosColaboradores] = useState<HorarioColaborador[]>([]);
@@ -77,12 +77,14 @@ function HorariosPage() {
   
 
   useEffect(() => {
+    if (tenantLoading || !tenant) return;
+    
     const cleanupAndFetch = async () => {
       await cleanupOldDays();
       await fetchData();
     };
     cleanupAndFetch();
-  }, []);
+  }, [tenant, tenantLoading]);
 
   const cleanupOldDays = async () => {
     if (!tenant?.id) return;
@@ -153,6 +155,7 @@ function HorariosPage() {
   };
 
   const addDay = async () => {
+    if (!tenant) return;
     let nextDate = new Date();
     if (dias.length > 0) {
       const lastDay = parseISO(dias[dias.length - 1].data);
@@ -164,7 +167,7 @@ function HorariosPage() {
     try {
       const { data, error } = await supabase
         .from("dias_agenda")
-        .insert([{ barbearia_id: tenant!.id, data: dateStr, ativo: true }])
+        .insert([{ barbearia_id: tenant.id, data: dateStr, ativo: true }])
         .select()
         .single();
 
@@ -244,6 +247,7 @@ function HorariosPage() {
   };
 
   const toggleCollaboratorSelection = async (date: string, colabId: string) => {
+    if (!tenant) return;
     const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
     const newAtivo = existing ? !existing.ativo : true;
     
@@ -287,6 +291,7 @@ function HorariosPage() {
   };
 
   const applyGlobalConfig = async (date: string) => {
+    if (!tenant) return;
     const selected = collaborators.filter(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === date)?.ativo).map(c => c.id);
     if (selected.length === 0) {
       toast.warning("Selecione ao menos um colaborador.");
@@ -332,6 +337,7 @@ function HorariosPage() {
   };
 
   const updateIndividualHorario = async (colabId: string, date: string, field: string, value: string) => {
+    if (!tenant) return;
     const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
     const updatedData = {
       barbearia_id: tenant!.id,

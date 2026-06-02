@@ -38,7 +38,7 @@ export const Route = createFileRoute("/cliente")({
 });
 
 function ClientePage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
@@ -136,7 +136,7 @@ function ClientePage() {
     if (userData) {
       const parsedUser = JSON.parse(userData);
 
-      if (tenant?.id && parsedUser.barbearia_id !== tenant.id) {
+      if (!tenantLoading && tenant?.id && parsedUser.barbearia_id !== tenant.id) {
         toast.error("Acesso negado.");
         navigate({ to: "/" });
         return;
@@ -149,7 +149,7 @@ function ClientePage() {
       fetchUserPromocao(parsedUser.id);
       fetchTempoExcluir();
     }
-  }, [fetchAgendamentos, fetchHistorico, fetchUserPromocao, fetchTempoExcluir]);
+  }, [fetchAgendamentos, fetchHistorico, fetchUserPromocao, fetchTempoExcluir, tenant, tenantLoading, navigate]);
 
   const handlePromocaoToggle = async (checked: boolean) => {
     if (!user) return;
