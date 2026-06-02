@@ -20,7 +20,7 @@ interface Message {
 }
 
 function IACodConsumiPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -33,6 +33,7 @@ function IACodConsumiPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (tenantLoading || !tenant) return;
     const fetchWebhook = async () => {
       if (!tenant?.id) return;
       try {
@@ -57,7 +58,7 @@ function IACodConsumiPage() {
     };
 
     fetchWebhook();
-  }, []);
+  }, [tenant, tenantLoading]);
 
   useEffect(() => {
     if (scrollRef.current) {
