@@ -158,8 +158,8 @@ function IntegracoesPage() {
           },
           { onConflict: 'tipo,barbearia_id' }
         )
-        .select()
-        .single();
+        .select("*")
+        .order("created_at", { ascending: false });
       
       if (error) throw error;
       

@@ -274,6 +274,7 @@ function ClientePage() {
 
       triggerWebhook("Exclusao", {
         tipo: "Exclusao",
+        barbearia_id: user.barbearia_id,
         cliente: user.nome,
         login_cliente: user.login,
         colaborador: itemToDelete.colaborador?.nome || "",
