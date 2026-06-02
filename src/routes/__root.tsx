@@ -1,5 +1,5 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-// Toaster removed as it was not found
+import { TenantProvider } from "@/contexts/TenantContext";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
@@ -72,9 +72,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <>
+    <TenantProvider>
       <Outlet />
       <Sonner />
-    </>
+    </TenantProvider>
   );
 }
