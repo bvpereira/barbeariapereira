@@ -155,6 +155,7 @@ function HorariosPage() {
   };
 
   const addDay = async () => {
+    if (!tenant) return;
     let nextDate = new Date();
     if (dias.length > 0) {
       const lastDay = parseISO(dias[dias.length - 1].data);
