@@ -31,7 +31,7 @@ import {
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { WebhookSettings } from "@/components/WebhookSettings";
+
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -472,10 +472,6 @@ function AdminPage() {
           </Card>
         </div>
 
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Configurações de Webhooks</h2>
-          <WebhookSettings />
-        </div>
       </div>
     </AdminLayout>
   );
