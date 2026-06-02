@@ -209,7 +209,7 @@ function ClientesPage() {
     const { count, error } = await supabase
       .from("usuarios")
       .select("*", { count: "exact", head: true })
-      .eq("barbearia_id", tenant?.id)
+      .eq("barbearia_id", tenant!.id)
       .eq("nivel", 3);
     
     if (error) {

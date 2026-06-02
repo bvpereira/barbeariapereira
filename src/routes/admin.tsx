@@ -93,7 +93,7 @@ function AdminPage() {
       const { data: lastDayData } = await supabase
         .from("dias_agenda")
         .select("data")
-        .eq("barbearia_id", tenant?.id)
+        .eq("barbearia_id", tenant!.id)
         .order("data", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -102,7 +102,7 @@ function AdminPage() {
       const { data: colaboradoresAtivosData } = await supabase
         .from("colaboradores")
         .select("nome")
-        .eq("barbearia_id", tenant?.id)
+        .eq("barbearia_id", tenant!.id)
         .eq("ativo", true)
         .order("nome", { ascending: true });
 

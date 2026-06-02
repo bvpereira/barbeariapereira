@@ -76,6 +76,7 @@ function CollaboratorsPage() {
       const { data: servicesData, error: servicesError } = await supabase
         .from("servicos")
         .select("id, name, price")
+        .eq("barbearia_id", tenant?.id)
         .order("name");
       
       if (servicesError) throw servicesError;
@@ -94,6 +95,7 @@ function CollaboratorsPage() {
             )
           )
         `)
+        .eq("barbearia_id", tenant?.id)
         .order("nome", { ascending: true });
 
       if (collaboratorsError) throw collaboratorsError;
