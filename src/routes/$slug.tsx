@@ -42,6 +42,7 @@ export const Route = createFileRoute("/$slug")({
 });
 
 function BarbeariaLanding() {
+  const { slug } = useParams({ from: "/$slug" });
   const { tenant, loading: tenantLoading } = useTenant();
   const navigate = useNavigate();
 
@@ -68,13 +69,13 @@ function BarbeariaLanding() {
         if (user && user.nivel) {
           switch (user.nivel) {
             case 1:
-              navigate({ to: "/admin" });
+              navigate({ to: "/admin", search: { tenant: slug } });
               return;
             case 2:
-              navigate({ to: "/colaborador" });
+              navigate({ to: "/colaborador", search: { tenant: slug } });
               return;
             case 3:
-              navigate({ to: "/cliente" });
+              navigate({ to: "/cliente", search: { tenant: slug } });
               return;
           }
         }
@@ -82,8 +83,9 @@ function BarbeariaLanding() {
         console.error("Erro ao analisar usuário:", err);
       }
     }
-    navigate({ to: "/login" });
+    navigate({ to: "/login", search: { tenant: slug } });
   };
+
 
 
   if (tenantLoading) return null;
