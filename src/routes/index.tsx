@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Scissors } from "lucide-react";
+import { WebhookSettings } from "@/components/WebhookSettings";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -68,6 +69,23 @@ function Index() {
           ))}
         </div>
       )}
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="mt-20 w-full max-w-6xl"
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
+            Configurações de Webhooks
+          </h2>
+          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
+        </div>
+        <div className="bg-card/50 backdrop-blur-sm border border-primary/10 rounded-3xl p-8">
+          <WebhookSettings />
+        </div>
+      </motion.div>
     </div>
   );
 }
