@@ -135,7 +135,7 @@ function IAImagemPage() {
       }
 
       const newOptions: Record<string, string[]> = {
-        imagem_objetivo: [],
+        imagem_objetivo: ["Captar cliente", "Vender", "Teste objetivo"],
         imagem_campanha: [],
         imagem_estilovisual: [],
         imagem_informacoes: [],
@@ -146,6 +146,7 @@ function IAImagemPage() {
 
       data.forEach((row: any) => {
         fields.forEach((field) => {
+          if (field.key === "imagem_objetivo") return;
           const val = row[field.key];
           if (val && !newOptions[field.key].includes(val)) {
             newOptions[field.key].push(val);
