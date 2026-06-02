@@ -116,6 +116,24 @@ function IACodConsumiPage() {
     }
   };
 
+  const handleCopy = () => {
+    if (messages.length === 0) return;
+    
+    const text = messages
+      .map((msg) => {
+        const role = msg.role === "user" ? "VOCÊ" : "ASSISTENTE CDC";
+        return `=== ${role} ===\n${msg.content}`;
+      })
+      .join("\n\n------------------------------------------\n\n");
+
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success("Conversa copiada para a área de transferência!");
+    }).catch((err) => {
+      console.error("Erro ao copiar:", err);
+      toast.error("Não foi possível copiar a conversa.");
+    });
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto h-[calc(100vh-180px)] flex flex-col space-y-4">
