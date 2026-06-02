@@ -58,7 +58,7 @@ function MinhaContaPage() {
         const { data, error } = await (supabase
           .from("informacoes" as any)
           .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo")
-          .eq("userrr", "admin")
+          .eq("barbearia_id", parsedUser.barbearia_id)
           .maybeSingle());
 
         if (error) throw error;
@@ -115,7 +115,7 @@ function MinhaContaPage() {
       const { data: existingInfo } = await (supabase
         .from("informacoes" as any)
         .select("id")
-        .eq("userrr", "admin")
+        .eq("barbearia_id", user.barbearia_id)
         .maybeSingle());
 
       if (existingInfo) {
@@ -128,7 +128,7 @@ function MinhaContaPage() {
       } else {
         const { data: newInfo, error: infoError } = await (supabase
           .from("informacoes" as any)
-          .insert({ tel_contato: telContato, email, user_id: user.id, usuario_id: user.id, userrr: "admin" } as any)
+          .insert({ tel_contato: telContato, email, user_id: user.id, usuario_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
           .select()
           .single());
         if (infoError) throw infoError;
@@ -266,7 +266,7 @@ function MinhaContaPage() {
       const { data: existingInfo } = await (supabase
         .from("informacoes" as any)
         .select("id")
-        .eq("userrr", "admin")
+        .eq("barbearia_id", user.barbearia_id)
         .maybeSingle());
 
       if (existingInfo) {
@@ -275,7 +275,7 @@ function MinhaContaPage() {
       } else {
         const { data: newInfo } = await (supabase
           .from("informacoes") as any)
-          .insert({ ...updateObj, user_id: user.id, userrr: "admin" } as any)
+          .insert({ ...updateObj, user_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
           .select()
           .single();
         if (newInfo) setInfoId(newInfo.id);
@@ -346,7 +346,7 @@ function MinhaContaPage() {
       const { data: existingInfo } = await (supabase
         .from("informacoes" as any)
         .select("id")
-        .eq("userrr", "admin")
+        .eq("barbearia_id", user.barbearia_id)
         .maybeSingle());
 
       if (existingInfo) {
@@ -355,7 +355,7 @@ function MinhaContaPage() {
       } else {
         const { data: newInfo } = await (supabase
           .from("informacoes") as any)
-          .insert({ ...updateObj, user_id: user.id, userrr: "admin" } as any)
+          .insert({ ...updateObj, user_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
           .select()
           .single();
         if (newInfo) setInfoId(newInfo.id);
@@ -414,7 +414,7 @@ function MinhaContaPage() {
       const { data: existingInfo } = await (supabase
         .from("informacoes" as any)
         .select("id")
-        .eq("userrr", "admin")
+        .eq("barbearia_id", user.barbearia_id)
         .maybeSingle());
 
       if (existingInfo) {
@@ -423,7 +423,7 @@ function MinhaContaPage() {
       } else {
         const { data: newInfo } = await (supabase
           .from("informacoes") as any)
-          .insert({ ...updateObj, user_id: user.id, userrr: "admin" } as any)
+          .insert({ ...updateObj, user_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
           .select()
           .single();
         if (newInfo) setInfoId(newInfo.id);
@@ -465,7 +465,7 @@ function MinhaContaPage() {
       const { data: existingInfo } = await (supabase
         .from("informacoes" as any)
         .select("id")
-        .eq("userrr", "admin")
+        .eq("barbearia_id", user.barbearia_id)
         .maybeSingle());
 
       if (existingInfo) {
@@ -477,7 +477,7 @@ function MinhaContaPage() {
       } else {
         const { error } = await (supabase
           .from("informacoes" as any)
-          .insert({ google_avaliacao: googleAvaliacao, userrr: "admin", user_id: user?.id, usuario_id: user?.id } as any));
+          .insert({ google_avaliacao: googleAvaliacao, userrr: "admin", user_id: user?.id, usuario_id: user?.id, barbearia_id: user.barbearia_id } as any));
         if (error) throw error;
       }
 
@@ -497,7 +497,7 @@ function MinhaContaPage() {
       const { data: existingInfo } = await (supabase
         .from("informacoes" as any)
         .select("id")
-        .eq("userrr", "admin")
+        .eq("barbearia_id", user.barbearia_id)
         .maybeSingle());
 
       if (existingInfo) {
