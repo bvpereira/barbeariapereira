@@ -157,7 +157,7 @@ function IntegracoesPage() {
             // mas o constraint de unicidade no 'tipo' é o que realmente importa aqui
             ...(id ? { id } : {}) 
           },
-          { onConflict: 'tipo' }
+          { onConflict: 'tipo,barbearia_id' }
         )
         .select()
         .single();
