@@ -152,6 +152,7 @@ function IAImagemPage() {
   };
 
   const handleGenerate = async () => {
+    if (!tenant) return;
     const missingFields = fields
       .filter((field) => {
         const val = selections[field.key];
@@ -191,6 +192,7 @@ function IAImagemPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
 
       if (webhookFetchError) {
