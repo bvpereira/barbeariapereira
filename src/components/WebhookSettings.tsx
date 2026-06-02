@@ -177,7 +177,7 @@ export function WebhookSettings() {
     console.log(`[Webhook Test] Enviando para ${tipo}:`, testPayload);
 
     try {
-      const { error } = await supabase.functions.invoke('proxy-webhook', {
+      const response = await supabase.functions.invoke('proxy-webhook', {
         body: {
           url: url.trim(),
           method: "POST",
@@ -185,20 +185,32 @@ export function WebhookSettings() {
         }
       });
 
-      if (error) throw error;
-      
+      if (response.error) throw response.error;
+
       toast.success(
         <div className="flex flex-col gap-2">
-          <span>Teste enviado com sucesso!</span>
-          <pre className="text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">
-            {JSON.stringify(testPayload, null, 2)}
-          </pre>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <span className="font-bold">Teste enviado!</span>
+          </div>
+          <p className="text-xs">O servidor de destino respondeu.</p>
+          <div className="mt-2">
+            <p className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">Payload enviado:</p>
+            <pre className="text-[10px] bg-slate-900 text-slate-100 p-2 rounded overflow-auto max-h-32 border border-white/10">
+              {JSON.stringify(testPayload, null, 2)}
+            </pre>
+          </div>
         </div>,
-        { duration: 5000 }
+        { duration: 6000 }
       );
     } catch (error: any) {
       console.error("Erro no teste de webhook:", error);
-      toast.error(`Falha no teste: ${error.message || "Erro de conexão"}`);
+      toast.error(
+        <div className="flex flex-col gap-1">
+          <span className="font-bold">Erro no teste</span>
+          <span className="text-xs">{error.message || "O servidor de destino recusou a conexão ou retornou erro."}</span>
+        </div>
+      );
     } finally {
       setTestingType(null);
     }
