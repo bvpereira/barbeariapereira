@@ -517,7 +517,8 @@ function MinhaContaPage() {
             tempo_excluir: tempoExcluir,
             userrr: "admin", 
             user_id: user?.id, 
-            usuario_id: user?.id 
+            usuario_id: user?.id,
+            barbearia_id: user.barbearia_id
           } as any));
         if (error) throw error;
       }
