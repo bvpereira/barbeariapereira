@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Loader2, Megaphone, CheckCircle2, UserKey, Calendar, Code, Image as ImageIcon } from "lucide-react";
+import { Save, Loader2, Megaphone, CheckCircle2, UserKey, Calendar, Code, Image as ImageIcon, Play } from "lucide-react";
 
 export function WebhookSettings() {
   const { tenant, loading: tenantLoading } = useTenant();
@@ -31,6 +31,7 @@ export function WebhookSettings() {
   const [promocaoIntegrationId, setPromocaoIntegrationId] = useState<string | null>(null);
   const [iaCodConsumiIntegrationId, setIaCodConsumiIntegrationId] = useState<string | null>(null);
   const [iaGerarImagemIntegrationId, setIaGerarImagemIntegrationId] = useState<string | null>(null);
+  const [testingType, setTestingType] = useState<string | null>(null);
 
   useEffect(() => {
     fetchIntegrations();
@@ -152,6 +153,57 @@ export function WebhookSettings() {
     }
   };
 
+  const handleTestWebhook = async (url: string, tipo: string) => {
+    if (!url.trim()) {
+      toast.error("Insira uma URL para testar.");
+      return;
+    }
+
+    let targetBarbeariaId = tenant?.id;
+    if (!targetBarbeariaId) {
+      const { data: barbs } = await supabase.from("barbearias").select("id").limit(1);
+      if (barbs && barbs.length > 0) targetBarbeariaId = barbs[0].id;
+    }
+
+    const testPayload = {
+      tipo: `TESTE_${tipo.toUpperCase()}`,
+      barbearia_id: targetBarbeariaId,
+      timestamp: new Date().toISOString(),
+      mensagem: "Este é um disparo de teste manual para verificar a configuração do webhook.",
+      origem: "Painel de Configurações"
+    };
+
+    setTestingType(tipo);
+    console.log(`[Webhook Test] Enviando para ${tipo}:`, testPayload);
+
+    try {
+      const { error } = await supabase.functions.invoke('proxy-webhook', {
+        body: {
+          url: url.trim(),
+          method: "POST",
+          body: testPayload
+        }
+      });
+
+      if (error) throw error;
+      
+      toast.success(
+        <div className="flex flex-col gap-2">
+          <span>Teste enviado com sucesso!</span>
+          <pre className="text-[10px] bg-slate-100 p-2 rounded overflow-auto max-h-32">
+            {JSON.stringify(testPayload, null, 2)}
+          </pre>
+        </div>,
+        { duration: 5000 }
+      );
+    } catch (error: any) {
+      console.error("Erro no teste de webhook:", error);
+      toast.error(`Falha no teste: ${error.message || "Erro de conexão"}`);
+    } finally {
+      setTestingType(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -184,6 +236,15 @@ export function WebhookSettings() {
                 onChange={(e) => setWebhookUrl(e.target.value)}
                 className="flex-1"
               />
+              <Button 
+                variant="outline"
+                size="icon"
+                onClick={() => handleTestWebhook(webhookUrl, "atendimentos")}
+                disabled={testingType === "atendimentos" || !webhookUrl}
+                title="Testar Webhook"
+              >
+                {testingType === "atendimentos" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              </Button>
               <Button 
                 onClick={() => handleSaveGeneric(webhookUrl, "atendimentos", integrationId, setIntegrationId, setSaving, "Configuração de agendamentos salva!")} 
                 disabled={saving}
@@ -218,6 +279,15 @@ export function WebhookSettings() {
                 className="flex-1"
               />
               <Button 
+                variant="outline"
+                size="icon"
+                onClick={() => handleTestWebhook(finishWebhookUrl, "finalizacao")}
+                disabled={testingType === "finalizacao" || !finishWebhookUrl}
+                title="Testar Webhook"
+              >
+                {testingType === "finalizacao" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              </Button>
+              <Button 
                 onClick={() => handleSaveGeneric(finishWebhookUrl, "finalizacao", finishIntegrationId, setFinishIntegrationId, setSavingFinish, "Configuração de finalização salva!")} 
                 disabled={savingFinish}
               >
@@ -250,6 +320,15 @@ export function WebhookSettings() {
                 onChange={(e) => setPromocaoWebhookUrl(e.target.value)}
                 className="flex-1"
               />
+              <Button 
+                variant="outline"
+                size="icon"
+                onClick={() => handleTestWebhook(promocaoWebhookUrl, "promocao")}
+                disabled={testingType === "promocao" || !promocaoWebhookUrl}
+                title="Testar Webhook"
+              >
+                {testingType === "promocao" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              </Button>
               <Button 
                 onClick={() => handleSaveGeneric(promocaoWebhookUrl, "promocao", promocaoIntegrationId, setPromocaoIntegrationId, setSavingPromocao, "Configuração de promoções salva!")} 
                 disabled={savingPromocao}
@@ -284,6 +363,15 @@ export function WebhookSettings() {
                 className="flex-1"
               />
               <Button 
+                variant="outline"
+                size="icon"
+                onClick={() => handleTestWebhook(recuperaSenhaWebhookUrl, "recupera_senha")}
+                disabled={testingType === "recupera_senha" || !recuperaSenhaWebhookUrl}
+                title="Testar Webhook"
+              >
+                {testingType === "recupera_senha" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              </Button>
+              <Button 
                 onClick={() => handleSaveGeneric(recuperaSenhaWebhookUrl, "recupera_senha", recuperaSenhaIntegrationId, setRecuperaSenhaIntegrationId, setSavingRecuperaSenha, "Configuração de recuperação salva!")} 
                 disabled={savingRecuperaSenha}
               >
@@ -317,6 +405,15 @@ export function WebhookSettings() {
                 className="flex-1"
               />
               <Button 
+                variant="outline"
+                size="icon"
+                onClick={() => handleTestWebhook(iaCodConsumiWebhookUrl, "ia_codconsumi")}
+                disabled={testingType === "ia_codconsumi" || !iaCodConsumiWebhookUrl}
+                title="Testar Webhook"
+              >
+                {testingType === "ia_codconsumi" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              </Button>
+              <Button 
                 onClick={() => handleSaveGeneric(iaCodConsumiWebhookUrl, "ia_codconsumi", iaCodConsumiIntegrationId, setIaCodConsumiIntegrationId, setSavingIaCodConsumi, "Configuração do assistente IA salva!")} 
                 disabled={savingIaCodConsumi}
               >
@@ -349,6 +446,15 @@ export function WebhookSettings() {
                 onChange={(e) => setIaGerarImagemWebhookUrl(e.target.value)}
                 className="flex-1"
               />
+              <Button 
+                variant="outline"
+                size="icon"
+                onClick={() => handleTestWebhook(iaGerarImagemWebhookUrl, "ia_gerarimagem")}
+                disabled={testingType === "ia_gerarimagem" || !iaGerarImagemWebhookUrl}
+                title="Testar Webhook"
+              >
+                {testingType === "ia_gerarimagem" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+              </Button>
               <Button 
                 onClick={() => handleSaveGeneric(iaGerarImagemWebhookUrl, "ia_gerarimagem", iaGerarImagemIntegrationId, setIaGerarImagemIntegrationId, setSavingIaGerarImagem, "Configuração de geração de imagem salva!")} 
                 disabled={savingIaGerarImagem}
