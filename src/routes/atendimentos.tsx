@@ -212,9 +212,9 @@ function AtendimentosPage() {
 
     setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: item.atendimento_servicos.map((as: any) => as.servicos) })));
     setLoadingExclusao(false);
-  }, []);
+  }, [tenant]);
 
-  const fetchFormData = async () => {
+  const fetchFormData = useCallback(async () => {
     if (!tenant?.id) return;
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant.id).order('nome');
     const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant.id).order('name');
@@ -230,16 +230,16 @@ function AtendimentosPage() {
 
     setColaboradores(formattedColabs as Colaborador[]);
     setAllServicos(servs || []);
-  };
+  }, [tenant]);
 
-  const fetchBookingSettings = async () => {
+  const fetchBookingSettings = useCallback(async () => {
     if (!tenant?.id) return;
     const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
     const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('barbearia_id', tenant.id).maybeSingle();
     if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
-  };
+  }, [tenant]);
 
   useEffect(() => {
     if (tenantLoading) return;
