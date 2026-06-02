@@ -224,7 +224,7 @@ function IACodConsumiPage() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   disabled={loading}
-                  className="bg-white border-orange-100 focus-visible:ring-orange-500"
+                  className="bg-white border-orange-100 focus-visible:ring-orange-500 text-black"
                 />
                 <Button 
                   type="submit" 
