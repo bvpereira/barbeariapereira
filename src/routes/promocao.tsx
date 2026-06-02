@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export const Route = createFileRoute("/promocao")({
 });
 
 function PromocaoPage() {
+  const { tenant } = useTenant();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -330,7 +332,7 @@ function PromocaoPage() {
       } else {
         await supabase
           .from("integracoes")
-          .insert({ webhook_url: webhookUrl, tipo: "promocao" });
+          .insert({ barbearia_id: tenant!.id, webhook_url: webhookUrl, tipo: "promocao" });
       }
       
       toast.success("Webhook salvo!");

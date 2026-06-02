@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Wallet, Trash2, Edit2, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -66,6 +67,7 @@ interface Gasto {
 }
 
 function GastosPage() {
+  const { tenant } = useTenant();
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -189,6 +191,7 @@ function GastosPage() {
     try {
       const [year, month, day] = dataGasto.split("-").map(Number);
       const payload = {
+        barbearia_id: tenant!.id,
         nome,
         valor: parseFloat(valor),
         data: new Date(year, month - 1, day, 12, 0, 0).toISOString(),
