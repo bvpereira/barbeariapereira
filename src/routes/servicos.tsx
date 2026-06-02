@@ -55,6 +55,7 @@ function ServicesPage() {
       const { data, error } = await supabase
         .from("servicos")
         .select("*")
+        .eq("barbearia_id", tenant?.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

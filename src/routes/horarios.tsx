@@ -93,6 +93,7 @@ function HorariosPage() {
       const { error } = await supabase
         .from("dias_agenda")
         .delete()
+        .eq("barbearia_id", tenant?.id)
         .lt("data", today);
 
       if (error) console.error("Erro ao limpar dias antigos:", error);
@@ -107,6 +108,7 @@ function HorariosPage() {
       const { data: diasData, error: diasError } = await supabase
         .from("dias_agenda")
         .select("*")
+        .eq("barbearia_id", tenant?.id)
         .order("data", { ascending: true });
 
       if (diasError) throw diasError;
@@ -115,6 +117,7 @@ function HorariosPage() {
       const { data: colabsData, error: colabsError } = await supabase
         .from("colaboradores")
         .select("id, nome")
+        .eq("barbearia_id", tenant?.id)
         .order("nome");
 
       if (colabsError) throw colabsError;
@@ -122,7 +125,8 @@ function HorariosPage() {
 
       const { data: horariosData, error: horariosError } = await supabase
         .from("horarios_colaboradores")
-        .select("*");
+        .select("*")
+        .eq("barbearia_id", tenant?.id);
 
       if (horariosError) throw horariosError;
       setHorariosColaboradores((horariosData as any) || []);

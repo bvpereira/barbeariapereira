@@ -50,6 +50,7 @@ function IntegracoesPage() {
       const { data, error } = await supabase
         .from("informacoes")
         .select("id, instancia_evo")
+        .eq("barbearia_id", tenant?.id)
         .limit(1)
         .maybeSingle();
 
@@ -71,7 +72,8 @@ function IntegracoesPage() {
     try {
       const { data, error } = await supabase
         .from("integracoes")
-        .select("*");
+        .select("*")
+        .eq("barbearia_id", tenant?.id);
 
       if (error) {
         console.error("Erro ao buscar integrações:", error);

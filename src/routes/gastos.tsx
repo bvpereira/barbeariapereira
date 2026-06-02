@@ -96,7 +96,8 @@ function GastosPage() {
     try {
       const { data, error } = await supabase
         .from("colaboradores")
-        .select("id, nome");
+        .select("id, nome")
+        .eq("barbearia_id", tenant?.id);
       if (error) throw error;
       setColaboradores(data || []);
     } catch (error: any) {
@@ -113,6 +114,7 @@ function GastosPage() {
       const { data, error } = await supabase
         .from("gastos")
         .select("*")
+        .eq("barbearia_id", tenant?.id)
         .gte("data", start.toISOString())
         .lte("data", end.toISOString())
         .order("data", { ascending: false });
