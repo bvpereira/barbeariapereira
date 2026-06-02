@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, Bot, User, Scale } from "lucide-react";
+import { Loader2, Send, Bot, User, Scale, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/iacodconsumi")({
