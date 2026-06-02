@@ -191,6 +191,7 @@ function GastosPage() {
   };
 
   const handleSaveGasto = async () => {
+    if (!tenant) return;
     if (!nome || !valor) {
       toast.error("Preencha todos os campos");
       return;
@@ -256,6 +257,7 @@ function GastosPage() {
   };
 
   const handleSaveSalario = async () => {
+    if (!tenant) return;
     const colaborador = colaboradores.find(c => c.id === selectedColaboradorId);
     if (!colaborador || !valor) {
       toast.error("Selecione o funcionário e o valor");
