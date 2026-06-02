@@ -1168,10 +1168,11 @@ function AtendimentosPage() {
               <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
                 {isDeleting ? "Excluindo..." : "Confirmar Exclusão"}
               </Button>
+                {isDeleting ? "Excluindo..." : "Confirmar Exclusão"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
       </div>
     </AdminLayout>
   );
