@@ -25,16 +25,48 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     const fetchTenant = async () => {
       // Prioritize explicit slug from URL
-      const pathParts = window.location.pathname.split("/").filter(Boolean);
+      const url = new URL(window.location.href);
+      const pathParts = url.pathname.split("/").filter(Boolean);
       const slugFromUrl = pathParts[0];
+      const slugFromQuery = url.searchParams.get("tenant");
       
-      let targetSlug = "barb0"; // Default
+      let targetSlug = ""; 
       
       const reservedRoutes = ["admin", "login", "cadastro", "colaborador", "cliente", "atendimentos", "clientes", "colaboradores", "financeiro", "gastos", "horarios", "iacodconsumi", "iaimagem", "integracoes", "minhaconta", "promocao", "redefinir-senha", "registro", "servicos"];
 
       if (slugFromUrl && !reservedRoutes.includes(slugFromUrl)) {
         targetSlug = slugFromUrl;
+      } else if (slugFromQuery) {
+        targetSlug = slugFromQuery;
       }
+
+      if (!targetSlug) {
+        // Fallback to logged in user's barbearia
+        const userData = localStorage.getItem("user");
+        if (userData) {
+          try {
+            const parsedUser = JSON.parse(userData);
+            if (parsedUser.barbearia_id) {
+              const { data: barbearia } = await supabase
+                .from("barbearias")
+                .select("*")
+                .eq("id", parsedUser.barbearia_id)
+                .maybeSingle();
+              if (barbearia) {
+                setTenant(barbearia);
+                setLoading(false);
+                return;
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing user data", e);
+          }
+        }
+        setLoading(false);
+        return;
+      }
+
+
 
       const { data, error } = await supabase
         .from("barbearias")
