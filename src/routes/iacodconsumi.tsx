@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Send, Bot, User, Scale } from "lucide-react";
+import { Loader2, Send, Bot, User, Scale, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/iacodconsumi")({
@@ -116,6 +116,24 @@ function IACodConsumiPage() {
     }
   };
 
+  const handleCopy = () => {
+    if (messages.length === 0) return;
+    
+    const text = messages
+      .map((msg) => {
+        const role = msg.role === "user" ? "VOCÊ" : "ASSISTENTE CDC";
+        return `=== ${role} ===\n${msg.content}`;
+      })
+      .join("\n\n------------------------------------------\n\n");
+
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success("Conversa copiada para a área de transferência!");
+    }).catch((err) => {
+      console.error("Erro ao copiar:", err);
+      toast.error("Não foi possível copiar a conversa.");
+    });
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto h-[calc(100vh-180px)] flex flex-col space-y-4">
@@ -130,11 +148,20 @@ function IACodConsumiPage() {
         </div>
 
         <Card className="flex-1 flex flex-col overflow-hidden border-orange-100 shadow-sm">
-          <CardHeader className="py-3 border-b bg-orange-50/30">
+          <CardHeader className="py-3 border-b bg-orange-50/30 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Bot className="h-4 w-4 text-orange-600" />
               Chat de Suporte Jurídico
             </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopy}
+              className="h-8 gap-2 border-orange-200 text-orange-700 hover:bg-orange-100 hover:text-orange-800"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              Copiar Conversa
+            </Button>
           </CardHeader>
           <CardContent className="flex-1 p-0 flex flex-col bg-white">
             <ScrollArea className="flex-1 p-4">
