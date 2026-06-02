@@ -93,11 +93,12 @@ function GastosPage() {
   }, [selectedMonth]);
 
   const fetchColaboradores = async () => {
+    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("colaboradores")
         .select("id, nome")
-        .eq("barbearia_id", tenant?.id);
+        .eq("barbearia_id", tenant.id);
       if (error) throw error;
       setColaboradores(data || []);
     } catch (error: any) {
@@ -106,6 +107,7 @@ function GastosPage() {
   };
 
   const fetchGastos = async () => {
+    if (!tenant?.id) return;
     setIsLoading(true);
     try {
       const start = startOfMonth(selectedMonth);
@@ -114,7 +116,7 @@ function GastosPage() {
       const { data, error } = await supabase
         .from("gastos")
         .select("*")
-        .eq("barbearia_id", tenant?.id)
+        .eq("barbearia_id", tenant.id)
         .gte("data", start.toISOString())
         .lte("data", end.toISOString())
         .order("data", { ascending: false });
