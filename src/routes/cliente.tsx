@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookingButton } from "@/components/BookingButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save } from "lucide-react";
 import { format, parseISO, addMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -37,6 +38,8 @@ export const Route = createFileRoute("/cliente")({
 });
 
 function ClientePage() {
+  const { tenant } = useTenant();
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [historico, setHistorico] = useState<any[]>([]);
@@ -132,6 +135,13 @@ function ClientePage() {
     const userData = getUserData();
     if (userData) {
       const parsedUser = JSON.parse(userData);
+
+      if (tenant?.id && parsedUser.barbearia_id !== tenant.id) {
+        toast.error("Acesso negado.");
+        navigate({ to: "/" });
+        return;
+      }
+
       setUser(parsedUser);
       setNewName(parsedUser.nome);
       fetchAgendamentos(parsedUser.id);

@@ -184,11 +184,19 @@ function ClientesPage() {
   };
 
   useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      if (tenant?.id && parsedUser.barbearia_id !== tenant.id) {
+        window.location.href = "/";
+        return;
+      }
+    }
     fetchTotal();
     fetchClientes();
     fetchFormData();
     fetchBookingSettings();
-  }, [search, limit]);
+  }, [search, limit, tenant]);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome').order('nome');

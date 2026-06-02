@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookingButton } from "@/components/BookingButton";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical } from "lucide-react";
 import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -32,6 +33,8 @@ export const Route = createFileRoute("/colaborador")({
 });
 
 function ColaboradorPage() {
+  const { tenant } = useTenant();
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [colabId, setColabId] = useState<string | null>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
@@ -209,6 +212,11 @@ function ColaboradorPage() {
     const userData = getStoredUser();
     
     if (userData) {
+      if (tenant?.id && userData.barbearia_id !== tenant.id) {
+        toast.error("Acesso negado.");
+        navigate({ to: "/" });
+        return;
+      }
       setUser(userData);
       fetchColaboradorId(userData.login).then(id => {
         if (id) {

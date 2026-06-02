@@ -72,13 +72,24 @@ function AdminPage() {
   });
 
   useEffect(() => {
-    fetchDashboardData();
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
+      
+      // Bloqueio se o usuário não pertencer à barbearia atual da URL
+      if (tenant?.id && parsedUser.barbearia_id !== tenant.id) {
+        toast.error("Você não tem permissão para acessar os dados desta barbearia.");
+        navigate({ to: "/" });
+        return;
+      }
+
       setUserName(parsedUser.nome || "");
+    } else {
+      navigate({ to: "/login" });
+      return;
     }
-  }, []);
+    fetchDashboardData();
+  }, [tenant, navigate]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
