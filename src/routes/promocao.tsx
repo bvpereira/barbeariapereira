@@ -120,6 +120,8 @@ function PromocaoPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "promocao")
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
       
       if (integration) setWebhookUrl(integration.webhook_url || "");
@@ -371,6 +373,7 @@ function PromocaoPage() {
       telefone: telContato,
       url_imagem: promoAtual.imagem_promo,
       texto_promo: promoAtual.texto_promo,
+      barbearia_id: tenant?.id,
       data: new Date().toISOString()
     };
 

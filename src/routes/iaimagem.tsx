@@ -89,6 +89,8 @@ function IAImagemPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) {
@@ -191,7 +193,8 @@ function IAImagemPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
-        .eq("barbearia_id", tenant.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (webhookFetchError) {
@@ -217,6 +220,7 @@ function IAImagemPage() {
         mode: 'no-cors', // Adicionado para evitar bloqueios de CORS em webhooks simples
         body: JSON.stringify({
           ...selections,
+          barbearia_id: tenant.id,
           timestamp: new Date().toISOString(),
           action: "generate_image"
         }),

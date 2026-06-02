@@ -481,6 +481,7 @@ function AtendimentosPage() {
         
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
+          barbearia_id: tenant.id,
           cliente: selectedCliente.nome,
           login_cliente: selectedCliente.login,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
@@ -496,6 +497,7 @@ function AtendimentosPage() {
       } else {
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
+          barbearia_id: tenant.id,
           cliente: selectedCliente.nome,
           login_cliente: selectedCliente.login,
           colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
@@ -559,6 +561,48 @@ function AtendimentosPage() {
       
       const { error } = await supabase.from('atendimentos').update(payload).eq('barbearia_id', tenant.id).eq('id', id);
       if (error) throw error;
+
+      // Trigger Finalização/Não compareceu Webhook
+      if (newStatus === 'Finalizado' || newStatus === 'Não compareceu') {
+        try {
+          const { data: integracao } = await supabase
+            .from("integracoes")
+            .select("webhook_url")
+            .eq("tipo", "finalizacao")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (integracao?.webhook_url) {
+            const item = concluidos.find(a => a.id === id) || agendados.find(a => a.id === id) || atencao.find(a => a.id === id);
+            if (item) {
+              const webhookPayload = {
+                tipo: newStatus,
+                cliente: item.cliente.nome,
+                login_cliente: item.cliente.login,
+                colaborador: item.colaborador.nome,
+                data: format(parseISO(item.data), "dd/MM/yyyy"),
+                horario: format(parseISO(item.data), "HH:mm"),
+                valor: item.valor,
+                comissao: payload.comissao || item.comissao,
+                barbearia_id: tenant.id,
+                servicos: item.servicos.map(s => s.name)
+              };
+
+              await supabase.functions.invoke('proxy-webhook', {
+                body: {
+                  url: integracao.webhook_url,
+                  method: "POST",
+                  body: webhookPayload
+                }
+              });
+            }
+          }
+        } catch (webhookErr) {
+          console.error("Erro ao disparar webhook de finalização:", webhookErr);
+        }
+      }
+
       toast.success("Status atualizado");
       fetchAgendados();
       fetchConcluidos();
@@ -596,6 +640,7 @@ function AtendimentosPage() {
       if (item) {
         triggerWebhook("Exclusao", {
           tipo: "Exclusao",
+          barbearia_id: tenant.id,
           cliente: (item.cliente as any)?.nome || "Cliente",
           login_cliente: (item.cliente as any)?.login || "",
           colaborador: (item.colaborador as any)?.nome || "Colaborador",

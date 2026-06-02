@@ -40,6 +40,8 @@ function IACodConsumiPage() {
           .from("integracoes")
           .select("webhook_url")
           .eq("tipo", "ia_codconsumi")
+          .order("created_at", { ascending: false })
+          .limit(1)
           .maybeSingle();
 
         if (error) {
@@ -83,7 +85,10 @@ function IACodConsumiPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ 
+          message: userMessage,
+          barbearia_id: tenant?.id 
+        }),
       });
 
       if (!response.ok) {

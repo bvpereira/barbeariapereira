@@ -74,7 +74,8 @@ function IntegracoesPage() {
     try {
       const { data, error } = await supabase
         .from("integracoes")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Erro ao buscar integrações:", error);
@@ -157,13 +158,13 @@ function IntegracoesPage() {
           },
           { onConflict: 'tipo,barbearia_id' }
         )
-        .select()
-        .single();
+        .select("*")
+        .order("created_at", { ascending: false });
       
       if (error) throw error;
       
-      if (data) {
-        setId(data.id);
+      if (data && data.length > 0) {
+        setId(data[0].id);
       }
 
       toast.success(successMsg);

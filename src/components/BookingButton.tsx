@@ -376,6 +376,7 @@ export function BookingButton({
         
         triggerWebhook(isRemarcacao ? "Remarcacao" : "Agendamento", {
           tipo: isRemarcacao ? "Remarcacao" : "Agendamento",
+          barbearia_id: tenant!.id,
           cliente: selectedCliente.nome,
           login_cliente: selectedCliente.login,
           colaborador: colab?.nome || "",
@@ -391,6 +392,7 @@ export function BookingButton({
       } else {
         triggerWebhook("Agendamento", {
           tipo: "Agendamento",
+          barbearia_id: tenant!.id,
           cliente: selectedCliente.nome,
           login_cliente: selectedCliente.login,
           colaborador: colab?.nome || "",
