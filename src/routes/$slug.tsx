@@ -110,7 +110,7 @@ function BarbeariaLanding() {
   );
 }
 
-function Hero({ onAgendarClick, tenantName }: { onAgendarClick: (e: React.MouseEvent) => void; tenantName?: string }) {
+function Hero({ onAgendarClick, tenantName, slug }: { onAgendarClick: (e: React.MouseEvent) => void; tenantName?: string; slug: string }) {
   return (
     <section
       className="relative min-h-[90vh] pt-10 pb-5 md:pt-20 md:pb-10 px-4 flex flex-col items-center justify-center bg-cover bg-center"
