@@ -613,7 +613,7 @@ function Contato({ tenantId }: { tenantId?: string }) {
   );
 }
 
-function Footer({ tenantName }: { tenantName?: string }) {
+function Footer({ tenantName, slug }: { tenantName?: string; slug: string }) {
   return (
     <footer className="px-4 border-t border-primary/10 bg-black py-[45px]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
