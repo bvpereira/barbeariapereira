@@ -14,7 +14,7 @@ const menuItems = [
   { title: "Gastos", icon: Wallet, href: "/gastos" },
   { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
   { title: "Promoções", icon: Megaphone, href: "/promocao" },
-  { title: "Integrações", icon: Link2, href: "/integracoes" },
+  
   { title: "IA – CDC", icon: Scale, href: "/iacodconsumi" },
   { title: "IA – Imagem", icon: ImageIcon, href: "/iaimagem" },
   { title: "Minha Conta", icon: UserCircle, href: "/minhaconta" },
