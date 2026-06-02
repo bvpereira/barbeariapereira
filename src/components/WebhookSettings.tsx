@@ -187,22 +187,41 @@ export function WebhookSettings() {
 
       if (response.error) throw response.error;
 
-      toast.success(
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <span className="font-bold">Teste enviado!</span>
-          </div>
-          <p className="text-xs">O servidor de destino respondeu.</p>
-          <div className="mt-2">
-            <p className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">Payload enviado:</p>
-            <pre className="text-[10px] bg-slate-900 text-slate-100 p-2 rounded overflow-auto max-h-32 border border-white/10">
-              {JSON.stringify(testPayload, null, 2)}
-            </pre>
-          </div>
-        </div>,
-        { duration: 6000 }
-      );
+      const responseData = response.data as any;
+      const isSuccess = responseData?.targetStatus >= 200 && responseData?.targetStatus < 300;
+
+      if (isSuccess) {
+        toast.success(
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <span className="font-bold">Teste enviado!</span>
+            </div>
+            <p className="text-xs">O servidor respondeu com status {responseData.targetStatus}.</p>
+            <div className="mt-2">
+              <p className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">Payload enviado:</p>
+              <pre className="text-[10px] bg-slate-900 text-slate-100 p-2 rounded overflow-auto max-h-32 border border-white/10">
+                {JSON.stringify(testPayload, null, 2)}
+              </pre>
+            </div>
+          </div>,
+          { duration: 6000 }
+        );
+      } else {
+        toast.error(
+          <div className="flex flex-col gap-2">
+            <span className="font-bold">Aviso do Servidor</span>
+            <p className="text-xs">O servidor respondeu com status {responseData?.targetStatus || 'desconhecido'}.</p>
+            <div className="mt-2">
+              <p className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">Payload que tentamos enviar:</p>
+              <pre className="text-[10px] bg-slate-900 text-slate-100 p-2 rounded overflow-auto max-h-32 border border-white/10">
+                {JSON.stringify(testPayload, null, 2)}
+              </pre>
+            </div>
+          </div>,
+          { duration: 8000 }
+        );
+      }
     } catch (error: any) {
       console.error("Erro no teste de webhook:", error);
       toast.error(
