@@ -16,7 +16,7 @@ export const Route = createFileRoute("/iaimagem")({
 });
 
 function IAImagemPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingRef, setUploadingRef] = useState(false);
@@ -54,6 +54,7 @@ function IAImagemPage() {
   ];
 
   useEffect(() => {
+    if (tenantLoading || !tenant) return;
     fetchOptions();
     fetchWebhookUrl();
 
