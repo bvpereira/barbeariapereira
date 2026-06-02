@@ -130,6 +130,7 @@ function AdminPage() {
       const { count: agendadosHojeCount } = await supabase
         .from("atendimentos")
         .select("*", { count: "exact", head: true })
+        .eq("barbearia_id", tenant.id)
         .gte("data", sDay.toISOString())
         .lte("data", eDay.toISOString())
         .eq("status", "Agendado");
@@ -138,6 +139,7 @@ function AdminPage() {
       const { count: criadosHojeCount } = await supabase
         .from("atendimentos")
         .select("*", { count: "exact", head: true })
+        .eq("barbearia_id", tenant.id)
         .gte("created_at", sDay.toISOString())
         .lte("created_at", now.toISOString());
 
@@ -145,6 +147,7 @@ function AdminPage() {
       const { data: atendDia } = await supabase
         .from("atendimentos")
         .select("valor")
+        .eq("barbearia_id", tenant.id)
         .gte("data", sDay.toISOString())
         .lte("data", eDay.toISOString())
         .eq("status", "Finalizado");
@@ -162,6 +165,7 @@ function AdminPage() {
           data,
           atendimento_servicos(servicos(duration))
         `)
+        .eq("barbearia_id", tenant.id)
         .gte("data", sMonth.toISOString())
         .lte("data", eMonth.toISOString());
 
@@ -183,6 +187,7 @@ function AdminPage() {
       const { data: gastosMes } = await supabase
         .from("gastos")
         .select("valor")
+        .eq("barbearia_id", tenant.id)
         .gte("data", sMonth.toISOString())
         .lte("data", eMonth.toISOString());
       
@@ -201,6 +206,7 @@ function AdminPage() {
           colaborador:colaboradores(nome),
           atendimento_servicos(servicos(duration, name))
         `)
+        .eq("barbearia_id", tenant.id)
         .gte("data", sDay.toISOString())
         .lte("data", eDay.toISOString())
         .order("data", { ascending: true });
