@@ -61,6 +61,10 @@ function Cadastro() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tenant) {
+      toast.error("Unidade não identificada. Por favor, volte à página inicial.");
+      return;
+    }
     setIsLoading(true);
     const cleanLogin = login.replace(/[^\d]/g, "");
 
@@ -94,7 +98,7 @@ function Cadastro() {
         .from("usuarios")
         .insert([
           {
-            barbearia_id: tenant!.id,
+            barbearia_id: tenant.id,
             nome,
             login: cleanLogin,
             senha,
