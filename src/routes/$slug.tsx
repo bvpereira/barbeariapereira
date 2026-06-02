@@ -99,7 +99,7 @@ function BarbeariaLanding() {
 
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
-      <Hero onAgendarClick={handleAgendarClick} tenantName={tenant?.nome} />
+      <Hero onAgendarClick={handleAgendarClick} tenantName={tenant?.nome} slug={slug} />
       <SobreNos tenantId={tenant?.id} tenantName={tenant?.nome} />
       <Localizacao tenantId={tenant?.id} />
       <Servicos tenantId={tenant?.id} />
