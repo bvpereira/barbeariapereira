@@ -247,6 +247,7 @@ function HorariosPage() {
   };
 
   const toggleCollaboratorSelection = async (date: string, colabId: string) => {
+    if (!tenant) return;
     const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
     const newAtivo = existing ? !existing.ativo : true;
     
@@ -290,6 +291,7 @@ function HorariosPage() {
   };
 
   const applyGlobalConfig = async (date: string) => {
+    if (!tenant) return;
     const selected = collaborators.filter(c => horariosColaboradores.find(h => h.colaborador_id === c.id && h.data === date)?.ativo).map(c => c.id);
     if (selected.length === 0) {
       toast.warning("Selecione ao menos um colaborador.");
@@ -335,6 +337,7 @@ function HorariosPage() {
   };
 
   const updateIndividualHorario = async (colabId: string, date: string, field: string, value: string) => {
+    if (!tenant) return;
     const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
     const updatedData = {
       barbearia_id: tenant!.id,
