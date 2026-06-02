@@ -104,6 +104,7 @@ function ServicesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tenant) return;
     setIsSubmitting(true);
 
     try {
@@ -128,7 +129,7 @@ function ServicesPage() {
       }
 
       const serviceData = {
-        barbearia_id: tenant!.id,
+        barbearia_id: tenant.id,
         name,
         price: parseFloat(price),
         duration: parseInt(duration),
