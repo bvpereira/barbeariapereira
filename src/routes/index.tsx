@@ -481,7 +481,7 @@ function Servicos({ tenantId }: { tenantId?: string }) {
   );
 }
 
-function Colaboradores() {
+function Colaboradores({ tenantId }: { tenantId?: string }) {
   const [time, setTime] = useState<{ nome: string; img: string; desc: string }[]>([]);
 
   useEffect(() => {
@@ -489,6 +489,7 @@ function Colaboradores() {
       const { data, error } = await supabase
         .from("colaboradores")
         .select("nome, foto_url, resumo, ativo")
+        .eq("barbearia_id", tenantId)
         .eq("ativo", true)
         .order("nome", { ascending: true });
       if (!error && data) {
@@ -545,7 +546,7 @@ function Colaboradores() {
 
 // Galeria removida conforme solicitação
 
-function Contato() {
+function Contato({ tenantId }: { tenantId?: string }) {
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
   useEffect(() => {
@@ -555,6 +556,7 @@ function Contato() {
           .from("informacoes" as any)
           .select("tel_contato")
           .eq("userrr", "admin")
+          .eq("barbearia_id", tenantId)
           .maybeSingle();
 
         if (!error && data) {
@@ -602,13 +604,13 @@ function Contato() {
   );
 }
 
-function Footer() {
+function Footer({ tenantName }: { tenantName?: string }) {
   return (
     <footer className="px-4 border-t border-primary/10 bg-black py-[45px]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
         <div className="space-y-4">
           <img src="/logo.png" alt="Logo" className="w-32 opacity-80 text-left" />
-          <p className="text-muted-foreground text-sm uppercase tracking-tighter">Barbearia Pereira</p>
+          <p className="text-muted-foreground text-sm uppercase tracking-tighter">{tenantName || 'Barbearia'}</p>
           <div className="text-xs text-muted-foreground/60 space-y-1">
             <p>CNPJ: 19.411.344/0001-11</p>
             <p>Rio das Ostras - RJ</p>
@@ -634,7 +636,7 @@ function Footer() {
       </div>
       
       <div className="max-w-6xl mx-auto pt-8 border-t border-primary/5 text-center text-xs text-muted-foreground/40">
-        &copy; {new Date().getFullYear()} Barbearia Pereira. Todos os direitos reservados.
+        &copy; {new Date().getFullYear()} {tenantName || 'Barbearia'}. Todos os direitos reservados.
       </div>
     </footer>
   );
