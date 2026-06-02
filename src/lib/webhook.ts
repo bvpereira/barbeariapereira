@@ -15,12 +15,14 @@ interface WebhookData {
   horario_antigo?: string;
 }
 
-export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
+export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { barbearia_id?: string }) {
   try {
     // 1. Log for debugging
     const userData = localStorage.getItem("user");
+    let currentUserBarbeariaId = "";
     if (userData) {
       const user = JSON.parse(userData);
+      currentUserBarbeariaId = user.barbearia_id;
       if (user.nivel && user.nivel !== 3) {
         console.log("Webhook skipped: User is level", user.nivel, "(only level 3 triggers webhooks)");
         return;
@@ -38,7 +40,12 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData) {
       }, {});
     };
 
-    const lowercasedData = lowercaseKeys(data);
+    const webhookPayload = {
+      ...data,
+      barbearia_id: data.barbearia_id || currentUserBarbeariaId
+    };
+
+    const lowercasedData = lowercaseKeys(webhookPayload);
     console.log("Triggering Webhook:", event, lowercasedData);
 
     // 2. Fetch the webhook URL (Unified for all barber shops)

@@ -195,6 +195,8 @@ function Login() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "recupera_senha")
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       console.log("Integration fetch result:", { integracao, intError });
@@ -226,6 +228,7 @@ function Login() {
             tel_cliente: usuario.login,
             nome_cliente: usuario.nome,
             tel_contato: telContato,
+            barbearia_id: tenant!.id,
             link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }
         };

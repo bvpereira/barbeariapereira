@@ -74,7 +74,8 @@ function IntegracoesPage() {
     try {
       const { data, error } = await supabase
         .from("integracoes")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Erro ao buscar integrações:", error);
