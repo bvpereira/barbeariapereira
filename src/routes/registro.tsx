@@ -32,6 +32,7 @@ function Registro() {
           .from("informacoes" as any)
           .select("tel_contato")
           .eq("userrr", "admin")
+          .eq("barbearia_id", user.barbearia_id)
           .maybeSingle();
 
         if (error) throw error;

@@ -44,6 +44,22 @@ export const Route = createFileRoute("/$slug")({
 function BarbeariaLanding() {
   const { slug } = useParams({ from: "/$slug" });
   const { tenant, loading: tenantLoading } = useTenant();
+  const [logoUrl, setLogoUrl] = useState<string>("/logo.png");
+
+  useEffect(() => {
+    if (!tenant) return;
+    const fetchLogo = async () => {
+      const { data } = await supabase
+        .from("informacoes" as any)
+        .select("imagem_logo")
+        .eq("barbearia_id", tenant.id)
+        .maybeSingle();
+      if (data && (data as any).imagem_logo) {
+        setLogoUrl((data as any).imagem_logo);
+      }
+    };
+    fetchLogo();
+  }, [tenant]);
   const navigate = useNavigate();
 
   const handleAgendarClick = (e: React.MouseEvent) => {
@@ -99,7 +115,7 @@ function BarbeariaLanding() {
 
   return (
     <div className="min-h-screen bg-black text-foreground font-sans overflow-x-hidden">
-      <Hero onAgendarClick={handleAgendarClick} tenantName={tenant?.nome} slug={slug} />
+      <Hero onAgendarClick={handleAgendarClick} tenantName={tenant?.nome} slug={slug} logoUrl={logoUrl} />
       <SobreNos tenantId={tenant?.id} tenantName={tenant?.nome} />
       <Localizacao tenantId={tenant?.id} />
       <Servicos tenantId={tenant?.id} />
@@ -110,7 +126,7 @@ function BarbeariaLanding() {
   );
 }
 
-function Hero({ onAgendarClick, tenantName, slug }: { onAgendarClick: (e: React.MouseEvent) => void; tenantName?: string; slug: string }) {
+function Hero({ onAgendarClick, tenantName, slug, logoUrl }: { onAgendarClick: (e: React.MouseEvent) => void; tenantName?: string; slug: string; logoUrl: string }) {
   return (
     <section
       className="relative min-h-[90vh] pt-10 pb-5 md:pt-20 md:pb-10 px-4 flex flex-col items-center justify-center bg-cover bg-center"
@@ -124,7 +140,7 @@ function Hero({ onAgendarClick, tenantName, slug }: { onAgendarClick: (e: React.
       >
 
         <motion.img
-          src="/logo.png"
+          src={logoUrl}
           alt={`${tenantName || 'Barbearia'} Logo`}
           width={821}
           height={728}
