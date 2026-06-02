@@ -105,7 +105,7 @@ function BarbeariaLanding() {
       <Servicos tenantId={tenant?.id} />
       <Colaboradores tenantId={tenant?.id} />
       <Contato tenantId={tenant?.id} />
-      <Footer tenantName={tenant?.nome} />
+      <Footer tenantName={tenant?.nome} slug={slug} />
     </div>
   );
 }
