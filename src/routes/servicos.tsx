@@ -31,7 +31,7 @@ interface Service {
 }
 
 function ServicesPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -47,8 +47,10 @@ function ServicesPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchServices();
-  }, []);
+    if (!tenantLoading && tenant) {
+      fetchServices();
+    }
+  }, [tenant, tenantLoading]);
 
   const fetchServices = async () => {
     if (!tenant?.id) return;
