@@ -67,7 +67,7 @@ interface Gasto {
 }
 
 function GastosPage() {
-  const { tenant } = useTenant();
+  const { tenant, loading: tenantLoading } = useTenant();
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
@@ -87,10 +87,11 @@ function GastosPage() {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
+    if (tenantLoading || !tenant) return;
     fetchGastos();
     fetchSummaryData();
     fetchColaboradores();
-  }, [selectedMonth]);
+  }, [selectedMonth, tenant, tenantLoading]);
 
   const fetchColaboradores = async () => {
     if (!tenant?.id) return;
@@ -131,6 +132,7 @@ function GastosPage() {
   };
 
   const fetchSummaryData = async () => {
+    if (!tenant) return;
     try {
       // Total mes selecionado (já calculado via fetchGastos mas vamos fazer uma query pra resumo se quiser)
       const startCurrent = startOfMonth(selectedMonth);
@@ -139,6 +141,7 @@ function GastosPage() {
       const { data: currentData, error: currentError } = await supabase
         .from("gastos")
         .select("valor")
+        .eq("barbearia_id", tenant.id)
         .gte("data", startCurrent.toISOString())
         .lte("data", endCurrent.toISOString());
       
@@ -153,6 +156,7 @@ function GastosPage() {
       const { data: data12, error: error12 } = await supabase
         .from("gastos")
         .select("valor, data")
+        .eq("barbearia_id", tenant.id)
         .gte("data", start12.toISOString())
         .lte("data", end12.toISOString());
 
