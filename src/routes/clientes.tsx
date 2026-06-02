@@ -379,6 +379,7 @@ function ClientesPage() {
   };
 
   const handleSaveAtendimento = async (isScheduling: boolean) => {
+    if (!tenant) return;
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || (isScheduling && !selectedTimePart)) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
@@ -444,6 +445,7 @@ function ClientesPage() {
   };
 
   const handleSave = async () => {
+    if (!tenant) return;
     if (!formData.nome) {
       toast.error("O nome do cliente é obrigatório");
       return;
