@@ -103,12 +103,6 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       {children}
     </TenantContext.Provider>
   );
-
-  return (
-    <TenantContext.Provider value={{ tenant, loading }}>
-      {children}
-    </TenantContext.Provider>
-  );
 };
 
 export const useTenant = () => useContext(TenantContext);
