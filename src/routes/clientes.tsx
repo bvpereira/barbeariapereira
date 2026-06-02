@@ -124,6 +124,7 @@ interface AtendimentoHistorico {
 }
 
 function ClientesPage() {
+  const { tenant } = useTenant();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const isMobile = useIsMobile();
   const [totalClientes, setTotalClientes] = useState(0);
@@ -369,6 +370,7 @@ function ClientesPage() {
     setIsSubmitting(true);
     try {
       const payload = {
+        barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
@@ -388,6 +390,7 @@ function ClientesPage() {
       }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
+        barbearia_id: tenant!.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
@@ -452,6 +455,7 @@ function ClientesPage() {
     }
 
     const payload = {
+      barbearia_id: tenant!.id,
       nome: formData.nome,
       login: loginNumeros,
       senha: formData.senha,

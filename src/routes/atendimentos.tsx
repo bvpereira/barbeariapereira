@@ -18,6 +18,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -93,6 +94,7 @@ interface Servico {
 }
 
 function AtendimentosPage() {
+  const { tenant } = useTenant();
   const [agendados, setAgendados] = useState<Atendimento[]>([]);
   const [atencao, setAtencao] = useState<Atendimento[]>([]);
   const [concluidos, setConcluidos] = useState<Atendimento[]>([]);
@@ -414,6 +416,7 @@ function AtendimentosPage() {
     setIsSubmitting(true);
     try {
       const payload = {
+        barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
@@ -434,6 +437,7 @@ function AtendimentosPage() {
       }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
+        barbearia_id: tenant!.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0

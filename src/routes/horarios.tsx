@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, Clock, Save, ChevronDown, ChevronUp, Copy, Check, Users, Trash2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -54,6 +55,7 @@ interface HorarioColaborador {
 }
 
 function HorariosPage() {
+  const { tenant } = useTenant();
   const [dias, setDias] = useState<DiaAgenda[]>([]);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [horariosColaboradores, setHorariosColaboradores] = useState<HorarioColaborador[]>([]);
@@ -156,7 +158,7 @@ function HorariosPage() {
     try {
       const { data, error } = await supabase
         .from("dias_agenda")
-        .insert([{ data: dateStr, ativo: true }])
+        .insert([{ barbearia_id: tenant!.id, data: dateStr, ativo: true }])
         .select()
         .single();
 
@@ -240,6 +242,7 @@ function HorariosPage() {
     const newAtivo = existing ? !existing.ativo : true;
     
     const updatedData = {
+      barbearia_id: tenant!.id,
       colaborador_id: colabId,
       data: date,
       ativo: newAtivo,
@@ -324,6 +327,7 @@ function HorariosPage() {
   const updateIndividualHorario = async (colabId: string, date: string, field: string, value: string) => {
     const existing = horariosColaboradores.find(h => h.colaborador_id === colabId && h.data === date);
     const updatedData = {
+      barbearia_id: tenant!.id,
       colaborador_id: colabId,
       data: date,
       ...(existing || {}),
