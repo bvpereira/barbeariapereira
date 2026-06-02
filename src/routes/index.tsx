@@ -179,6 +179,7 @@ function SobreNos({ tenantId, tenantName }: { tenantId?: string; tenantName?: st
   }, [AutoScroll({ speed: 1, stopOnInteraction: false, stopOnMouseEnter: false })]);
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchImages = async () => {
       try {
         const { data, error } = await (supabase
@@ -286,6 +287,7 @@ function Localizacao({ tenantId }: { tenantId?: string }) {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchVideo = async () => {
       try {
         const { data, error } = await (supabase
@@ -398,6 +400,7 @@ function Servicos({ tenantId }: { tenantId?: string }) {
   const [servicos, setServicos] = useState<Array<{ img: string; nome: string; desc: string }>>([]);
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchServicos = async () => {
       try {
         const { data, error } = await supabase
@@ -485,6 +488,7 @@ function Colaboradores({ tenantId }: { tenantId?: string }) {
   const [time, setTime] = useState<{ nome: string; img: string; desc: string }[]>([]);
 
   useEffect(() => {
+    if (!tenantId) return;
     (async () => {
       const { data, error } = await supabase
         .from("colaboradores")
@@ -550,6 +554,7 @@ function Contato({ tenantId }: { tenantId?: string }) {
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
   useEffect(() => {
+    if (!tenantId) return;
     const fetchWhatsapp = async () => {
       try {
         const { data, error } = await supabase
