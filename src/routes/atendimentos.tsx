@@ -567,12 +567,13 @@ function AtendimentosPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!deleteId) return;
+    if (!deleteId || !tenant?.id) return;
     setIsDeleting(true);
     try {
       const { data: item } = await supabase
         .from('atendimentos')
         .select('*, cliente:usuarios!cliente_id(nome, login), colaborador:colaboradores(nome), atendimento_servicos(servicos(name))')
+        .eq('barbearia_id', tenant.id)
         .eq('id', deleteId)
         .single();
 
@@ -580,6 +581,7 @@ function AtendimentosPage() {
       const { error: servError } = await supabase
         .from('atendimento_servicos')
         .delete()
+        .eq('barbearia_id', tenant.id)
         .eq('atendimento_id', deleteId);
 
       if (servError) throw servError;
