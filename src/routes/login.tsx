@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +37,7 @@ const formatPhone = (value: string) => {
 };
 
 function Login() {
+  const { tenant } = useTenant();
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +72,7 @@ function Login() {
         .from("usuarios")
         .select("login")
         .eq("login", cleanLogin)
+        .eq("barbearia_id", tenant?.id)
         .maybeSingle();
 
       if (!userExists) {
@@ -88,6 +91,7 @@ function Login() {
         .select("*")
         .eq("login", cleanLogin)
         .eq("senha", senha)
+        .eq("barbearia_id", tenant?.id)
         .maybeSingle();
 
       if (error || !data) {

@@ -332,7 +332,7 @@ export function BookingButton({
       });
 
       const payload = {
-        barbearia_id: tenant?.id,
+        barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart}:00-03:00`,
@@ -356,7 +356,7 @@ export function BookingButton({
       }
 
       await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
-        barbearia_id: tenant?.id,
+        barbearia_id: tenant!.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0
