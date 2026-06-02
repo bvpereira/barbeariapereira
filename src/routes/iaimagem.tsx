@@ -136,23 +136,13 @@ function IAImagemPage() {
 
       const newOptions: Record<string, string[]> = {
         imagem_objetivo: ["Captar cliente", "Vender", "Teste objetivo"],
-        imagem_campanha: [],
-        imagem_estilovisual: [],
+        imagem_campanha: ["Post de Promoção", "Post de Comemoração", "Lançamento", "Conteúdo Informativo"],
+        imagem_estilovisual: ["Minimalista", "Agressivo em vendas", "Fotorealista", "Moderno", "Limpo"],
         imagem_informacoes: [],
         imagem_imareferencia: [],
-        imagem_comlogo: [],
-        imagem_formato: [],
+        imagem_comlogo: ["Com logo", "Sem logo"],
+        imagem_formato: ["Quadrado (1:1)", "Vertical (4:5)", "Story (9:16)", "Horizontal (16:9)"],
       };
-
-      data.forEach((row: any) => {
-        fields.forEach((field) => {
-          if (field.key === "imagem_objetivo") return;
-          const val = row[field.key];
-          if (val && !newOptions[field.key].includes(val)) {
-            newOptions[field.key].push(val);
-          }
-        });
-      });
 
       setOptions(newOptions);
     } catch (error) {
