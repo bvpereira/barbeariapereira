@@ -293,6 +293,7 @@ function HorariosPage() {
     const updates = selected.map(colabId => {
       const existingIdx = newHorarios.findIndex(h => h.colaborador_id === colabId && h.data === date);
       const data = {
+        barbearia_id: tenant!.id,
         colaborador_id: colabId,
         data: date,
         manha_inicio: config.manha_inicio,
