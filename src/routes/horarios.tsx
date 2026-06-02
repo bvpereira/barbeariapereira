@@ -166,7 +166,7 @@ function HorariosPage() {
     try {
       const { data, error } = await supabase
         .from("dias_agenda")
-        .insert([{ barbearia_id: tenant?.id, data: dateStr, ativo: true }])
+        .insert([{ barbearia_id: tenant.id, data: dateStr, ativo: true }])
         .select()
         .single();
 
