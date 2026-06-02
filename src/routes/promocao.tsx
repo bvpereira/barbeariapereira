@@ -174,7 +174,7 @@ function PromocaoPage() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !tenant) return;
 
     setUploading(true);
     try {
@@ -197,7 +197,7 @@ function PromocaoPage() {
           testada: "nao"
         })
         .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant?.id);
+        .eq("barbearia_id", tenant.id);
 
       if (updateError) throw updateError;
 
@@ -213,6 +213,7 @@ function PromocaoPage() {
   };
 
   const handleSaveTexto = async () => {
+    if (!tenant) return;
     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
       toast.error("O texto da promoção não pode ultrapassar 920 caracteres.");
       return;
@@ -226,7 +227,7 @@ function PromocaoPage() {
           testada: "nao"
         })
         .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant?.id);
+        .eq("barbearia_id", tenant.id);
       
       if (error) throw error;
       setPromoAtual({ ...promoAtual, testada: "nao" });
@@ -239,6 +240,7 @@ function PromocaoPage() {
   };
 
   const handleGerarTexto = async () => {
+    if (!tenant) return;
     if (!promoAtual.prompt_texto) {
       toast.error("Digite um prompt para gerar o texto.");
       return;
@@ -250,7 +252,7 @@ function PromocaoPage() {
         .from("promocao")
         .update({ prompt_texto: promoAtual.prompt_texto })
         .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant?.id);
+        .eq("barbearia_id", tenant.id);
       
       toast.info("Solicitando geração de texto por IA...");
       console.log("Gerar texto com prompt:", promoAtual.prompt_texto);
@@ -263,6 +265,7 @@ function PromocaoPage() {
   };
 
   const handleGerarImagem = async () => {
+    if (!tenant) return;
     if (!promoAtual.prompt_imagem) {
       toast.error("Digite um prompt para gerar a imagem.");
       return;
@@ -289,7 +292,7 @@ function PromocaoPage() {
         .from("promocao")
         .update({ prompt_imagem: promoAtual.prompt_imagem })
         .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant?.id);
+        .eq("barbearia_id", tenant.id);
       
       toast.info("Solicitando geração de imagem por IA...");
       console.log("Gerar imagem com prompt:", promoAtual.prompt_imagem, "Formato:", formatoExibicao);
@@ -393,6 +396,7 @@ function PromocaoPage() {
   };
 
   const handleEnviarTeste = async () => {
+    if (!tenant) return;
     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
       toast.error("O texto ultrapassa o limite de 920 caracteres.");
       return;
@@ -405,7 +409,7 @@ function PromocaoPage() {
         .from("promocao")
         .update({ testada: "sim" })
         .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant?.id);
+        .eq("barbearia_id", tenant.id);
       
       if (!error) {
         setPromoAtual({ ...promoAtual, testada: "sim" });
