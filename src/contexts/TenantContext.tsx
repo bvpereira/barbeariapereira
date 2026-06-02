@@ -28,13 +28,19 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const pathParts = window.location.pathname.split("/").filter(Boolean);
       const slugFromUrl = pathParts[0];
       
-      let targetSlug = "barb0"; // Default
+      let targetSlug = ""; 
       
       const reservedRoutes = ["admin", "login", "cadastro", "colaborador", "cliente", "atendimentos", "clientes", "colaboradores", "financeiro", "gastos", "horarios", "iacodconsumi", "iaimagem", "integracoes", "minhaconta", "promocao", "redefinir-senha", "registro", "servicos"];
 
       if (slugFromUrl && !reservedRoutes.includes(slugFromUrl)) {
         targetSlug = slugFromUrl;
       }
+
+      if (!targetSlug) {
+        setLoading(false);
+        return;
+      }
+
 
       const { data, error } = await supabase
         .from("barbearias")
