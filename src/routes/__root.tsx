@@ -1,6 +1,9 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 import appCss from "../styles.css?url";
 
@@ -76,9 +79,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <TenantProvider>
-      <Outlet />
-      <Sonner />
-    </TenantProvider>
+    <QueryClientProvider client={queryClient}>
+      <TenantProvider>
+        <Outlet />
+        <Sonner />
+      </TenantProvider>
+    </QueryClientProvider>
   );
 }
