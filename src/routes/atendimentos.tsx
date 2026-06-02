@@ -576,7 +576,7 @@ function AtendimentosPage() {
           if (integracao?.webhook_url) {
             const item = concluidos.find(a => a.id === id) || agendados.find(a => a.id === id) || atencao.find(a => a.id === id);
             if (item) {
-              const payload = {
+              const webhookPayload = {
                 tipo: newStatus,
                 cliente: item.cliente.nome,
                 login_cliente: item.cliente.login,
@@ -593,7 +593,7 @@ function AtendimentosPage() {
                 body: {
                   url: integracao.webhook_url,
                   method: "POST",
-                  body: payload
+                  body: webhookPayload
                 }
               });
             }

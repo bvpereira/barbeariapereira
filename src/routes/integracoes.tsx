@@ -163,8 +163,8 @@ function IntegracoesPage() {
       
       if (error) throw error;
       
-      if (data) {
-        setId(data.id);
+      if (data && data.length > 0) {
+        setId(data[0].id);
       }
 
       toast.success(successMsg);
