@@ -268,7 +268,6 @@ function AtendimentosPage() {
       fetchPedidosExclusao();
     }
   }, [tenant, tenantLoading, fetchPedidosExclusao]);
-  }, [fetchPedidosExclusao]);
 
   const searchClientes = async (term: string) => {
     if (!tenant?.id) return;
