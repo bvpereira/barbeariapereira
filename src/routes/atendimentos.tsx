@@ -146,6 +146,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `, { count: 'exact' })
+      .eq('barbearia_id', tenant?.id)
       .eq('status', 'Agendado')
       .order('data', { ascending: true })
       .range(0, limitAgendados - 1);
