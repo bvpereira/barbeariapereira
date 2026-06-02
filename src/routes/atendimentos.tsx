@@ -176,6 +176,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `, { count: 'exact' })
+      .eq('barbearia_id', tenant?.id)
       .in('status', ['Finalizado', 'Não compareceu']);
 
     if (filtroConcluidos !== 'Todos') query = query.eq('status', filtroConcluidos);
@@ -201,6 +202,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `)
+      .eq('barbearia_id', tenant?.id)
       .eq('pedido_exclusao', true)
       .order('data', { ascending: false });
 
@@ -211,9 +213,9 @@ function AtendimentosPage() {
   }, []);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').order('name');
-    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id');
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant?.id).order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant?.id).order('name');
+    const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id').eq('barbearia_id', tenant?.id);
     
     const formattedColabs = colabs?.map(c => ({
       ...c,
@@ -228,10 +230,10 @@ function AtendimentosPage() {
   };
 
   const fetchBookingSettings = async () => {
-    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant?.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('userrr', 'admin').maybeSingle();
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('barbearia_id', tenant?.id).maybeSingle();
     if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
   };
 
@@ -262,7 +264,7 @@ function AtendimentosPage() {
   const searchClientes = async (term: string) => {
     setSearchCliente(term);
     if (term.length < 2) { setClientes([]); return; }
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('nivel', 3).or(`nome.ilike.%${term}%,login.ilike.%${term}%`).limit(5);
+    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('barbearia_id', tenant?.id).eq('nivel', 3).or(`nome.ilike.%${term}%,login.ilike.%${term}%`).limit(5);
     setClientes(data || []);
   };
 
@@ -286,6 +288,7 @@ function AtendimentosPage() {
     const { data: rules } = await supabase
       .from("colaborador_servicos")
       .select("servico_id, valor_comissao, tipo_comissao")
+      .eq("barbearia_id", tenant?.id)
       .eq("colaborador_id", colabId);
     
     let totalComissao = 0;
@@ -304,12 +307,12 @@ function AtendimentosPage() {
   };
 
   const fetchColabServicos = async (colabId: string) => {
-    const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('colaborador_id', colabId);
+    const { data } = await supabase.from('colaborador_servicos').select('servico_id').eq('barbearia_id', tenant?.id).eq('colaborador_id', colabId);
     const ids = data?.map(d => d.servico_id).filter((id): id is string => !!id) || [];
     setColabServicosIds(ids);
     
     // Fetch active dates
-    const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('colaborador_id', colabId).eq('ativo', true);
+    const { data: activeDates } = await supabase.from('horarios_colaboradores').select('data').eq('barbearia_id', tenant?.id).eq('colaborador_id', colabId).eq('ativo', true);
     const dates = activeDates?.map(d => d.data) || [];
     setColabActiveDates(dates);
     
@@ -327,14 +330,14 @@ function AtendimentosPage() {
     }
     setLoadingTimes(true);
     try {
-      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
+      const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('barbearia_id', tenant?.id).eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
       if (!workingHours) { 
         setAvailableTimes([]); 
         setLoadingTimes(false);
         return; 
       }
 
-      const { data: appts } = await supabase.from('atendimentos').select('data, status, atendimento_servicos(servicos(duration))').eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
+      const { data: appts } = await supabase.from('atendimentos').select('data, status, atendimento_servicos(servicos(duration))').eq('barbearia_id', tenant?.id).eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
 
       const requestedDuration = servs.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.duration || 0), 0);
       const possibleTimes: string[] = [];
@@ -457,7 +460,7 @@ function AtendimentosPage() {
       })));
 
       // Trigger Webhook
-      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
+      const { data: colabData } = await supabase.from('colaboradores').select('login').eq('barbearia_id', tenant.id).eq('id', selectedColaborador).maybeSingle();
       const formattedTel = colabData?.login ? colabData.login.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : (colabData?.login || "");
 
       if (editingAtendimento) {
