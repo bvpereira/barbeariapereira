@@ -256,13 +256,18 @@ function AtendimentosPage() {
   }, [fetchAgendados, tenant]);
 
   useEffect(() => {
-    fetchConcluidos();
-  }, [fetchConcluidos]);
+    if (!tenantLoading && tenant) {
+      fetchConcluidos();
+    }
+  }, [fetchConcluidos, tenant, tenantLoading]);
 
   useEffect(() => {
-    fetchFormData();
-    fetchBookingSettings();
-    fetchPedidosExclusao();
+    if (!tenantLoading && tenant) {
+      fetchFormData();
+      fetchBookingSettings();
+      fetchPedidosExclusao();
+    }
+  }, [tenant, tenantLoading, fetchPedidosExclusao]);
   }, [fetchPedidosExclusao]);
 
   const searchClientes = async (term: string) => {
