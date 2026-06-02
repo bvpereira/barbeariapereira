@@ -167,6 +167,7 @@ function AtendimentosPage() {
   }, [limitAgendados]);
 
   const fetchConcluidos = useCallback(async () => {
+    if (!tenant?.id) return;
     setLoadingConcluidos(true);
     let query = supabase
       .from('atendimentos')
@@ -176,7 +177,7 @@ function AtendimentosPage() {
         colaborador:colaboradores(id, nome),
         atendimento_servicos(servico_id, servicos(id, name, price, duration))
       `, { count: 'exact' })
-      .eq('barbearia_id', tenant?.id)
+      .eq('barbearia_id', tenant.id)
       .in('status', ['Finalizado', 'Não compareceu']);
 
     if (filtroConcluidos !== 'Todos') query = query.eq('status', filtroConcluidos);
@@ -193,6 +194,7 @@ function AtendimentosPage() {
   }, [limitConcluidos, filtroConcluidos]);
 
   const fetchPedidosExclusao = useCallback(async () => {
+    if (!tenant?.id) return;
     setLoadingExclusao(true);
     const { data, error } = await supabase
       .from('atendimentos')
