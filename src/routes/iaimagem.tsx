@@ -58,7 +58,7 @@ function IAImagemPage() {
     fetchOptions();
     fetchWebhookUrl();
 
-    // Subscribe to changes in agentes_ia table for linha 0
+    // Subscribe to changes in agentes_ia table for the current tenant
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -67,7 +67,7 @@ function IAImagemPage() {
           event: 'UPDATE',
           schema: 'public',
           table: 'agentes_ia',
-          filter: 'linha=eq.0'
+          filter: `barbearia_id=eq.${tenant.id}`
         },
         (payload) => {
           console.log('Change received!', payload);
@@ -81,7 +81,7 @@ function IAImagemPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [tenant, tenantLoading]);
 
   const fetchWebhookUrl = async () => {
     if (!tenant?.id) return;
@@ -110,11 +110,12 @@ function IAImagemPage() {
   };
 
   const fetchOptions = async () => {
+    if (!tenant?.id) return;
     try {
       const { data: selectionData, error: selectionError } = await supabase
         .from("agentes_ia")
         .select("*")
-        .eq("linha", 0)
+        .eq("barbearia_id", tenant.id)
         .maybeSingle();
 
       if (selectionError) throw selectionError;
@@ -171,7 +172,7 @@ function IAImagemPage() {
 
     setSaving(true);
     try {
-      // 1. Salvar as configurações na linha 0
+      // 1. Salvar as configurações para a barbearia atual
       const { error: updateError } = await supabase
         .from("agentes_ia")
         .update({
@@ -183,7 +184,7 @@ function IAImagemPage() {
           imagem_comlogo: selections.imagem_comlogo,
           imagem_formato: selections.imagem_formato,
         })
-        .eq("linha", 0);
+        .eq("barbearia_id", tenant.id);
 
       if (updateError) throw updateError;
 
