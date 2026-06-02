@@ -148,11 +148,20 @@ function IACodConsumiPage() {
         </div>
 
         <Card className="flex-1 flex flex-col overflow-hidden border-orange-100 shadow-sm">
-          <CardHeader className="py-3 border-b bg-orange-50/30">
+          <CardHeader className="py-3 border-b bg-orange-50/30 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Bot className="h-4 w-4 text-orange-600" />
               Chat de Suporte Jurídico
             </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopy}
+              className="h-8 gap-2 border-orange-200 text-orange-700 hover:bg-orange-100 hover:text-orange-800"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              Copiar Conversa
+            </Button>
           </CardHeader>
           <CardContent className="flex-1 p-0 flex flex-col bg-white">
             <ScrollArea className="flex-1 p-4">
