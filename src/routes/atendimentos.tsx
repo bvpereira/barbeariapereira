@@ -521,6 +521,7 @@ function AtendimentosPage() {
   };
 
   const updateStatus = async (id: string, newStatus: Atendimento['status']) => {
+    if (!tenant?.id) return;
     try {
       const payload: any = { status: newStatus };
       
@@ -534,6 +535,7 @@ function AtendimentosPage() {
           const { data: rules } = await supabase
             .from("colaborador_servicos")
             .select("servico_id, valor_comissao, tipo_comissao")
+            .eq("barbearia_id", tenant.id)
             .eq("colaborador_id", item.colaborador.id);
           
           let totalComissao = 0;
@@ -550,8 +552,8 @@ function AtendimentosPage() {
           payload.comissao = totalComissao;
         }
       }
-
-      const { error } = await supabase.from('atendimentos').update(payload).eq('id', id);
+      
+      const { error } = await supabase.from('atendimentos').update(payload).eq('barbearia_id', tenant.id).eq('id', id);
       if (error) throw error;
       toast.success("Status atualizado");
       fetchAgendados();
@@ -582,7 +584,7 @@ function AtendimentosPage() {
 
       if (servError) throw servError;
 
-      const { error } = await supabase.from('atendimentos').delete().eq('id', deleteId);
+      const { error } = await supabase.from('atendimentos').delete().eq('barbearia_id', tenant.id).eq('id', deleteId);
       if (error) throw error;
 
       if (item) {
