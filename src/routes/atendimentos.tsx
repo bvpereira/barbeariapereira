@@ -164,7 +164,7 @@ function AtendimentosPage() {
     setAgendados(formatted.filter(item => new Date(item.data) >= now));
     setHasMoreAgendados((count || 0) > limitAgendados);
     setLoadingAgendados(false);
-  }, [limitAgendados]);
+  }, [limitAgendados, tenant]);
 
   const fetchConcluidos = useCallback(async () => {
     if (!tenant?.id) return;
@@ -191,7 +191,7 @@ function AtendimentosPage() {
     setConcluidos((data as any[]).map(item => ({ ...item, servicos: item.atendimento_servicos.map((as: any) => as.servicos) })));
     setHasMoreConcluidos((count || 0) > limitConcluidos);
     setLoadingConcluidos(false);
-  }, [limitConcluidos, filtroConcluidos]);
+  }, [limitConcluidos, filtroConcluidos, tenant]);
 
   const fetchPedidosExclusao = useCallback(async () => {
     if (!tenant?.id) return;
