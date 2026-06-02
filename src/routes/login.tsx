@@ -195,7 +195,6 @@ function Login() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "recupera_senha")
-        .eq("barbearia_id", tenant!.id)
         .maybeSingle();
 
       console.log("Integration fetch result:", { integracao, intError });

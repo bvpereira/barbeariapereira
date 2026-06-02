@@ -120,7 +120,6 @@ function PromocaoPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "promocao")
-        .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
       if (integration) setWebhookUrl(integration.webhook_url || "");

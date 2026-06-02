@@ -84,13 +84,11 @@ function IAImagemPage() {
   }, [tenant, tenantLoading]);
 
   const fetchWebhookUrl = async () => {
-    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
-        .eq("barbearia_id", tenant.id)
         .maybeSingle();
 
       if (error) {
