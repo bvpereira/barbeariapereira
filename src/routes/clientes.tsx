@@ -222,6 +222,7 @@ function ClientesPage() {
   const fetchClientes = async () => {
     setLoading(true);
     
+    if (!tenant?.id) return;
     let finalQuery = supabase
       .from("usuarios")
       .select(`
@@ -233,6 +234,7 @@ function ClientesPage() {
         registro,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
+      .eq("barbearia_id", tenant.id)
       .eq("nivel", 3)
       .order("nome", { ascending: true });
 
