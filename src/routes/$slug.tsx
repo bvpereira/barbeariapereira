@@ -121,7 +121,7 @@ function BarbeariaLanding() {
       <Servicos tenantId={tenant?.id} />
       <Colaboradores tenantId={tenant?.id} />
       <Contato tenantId={tenant?.id} />
-      <Footer tenantName={tenant?.nome} slug={slug} />
+      <Footer tenantName={tenant?.nome} slug={slug} logoUrl={logoUrl} />
     </div>
   );
 }
@@ -629,12 +629,12 @@ function Contato({ tenantId }: { tenantId?: string }) {
   );
 }
 
-function Footer({ tenantName, slug }: { tenantName?: string; slug: string }) {
+function Footer({ tenantName, slug, logoUrl }: { tenantName?: string; slug: string; logoUrl: string }) {
   return (
     <footer className="px-4 border-t border-primary/10 bg-black py-[45px]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
         <div className="space-y-4">
-          <img src="/logo.png" alt="Logo" className="w-32 opacity-80 text-left" />
+          <img src={logoUrl} alt="Logo" className="w-32 opacity-80 text-left" />
           <p className="text-muted-foreground text-sm uppercase tracking-tighter">{tenantName || 'Barbearia'}</p>
           <div className="text-xs text-muted-foreground/60 space-y-1">
             <p>CNPJ: 19.411.344/0001-11</p>
