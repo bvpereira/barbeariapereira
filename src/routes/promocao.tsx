@@ -469,6 +469,7 @@ function PromocaoPage() {
                   className={`min-h-[120px] ${promoAtual.texto_promo?.length > 920 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   value={promoAtual.texto_promo || ""}
                   onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
+                  disabled={promoAtual.testada === "sim"}
                 />
                 <div className="flex justify-between text-xs">
                   <span className={promoAtual.texto_promo?.length > 920 ? "text-red-500 font-medium" : "text-muted-foreground"}>
@@ -484,6 +485,7 @@ function PromocaoPage() {
                     size="sm" 
                     className="w-full gap-2 bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100" 
                     onClick={handlePasteTexto}
+                    disabled={promoAtual.testada === "sim"}
                   >
                     <ClipboardPaste className="h-4 w-4" />
                     Colar Texto
@@ -492,9 +494,10 @@ function PromocaoPage() {
                     variant="destructive" 
                     size="sm" 
                     className="w-full gap-2 bg-red-600 hover:bg-red-700 text-white border-none" 
-                    onClick={() => setPromoAtual({ ...promoAtual, texto_promo: "" })}
+                    onClick={handleApagarTexto}
+                    disabled={saving}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                     Apagar Texto
                   </Button>
                 </div>
