@@ -229,6 +229,7 @@ function Login() {
             nome_cliente: usuario.nome,
             tel_contato: telContato,
             barbearia_id: tenant!.id,
+            id_barbearia: tenant!.id,
             link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }
         };
