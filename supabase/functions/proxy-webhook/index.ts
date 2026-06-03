@@ -14,6 +14,7 @@ serve(async (req) => {
     const { url, method, headers, body } = await req.json()
 
     console.log(`Proxying request to: ${url}`)
+    console.log(`Payload:`, JSON.stringify(body))
 
     const response = await fetch(url, {
       method: method || 'POST',
