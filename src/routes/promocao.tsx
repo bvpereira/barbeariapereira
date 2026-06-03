@@ -18,11 +18,9 @@ import {
   Upload, 
   Loader2, 
   Trash2, 
-  Link2,
   Calendar,
   Eye,
   Save,
-  ImageIcon,
 } from "lucide-react";
 import {
   AlertDialog,
