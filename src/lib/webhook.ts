@@ -29,13 +29,18 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
       }
     }
 
-    // Function to lowercase all keys in an object
+    // Function to lowercase all keys in an object, but KEEP specific keys unchanged
     const lowercaseKeys = (obj: any): any => {
       if (typeof obj !== 'object' || obj === null) return obj;
       if (Array.isArray(obj)) return obj.map(lowercaseKeys);
       
+      const preservedKeys = ['id_barbearia', 'barbearia_id'];
+      
       return Object.keys(obj).reduce((acc: any, key) => {
-        acc[key.toLowerCase()] = lowercaseKeys(obj[key]);
+        const lowerKey = key.toLowerCase();
+        // If the key is one we want to preserve exactly, or its lowercase version is one we want to preserve
+        const targetKey = preservedKeys.includes(key) ? key : lowerKey;
+        acc[targetKey] = lowercaseKeys(obj[key]);
         return acc;
       }, {});
     };
