@@ -374,6 +374,7 @@ function PromocaoPage() {
       url_imagem: promoAtual.imagem_promo,
       texto_promo: promoAtual.texto_promo,
       barbearia_id: tenant?.id,
+      id_barbearia: tenant?.id,
       data: new Date().toISOString()
     };
 
