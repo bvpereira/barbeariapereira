@@ -139,6 +139,20 @@ function PromocaoPage() {
 
     setUploading(true);
     try {
+      // Deletar imagem anterior se existir
+      if (promoAtual.imagem_promo) {
+        try {
+          const urlParts = promoAtual.imagem_promo.split("/");
+          const fileName = urlParts[urlParts.length - 1];
+          await supabase.storage
+            .from("promocoes")
+            .remove([fileName]);
+          console.log("Imagem anterior removida com sucesso");
+        } catch (err) {
+          console.error("Erro ao remover imagem anterior:", err);
+        }
+      }
+
       const fileName = `promo_${Date.now()}.jpg`;
       const { data, error: uploadError } = await supabase.storage
         .from("promocoes")
