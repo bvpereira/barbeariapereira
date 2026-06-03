@@ -49,7 +49,23 @@ function Login() {
     title: string;
     description: string;
   }>({ open: false, title: "", description: "" });
+  const [logoUrl, setLogoUrl] = useState<string>("/logo.png");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!tenant) return;
+    const fetchLogo = async () => {
+      const { data } = await supabase
+        .from("informacoes" as any)
+        .select("imagem_logo")
+        .eq("barbearia_id", tenant.id)
+        .maybeSingle();
+      if (data && (data as any).imagem_logo) {
+        setLogoUrl((data as any).imagem_logo);
+      }
+    };
+    fetchLogo();
+  }, [tenant]);
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatPhone(e.target.value);
@@ -283,7 +299,7 @@ function Login() {
       <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-lg border border-border shadow-xl flex flex-col items-center">
         <div className="text-center flex flex-col items-center">
           <img
-            src="/logo.png"
+            src={logoUrl}
             alt="Barbearia Pereira Logo"
             className="w-32 h-auto mb-6"
           />
