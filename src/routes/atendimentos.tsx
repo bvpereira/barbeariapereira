@@ -597,7 +597,10 @@ function AtendimentosPage() {
                 barbearia_id: tenant.id,
                 id_barbearia: tenant.id,
                 ID_BARBEARIA: tenant.id,
-                servicos: item.servicos.map(s => s.name)
+                servicos: item.servicos.map(s => s.name),
+                id_barbearia: tenant.id,
+                barbearia_id: tenant.id,
+                ID_BARBEARIA: tenant.id,
               };
 
               await supabase.functions.invoke('proxy-webhook', {

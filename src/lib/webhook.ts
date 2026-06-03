@@ -35,9 +35,13 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
       if (Array.isArray(obj)) return obj.map(lowercaseKeys);
       
       return Object.keys(obj).reduce((acc: any, key) => {
-        // Specifically preserve id_barbearia and barbearia_id from being lowercased if they are already in the correct format
-        // but the current logic lowercases EVERYTHING, which might be what's expected for other fields.
-        acc[key.toLowerCase()] = lowercaseKeys(obj[key]);
+        // Excluir id_barbearia, barbearia_id e ID_BARBEARIA da conversão para minúsculas
+        // para garantir que cheguem exatamente como esperado no n8n/webhook
+        if (key === 'id_barbearia' || key === 'barbearia_id' || key === 'ID_BARBEARIA') {
+          acc[key] = obj[key];
+        } else {
+          acc[key.toLowerCase()] = lowercaseKeys(obj[key]);
+        }
         return acc;
       }, {});
     };
