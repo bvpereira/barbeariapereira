@@ -22,12 +22,7 @@ import {
   Calendar,
   Eye,
   Save,
-  Sparkles,
-  Type,
-  Wand2,
-  Download,
-  RefreshCw,
-  Copy
+  ImageIcon,
 } from "lucide-react";
 import {
   AlertDialog,
