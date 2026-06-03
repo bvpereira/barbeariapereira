@@ -15,19 +15,11 @@ import {
   TestTube, 
   History, 
   Image as ImageIcon, 
-  Upload, 
   Loader2, 
   Trash2, 
-  Link2,
   Calendar,
   Eye,
   Save,
-  Sparkles,
-  Type,
-  Wand2,
-  Download,
-  RefreshCw,
-  Copy
 } from "lucide-react";
 import {
   AlertDialog,
@@ -45,13 +37,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -71,18 +56,11 @@ function PromocaoPage() {
     texto_promo: "",
     imagem_promo: null,
     testada: "nao",
-    prompt_texto: "",
-    prompt_imagem: "",
-    imagem_ia: null,
-    texto_ia: ""
   });
   
   const [webhookUrl, setWebhookUrl] = useState("");
   const [telContato, setTelContato] = useState("");
   const [historico, setHistorico] = useState<any[]>([]);
-  const [formatosIA, setFormatosIA] = useState<any[]>([]);
-  const [formatoExibicao, setFormatoExibicao] = useState("");
-  const [formatoSelecionado, setFormatoSelecionado] = useState("");
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
   const [promoToDelete, setPromoToDelete] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -146,24 +124,6 @@ function PromocaoPage() {
       
       if (history) setHistorico(history);
       
-      // 5. Fetch formatos_ia
-      console.log("Chamando supabase para buscar agentes_ia...");
-      const { data: formats, error: formatsError } = await supabase
-        .from("agentes_ia")
-        .select("id, imagem_formato, linha")
-        .eq("barbearia_id", tenant.id)
-        .order("linha", { ascending: true });
-      
-      if (formatsError) {
-        console.error("Erro detalhado do Supabase ao buscar agentes_ia:", formatsError);
-      }
-
-      if (formats) {
-        console.log("Sucesso ao carregar agentes_ia. Quantidade:", formats.length, "Dados:", formats);
-        setFormatosIA(formats);
-      } else {
-        console.warn("Nenhum dado retornado para agentes_ia (data é null)");
-      }
       
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
@@ -240,127 +200,8 @@ function PromocaoPage() {
     }
   };
 
-  const handleGerarTexto = async () => {
-    if (!tenant) return;
-    if (!promoAtual.prompt_texto) {
-      toast.error("Digite um prompt para gerar o texto.");
-      return;
-    }
-    setSaving(true);
-    try {
-      // Save prompt first
-      await supabase
-        .from("promocao")
-        .update({ prompt_texto: promoAtual.prompt_texto })
-        .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant.id);
-      
-      toast.info("Solicitando geração de texto por IA...");
-      console.log("Gerar texto com prompt:", promoAtual.prompt_texto);
-      // Aqui entraria a chamada para a API de IA
-    } catch (error: any) {
-      toast.error("Erro ao processar: " + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleGerarImagem = async () => {
-    if (!tenant) return;
-    if (!promoAtual.prompt_imagem) {
-      toast.error("Digite um prompt para gerar a imagem.");
-      return;
-    }
-    if (!formatoExibicao) {
-      toast.error("Selecione o formato da imagem.");
-      return;
-    }
-    setSaving(true);
-    try {
-      // 1. Save the selected format AND the image prompt to agentes_ia table at line 0 with specific ID
-      const { error: formatError } = await supabase
-        .from("agentes_ia")
-        .update({ 
-          imagem_formato: formatoExibicao,
-          prompt_imagem: promoAtual.prompt_imagem
-        })
-        .eq("id", "6dd01103-085d-45c6-923f-430fd4ffc05b");
-
-      if (formatError) throw formatError;
-
-      // 2. Save prompt to promocao table as well for state persistence
-      await supabase
-        .from("promocao")
-        .update({ prompt_imagem: promoAtual.prompt_imagem })
-        .eq("numero_promo", 0)
-        .eq("barbearia_id", tenant.id);
-      
-      toast.info("Solicitando geração de imagem por IA...");
-      console.log("Gerar imagem com prompt:", promoAtual.prompt_imagem, "Formato:", formatoExibicao);
-      // Aqui entraria a chamada para a API de IA
-    } catch (error: any) {
-      toast.error("Erro ao processar: " + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleUseIAText = () => {
-    if (!promoAtual.texto_ia) return;
-    setPromoAtual({ ...promoAtual, texto_promo: promoAtual.texto_ia });
-    toast.success("Texto da IA aplicado à promoção!");
-  };
-
-  const handleDownloadImage = async () => {
-    if (!promoAtual.imagem_ia) return;
-    try {
-      const response = await fetch(promoAtual.imagem_ia);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `imagem_ia_${Date.now()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Erro ao baixar imagem:", error);
-      toast.error("Erro ao baixar imagem");
-    }
-  };
 
 
-  const handleSaveWebhook = async () => {
-    if (!tenant) return;
-    setSaving(true);
-    try {
-      const { data: existing } = await supabase
-        .from("integracoes")
-        .select("id")
-        .eq("tipo", "promocao")
-        .eq("barbearia_id", tenant.id)
-        .maybeSingle();
-      
-      if (existing) {
-        await supabase
-          .from("integracoes")
-          .update({ webhook_url: webhookUrl })
-          .eq("tipo", "promocao")
-          .eq("barbearia_id", tenant.id);
-      } else {
-        await supabase
-          .from("integracoes")
-          .insert({ barbearia_id: tenant.id, webhook_url: webhookUrl, tipo: "promocao" });
-      }
-      
-      toast.success("Webhook salvo!");
-    } catch (error: any) {
-      toast.error("Erro ao salvar webhook: " + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const triggerWebhook = async (tipo: "teste_promo" | "envio_promo") => {
     if (!webhookUrl) {
@@ -499,150 +340,9 @@ function PromocaoPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Gerados por IA */}
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                Gerados por IA
-              </CardTitle>
-              <CardDescription>Utilize inteligência artificial para criar conteúdos para suas promoções.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Parte Texto */}
-                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                  <div className="flex items-center gap-2 font-semibold text-lg">
-                    <Type className="h-5 w-5 text-primary" />
-                    Texto
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="prompt-texto">Prompt para criar texto</Label>
-                    <Textarea
-                      id="prompt-texto"
-                      placeholder="Descreva como você quer o texto da promoção..."
-                      className="min-h-[100px] bg-background"
-                      value={promoAtual.prompt_texto || ""}
-                      onChange={(e) => setPromoAtual({ ...promoAtual, prompt_texto: e.target.value })}
-                    />
-                    <Button 
-                      className="w-full gap-2" 
-                      onClick={handleGerarTexto} 
-                      disabled={saving}
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      Gerar Texto
-                    </Button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Texto gerado pela IA</Label>
-                    <div className="p-3 rounded-md bg-background border min-h-[100px] text-sm whitespace-pre-wrap italic text-muted-foreground mb-2">
-                      {promoAtual.texto_ia || "O texto gerado aparecerá aqui..."}
-                    </div>
-                    {promoAtual.texto_ia && (
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        className="w-full gap-2" 
-                        onClick={handleUseIAText}
-                      >
-                        <Copy className="h-4 w-4" />
-                        Usar texto para promoção
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Parte Imagem */}
-                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
-                  <div className="flex items-center gap-2 font-semibold text-lg">
-                    <ImageIcon className="h-5 w-5 text-primary" />
-                    Imagem
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="formato-imagem">Formato da Imagem</Label>
-                    <Select 
-                      value={formatoExibicao} 
-                      onValueChange={(val) => {
-                        setFormatoExibicao(val);
-                        // Se selecionar um item (que não é o 0), o valor salvo internamente será o da linha 0
-                        const linhaZero = formatosIA.find(f => f.linha === 0);
-                        if (linhaZero) {
-                          setFormatoSelecionado(linhaZero.imagem_formato);
-                        } else {
-                          setFormatoSelecionado(val);
-                        }
-                      }}
-                    >
-                      <SelectTrigger id="formato-imagem" className="bg-background">
-                        <SelectValue placeholder="Clique para selecionar o formato" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {formatosIA.filter(f => f.linha !== 0).map((f) => (
-                          <SelectItem key={f.id} value={f.imagem_formato}>
-                            {f.imagem_formato}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="prompt-imagem">Prompt para criar imagem</Label>
-                    <Textarea
-                      id="prompt-imagem"
-                      placeholder="Descreva como você quer a imagem da promoção..."
-                      className="min-h-[100px] bg-background"
-                      value={promoAtual.prompt_imagem || ""}
-                      onChange={(e) => setPromoAtual({ ...promoAtual, prompt_imagem: e.target.value })}
-                    />
-                    <Button 
-                      className="w-full gap-2" 
-                      onClick={handleGerarImagem} 
-                      disabled={saving}
-                    >
-                      <Wand2 className="h-4 w-4" />
-                      Gerar imagem
-                    </Button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Imagem gerada pela IA</Label>
-                    <div className="relative aspect-video rounded-lg border bg-background flex items-center justify-center overflow-hidden">
-                      {promoAtual.imagem_ia ? (
-                        <img src={promoAtual.imagem_ia} alt="IA Gerada" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="text-center p-4 text-sm text-muted-foreground">
-                          <ImageIcon className="h-8 w-8 mx-auto mb-2 opacity-20" />
-                          A imagem gerada aparecerá aqui
-                        </div>
-                      )}
-                    </div>
-                    
-                    {promoAtual.imagem_ia && (
-                      <div className="mt-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full gap-2" 
-                          onClick={handleDownloadImage}
-                        >
-                          <Download className="h-4 w-4" />
-                          Download
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Cadastro de Promoção */}
-          <Card className="md:row-span-2">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Megaphone className="h-5 w-5 text-primary" />
@@ -757,30 +457,6 @@ function PromocaoPage() {
             </CardContent>
           </Card>
 
-          {/* Configuração de Webhook */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Link2 className="h-5 w-5 text-primary" />
-                URL do Webhook
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="https://exemplo.com/webhook"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                />
-                <Button size="icon" onClick={handleSaveWebhook} disabled={saving}>
-                  <Save className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                URL que receberá os dados da promoção via POST.
-              </p>
-            </CardContent>
-          </Card>
 
           {/* Histórico */}
           <Card className="flex-1 overflow-hidden">
