@@ -49,7 +49,8 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
     const webhookPayload = {
       ...data,
       barbearia_id: currentBarbeariaId,
-      id_barbearia: currentBarbeariaId
+      id_barbearia: currentBarbeariaId,
+      id_barbearia_raw: currentBarbeariaId // Backup key that won't be touched by any logic
     };
 
     const lowercasedData = lowercaseKeys(webhookPayload);
