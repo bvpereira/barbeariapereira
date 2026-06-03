@@ -169,6 +169,7 @@ export function WebhookSettings() {
       tipo: `TESTE_${tipo.toUpperCase()}`,
       barbearia_id: targetBarbeariaId,
       id_barbearia: targetBarbeariaId,
+      ID_BARBEARIA: targetBarbeariaId,
       timestamp: new Date().toISOString(),
       mensagem: "Este é um disparo de teste manual para verificar a configuração do webhook.",
       origem: "Painel de Configurações"
