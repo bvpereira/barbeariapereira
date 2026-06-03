@@ -465,30 +465,6 @@ function PromocaoPage() {
             </CardContent>
           </Card>
 
-          {/* Configuração de Webhook */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Link2 className="h-5 w-5 text-primary" />
-                URL do Webhook
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="https://exemplo.com/webhook"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                />
-                <Button size="icon" onClick={handleSaveWebhook} disabled={saving}>
-                  <Save className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                URL que receberá os dados da promoção via POST.
-              </p>
-            </CardContent>
-          </Card>
 
           {/* Histórico */}
           <Card className="flex-1 overflow-hidden">
