@@ -146,7 +146,13 @@ export function BookingButton({
   };
 
   const fetchFixedClient = async (id: string) => {
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('id', id).single();
+    if (!tenant?.id) return;
+    const { data } = await supabase
+      .from('usuarios')
+      .select('id, nome, login, barbearia_id')
+      .eq('id', id)
+      .eq('barbearia_id', tenant.id)
+      .single();
     if (data) {
       setSelectedCliente(data);
       setSearchCliente(data.nome);
@@ -184,11 +190,22 @@ export function BookingButton({
   const searchClientes = async (term: string) => {
     // Se o cliente já está fixo ou é uma edição, não permite busca/alteração
     if (fixedClientId || initialData?.cliente_id) return;
+    if (!tenant?.id) return;
     
     setSearchCliente(term);
     if (term.length < 2) { setClientes([]); return; }
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('barbearia_id', tenant!.id).eq('nivel', 3).filter('nome', 'ilike', `%${term}%`).limit(5);
-    setClientes(data || []);
+    
+    const { data } = await supabase
+      .from('usuarios')
+      .select('id, nome, login, barbearia_id')
+      .eq('barbearia_id', tenant.id)
+      .eq('nivel', 3)
+      .or(`nome.ilike.%${term}%,login.ilike.%${term}%`)
+      .limit(10);
+      
+    // Filtro adicional no front-end para garantir que apenas clientes desta barbearia apareçam
+    const filteredData = (data || []).filter(c => c.barbearia_id === tenant.id);
+    setClientes(filteredData);
   };
 
   const handleSelectServico = (servicoId: string) => {
