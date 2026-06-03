@@ -276,7 +276,25 @@ function PromocaoPage() {
       toast.error("O texto ultrapassa o limite de 920 caracteres.");
       return;
     }
+    
+    // Salvar texto automaticamente antes de enviar o teste
     setSendingTest(true);
+    try {
+      const { error: saveError } = await supabase
+        .from("promocao")
+        .update({ 
+          texto_promo: promoAtual.texto_promo,
+          testada: "nao"
+        })
+        .eq("numero_promo", 0)
+        .eq("barbearia_id", tenant.id);
+      
+      if (saveError) throw saveError;
+    } catch (error: any) {
+      console.error("Erro ao salvar texto antes do teste:", error);
+      // Continuamos mesmo com erro no salvamento para tentar enviar o teste
+    }
+
     const success = await triggerWebhook("teste_promo");
     if (success) {
       // Update testada to "sim"
@@ -451,10 +469,6 @@ function PromocaoPage() {
                   >
                     <ClipboardPaste className="h-4 w-4" />
                     Colar Texto
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleSaveTexto} disabled={saving}>
-                    <Save className="h-4 w-4" />
-                    Salvar Texto
                   </Button>
                   <Button 
                     variant="destructive" 
