@@ -350,7 +350,7 @@ function PromocaoPage() {
         <div className="grid gap-6 md:grid-cols-2">
 
           {/* Cadastro de Promoção */}
-          <Card className="md:row-span-2">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Megaphone className="h-5 w-5 text-primary" />
