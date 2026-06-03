@@ -40,9 +40,11 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
       }, {});
     };
 
+    const currentBarbeariaId = data.barbearia_id || currentUserBarbeariaId;
     const webhookPayload = {
       ...data,
-      barbearia_id: data.barbearia_id || currentUserBarbeariaId
+      barbearia_id: currentBarbeariaId,
+      id_barbearia: currentBarbeariaId
     };
 
     const lowercasedData = lowercaseKeys(webhookPayload);
