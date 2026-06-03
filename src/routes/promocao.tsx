@@ -139,6 +139,20 @@ function PromocaoPage() {
 
     setUploading(true);
     try {
+      // Deletar imagem anterior se existir
+      if (promoAtual.imagem_promo) {
+        try {
+          const urlParts = promoAtual.imagem_promo.split("/");
+          const fileName = urlParts[urlParts.length - 1];
+          await supabase.storage
+            .from("promocoes")
+            .remove([fileName]);
+          console.log("Imagem anterior removida com sucesso");
+        } catch (err) {
+          console.error("Erro ao remover imagem anterior:", err);
+        }
+      }
+
       const fileName = `promo_${Date.now()}.jpg`;
       const { data, error: uploadError } = await supabase.storage
         .from("promocoes")
@@ -353,37 +367,44 @@ function PromocaoPage() {
               {/* Imagem */}
               <div className="space-y-2">
                 <Label>Imagem da Promoção</Label>
-                <div className="relative aspect-video rounded-lg border-2 border-dashed bg-muted flex flex-col items-center justify-center overflow-hidden">
-                  {promoAtual.imagem_promo ? (
-                    <>
+                <div className="flex flex-col gap-4">
+                  <div className="relative aspect-video rounded-lg border-2 border-dashed bg-muted flex flex-col items-center justify-center overflow-hidden">
+                    {promoAtual.imagem_promo ? (
                       <img src={promoAtual.imagem_promo} alt="Promoção" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <Button size="sm" variant="secondary" onClick={() => fileInputRef.current?.click()}>
-                          Trocar Imagem
-                        </Button>
+                    ) : (
+                      <div className="text-center p-6">
+                        {uploading ? (
+                          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                        ) : (
+                          <>
+                            <ImageIcon className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+                            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                              Fazer Upload
+                            </Button>
+                          </>
+                        )}
                       </div>
-                    </>
-                  ) : (
-                    <div className="text-center p-6">
-                      {uploading ? (
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-                      ) : (
-                        <>
-                          <ImageIcon className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                            Fazer Upload
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                    )}
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      accept="image/*" 
+                      onChange={handleImageUpload} 
+                    />
+                  </div>
+
+                  {promoAtual.imagem_promo && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full gap-2" 
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                      Alterar Imagem
+                    </Button>
                   )}
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    accept="image/*" 
-                    onChange={handleImageUpload} 
-                  />
                 </div>
               </div>
 
