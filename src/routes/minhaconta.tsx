@@ -309,6 +309,7 @@ function MinhaContaPage() {
     if (!infoId) return;
 
     try {
+      const imageUrlToRemove = imagens[index];
       const newImagens = [...imagens];
       newImagens[index] = null;
       setImagens(newImagens);
@@ -322,6 +323,12 @@ function MinhaContaPage() {
         .eq("id", infoId));
 
       if (error) throw error;
+
+      // Deletar do storage após remover do banco
+      if (imageUrlToRemove) {
+        await deleteStorageFile(imageUrlToRemove, "informacoes_imagens");
+      }
+
       toast.success("Imagem removida");
     } catch (error: any) {
       console.error(error);
@@ -344,6 +351,10 @@ function MinhaContaPage() {
       // Remove special characters and spaces from filename to avoid Supabase Storage errors
       const safeFileName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.]/g, "_");
       const fileName = `${user.id}/video_${Date.now()}_${safeFileName}`;
+      
+      // Se já houver um vídeo, vamos deletá-lo após o upload bem-sucedido
+      const oldVideoUrl = videoUrl;
+
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
         .upload(fileName, file);
@@ -355,6 +366,11 @@ function MinhaContaPage() {
         .getPublicUrl(fileName);
 
       setVideoUrl(publicUrl);
+
+      // Deletar o vídeo antigo do storage
+      if (oldVideoUrl) {
+        await deleteStorageFile(oldVideoUrl, "informacoes_imagens");
+      }
 
       const updateObj: any = { video_local: publicUrl, usuario_id: user.id };
       const { data: existingInfo } = await (supabase
@@ -389,6 +405,7 @@ function MinhaContaPage() {
     if (!infoId) return;
 
     try {
+      const oldVideoUrl = videoUrl;
       setVideoUrl(null);
 
       const { error } = await (supabase
@@ -397,6 +414,11 @@ function MinhaContaPage() {
         .eq("id", infoId));
 
       if (error) throw error;
+
+      if (oldVideoUrl) {
+        await deleteStorageFile(oldVideoUrl, "informacoes_imagens");
+      }
+
       toast.success("Vídeo removido");
     } catch (error: any) {
       console.error(error);
@@ -412,6 +434,8 @@ function MinhaContaPage() {
 
     try {
       const fileName = `logos/${user.id}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const oldLogoUrl = imagemLogo;
+
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
         .upload(fileName, file);
@@ -423,6 +447,10 @@ function MinhaContaPage() {
         .getPublicUrl(fileName);
 
       setImagemLogo(publicUrl);
+
+      if (oldLogoUrl) {
+        await deleteStorageFile(oldLogoUrl, "informacoes_imagens");
+      }
 
       const updateObj: any = { imagem_logo: publicUrl, usuario_id: user.id };
       const { data: existingInfo } = await (supabase
@@ -457,6 +485,7 @@ function MinhaContaPage() {
     if (!infoId) return;
 
     try {
+      const oldLogoUrl = imagemLogo;
       setImagemLogo(null);
 
       const { error } = await (supabase
@@ -465,6 +494,11 @@ function MinhaContaPage() {
         .eq("id", infoId));
 
       if (error) throw error;
+
+      if (oldLogoUrl) {
+        await deleteStorageFile(oldLogoUrl, "informacoes_imagens");
+      }
+
       toast.success("Logo removido");
     } catch (error: any) {
       console.error(error);

@@ -128,6 +128,9 @@ function ServicesPage() {
         const fileExt = image.name.split(".").pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${fileName}`;
+        
+        // Se estiver editando e mudar a imagem, guardar a antiga
+        const oldImageUrl = editingService?.image_url;
 
         const { error: uploadError } = await supabase.storage
           .from("service-images")
@@ -140,6 +143,11 @@ function ServicesPage() {
           .getPublicUrl(filePath);
         
         imageUrl = publicUrl;
+
+        // Deletar imagem antiga
+        if (oldImageUrl) {
+          await deleteStorageFile(oldImageUrl, "service-images");
+        }
       }
 
       const serviceData = {
@@ -180,6 +188,12 @@ function ServicesPage() {
     if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
 
     try {
+      // 0. Buscar o serviço para pegar a URL da imagem
+      const { data: service } = await supabase.from("servicos").select("image_url").eq("id", id).single();
+      if (service?.image_url) {
+        await deleteStorageFile(service.image_url, "service-images");
+      }
+
       const { error } = await supabase.from("servicos").delete().eq("id", id);
       if (error) throw error;
       toast.success("Serviço excluído com sucesso!");

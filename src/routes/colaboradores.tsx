@@ -248,6 +248,9 @@ function CollaboratorsPage() {
         const fileExt = foto.name.split(".").pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${fileName}`;
+        
+        // Se estiver editando e mudar a foto, vamos guardar a antiga para deletar
+        const oldFotoUrl = editingCollaborator?.foto_url;
 
         const { error: uploadError } = await supabase.storage
           .from("collaborator-images")
@@ -260,6 +263,11 @@ function CollaboratorsPage() {
           .getPublicUrl(filePath);
         
         fotoUrl = publicUrl;
+
+        // Deletar foto antiga
+        if (oldFotoUrl) {
+          await deleteStorageFile(oldFotoUrl, "collaborator-images");
+        }
       }
 
       const colabData = {
@@ -364,6 +372,11 @@ function CollaboratorsPage() {
     if (!confirm(`Tem certeza que deseja remover ${colab.nome}?`)) return;
 
     try {
+      // 0. Se tiver foto, excluir do storage
+      if (colab.foto_url) {
+        await deleteStorageFile(colab.foto_url, "collaborator-images");
+      }
+
       // 1. Delete from colaborador_servicos explicitly just in case cascade isn't set
       await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colab.id);
 
