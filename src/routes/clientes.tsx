@@ -202,17 +202,19 @@ function ClientesPage() {
   }, [search, limit, tenant, tenantLoading]);
 
   const fetchFormData = async () => {
-    const { data: colabs } = await supabase.from('colaboradores').select('id, nome').order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').order('name');
+    if (!tenant?.id) return;
+    const { data: colabs } = await supabase.from('colaboradores').select('id, nome').eq('barbearia_id', tenant.id).order('nome');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration').eq('barbearia_id', tenant.id).order('name');
     setColaboradores(colabs || []);
     setAllServicos(servs || []);
   };
 
   const fetchBookingSettings = async () => {
-    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('ativo', true).order('data', { ascending: false }).limit(1);
+    if (!tenant?.id) return;
+    const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('userrr', 'admin').maybeSingle();
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('barbearia_id', tenant.id).maybeSingle();
     if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
   };
 
