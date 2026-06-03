@@ -53,12 +53,15 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
       id_barbearia: currentBarbeariaId
     };
 
+    // Ensure they are definitely in there before lowercasing, 
+    // and also reinforce them afterward just in case.
     const lowercasedData = lowercaseKeys(webhookPayload);
     
-    // Safety check: ensure the keys exist even after lowercasing
     if (currentBarbeariaId) {
       lowercasedData.id_barbearia = currentBarbeariaId;
       lowercasedData.barbearia_id = currentBarbeariaId;
+      // Add one more just in case n8n or the receiver expects a specific casing
+      lowercasedData["ID_BARBEARIA"] = currentBarbeariaId;
     }
     console.log("Triggering Webhook:", event, lowercasedData);
 
