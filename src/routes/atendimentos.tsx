@@ -273,8 +273,17 @@ function AtendimentosPage() {
     if (!tenant?.id) return;
     setSearchCliente(term);
     if (term.length < 2) { setClientes([]); return; }
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('barbearia_id', tenant.id).eq('nivel', 3).filter('nome', 'ilike', `%${term}%`).limit(5);
-    setClientes(data || []);
+    const { data } = await supabase
+      .from('usuarios')
+      .select('id, nome, login, barbearia_id')
+      .eq('barbearia_id', tenant.id)
+      .eq('nivel', 3)
+      .or(`nome.ilike.%${term}%,login.ilike.%${term}%`)
+      .limit(10);
+    
+    // Filtro adicional no front-end para garantir segurança absoluta
+    const filteredData = (data || []).filter(c => c.barbearia_id === tenant.id);
+    setClientes(filteredData);
   };
 
   const handleSelectServico = async (servicoId: string) => {
