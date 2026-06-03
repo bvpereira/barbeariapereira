@@ -64,18 +64,11 @@ function PromocaoPage() {
     texto_promo: "",
     imagem_promo: null,
     testada: "nao",
-    prompt_texto: "",
-    prompt_imagem: "",
-    imagem_ia: null,
-    texto_ia: ""
   });
   
   const [webhookUrl, setWebhookUrl] = useState("");
   const [telContato, setTelContato] = useState("");
   const [historico, setHistorico] = useState<any[]>([]);
-  const [formatosIA, setFormatosIA] = useState<any[]>([]);
-  const [formatoExibicao, setFormatoExibicao] = useState("");
-  const [formatoSelecionado, setFormatoSelecionado] = useState("");
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
   const [promoToDelete, setPromoToDelete] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
