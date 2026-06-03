@@ -595,6 +595,7 @@ function AtendimentosPage() {
                 valor: item.valor,
                 comissao: payload.comissao || item.comissao,
                 barbearia_id: tenant.id,
+                id_barbearia: tenant.id,
                 servicos: item.servicos.map(s => s.name)
               };
 
