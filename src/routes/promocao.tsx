@@ -20,6 +20,7 @@ import {
   Calendar,
   Eye,
   Save,
+  ClipboardPaste,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -211,6 +212,21 @@ function PromocaoPage() {
       toast.error("Erro ao salvar texto: " + error.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasteTexto = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setPromoAtual({ ...promoAtual, texto_promo: text, testada: "nao" });
+        toast.success("Texto colado com sucesso!");
+      } else {
+        toast.error("Nenhum texto encontrado na área de transferência.");
+      }
+    } catch (err) {
+      console.error("Erro ao colar texto:", err);
+      toast.error("Erro ao acessar a área de transferência. Verifique as permissões do seu navegador.");
     }
   };
 
@@ -427,6 +443,15 @@ function PromocaoPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-2">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="w-full gap-2 bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100" 
+                    onClick={handlePasteTexto}
+                  >
+                    <ClipboardPaste className="h-4 w-4" />
+                    Colar Texto
+                  </Button>
                   <Button variant="outline" size="sm" className="w-full gap-2" onClick={handleSaveTexto} disabled={saving}>
                     <Save className="h-4 w-4" />
                     Salvar Texto
