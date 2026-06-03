@@ -230,6 +230,7 @@ function Login() {
             tel_contato: telContato,
             barbearia_id: tenant!.id,
             id_barbearia: tenant!.id,
+            ID_BARBEARIA: tenant!.id,
             link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }
         };

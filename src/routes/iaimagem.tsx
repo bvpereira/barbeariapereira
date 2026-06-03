@@ -221,6 +221,8 @@ function IAImagemPage() {
         body: JSON.stringify({
           ...selections,
           barbearia_id: tenant.id,
+          id_barbearia: tenant.id,
+          ID_BARBEARIA: tenant.id,
           timestamp: new Date().toISOString(),
           action: "generate_image"
         }),

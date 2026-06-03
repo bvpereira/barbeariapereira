@@ -87,7 +87,9 @@ function IACodConsumiPage() {
         },
         body: JSON.stringify({ 
           message: userMessage,
-          barbearia_id: tenant?.id 
+          barbearia_id: tenant?.id,
+          id_barbearia: tenant?.id,
+          ID_BARBEARIA: tenant?.id 
         }),
       });
 
