@@ -132,24 +132,6 @@ function PromocaoPage() {
       
       if (history) setHistorico(history);
       
-      // 5. Fetch formatos_ia
-      console.log("Chamando supabase para buscar agentes_ia...");
-      const { data: formats, error: formatsError } = await supabase
-        .from("agentes_ia")
-        .select("id, imagem_formato, linha")
-        .eq("barbearia_id", tenant.id)
-        .order("linha", { ascending: true });
-      
-      if (formatsError) {
-        console.error("Erro detalhado do Supabase ao buscar agentes_ia:", formatsError);
-      }
-
-      if (formats) {
-        console.log("Sucesso ao carregar agentes_ia. Quantidade:", formats.length, "Dados:", formats);
-        setFormatosIA(formats);
-      } else {
-        console.warn("Nenhum dado retornado para agentes_ia (data é null)");
-      }
       
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
