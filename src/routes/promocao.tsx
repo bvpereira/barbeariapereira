@@ -283,7 +283,6 @@ function PromocaoPage() {
           .insert({
             barbearia_id: tenant.id,
             numero_promo: nextNumero,
-            imagem_promo: promoAtual.imagem_promo,
             texto_promo: promoAtual.texto_promo,
             data_promo: new Date().toISOString()
           });
@@ -477,13 +476,6 @@ function PromocaoPage() {
                   <div className="divide-y">
                     {historico.map((item) => (
                       <div key={item.id} className="p-4 hover:bg-muted/50 transition-colors flex items-center gap-4">
-                        <div className="h-12 w-12 rounded overflow-hidden bg-muted flex-shrink-0">
-                          {item.imagem_promo ? (
-                            <img src={item.imagem_promo} className="w-full h-full object-cover" />
-                          ) : (
-                            <ImageIcon className="w-full h-full p-2 text-muted-foreground" />
-                          )}
-                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{item.texto_promo || "Sem texto"}</p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
@@ -563,11 +555,6 @@ function PromocaoPage() {
           </DialogHeader>
           {selectedPromo && (
             <div className="space-y-4">
-              {selectedPromo.imagem_promo && (
-                <div className="aspect-video rounded-lg overflow-hidden border">
-                  <img src={selectedPromo.imagem_promo} className="w-full h-full object-contain bg-black" />
-                </div>
-              )}
               <div className="space-y-2">
                 <Label className="text-muted-foreground">Data do Envio</Label>
                 <p className="text-sm font-medium">
