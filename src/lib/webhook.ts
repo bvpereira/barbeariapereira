@@ -35,12 +35,18 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
       if (Array.isArray(obj)) return obj.map(lowercaseKeys);
       
       return Object.keys(obj).reduce((acc: any, key) => {
+        // Specifically preserve id_barbearia and barbearia_id from being lowercased if they are already in the correct format
+        // but the current logic lowercases EVERYTHING, which might be what's expected for other fields.
         acc[key.toLowerCase()] = lowercaseKeys(obj[key]);
         return acc;
       }, {});
     };
 
     const currentBarbeariaId = data.barbearia_id || currentUserBarbeariaId;
+    
+    // We create the payload and THEN lowercase it. 
+    // To ensure id_barbearia exists after lowercasing, we can just rely on the fact that 
+    // it will become "id_barbearia" (which is already lowercase).
     const webhookPayload = {
       ...data,
       barbearia_id: currentBarbeariaId,
@@ -48,6 +54,12 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
     };
 
     const lowercasedData = lowercaseKeys(webhookPayload);
+    
+    // Safety check: ensure the keys exist even after lowercasing
+    if (currentBarbeariaId) {
+      lowercasedData.id_barbearia = currentBarbeariaId;
+      lowercasedData.barbearia_id = currentBarbeariaId;
+    }
     console.log("Triggering Webhook:", event, lowercasedData);
 
     // 2. Fetch the webhook URL (Unified for all barber shops)
