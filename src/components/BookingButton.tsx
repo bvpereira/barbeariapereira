@@ -187,7 +187,7 @@ export function BookingButton({
     
     setSearchCliente(term);
     if (term.length < 2) { setClientes([]); return; }
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('nivel', 3).or(`nome.ilike.%${term}%,login.ilike.%${term}%`).limit(5);
+    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('barbearia_id', tenant!.id).eq('nivel', 3).filter('nome', 'ilike', `%${term}%`).limit(5);
     setClientes(data || []);
   };
 
