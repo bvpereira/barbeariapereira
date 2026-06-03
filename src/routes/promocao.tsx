@@ -335,11 +335,15 @@ function PromocaoPage() {
     setSendingPromo(true);
     setIsConfirmOpen(false);
     
+    // Armazenar os dados atuais antes de limpar
+    const textoParaHistorico = promoAtual.texto_promo;
+    const imagemParaLimpar = promoAtual.imagem_promo;
+
     const success = await triggerWebhook("envio_promo");
     
     if (success) {
       try {
-        // Save to history
+        // 1. Save to history
         const nextNumero = historico.length > 0 
           ? Math.max(...historico.map(h => h.numero_promo)) + 1 
           : 1;
@@ -349,16 +353,51 @@ function PromocaoPage() {
           .insert({
             barbearia_id: tenant.id,
             numero_promo: nextNumero,
-            texto_promo: promoAtual.texto_promo,
+            texto_promo: textoParaHistorico,
             data_promo: new Date().toISOString()
           });
 
         if (histError) throw histError;
 
-        toast.success("Promoção enviada e salva no histórico!");
+        // 2. Remove image and text from Row 0 in database
+        const { error: clearError } = await supabase
+          .from("promocao")
+          .update({ 
+            texto_promo: "",
+            imagem_promo: null,
+            testada: "nao"
+          })
+          .eq("numero_promo", 0)
+          .eq("barbearia_id", tenant.id);
+
+        if (clearError) throw clearError;
+
+        // 3. Delete image from storage if it exists
+        if (imagemParaLimpar) {
+          try {
+            const urlParts = imagemParaLimpar.split("/");
+            const fileName = urlParts[urlParts.length - 1];
+            await supabase.storage
+              .from("promocoes")
+              .remove([fileName]);
+          } catch (err) {
+            console.error("Erro ao remover imagem do storage:", err);
+          }
+        }
+
+        // 4. Reset local state
+        setPromoAtual({
+          ...promoAtual,
+          texto_promo: "",
+          imagem_promo: null,
+          testada: "nao"
+        });
+
+        toast.success("Promoção enviada e limpa com sucesso!");
         fetchData(); // Refresh history
       } catch (error: any) {
-        toast.error("Erro ao salvar no histórico: " + error.message);
+        console.error("Erro após envio da promoção:", error);
+        toast.error("Erro ao processar limpeza pós-envio: " + error.message);
       }
     }
     
