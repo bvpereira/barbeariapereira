@@ -13,6 +13,20 @@ export const Route = createFileRoute("/minhaconta")({
   component: MinhaContaPage,
 });
 
+// Função auxiliar para deletar arquivos do storage
+const deleteStorageFile = async (url: string | null, bucket: string) => {
+  if (!url) return;
+  try {
+    const urlParts = url.split(`/public/${bucket}/`);
+    if (urlParts.length > 1) {
+      const filePath = urlParts[1];
+      await supabase.storage.from(bucket).remove([filePath]);
+    }
+  } catch (error) {
+    console.error(`Erro ao deletar arquivo do bucket ${bucket}:`, error);
+  }
+};
+
 function MinhaContaPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
