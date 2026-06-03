@@ -210,36 +210,6 @@ function PromocaoPage() {
 
 
 
-  const handleSaveWebhook = async () => {
-    if (!tenant) return;
-    setSaving(true);
-    try {
-      const { data: existing } = await supabase
-        .from("integracoes")
-        .select("id")
-        .eq("tipo", "promocao")
-        .eq("barbearia_id", tenant.id)
-        .maybeSingle();
-      
-      if (existing) {
-        await supabase
-          .from("integracoes")
-          .update({ webhook_url: webhookUrl })
-          .eq("tipo", "promocao")
-          .eq("barbearia_id", tenant.id);
-      } else {
-        await supabase
-          .from("integracoes")
-          .insert({ barbearia_id: tenant.id, webhook_url: webhookUrl, tipo: "promocao" });
-      }
-      
-      toast.success("Webhook salvo!");
-    } catch (error: any) {
-      toast.error("Erro ao salvar webhook: " + error.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const triggerWebhook = async (tipo: "teste_promo" | "envio_promo") => {
     if (!webhookUrl) {
