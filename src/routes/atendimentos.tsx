@@ -273,7 +273,7 @@ function AtendimentosPage() {
     if (!tenant?.id) return;
     setSearchCliente(term);
     if (term.length < 2) { setClientes([]); return; }
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('barbearia_id', tenant.id).eq('nivel', 3).ilike('nome', `%${term}%`).limit(5);
+    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('barbearia_id', tenant.id).eq('nivel', 3).filter('nome', 'ilike', `%${term}%`).limit(5);
     setClientes(data || []);
   };
 
