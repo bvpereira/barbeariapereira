@@ -146,7 +146,13 @@ export function BookingButton({
   };
 
   const fetchFixedClient = async (id: string) => {
-    const { data } = await supabase.from('usuarios').select('id, nome, login').eq('id', id).single();
+    if (!tenant?.id) return;
+    const { data } = await supabase
+      .from('usuarios')
+      .select('id, nome, login, barbearia_id')
+      .eq('id', id)
+      .eq('barbearia_id', tenant.id)
+      .single();
     if (data) {
       setSelectedCliente(data);
       setSearchCliente(data.nome);
