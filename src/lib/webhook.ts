@@ -29,31 +29,37 @@ export async function triggerWebhook(event: WebhookEvent, data: WebhookData & { 
       }
     }
 
-    // Function to lowercase all keys in an object, but KEEP specific keys unchanged
+    // Function to lowercase all keys in an object
     const lowercaseKeys = (obj: any): any => {
       if (typeof obj !== 'object' || obj === null) return obj;
       if (Array.isArray(obj)) return obj.map(lowercaseKeys);
       
-      const preservedKeys = ['id_barbearia', 'barbearia_id'];
-      
       return Object.keys(obj).reduce((acc: any, key) => {
-        const lowerKey = key.toLowerCase();
-        // If the key is one we want to preserve exactly, or its lowercase version is one we want to preserve
-        const targetKey = preservedKeys.includes(key) ? key : lowerKey;
-        acc[targetKey] = lowercaseKeys(obj[key]);
+        // Specifically preserve id_barbearia and barbearia_id from being lowercased if they are already in the correct format
+        // but the current logic lowercases EVERYTHING, which might be what's expected for other fields.
+        acc[key.toLowerCase()] = lowercaseKeys(obj[key]);
         return acc;
       }, {});
     };
 
     const currentBarbeariaId = data.barbearia_id || currentUserBarbeariaId;
+    
+    // We create the payload and THEN lowercase it. 
+    // To ensure id_barbearia exists after lowercasing, we can just rely on the fact that 
+    // it will become "id_barbearia" (which is already lowercase).
     const webhookPayload = {
       ...data,
       barbearia_id: currentBarbeariaId,
-      id_barbearia: currentBarbeariaId,
-      id_barbearia_raw: currentBarbeariaId // Backup key that won't be touched by any logic
+      id_barbearia: currentBarbeariaId
     };
 
     const lowercasedData = lowercaseKeys(webhookPayload);
+    
+    // Safety check: ensure the keys exist even after lowercasing
+    if (currentBarbeariaId) {
+      lowercasedData.id_barbearia = currentBarbeariaId;
+      lowercasedData.barbearia_id = currentBarbeariaId;
+    }
     console.log("Triggering Webhook:", event, lowercasedData);
 
     // 2. Fetch the webhook URL (Unified for all barber shops)
