@@ -465,6 +465,7 @@ export type Database = {
           imagem_8: string | null
           imagem_logo: string | null
           instancia_evo: string | null
+          nome_barbearia: string | null
           tel_contato: string | null
           tempo_excluir: number | null
           tempo_marcar: number | null
@@ -490,6 +491,7 @@ export type Database = {
           imagem_8?: string | null
           imagem_logo?: string | null
           instancia_evo?: string | null
+          nome_barbearia?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null
           tempo_marcar?: number | null
@@ -515,6 +517,7 @@ export type Database = {
           imagem_8?: string | null
           imagem_logo?: string | null
           instancia_evo?: string | null
+          nome_barbearia?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null
           tempo_marcar?: number | null
