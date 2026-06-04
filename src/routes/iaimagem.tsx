@@ -45,6 +45,7 @@ function IAImagemPage() {
   const [numLimiteImagens, setNumLimiteImagens] = useState(0);
   const [lastResetMonth, setLastResetMonth] = useState("");
   const [showLimitAlert, setShowLimitAlert] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -209,7 +210,12 @@ function IAImagemPage() {
       return;
     }
 
+    setShowConfirmModal(true);
+  };
 
+  const confirmGenerate = async () => {
+    if (!tenant) return;
+    setShowConfirmModal(false);
     setSaving(true);
     try {
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -380,6 +386,45 @@ function IAImagemPage() {
           <AlertDialogFooter>
             <AlertDialogAction className="bg-blue-600 hover:bg-blue-700 text-white">
               Entendi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <AlertDialogContent className="bg-white max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">Confirmar Criação de Imagem</AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-600">
+              Revise os parâmetros selecionados antes de gerar a imagem:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4 space-y-3">
+            {fields.map((field) => (
+              <div key={field.key} className="flex flex-col border-b border-gray-50 pb-2 last:border-0">
+                <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">{field.label}</span>
+                <span className="text-sm text-gray-800 break-words">
+                  {field.key === "imagem_imareferencia" && selections[field.key]?.startsWith("http") 
+                    ? "Imagem enviada" 
+                    : (selections[field.key] || "Não preenchido")}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <AlertDialogFooter>
+            <Button variant="ghost" onClick={() => setShowConfirmModal(false)} disabled={saving}>
+              Cancelar
+            </Button>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                confirmGenerate();
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Confirmar e Gerar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
