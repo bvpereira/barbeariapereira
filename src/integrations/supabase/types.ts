@@ -560,7 +560,7 @@ export type Database = {
       }
       integracoes: {
         Row: {
-          barbearia_id: string
+          barbearia_id: string | null
           created_at: string | null
           id: string
           tipo: string | null
@@ -568,7 +568,7 @@ export type Database = {
           webhook_url: string
         }
         Insert: {
-          barbearia_id: string
+          barbearia_id?: string | null
           created_at?: string | null
           id?: string
           tipo?: string | null
@@ -576,7 +576,7 @@ export type Database = {
           webhook_url: string
         }
         Update: {
-          barbearia_id?: string
+          barbearia_id?: string | null
           created_at?: string | null
           id?: string
           tipo?: string | null
