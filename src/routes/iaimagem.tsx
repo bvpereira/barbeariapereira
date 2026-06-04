@@ -499,7 +499,7 @@ function IAImagemPage() {
         {/* Área da Imagem Criada */}
         <Card className="border-blue-100 shadow-md overflow-hidden bg-white">
           <CardHeader className="bg-blue-50/50">
-            <CardTitle className="text-xl flex items-center gap-2">
+            <CardTitle className="text-xl flex items-center gap-2 text-black">
               <ImageIcon className="h-5 w-5 text-blue-600" />
               Última imagem criada pela IA
             </CardTitle>
