@@ -38,6 +38,8 @@ function IAImagemPage() {
     imagem_imareferencia: [],
     imagem_comlogo: [],
     imagem_formato: [],
+    texto_estilo: ["Estilo formal", "Estilo informal"],
+    texto_emoji: ["Com emojis", "Sem emojis"],
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
@@ -55,16 +57,20 @@ function IAImagemPage() {
     imagem_imareferencia: "",
     imagem_comlogo: "",
     imagem_formato: "",
+    texto_estilo: "",
+    texto_emoji: "",
   });
 
   const fields = [
+    { key: "imagem_informacoes", label: "Informações Adicionais" },
     { key: "imagem_objetivo", label: "Objetivo da Imagem" },
     { key: "imagem_campanha", label: "Campanha" },
     { key: "imagem_estilovisual", label: "Estilo Visual" },
-    { key: "imagem_imareferencia", label: "Imagem de Referência" },
-    { key: "imagem_comlogo", label: "Com Logo?" },
     { key: "imagem_formato", label: "Formato de Imagem" },
-    { key: "imagem_informacoes", label: "Informações Adicionais" },
+    { key: "imagem_comlogo", label: "Com Logo?" },
+    { key: "imagem_imareferencia", label: "Imagem de Referência" },
+    { key: "texto_estilo", label: "Estilo de Texto" },
+    { key: "texto_emoji", label: "Uso de emojis" },
   ];
 
   useEffect(() => {
