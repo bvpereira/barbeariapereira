@@ -102,20 +102,6 @@ export function WebhookSettings() {
     setSavingState: (s: boolean) => void,
     successMsg: string
   ) => {
-    let targetBarbeariaId = tenant?.id;
-    
-    if (!targetBarbeariaId) {
-      // Se não houver tenant (estamos na home), buscar a primeira barbearia disponível
-      const { data: barbs } = await supabase.from("barbearias").select("id").limit(1);
-      if (barbs && barbs.length > 0) {
-        targetBarbeariaId = barbs[0].id;
-      }
-    }
-
-    if (!targetBarbeariaId) {
-      toast.error("Nenhuma barbearia encontrada para associar o webhook.");
-      return;
-    }
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
       toast.error("Por favor, insira uma URL de webhook válida.");
@@ -128,12 +114,12 @@ export function WebhookSettings() {
         .from("integracoes")
         .upsert(
           { 
-            barbearia_id: targetBarbeariaId,
+            barbearia_id: null,
             webhook_url: trimmedUrl, 
             tipo: tipo,
             ...(id ? { id } : {}) 
           },
-          { onConflict: 'tipo,barbearia_id' }
+          { onConflict: 'tipo' }
         )
         .select("*")
         .order("created_at", { ascending: false });
