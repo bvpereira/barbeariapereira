@@ -43,6 +43,7 @@ function IAImagemPage() {
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
+  const [createdCaption, setCreatedCaption] = useState<string | null>(null);
   const [numImagensCriadas, setNumImagensCriadas] = useState(0);
   const [numLimiteImagens, setNumLimiteImagens] = useState(0);
   const [lastResetMonth, setLastResetMonth] = useState("");
@@ -92,8 +93,13 @@ function IAImagemPage() {
         },
         (payload) => {
           console.log('Change received!', payload);
-          if (payload.new && (payload.new as any).imagem_criada_ia !== undefined) {
-            setCreatedImageUrl((payload.new as any).imagem_criada_ia);
+          if (payload.new) {
+            if ((payload.new as any).imagem_criada_ia !== undefined) {
+              setCreatedImageUrl((payload.new as any).imagem_criada_ia);
+            }
+            if ((payload.new as any).legenda_criada_ia !== undefined) {
+              setCreatedCaption((payload.new as any).legenda_criada_ia);
+            }
           }
         }
       )
@@ -143,6 +149,7 @@ function IAImagemPage() {
       
       if (selectionData) {
         setCreatedImageUrl(selectionData.imagem_criada_ia || null);
+        setCreatedCaption(selectionData.legenda_criada_ia || null);
         setNumLimiteImagens(selectionData.num_limite_imagens || 0);
         
         const currentMonth = new Date().toISOString().slice(0, 7);
@@ -791,47 +798,71 @@ function IAImagemPage() {
           </CardContent>
         </Card>
 
-        {/* Área da Imagem Criada */}
+        {/* Área das Criações */}
         <Card className="border-blue-100 shadow-md overflow-hidden bg-white">
           <CardHeader className="bg-blue-50/50">
             <CardTitle className="text-xl flex items-center gap-2 text-black">
               <ImageIcon className="h-5 w-5 text-blue-600" />
-              Última imagem criada pela IA
+              Últimas criações feitas pela IA
             </CardTitle>
             <CardDescription>
-              A imagem gerada pela inteligência artificial aparecerá aqui.
+              As criações geradas pela inteligência artificial aparecerão aqui.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center p-6 min-h-[400px]">
-            {createdImageUrl ? (
-              <div className="space-y-4 w-full flex flex-col items-center">
-                <div className="relative group rounded-xl overflow-hidden border-4 border-blue-50 shadow-lg max-w-full">
-                  <img 
-                    src={createdImageUrl} 
-                    alt="Última imagem criada pela IA" 
-                    className="max-h-[600px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
-                </div>
-                <div className="flex gap-4 mt-4">
-                  <Button 
-                    variant="outline" 
-                    className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2"
-                    onClick={handleDownload}
-                  >
-                    <Download className="h-4 w-4" />
-                    Baixar Imagem
-                  </Button>
-                </div>
+          <CardContent className="p-6 min-h-[400px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Coluna da Imagem */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Imagem</h3>
+                {createdImageUrl ? (
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative group rounded-xl overflow-hidden border-4 border-blue-50 shadow-lg w-full">
+                      <img 
+                        src={createdImageUrl} 
+                        alt="Imagem criada pela IA" 
+                        className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2"
+                      onClick={handleDownload}
+                    >
+                      <Download className="h-4 w-4" />
+                      Baixar Imagem
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                    <ImageIcon className="h-12 w-12 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-500">Nenhuma imagem gerada ainda</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="text-center space-y-4">
-                <div className="p-6 bg-gray-100 rounded-full inline-block">
-                  <ImageIcon className="h-16 w-16 text-gray-300" />
-                </div>
+
+              {/* Coluna da Legenda */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Legenda</h3>
+                {createdCaption ? (
+                  <div className="bg-gray-50 rounded-xl border border-blue-50 p-6 shadow-inner min-h-[200px]">
+                    <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                      {createdCaption}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200 h-full min-h-[200px]">
+                    <AlertCircle className="h-12 w-12 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-500">Nenhuma legenda gerada ainda</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {!createdImageUrl && !createdCaption && (
+              <div className="text-center mt-12 space-y-4 w-full">
                 <div className="space-y-2">
-                  <p className="text-lg font-medium text-gray-600">Nenhuma imagem gerada ainda</p>
                   <p className="text-sm text-gray-400 max-w-xs mx-auto">
-                    Preencha todos os campos acima e clique em "Gerar imagem com IA" para criar sua arte.
+                    Preencha todos os campos acima e clique nos botões de gerar para criar seus conteúdos.
                   </p>
                 </div>
               </div>
