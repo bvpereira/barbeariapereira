@@ -177,7 +177,7 @@ function IAImagemPage() {
           imagem_campanha: "",
           imagem_estilovisual: "",
           imagem_informacoes: "",
-          imagem_imareferencia: "Sem imagem de referência",
+          imagem_imareferencia: selectionData.imagem_referencia_ia || "Sem imagem de referência",
           imagem_comlogo: "",
           imagem_formato: "",
           texto_estilo: "",
