@@ -7,9 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Image as ImageIcon, Save, Upload, X, Download } from "lucide-react";
+import { Loader2, Image as ImageIcon, Save, Upload, X, Download, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/iaimagem")({
   component: IAImagemPage,
@@ -35,6 +44,7 @@ function IAImagemPage() {
   const [numImagensCriadas, setNumImagensCriadas] = useState(0);
   const [numLimiteImagens, setNumLimiteImagens] = useState(0);
   const [lastResetMonth, setLastResetMonth] = useState("");
+  const [showLimitAlert, setShowLimitAlert] = useState(false);
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -180,9 +190,7 @@ function IAImagemPage() {
 
     // Verificar limite de imagens
     if (numLimiteImagens > 0 && numImagensCriadas >= numLimiteImagens) {
-      toast.error("Você atingiu o limite de imagens criadas no mês. Este limite será resetado no dia primeiro do próximo mês.", {
-        duration: 5000,
-      });
+      setShowLimitAlert(true);
       return;
     }
 
@@ -356,6 +364,27 @@ function IAImagemPage() {
 
   return (
     <AdminLayout>
+      <AlertDialog open={showLimitAlert} onOpenChange={setShowLimitAlert}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-red-100 rounded-full">
+                <AlertCircle className="h-6 w-6 text-red-600" />
+              </div>
+              <AlertDialogTitle className="text-xl">Limite de Imagens Atingido</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-base text-gray-600">
+              Você atingiu o limite de imagens criadas neste mês. Seu acesso será renovado automaticamente no <strong>dia primeiro do próximo mês</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction className="bg-blue-600 hover:bg-blue-700 text-white">
+              Entendi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
