@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Image as ImageIcon, Save, Upload, X, Download, AlertCircle } from "lucide-react";
+import { Loader2, Image as ImageIcon, Save, Upload, X, Download, AlertCircle, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import {
@@ -411,6 +411,12 @@ function IAImagemPage() {
       console.error("Erro ao baixar a imagem:", error);
       toast.error("Erro ao baixar a imagem.");
     }
+  };
+
+  const handleCopyCaption = () => {
+    if (!createdCaption) return;
+    navigator.clipboard.writeText(createdCaption);
+    toast.success("Legenda copiada com sucesso!");
   };
 
   return (
@@ -844,10 +850,20 @@ function IAImagemPage() {
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Legenda</h3>
                 {createdCaption ? (
-                  <div className="bg-gray-50 rounded-xl border border-blue-50 p-6 shadow-inner min-h-[200px]">
-                    <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
-                      {createdCaption}
-                    </p>
+                  <div className="flex flex-col space-y-4">
+                    <div className="bg-gray-50 rounded-xl border border-blue-50 p-6 shadow-inner min-h-[200px]">
+                      <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                        {createdCaption}
+                      </p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 self-start"
+                      onClick={handleCopyCaption}
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copiar Legenda
+                    </Button>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200 h-full min-h-[200px]">
