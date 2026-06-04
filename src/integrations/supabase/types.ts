@@ -31,6 +31,8 @@ export type Database = {
           linha: number | null
           num_imagens_criadas: number | null
           num_limite_imagens: number | null
+          texto_emoji: string | null
+          texto_estilo: string | null
           updated_at: string
         }
         Insert: {
@@ -49,6 +51,8 @@ export type Database = {
           linha?: number | null
           num_imagens_criadas?: number | null
           num_limite_imagens?: number | null
+          texto_emoji?: string | null
+          texto_estilo?: string | null
           updated_at?: string
         }
         Update: {
@@ -67,6 +71,8 @@ export type Database = {
           linha?: number | null
           num_imagens_criadas?: number | null
           num_limite_imagens?: number | null
+          texto_emoji?: string | null
+          texto_estilo?: string | null
           updated_at?: string
         }
         Relationships: [
