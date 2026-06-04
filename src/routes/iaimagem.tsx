@@ -321,11 +321,17 @@ function IAImagemPage() {
         </div>
 
         <Card className="border-blue-100 shadow-sm">
-          <CardHeader>
-            <CardTitle>Parâmetros de Geração</CardTitle>
-            <CardDescription>
-              Selecione uma opção em cada campo para habilitar a geração da imagem.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div className="space-y-1">
+              <CardTitle>Parâmetros de Geração</CardTitle>
+              <CardDescription>
+                Selecione uma opção em cada campo para habilitar a geração da imagem.
+              </CardDescription>
+            </div>
+            <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
+              <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens este mês</span>
+              <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {loading ? (
