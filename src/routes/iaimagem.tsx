@@ -177,7 +177,7 @@ function IAImagemPage() {
           imagem_campanha: "",
           imagem_estilovisual: "",
           imagem_informacoes: "",
-          imagem_imareferencia: "Sem imagem de referência",
+          imagem_imareferencia: selectionData.imagem_referencia_ia || "Sem imagem de referência",
           imagem_comlogo: "",
           imagem_formato: "",
           texto_estilo: "",
@@ -362,18 +362,18 @@ function IAImagemPage() {
 
   const handleReferenceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !tenant?.id) return;
 
     setUploadingRef(true);
     try {
-      // Nome fixo para sempre sobrepor, como solicitado
-      const fileName = `referencia/imagem_referencia.jpg`;
+      // Nome único por barbearia
+      const fileName = `referencia/${tenant.id}/imagem_referencia.jpg`;
       
-      // Upload para Supabase Storage (usando o balde informacoes_imagens que já existe)
+      // Upload para Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
         .upload(fileName, file, {
-          upsert: true // Importante para sobrepor o arquivo existente
+          upsert: true 
         });
 
       if (uploadError) throw uploadError;
@@ -383,9 +383,16 @@ function IAImagemPage() {
         .from("informacoes_imagens")
         .getPublicUrl(fileName);
 
-      // Adiciona um timestamp para evitar cache do navegador ao exibir a imagem nova
       const finalUrl = `${publicUrl}?t=${Date.now()}`;
       
+      // Salvar a URL na nova coluna da barbearia
+      const { error: dbError } = await supabase
+        .from("agentes_ia")
+        .update({ imagem_referencia_ia: finalUrl })
+        .eq("barbearia_id", tenant.id);
+
+      if (dbError) throw dbError;
+
       setSelections(prev => ({ ...prev, imagem_imareferencia: finalUrl }));
       toast.success("Imagem de referência enviada com sucesso!");
     } catch (error: any) {
