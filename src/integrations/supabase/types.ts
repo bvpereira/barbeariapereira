@@ -27,6 +27,7 @@ export type Database = {
           imagem_imareferencia: string | null
           imagem_informacoes: string | null
           imagem_objetivo: string | null
+          imagem_referencia_ia: string | null
           last_reset_month: string | null
           legenda_criada_ia: string | null
           linha: number | null
@@ -49,6 +50,7 @@ export type Database = {
           imagem_imareferencia?: string | null
           imagem_informacoes?: string | null
           imagem_objetivo?: string | null
+          imagem_referencia_ia?: string | null
           last_reset_month?: string | null
           legenda_criada_ia?: string | null
           linha?: number | null
@@ -71,6 +73,7 @@ export type Database = {
           imagem_imareferencia?: string | null
           imagem_informacoes?: string | null
           imagem_objetivo?: string | null
+          imagem_referencia_ia?: string | null
           last_reset_month?: string | null
           legenda_criada_ia?: string | null
           linha?: number | null
