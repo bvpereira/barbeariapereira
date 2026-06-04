@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Image as ImageIcon, Save, Upload, X } from "lucide-react";
+import { Loader2, Image as ImageIcon, Save, Upload, X, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 
@@ -322,6 +322,25 @@ function IAImagemPage() {
     }
   };
 
+  const handleDownload = async () => {
+    if (!createdImageUrl) return;
+    try {
+      const response = await fetch(createdImageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `imagem_ia_${tenant?.id || "gerada"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar a imagem:", error);
+      toast.error("Erro ao baixar a imagem.");
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto space-y-6">
@@ -482,7 +501,7 @@ function IAImagemPage() {
           <CardHeader className="bg-blue-50/50">
             <CardTitle className="text-xl flex items-center gap-2">
               <ImageIcon className="h-5 w-5 text-blue-600" />
-              Resultado da Geração
+              Última imagem criada pela IA
             </CardTitle>
             <CardDescription>
               A imagem gerada pela inteligência artificial aparecerá aqui.
@@ -494,19 +513,29 @@ function IAImagemPage() {
                 <div className="relative group rounded-xl overflow-hidden border-4 border-blue-50 shadow-lg max-w-full">
                   <img 
                     src={createdImageUrl} 
-                    alt="Imagem Gerada pela IA" 
+                    alt="Última imagem criada pela IA" 
                     className="max-h-[600px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                   />
                 </div>
-                <Button 
-                  asChild 
-                  variant="outline" 
-                  className="mt-4 border-blue-200 text-blue-600 hover:bg-blue-50"
-                >
-                  <a href={createdImageUrl} target="_blank" rel="noopener noreferrer">
-                    Abrir em nova aba
-                  </a>
-                </Button>
+                <div className="flex gap-4 mt-4">
+                  <Button 
+                    variant="outline" 
+                    className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2"
+                    onClick={handleDownload}
+                  >
+                    <Download className="h-4 w-4" />
+                    Baixar Imagem
+                  </Button>
+                  <Button 
+                    asChild 
+                    variant="ghost" 
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <a href={createdImageUrl} target="_blank" rel="noopener noreferrer">
+                      Abrir em nova aba
+                    </a>
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="text-center space-y-4">
