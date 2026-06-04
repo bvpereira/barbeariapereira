@@ -176,6 +176,15 @@ function IAImagemPage() {
 
     setSaving(true);
     try {
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      let newCount = numImagensCriadas + 1;
+      let newResetMonth = lastResetMonth;
+
+      if (lastResetMonth !== currentMonth) {
+        newCount = 1;
+        newResetMonth = currentMonth;
+      }
+
       // 1. Salvar as configurações para a barbearia atual
       const { error: updateError } = await supabase
         .from("agentes_ia")
@@ -187,6 +196,8 @@ function IAImagemPage() {
           imagem_imareferencia: selections.imagem_imareferencia,
           imagem_comlogo: selections.imagem_comlogo,
           imagem_formato: selections.imagem_formato,
+          num_imagens_criadas: newCount,
+          last_reset_month: newResetMonth,
         })
         .eq("barbearia_id", tenant.id);
 
