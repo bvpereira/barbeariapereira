@@ -32,6 +32,8 @@ function IAImagemPage() {
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
+  const [numImagensCriadas, setNumImagensCriadas] = useState(0);
+  const [lastResetMonth, setLastResetMonth] = useState("");
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -122,6 +124,23 @@ function IAImagemPage() {
       
       if (selectionData) {
         setCreatedImageUrl(selectionData.imagem_criada_ia || null);
+        
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        const dbMonth = selectionData.last_reset_month || "";
+        
+        if (dbMonth !== currentMonth && dbMonth !== "") {
+          setNumImagensCriadas(0);
+          setLastResetMonth(currentMonth);
+          // Opcional: atualizar no banco aqui também para ficar sincronizado
+          await supabase
+            .from("agentes_ia")
+            .update({ num_imagens_criadas: 0, last_reset_month: currentMonth })
+            .eq("barbearia_id", tenant.id);
+        } else {
+          setNumImagensCriadas(selectionData.num_imagens_criadas || 0);
+          setLastResetMonth(dbMonth);
+        }
+
         setSelections({
           imagem_objetivo: selectionData.imagem_objetivo || "",
           imagem_campanha: selectionData.imagem_campanha || "",
@@ -172,6 +191,15 @@ function IAImagemPage() {
 
     setSaving(true);
     try {
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      let newCount = numImagensCriadas + 1;
+      let newResetMonth = lastResetMonth;
+
+      if (lastResetMonth !== currentMonth) {
+        newCount = 1;
+        newResetMonth = currentMonth;
+      }
+
       // 1. Salvar as configurações para a barbearia atual
       const { error: updateError } = await supabase
         .from("agentes_ia")
@@ -183,10 +211,16 @@ function IAImagemPage() {
           imagem_imareferencia: selections.imagem_imareferencia,
           imagem_comlogo: selections.imagem_comlogo,
           imagem_formato: selections.imagem_formato,
+          num_imagens_criadas: newCount,
+          last_reset_month: newResetMonth,
         })
         .eq("barbearia_id", tenant.id);
 
       if (updateError) throw updateError;
+
+      // Atualizar estado local do contador
+      setNumImagensCriadas(newCount);
+      setLastResetMonth(newResetMonth);
 
       // 2. Buscar o webhook atualizado diretamente da tabela integracoes
       const { data: webhookData, error: webhookFetchError } = await supabase
@@ -302,11 +336,17 @@ function IAImagemPage() {
         </div>
 
         <Card className="border-blue-100 shadow-sm">
-          <CardHeader>
-            <CardTitle>Parâmetros de Geração</CardTitle>
-            <CardDescription>
-              Selecione uma opção em cada campo para habilitar a geração da imagem.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div className="space-y-1">
+              <CardTitle>Parâmetros de Geração</CardTitle>
+              <CardDescription>
+                Selecione uma opção em cada campo para habilitar a geração da imagem.
+              </CardDescription>
+            </div>
+            <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
+              <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens este mês</span>
+              <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {loading ? (
