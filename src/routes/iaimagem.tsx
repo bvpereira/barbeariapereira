@@ -33,6 +33,7 @@ function IAImagemPage() {
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
   const [numImagensCriadas, setNumImagensCriadas] = useState(0);
+  const [numLimiteImagens, setNumLimiteImagens] = useState(0);
   const [lastResetMonth, setLastResetMonth] = useState("");
 
   const [selections, setSelections] = useState<Record<string, string>>({
@@ -124,6 +125,7 @@ function IAImagemPage() {
       
       if (selectionData) {
         setCreatedImageUrl(selectionData.imagem_criada_ia || null);
+        setNumLimiteImagens(selectionData.num_limite_imagens || 0);
         
         const currentMonth = new Date().toISOString().slice(0, 7);
         const dbMonth = selectionData.last_reset_month || "";
@@ -362,9 +364,15 @@ function IAImagemPage() {
                 Selecione uma opção em cada campo para habilitar a geração da imagem.
               </CardDescription>
             </div>
-            <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
-              <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas este mês</span>
-              <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
+            <div className="flex gap-4">
+              <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas este mês</span>
+                <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
+              </div>
+              <div className="bg-green-50 px-4 py-2 rounded-lg border border-green-100 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Imagens restantes</span>
+                <span className="text-xl font-bold text-green-700">{Math.max(0, numLimiteImagens - numImagensCriadas)}</span>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">

@@ -30,6 +30,7 @@ export type Database = {
           last_reset_month: string | null
           linha: number | null
           num_imagens_criadas: number | null
+          num_limite_imagens: number | null
           prompt_imagem: string | null
           updated_at: string
         }
@@ -48,6 +49,7 @@ export type Database = {
           last_reset_month?: string | null
           linha?: number | null
           num_imagens_criadas?: number | null
+          num_limite_imagens?: number | null
           prompt_imagem?: string | null
           updated_at?: string
         }
@@ -66,6 +68,7 @@ export type Database = {
           last_reset_month?: string | null
           linha?: number | null
           num_imagens_criadas?: number | null
+          num_limite_imagens?: number | null
           prompt_imagem?: string | null
           updated_at?: string
         }
