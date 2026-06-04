@@ -177,6 +177,15 @@ function IAImagemPage() {
 
   const handleGenerate = async () => {
     if (!tenant) return;
+
+    // Verificar limite de imagens
+    if (numLimiteImagens > 0 && numImagensCriadas >= numLimiteImagens) {
+      toast.error("Você atingiu o limite de imagens criadas no mês. Este limite será resetado no dia primeiro do próximo mês.", {
+        duration: 5000,
+      });
+      return;
+    }
+
     const missingFields = fields
       .filter((field) => {
         const val = selections[field.key];
