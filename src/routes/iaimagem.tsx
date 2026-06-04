@@ -314,6 +314,8 @@ function IAImagemPage() {
         imagem_imareferencia: "",
         imagem_comlogo: "",
         imagem_formato: "",
+        texto_estilo: "",
+        texto_emoji: "",
       });
 
     } catch (error: any) {
