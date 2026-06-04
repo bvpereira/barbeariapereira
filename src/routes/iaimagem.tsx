@@ -111,13 +111,11 @@ function IAImagemPage() {
   }, [tenant, tenantLoading]);
 
   const fetchWebhookUrl = async () => {
-    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
-        .eq("barbearia_id", tenant.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -293,12 +291,11 @@ function IAImagemPage() {
       setNumImagensCriadas(newCount);
       setLastResetMonth(newResetMonth);
 
-      // 2. Buscar o webhook atualizado diretamente da tabela integracoes
+      // 2. Buscar o webhook atualizado diretamente da tabela integracoes (removido filtro por barbearia para usar o global)
       const { data: webhookData, error: webhookFetchError } = await supabase
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
-        .eq("barbearia_id", tenant.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
