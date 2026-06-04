@@ -124,8 +124,23 @@ function IAImagemPage() {
       
       if (selectionData) {
         setCreatedImageUrl(selectionData.imagem_criada_ia || null);
-        setNumImagensCriadas(selectionData.num_imagens_criadas || 0);
-        setLastResetMonth(selectionData.last_reset_month || "");
+        
+        const currentMonth = new Date().toISOString().slice(0, 7);
+        const dbMonth = selectionData.last_reset_month || "";
+        
+        if (dbMonth !== currentMonth && dbMonth !== "") {
+          setNumImagensCriadas(0);
+          setLastResetMonth(currentMonth);
+          // Opcional: atualizar no banco aqui também para ficar sincronizado
+          await supabase
+            .from("agentes_ia")
+            .update({ num_imagens_criadas: 0, last_reset_month: currentMonth })
+            .eq("barbearia_id", tenant.id);
+        } else {
+          setNumImagensCriadas(selectionData.num_imagens_criadas || 0);
+          setLastResetMonth(dbMonth);
+        }
+
         setSelections({
           imagem_objetivo: selectionData.imagem_objetivo || "",
           imagem_campanha: selectionData.imagem_campanha || "",
