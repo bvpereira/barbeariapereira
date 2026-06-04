@@ -322,6 +322,25 @@ function IAImagemPage() {
     }
   };
 
+  const handleDownload = async () => {
+    if (!createdImageUrl) return;
+    try {
+      const response = await fetch(createdImageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `imagem_ia_${tenant?.id || "gerada"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao baixar a imagem:", error);
+      toast.error("Erro ao baixar a imagem.");
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto space-y-6">
