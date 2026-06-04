@@ -203,6 +203,10 @@ function IAImagemPage() {
 
       if (updateError) throw updateError;
 
+      // Atualizar estado local do contador
+      setNumImagensCriadas(newCount);
+      setLastResetMonth(newResetMonth);
+
       // 2. Buscar o webhook atualizado diretamente da tabela integracoes
       const { data: webhookData, error: webhookFetchError } = await supabase
         .from("integracoes")
