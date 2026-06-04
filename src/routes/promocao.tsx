@@ -359,11 +359,12 @@ function PromocaoPage() {
 
         if (histError) throw histError;
 
-        // 2. Remove image and text from Row 0 in database
+        // 2. Backup text to auxiliar column and clear text and image from Row 0 in database
         const { error: clearError } = await supabase
           .from("promocao")
           .update({ 
             texto_promo: "",
+            texto_promo_auxiliar: textoParaHistorico,
             imagem_promo: null,
             testada: "nao"
           })
