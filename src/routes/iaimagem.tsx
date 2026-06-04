@@ -111,11 +111,13 @@ function IAImagemPage() {
   }, [tenant, tenantLoading]);
 
   const fetchWebhookUrl = async () => {
+    if (!tenant?.id) return;
     try {
       const { data, error } = await supabase
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
+        .eq("barbearia_id", tenant.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -296,6 +298,7 @@ function IAImagemPage() {
         .from("integracoes")
         .select("webhook_url")
         .eq("tipo", "ia_gerarimagem")
+        .eq("barbearia_id", tenant.id)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
