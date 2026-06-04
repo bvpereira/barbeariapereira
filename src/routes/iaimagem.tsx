@@ -124,6 +124,8 @@ function IAImagemPage() {
       
       if (selectionData) {
         setCreatedImageUrl(selectionData.imagem_criada_ia || null);
+        setNumImagensCriadas(selectionData.num_imagens_criadas || 0);
+        setLastResetMonth(selectionData.last_reset_month || "");
         setSelections({
           imagem_objetivo: selectionData.imagem_objetivo || "",
           imagem_campanha: selectionData.imagem_campanha || "",
