@@ -48,6 +48,7 @@ function IAImagemPage() {
   const [lastResetMonth, setLastResetMonth] = useState("");
   const [showLimitAlert, setShowLimitAlert] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [generationType, setGenerationType] = useState<"ambos" | "imagem" | "legenda">("ambos");
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -196,16 +197,32 @@ function IAImagemPage() {
     }
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (type: "ambos" | "imagem" | "legenda") => {
     if (!tenant) return;
 
-    // Verificar limite de imagens
-    if (numLimiteImagens > 0 && numImagensCriadas >= numLimiteImagens) {
+    // Verificar limite de imagens (apenas para imagem ou ambos)
+    if (type !== "legenda" && numLimiteImagens > 0 && numImagensCriadas >= numLimiteImagens) {
       setShowLimitAlert(true);
       return;
     }
 
+    const subAreas = {
+      dadosCriacao: ["imagem_informacoes", "imagem_objetivo", "imagem_campanha"],
+      visualReferencia: ["imagem_estilovisual", "imagem_formato", "imagem_comlogo", "imagem_imareferencia"],
+      configuracoesTexto: ["texto_estilo", "texto_emoji"]
+    };
+
+    let requiredFields: string[] = [];
+    if (type === "ambos") {
+      requiredFields = [...subAreas.dadosCriacao, ...subAreas.visualReferencia, ...subAreas.configuracoesTexto];
+    } else if (type === "imagem") {
+      requiredFields = [...subAreas.dadosCriacao, ...subAreas.visualReferencia];
+    } else if (type === "legenda") {
+      requiredFields = [...subAreas.dadosCriacao, ...subAreas.configuracoesTexto];
+    }
+
     const missingFields = fields
+      .filter((field) => requiredFields.includes(field.key))
       .filter((field) => {
         const val = selections[field.key];
         if (field.key === "imagem_imareferencia") {
@@ -220,6 +237,7 @@ function IAImagemPage() {
       return;
     }
 
+    setGenerationType(type);
     setShowConfirmModal(true);
   };
 
@@ -229,12 +247,16 @@ function IAImagemPage() {
     setSaving(true);
     try {
       const currentMonth = new Date().toISOString().slice(0, 7);
-      let newCount = numImagensCriadas + 1;
+      let newCount = numImagensCriadas;
       let newResetMonth = lastResetMonth;
 
-      if (lastResetMonth !== currentMonth) {
-        newCount = 1;
-        newResetMonth = currentMonth;
+      // Incrementar se for imagem ou ambos
+      if (generationType !== "legenda") {
+        newCount = numImagensCriadas + 1;
+        if (lastResetMonth !== currentMonth) {
+          newCount = 1;
+          newResetMonth = currentMonth;
+        }
       }
 
       // 1. Salvar as configurações para a barbearia atual
@@ -252,6 +274,7 @@ function IAImagemPage() {
           texto_emoji: selections.texto_emoji,
           num_imagens_criadas: newCount,
           last_reset_month: newResetMonth,
+          oq_criar: generationType,
         })
         .eq("barbearia_id", tenant.id);
 
@@ -297,7 +320,8 @@ function IAImagemPage() {
           id_barbearia: tenant.id,
           ID_BARBEARIA: tenant.id,
           timestamp: new Date().toISOString(),
-          action: "generate_image"
+          action: "generate_image",
+          oq_criar: generationType,
         }),
       });
 
@@ -408,14 +432,25 @@ function IAImagemPage() {
       <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
         <AlertDialogContent className="bg-white max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl text-gray-900">Confirmar Criação de Imagem</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl text-gray-900">
+              Confirmar Criação de {generationType === "ambos" ? "Imagem e Legenda" : generationType === "imagem" ? "Apenas Imagem" : "Apenas Legenda"}
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-base text-gray-600">
-              Revise os parâmetros selecionados antes de gerar a imagem:
+              Revise os parâmetros selecionados antes de gerar:
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <div className="py-4 space-y-3">
-            {fields.map((field) => (
+            {fields.filter(f => {
+              const subAreas = {
+                dadosCriacao: ["imagem_informacoes", "imagem_objetivo", "imagem_campanha"],
+                visualReferencia: ["imagem_estilovisual", "imagem_formato", "imagem_comlogo", "imagem_imareferencia"],
+                configuracoesTexto: ["texto_estilo", "texto_emoji"]
+              };
+              if (generationType === "imagem") return [...subAreas.dadosCriacao, ...subAreas.visualReferencia].includes(f.key);
+              if (generationType === "legenda") return [...subAreas.dadosCriacao, ...subAreas.configuracoesTexto].includes(f.key);
+              return true;
+            }).map((field) => (
               <div key={field.key} className="flex flex-col border-b border-gray-50 pb-2 last:border-0">
                 <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">{field.label}</span>
                 <span className="text-sm text-gray-800 break-words">
@@ -711,18 +746,46 @@ function IAImagemPage() {
               </div>
             )}
 
-            <div className="pt-4 border-t border-blue-50 flex justify-end">
+            <div className="pt-4 border-t border-blue-50 flex flex-wrap gap-4 justify-end">
               <Button
-                onClick={handleGenerate}
+                onClick={() => handleGenerate("legenda")}
                 disabled={saving}
-                className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 px-6"
+                variant="outline"
+                className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 h-11 px-6"
               >
-                {saving ? (
+                {saving && generationType === "legenda" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                Gerar imagem com IA
+                Gerar apenas legenda
+              </Button>
+
+              <Button
+                onClick={() => handleGenerate("imagem")}
+                disabled={saving}
+                variant="outline"
+                className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 h-11 px-6"
+              >
+                {saving && generationType === "imagem" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                Gerar apenas imagem
+              </Button>
+
+              <Button
+                onClick={() => handleGenerate("ambos")}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 px-6"
+              >
+                {saving && generationType === "ambos" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                Gerar imagem e legenda com IA
               </Button>
             </div>
           </CardContent>
