@@ -394,7 +394,7 @@ function IAImagemPage() {
       <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
         <AlertDialogContent className="bg-white max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl">Confirmar Criação de Imagem</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl text-gray-900">Confirmar Criação de Imagem</AlertDialogTitle>
             <AlertDialogDescription className="text-base text-gray-600">
               Revise os parâmetros selecionados antes de gerar a imagem:
             </AlertDialogDescription>
@@ -414,7 +414,12 @@ function IAImagemPage() {
           </div>
 
           <AlertDialogFooter>
-            <Button variant="ghost" onClick={() => setShowConfirmModal(false)} disabled={saving}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowConfirmModal(false)} 
+              disabled={saving}
+              className="border-gray-200 text-gray-700 hover:bg-gray-100"
+            >
               Cancelar
             </Button>
             <AlertDialogAction 
