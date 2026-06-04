@@ -248,6 +248,8 @@ function IAImagemPage() {
           imagem_imareferencia: selections.imagem_imareferencia,
           imagem_comlogo: selections.imagem_comlogo,
           imagem_formato: selections.imagem_formato,
+          texto_estilo: selections.texto_estilo,
+          texto_emoji: selections.texto_emoji,
           num_imagens_criadas: newCount,
           last_reset_month: newResetMonth,
         })
