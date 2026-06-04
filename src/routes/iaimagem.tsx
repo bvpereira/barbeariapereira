@@ -696,7 +696,7 @@ function IAImagemPage() {
                                   variant="destructive"
                                   size="icon"
                                   className="absolute top-2 right-2 h-8 w-8"
-                                  onClick={() => setSelections(prev => ({ ...prev, imagem_imareferencia: "Sem imagem de referência" }))}
+                                  onClick={() => setSelections(prev => ({ ...prev, imagem_imareferencia: "" }))}
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
