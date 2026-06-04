@@ -32,6 +32,8 @@ function IAImagemPage() {
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
+  const [numImagensCriadas, setNumImagensCriadas] = useState(0);
+  const [lastResetMonth, setLastResetMonth] = useState("");
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
