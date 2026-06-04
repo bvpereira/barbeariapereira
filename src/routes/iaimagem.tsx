@@ -486,26 +486,125 @@ function IAImagemPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {fields.map((field) => (
-                  <div key={field.key} className={`space-y-2 ${field.key === "imagem_informacoes" ? "md:col-span-2" : ""}`}>
-                    <label className="text-sm font-medium text-gray-700">{field.label}</label>
-                    {field.key === "imagem_informacoes" ? (
+              <div className="space-y-8">
+                {/* Primeira sub-área: Dados para criação */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Dados para criação</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Informações Adicionais (Full width) */}
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-sm font-medium text-gray-700">Informações Adicionais</label>
                       <Textarea
-                        value={selections[field.key]}
-                        onChange={(e) => setSelections(prev => ({ ...prev, [field.key]: e.target.value }))}
-                        placeholder={`Digite ${field.label.toLowerCase()}...`}
+                        value={selections.imagem_informacoes}
+                        onChange={(e) => setSelections(prev => ({ ...prev, imagem_informacoes: e.target.value }))}
+                        placeholder="Digite informações adicionais..."
                         className="w-full bg-white border-blue-50 focus:ring-blue-500 min-h-[100px] text-black"
                       />
-                    ) : field.key === "imagem_imareferencia" ? (
+                    </div>
+                    {/* Objetivo da Imagem */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Objetivo da Imagem</label>
+                      <Select
+                        value={selections.imagem_objetivo}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_objetivo: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione objetivo da imagem..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_objetivo.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Campanha */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Campanha</label>
+                      <Select
+                        value={selections.imagem_campanha}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_campanha: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione campanha..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_campanha.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Segunda sub-área */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Visual e Referência</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Estilo Visual */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Estilo visual</label>
+                      <Select
+                        value={selections.imagem_estilovisual}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_estilovisual: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione estilo visual..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_estilovisual.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Formato de Imagem */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Formato de Imagem</label>
+                      <Select
+                        value={selections.imagem_formato}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_formato: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione formato de imagem..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_formato.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Com Logo? */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com logo?</label>
+                      <Select
+                        value={selections.imagem_comlogo}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_comlogo: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com logo?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_comlogo.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Imagem de Referência */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Imagem de Referência</label>
                       <div className="space-y-3">
                         <Select
-                          value={selections[field.key]?.startsWith("http") ? "Upar imagem de referência" : selections[field.key]}
+                          value={selections.imagem_imareferencia?.startsWith("http") ? "Upar imagem de referência" : selections.imagem_imareferencia}
                           onValueChange={(val) => {
-                            setSelections(prev => ({ ...prev, [field.key]: val }));
+                            setSelections(prev => ({ ...prev, imagem_imareferencia: val }));
                           }}
                         >
                           <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
-                            <SelectValue placeholder={`Selecione ${field.label.toLowerCase()}...`} />
+                            <SelectValue placeholder="Selecione imagem de referência..." />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Sem imagem de referência">Sem imagem de referência</SelectItem>
@@ -513,12 +612,12 @@ function IAImagemPage() {
                           </SelectContent>
                         </Select>
 
-                        {(selections[field.key]?.startsWith("http") || selections[field.key] === "Upar imagem de referência") && (
+                        {(selections.imagem_imareferencia?.startsWith("http") || selections.imagem_imareferencia === "Upar imagem de referência") && (
                           <div className="p-4 border-2 border-dashed border-blue-100 rounded-lg bg-blue-50/30 space-y-3">
-                            {selections[field.key]?.startsWith("http") ? (
+                            {selections.imagem_imareferencia?.startsWith("http") ? (
                               <div className="relative w-full aspect-video rounded-md overflow-hidden bg-gray-100 border border-blue-100">
                                 <img 
-                                  src={selections[field.key]} 
+                                  src={selections.imagem_imareferencia} 
                                   alt="Referência" 
                                   className="w-full h-full object-contain"
                                 />
@@ -526,7 +625,7 @@ function IAImagemPage() {
                                   variant="destructive"
                                   size="icon"
                                   className="absolute top-2 right-2 h-8 w-8"
-                                  onClick={() => setSelections(prev => ({ ...prev, [field.key]: "Sem imagem de referência" }))}
+                                  onClick={() => setSelections(prev => ({ ...prev, imagem_imareferencia: "Sem imagem de referência" }))}
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
@@ -564,30 +663,51 @@ function IAImagemPage() {
                           </div>
                         )}
                       </div>
-                    ) : (
+                    </div>
+                  </div>
+                </div>
+
+                {/* Terceira sub-área: Estilo de Texto e Emojis */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Configurações de Texto</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Estilo de Texto */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Estilo de Texto</label>
                       <Select
-                        value={selections[field.key]}
-                        onValueChange={(val) => setSelections(prev => ({ ...prev, [field.key]: val }))}
+                        value={selections.texto_estilo}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_estilo: val }))}
                       >
                         <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
-                          <SelectValue placeholder={`Selecione ${field.label.toLowerCase()}...`} />
+                          <SelectValue placeholder="Selecione estilo de texto..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options[field.key].map((opt) => (
-                            <SelectItem key={opt} value={opt}>
-                              {opt}
-                            </SelectItem>
+                          {options.texto_estilo.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
-                          {options[field.key].length === 0 && (
-                            <div className="p-2 text-sm text-muted-foreground text-center">
-                              Nenhuma opção encontrada
-                            </div>
-                          )}
                         </SelectContent>
                       </Select>
-                    )}
+                    </div>
+                    {/* Uso de emojis */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Uso de emojis</label>
+                      <Select
+                        value={selections.texto_emoji}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_emoji: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione uso de emojis..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_emoji.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                ))}
+                </div>
+              </div>
               </div>
             )}
 
