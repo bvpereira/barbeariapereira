@@ -143,14 +143,16 @@ function IAImagemPage() {
           setLastResetMonth(dbMonth);
         }
 
+        // Não preenchemos os campos com os valores do banco ao carregar a página
+        // para garantir que eles comecem vazios como solicitado pelo usuário.
         setSelections({
-          imagem_objetivo: selectionData.imagem_objetivo || "",
-          imagem_campanha: selectionData.imagem_campanha || "",
-          imagem_estilovisual: selectionData.imagem_estilovisual || "",
-          imagem_informacoes: selectionData.imagem_informacoes || "",
-          imagem_imareferencia: selectionData.imagem_imareferencia || "Sem imagem de referência",
-          imagem_comlogo: selectionData.imagem_comlogo || "",
-          imagem_formato: selectionData.imagem_formato || "",
+          imagem_objetivo: "",
+          imagem_campanha: "",
+          imagem_estilovisual: "",
+          imagem_informacoes: "",
+          imagem_imareferencia: "Sem imagem de referência",
+          imagem_comlogo: "",
+          imagem_formato: "",
         });
       }
 
