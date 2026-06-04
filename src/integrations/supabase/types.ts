@@ -28,6 +28,7 @@ export type Database = {
           imagem_informacoes: string | null
           imagem_objetivo: string | null
           last_reset_month: string | null
+          legenda_criada_ia: string | null
           linha: number | null
           num_imagens_criadas: number | null
           num_limite_imagens: number | null
@@ -49,6 +50,7 @@ export type Database = {
           imagem_informacoes?: string | null
           imagem_objetivo?: string | null
           last_reset_month?: string | null
+          legenda_criada_ia?: string | null
           linha?: number | null
           num_imagens_criadas?: number | null
           num_limite_imagens?: number | null
@@ -70,6 +72,7 @@ export type Database = {
           imagem_informacoes?: string | null
           imagem_objetivo?: string | null
           last_reset_month?: string | null
+          legenda_criada_ia?: string | null
           linha?: number | null
           num_imagens_criadas?: number | null
           num_limite_imagens?: number | null
