@@ -31,6 +31,7 @@ export type Database = {
           linha: number | null
           num_imagens_criadas: number | null
           num_limite_imagens: number | null
+          oq_criar: string | null
           texto_emoji: string | null
           texto_estilo: string | null
           updated_at: string
@@ -51,6 +52,7 @@ export type Database = {
           linha?: number | null
           num_imagens_criadas?: number | null
           num_limite_imagens?: number | null
+          oq_criar?: string | null
           texto_emoji?: string | null
           texto_estilo?: string | null
           updated_at?: string
@@ -71,6 +73,7 @@ export type Database = {
           linha?: number | null
           num_imagens_criadas?: number | null
           num_limite_imagens?: number | null
+          oq_criar?: string | null
           texto_emoji?: string | null
           texto_estilo?: string | null
           updated_at?: string
