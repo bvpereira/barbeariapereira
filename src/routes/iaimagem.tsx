@@ -30,6 +30,8 @@ function IAImagemPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingRef, setUploadingRef] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadedImageUrlRef = useRef<string | null>(null);
+  const isGenerationConfirmedRef = useRef(false);
   const [options, setOptions] = useState<Record<string, string[]>>({
     imagem_objetivo: [],
     imagem_campanha: [],
@@ -107,6 +109,18 @@ function IAImagemPage() {
 
     return () => {
       supabase.removeChannel(channel);
+      
+      // Limpeza da imagem de referência se não foi confirmada a geração
+      if (!isGenerationConfirmedRef.current && uploadedImageUrlRef.current && tenant?.id) {
+        console.log("Limpando imagem de referência não utilizada do banco de dados...");
+        supabase
+          .from("agentes_ia")
+          .update({ imagem_referencia_ia: null })
+          .eq("barbearia_id", tenant.id)
+          .then(({ error }) => {
+            if (error) console.error("Erro ao limpar imagem de referência:", error);
+          });
+      }
     };
   }, [tenant, tenantLoading]);
 
@@ -175,7 +189,7 @@ function IAImagemPage() {
           imagem_campanha: "",
           imagem_estilovisual: "",
           imagem_informacoes: "",
-          imagem_imareferencia: selectionData.imagem_referencia_ia || "Sem imagem de referência",
+          imagem_imareferencia: "",
           imagem_comlogo: "",
           imagem_formato: "",
           texto_estilo: "",
@@ -252,6 +266,7 @@ function IAImagemPage() {
     if (!tenant) return;
     setShowConfirmModal(false);
     setSaving(true);
+    isGenerationConfirmedRef.current = true;
     try {
       const currentMonth = new Date().toISOString().slice(0, 7);
       let newCount = numImagensCriadas;
@@ -391,6 +406,7 @@ function IAImagemPage() {
       if (dbError) throw dbError;
 
       setSelections(prev => ({ ...prev, imagem_imareferencia: finalUrl }));
+      uploadedImageUrlRef.current = finalUrl;
       toast.success("Imagem de referência enviada com sucesso!");
     } catch (error: any) {
       console.error("Erro ao enviar imagem:", error);
@@ -680,7 +696,7 @@ function IAImagemPage() {
                                   variant="destructive"
                                   size="icon"
                                   className="absolute top-2 right-2 h-8 w-8"
-                                  onClick={() => setSelections(prev => ({ ...prev, imagem_imareferencia: "Sem imagem de referência" }))}
+                                  onClick={() => setSelections(prev => ({ ...prev, imagem_imareferencia: "" }))}
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
