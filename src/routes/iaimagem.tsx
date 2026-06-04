@@ -170,6 +170,8 @@ function IAImagemPage() {
           imagem_imareferencia: "Sem imagem de referência",
           imagem_comlogo: "",
           imagem_formato: "",
+          texto_estilo: "",
+          texto_emoji: "",
         });
       }
 
@@ -181,6 +183,8 @@ function IAImagemPage() {
         imagem_imareferencia: [],
         imagem_comlogo: ["Com logo", "Sem logo"],
         imagem_formato: ["Quadrado (1:1)", "Vertical (4:5)", "Story (9:16)", "Horizontal (16:9)"],
+        texto_estilo: ["Estilo formal", "Estilo informal"],
+        texto_emoji: ["Com emojis", "Sem emojis"],
       };
 
       setOptions(newOptions);
