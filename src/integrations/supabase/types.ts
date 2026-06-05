@@ -596,6 +596,65 @@ export type Database = {
           },
         ]
       }
+      mensagens: {
+        Row: {
+          barbearia_id: string | null
+          created_at: string
+          id: string
+          msg_wpp_cliente_avisofinal_10: string | null
+          msg_wpp_cliente_eve_alterado_05: string | null
+          msg_wpp_cliente_eve_cancelado_06: string | null
+          msg_wpp_cliente_eve_criado_04: string | null
+          msg_wpp_cliente_finalizado_07: string | null
+          msg_wpp_cliente_naocompareceu_08: string | null
+          msg_wpp_colab_avisofinal_09: string | null
+          msg_wpp_colab_eve_alterado_02: string | null
+          msg_wpp_colab_eve_cancelado_03: string | null
+          msg_wpp_colab_eve_criado_01: string | null
+          updated_at: string
+        }
+        Insert: {
+          barbearia_id?: string | null
+          created_at?: string
+          id?: string
+          msg_wpp_cliente_avisofinal_10?: string | null
+          msg_wpp_cliente_eve_alterado_05?: string | null
+          msg_wpp_cliente_eve_cancelado_06?: string | null
+          msg_wpp_cliente_eve_criado_04?: string | null
+          msg_wpp_cliente_finalizado_07?: string | null
+          msg_wpp_cliente_naocompareceu_08?: string | null
+          msg_wpp_colab_avisofinal_09?: string | null
+          msg_wpp_colab_eve_alterado_02?: string | null
+          msg_wpp_colab_eve_cancelado_03?: string | null
+          msg_wpp_colab_eve_criado_01?: string | null
+          updated_at?: string
+        }
+        Update: {
+          barbearia_id?: string | null
+          created_at?: string
+          id?: string
+          msg_wpp_cliente_avisofinal_10?: string | null
+          msg_wpp_cliente_eve_alterado_05?: string | null
+          msg_wpp_cliente_eve_cancelado_06?: string | null
+          msg_wpp_cliente_eve_criado_04?: string | null
+          msg_wpp_cliente_finalizado_07?: string | null
+          msg_wpp_cliente_naocompareceu_08?: string | null
+          msg_wpp_colab_avisofinal_09?: string | null
+          msg_wpp_colab_eve_alterado_02?: string | null
+          msg_wpp_colab_eve_cancelado_03?: string | null
+          msg_wpp_colab_eve_criado_01?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: true
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       promocao: {
         Row: {
           barbearia_id: string
