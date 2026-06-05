@@ -1,0 +1,1 @@
+ALTER TABLE public.mensagens ADD COLUMN msg_wpp_cliente_lembrete_11 TEXT;
