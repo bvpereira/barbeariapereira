@@ -33,6 +33,8 @@ import {
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { migrateImages } from "@/lib/migrate-images.functions";
+import { verifyMigration } from "@/lib/verify-migration.functions";
+
 
 
 
