@@ -129,6 +129,8 @@ function CollaboratorsPage() {
     setSalarioFixo("");
     setFoto(null);
     setFotoPreview(null);
+    setPortfolioImages([null, null, null, null, null, null]);
+    setPortfolioPreviews([null, null, null, null, null, null]);
     setSelectedServices([]);
     setAtivo(true);
     setEditingCollaborator(null);
