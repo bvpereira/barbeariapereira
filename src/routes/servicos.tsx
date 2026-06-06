@@ -169,7 +169,6 @@ function ServicesPage() {
     try {
       let currentServiceId = editingService?.id;
 
-      // Se for novo serviço, precisamos criar primeiro para ter o ID
       if (!editingService) {
         const { data, error: insertError } = await supabase
           .from("servicos")
@@ -187,13 +186,14 @@ function ServicesPage() {
         currentServiceId = data.id;
       }
 
-      // Agora tratamos os uploads com o ID do serviço
+      if (!currentServiceId) throw new Error("ID do serviço não encontrado");
+
       let mainUrl = imagePreview;
       if (image) {
         if (editingService?.image_url) {
           await deleteByPublicUrl("service-images", editingService.image_url);
         }
-        mainUrl = await uploadImage("service-images", tenant.id, currentServiceId!, "main", image);
+        mainUrl = await uploadImage("service-images", tenant.id, currentServiceId, "main", image);
       }
 
       const extraUrls = [...extraPreviews];
