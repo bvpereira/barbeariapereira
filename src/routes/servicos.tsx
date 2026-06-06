@@ -203,7 +203,7 @@ function ServicesPage() {
           if (oldUrl) {
             await deleteByPublicUrl("service-images", oldUrl);
           }
-          extraUrls[i] = await uploadImage("service-images", tenant.id, currentServiceId!, (i + 2).toString(), extraImages[i]!);
+          extraUrls[i] = await uploadImage("service-images", tenant.id, currentServiceId, (i + 2).toString(), extraImages[i]!);
         }
       }
 
