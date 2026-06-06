@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
-import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical, Image as ImageIcon } from "lucide-react";
 import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export const Route = createFileRoute("/colaborador")({
   component: ColaboradorPage,
@@ -41,6 +54,7 @@ function ColaboradorPage() {
   const [historico, setHistorico] = useState<any[]>([]);
   const [futuros, setFuturos] = useState<any[]>([]);
   const [pedidosExclusao, setPedidosExclusao] = useState<any[]>([]);
+  const [colaboradorCompleto, setColaboradorCompleto] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [loadingFuturos, setLoadingFuturos] = useState(false);
@@ -51,13 +65,14 @@ function ColaboradorPage() {
   const [hasMore, setHasMore] = useState(true);
   const [hasMoreFuturos, setHasMoreFuturos] = useState(true);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [showPortfolio, setShowPortfolio] = useState(false);
   const itemsPerPage = 10;
 
   const fetchColaboradorId = async (login: string) => {
     try {
       const { data, error } = await supabase
         .from('colaboradores')
-        .select('id')
+        .select('*')
         .eq('login', login)
         .maybeSingle();
       
@@ -65,6 +80,7 @@ function ColaboradorPage() {
 
       if (data) {
         setColabId(data.id);
+        setColaboradorCompleto(data);
         return data.id;
       }
       setLoading(false);
@@ -350,20 +366,27 @@ function ColaboradorPage() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="md:col-span-2 bg-primary/5 border-primary/20">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-primary" />
-                Novo Agendamento
+                Ações Rápidas
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="mb-4 text-muted-foreground">Agende um novo serviço para um cliente.</p>
+            <CardContent className="flex flex-wrap gap-4">
               <BookingButton 
                 fixedColaboradorId={colabId!} 
                 onSuccess={() => fetchAgendamentos(colabId!)}
-                className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
                 variant="default"
               />
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => setShowPortfolio(true)}
+              >
+                <ImageIcon className="w-4 h-4" />
+                Ver Portfólio
+              </Button>
             </CardContent>
           </Card>
 
@@ -746,6 +769,74 @@ function ColaboradorPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          <Dialog open={showPortfolio} onOpenChange={setShowPortfolio}>
+            <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                <DialogTitle>Portfólio de {user.nome}</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4">
+                {colaboradorCompleto?.image_url && (
+                  <div className="mb-8">
+                    <h3 className="text-sm font-medium mb-2 text-muted-foreground uppercase tracking-wider">Foto Principal</h3>
+                    <div className="aspect-square w-48 mx-auto overflow-hidden rounded-xl border-2 border-primary/10">
+                      <img 
+                        src={colaboradorCompleto.image_url} 
+                        alt={user.nome} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Fotos do Portfólio</h3>
+                {(() => {
+                  const extraImages = [
+                    colaboradorCompleto?.extra_image_1,
+                    colaboradorCompleto?.extra_image_2,
+                    colaboradorCompleto?.extra_image_3,
+                    colaboradorCompleto?.extra_image_4,
+                    colaboradorCompleto?.extra_image_5,
+                    colaboradorCompleto?.extra_image_6
+                  ].filter(Boolean);
+
+                  if (extraImages.length === 0) {
+                    return (
+                      <div className="text-center py-12 border-2 border-dashed rounded-xl bg-muted/50">
+                        <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-2 opacity-20" />
+                        <p className="text-muted-foreground">Nenhuma imagem extra cadastrada no portfólio.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="px-12">
+                      <Carousel className="w-full">
+                        <CarouselContent>
+                          {extraImages.map((img, idx) => (
+                            <CarouselItem key={idx}>
+                              <div className="aspect-video relative overflow-hidden rounded-xl shadow-lg border bg-black/5">
+                                <img 
+                                  src={img} 
+                                  alt={`Portfólio ${idx + 1}`} 
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </Carousel>
+                      <p className="text-center text-xs text-muted-foreground mt-4 italic">
+                        Deslize para ver mais imagens ({extraImages.length} fotos)
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
