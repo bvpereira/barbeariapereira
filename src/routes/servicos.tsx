@@ -139,12 +139,13 @@ function ServicesPage() {
   const removeExtraImage = async (index: number) => {
     const oldUrl = extraPreviews[index];
     if (oldUrl && !extraImages[index]) {
-      // Se já estava salvo no banco (não é apenas preview de upload pendente)
       if (confirm("Deseja remover esta imagem permanentemente?")) {
         await deleteByPublicUrl("service-images", oldUrl);
         if (editingService) {
-          const colName = `image_url_${index + 2}` as keyof Service;
-          await supabase.from("servicos").update({ [colName]: null }).eq("id", editingService.id);
+          const colName = `image_url_${index + 2}`;
+          const updateData: any = {};
+          updateData[colName] = null;
+          await supabase.from("servicos").update(updateData).eq("id", editingService.id);
         }
       } else {
         return;
