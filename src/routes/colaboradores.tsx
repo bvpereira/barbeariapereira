@@ -533,14 +533,33 @@ function CollaboratorsPage() {
 
               {/* Status toggle removed from here as requested, now on the card */}
 
-              <div className="space-y-2">
-                <Label>Foto (Quadrada 1:1)</Label>
-                <Input type="file" accept="image/*" onChange={handleFotoChange} />
-                {fotoPreview && (
-                  <div className="mt-2 flex justify-center">
-                    <img src={fotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-border" />
-                  </div>
-                )}
+              <div className="space-y-4">
+                <Label>Portfólio (até 6 imagens)</Label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  {portfolioPreviews.map((preview, index) => (
+                    <div key={index} className="relative aspect-square border-2 border-dashed border-border rounded-lg overflow-hidden group">
+                      {preview ? (
+                        <>
+                          <img src={preview} alt={`Portfolio ${index + 2}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                            <label className="cursor-pointer p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                              <Upload className="w-3 h-3 text-white" />
+                              <input type="file" className="hidden" accept="image/*" onChange={(e) => handlePortfolioImageChange(index, e)} />
+                            </label>
+                            <button type="button" onClick={() => removePortfolioImage(index)} className="p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <label className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                          <Plus className="w-5 h-5 text-muted-foreground" />
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handlePortfolioImageChange(index, e)} />
+                        </label>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-4">
