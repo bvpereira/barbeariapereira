@@ -4,7 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -17,7 +17,8 @@ import {
   Clock, 
   AlertTriangle,
   ArrowRight,
-  UserPlus
+  UserPlus,
+  RefreshCw
 } from "lucide-react";
 import { 
   format, 
@@ -31,6 +32,8 @@ import {
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { migrateImages } from "@/lib/migrate-images.functions";
+
 
 
 export const Route = createFileRoute("/admin")({
@@ -472,6 +475,36 @@ function AdminPage() {
           </Card>
         </div>
 
+        <Card className="border-dashed border-primary/50 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Manutenção de Sistema
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground mb-4">
+              Reorganizar arquivos de imagens para a nova estrutura de pastas por barbearia e serviço/colaborador.
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={async () => {
+                if (confirm("Deseja iniciar a migração das imagens para a nova estrutura? Isso moverá os arquivos no storage.")) {
+                  const res = await migrateImages();
+                  if (res.success) {
+                    toast.success("Migração concluída com sucesso!");
+                    console.log("Resultados da migração:", res.results);
+                  } else {
+                    toast.error("Erro na migração: " + res.error);
+                  }
+                }
+              }}
+            >
+              Migrar Imagens para Nova Estrutura
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );

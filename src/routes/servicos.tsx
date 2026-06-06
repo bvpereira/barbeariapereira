@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Clock, DollarSign } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, DollarSign, X, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
+import { deleteByPublicUrl, uploadImage } from "@/lib/storage";
 import {
   Dialog,
   DialogContent,
@@ -27,22 +28,12 @@ interface Service {
   price: number;
   duration: number;
   image_url: string | null;
+  image_url_2: string | null;
+  image_url_3: string | null;
+  image_url_4: string | null;
+  image_url_5: string | null;
   detalhes: string | null;
 }
-
-// Função auxiliar para deletar arquivos do storage
-const deleteStorageFile = async (url: string | null, bucket: string) => {
-  if (!url) return;
-  try {
-    const urlParts = url.split(`/public/${bucket}/`);
-    if (urlParts.length > 1) {
-      const filePath = urlParts[1];
-      await supabase.storage.from(bucket).remove([filePath]);
-    }
-  } catch (error) {
-    console.error(`Erro ao deletar arquivo do bucket ${bucket}:`, error);
-  }
-};
 
 function ServicesPage() {
   const { tenant, loading: tenantLoading } = useTenant();
@@ -59,6 +50,10 @@ function ServicesPage() {
   const [detalhes, setDetalhes] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  // Imagens adicionais
+  const [extraImages, setExtraImages] = useState<(File | null)[]>([null, null, null, null]);
+  const [extraPreviews, setExtraPreviews] = useState<(string | null)[]>([null, null, null, null]);
 
   useEffect(() => {
     if (!tenantLoading && tenant) {
@@ -91,6 +86,8 @@ function ServicesPage() {
     setDetalhes("");
     setImage(null);
     setImagePreview(null);
+    setExtraImages([null, null, null, null]);
+    setExtraPreviews([null, null, null, null]);
     setEditingService(null);
   };
 
@@ -101,6 +98,12 @@ function ServicesPage() {
     setDuration(service.duration.toString());
     setDetalhes(service.detalhes || "");
     setImagePreview(service.image_url);
+    setExtraPreviews([
+      service.image_url_2,
+      service.image_url_3,
+      service.image_url_4,
+      service.image_url_5,
+    ]);
     setIsDialogOpen(true);
   };
 
@@ -116,64 +119,114 @@ function ServicesPage() {
     }
   };
 
+  const handleExtraImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const newImages = [...extraImages];
+      newImages[index] = file;
+      setExtraImages(newImages);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newPreviews = [...extraPreviews];
+        newPreviews[index] = reader.result as string;
+        setExtraPreviews(newPreviews);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeExtraImage = async (index: number) => {
+    const oldUrl = extraPreviews[index];
+    if (oldUrl && !extraImages[index]) {
+      if (confirm("Deseja remover esta imagem permanentemente?")) {
+        await deleteByPublicUrl("service-images", oldUrl);
+        if (editingService) {
+          const colName = `image_url_${index + 2}`;
+          const updateData: any = {};
+          updateData[colName] = null;
+          await supabase.from("servicos").update(updateData).eq("id", editingService.id);
+        }
+      } else {
+        return;
+      }
+    }
+
+    const newImages = [...extraImages];
+    newImages[index] = null;
+    setExtraImages(newImages);
+
+    const newPreviews = [...extraPreviews];
+    newPreviews[index] = null;
+    setExtraPreviews(newPreviews);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenant) return;
     setIsSubmitting(true);
 
     try {
-      let imageUrl = imagePreview;
+      let currentServiceId = editingService?.id;
 
+      if (!editingService) {
+        const { data, error: insertError } = await supabase
+          .from("servicos")
+          .insert([{
+            barbearia_id: tenant.id,
+            name,
+            price: parseFloat(price),
+            duration: parseInt(duration),
+            detalhes,
+          }])
+          .select()
+          .single();
+        
+        if (insertError) throw insertError;
+        currentServiceId = data.id;
+      }
+
+      if (!currentServiceId) throw new Error("ID do serviço não encontrado");
+
+      let mainUrl = imagePreview;
       if (image) {
-        const fileExt = image.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        
-        // Se estiver editando e mudar a imagem, guardar a antiga
-        const oldImageUrl = editingService?.image_url;
+        if (editingService?.image_url) {
+          await deleteByPublicUrl("service-images", editingService.image_url);
+        }
+        mainUrl = await uploadImage("service-images", tenant.id, currentServiceId, "main", image);
+      }
 
-        const { error: uploadError } = await supabase.storage
-          .from("service-images")
-          .upload(filePath, image);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("service-images")
-          .getPublicUrl(filePath);
-        
-        imageUrl = publicUrl;
-
-        // Deletar imagem antiga
-        if (oldImageUrl) {
-          await deleteStorageFile(oldImageUrl, "service-images");
+      const extraUrls = [...extraPreviews];
+      for (let i = 0; i < extraImages.length; i++) {
+        if (extraImages[i]) {
+          const oldUrl = extraPreviews[i];
+          if (oldUrl) {
+            await deleteByPublicUrl("service-images", oldUrl);
+          }
+          extraUrls[i] = await uploadImage("service-images", tenant.id, currentServiceId, (i + 2).toString(), extraImages[i]!);
         }
       }
 
       const serviceData = {
-        barbearia_id: tenant.id,
         name,
         price: parseFloat(price),
         duration: parseInt(duration),
-        image_url: imageUrl,
         detalhes,
+        image_url: mainUrl,
+        image_url_2: extraUrls[0],
+        image_url_3: extraUrls[1],
+        image_url_4: extraUrls[2],
+        image_url_5: extraUrls[3],
       };
 
-      if (editingService) {
-        const { error } = await supabase
-          .from("servicos")
-          .update(serviceData)
-          .eq("id", editingService.id);
-        if (error) throw error;
-        toast.success("Serviço atualizado com sucesso!");
-      } else {
-        const { error } = await supabase
-          .from("servicos")
-          .insert([serviceData]);
-        if (error) throw error;
-        toast.success("Serviço criado com sucesso!");
-      }
+      const { error: updateError } = await supabase
+        .from("servicos")
+        .update(serviceData)
+        .eq("id", currentServiceId);
+      
+      if (updateError) throw updateError;
 
+      toast.success(editingService ? "Serviço atualizado!" : "Serviço criado!");
       setIsDialogOpen(false);
       resetForm();
       fetchServices();
@@ -188,10 +241,18 @@ function ServicesPage() {
     if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
 
     try {
-      // 0. Buscar o serviço para pegar a URL da imagem
-      const { data: service } = await supabase.from("servicos").select("image_url").eq("id", id).single();
-      if (service?.image_url) {
-        await deleteStorageFile(service.image_url, "service-images");
+      const { data: service } = await supabase
+        .from("servicos")
+        .select("image_url, image_url_2, image_url_3, image_url_4, image_url_5")
+        .eq("id", id)
+        .single();
+      
+      if (service) {
+        await deleteByPublicUrl("service-images", service.image_url);
+        await deleteByPublicUrl("service-images", service.image_url_2);
+        await deleteByPublicUrl("service-images", service.image_url_3);
+        await deleteByPublicUrl("service-images", service.image_url_4);
+        await deleteByPublicUrl("service-images", service.image_url_5);
       }
 
       const { error } = await supabase.from("servicos").delete().eq("id", id);
@@ -287,9 +348,39 @@ function ServicesPage() {
                     </div>
                   )}
                 </div>
+                <div className="space-y-2">
+                  <Label>Imagens adicionais (até 4)</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {extraPreviews.map((preview, index) => (
+                      <div key={index} className="relative aspect-square border-2 border-dashed border-border rounded-lg overflow-hidden group">
+                        {preview ? (
+                          <>
+                            <img src={preview} alt={`Extra ${index + 2}`} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <label className="cursor-pointer p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                                <Upload className="w-4 h-4 text-white" />
+                                <input type="file" className="hidden" accept="image/*" onChange={(e) => handleExtraImageChange(index, e)} />
+                              </label>
+                              <button type="button" onClick={() => removeExtraImage(index)} className="p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                                <X className="w-4 h-4 text-white" />
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                            <Plus className="w-6 h-6 text-muted-foreground" />
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleExtraImageChange(index, e)} />
+                          </label>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Salvando..." : (editingService ? "Atualizar" : "Salvar")}
                 </Button>
+
               </form>
             </DialogContent>
           </Dialog>

@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, User, Phone, Lock, DollarSign, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, User, Phone, Lock, DollarSign, FileText, X, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
+import { deleteByPublicUrl, uploadImage } from "@/lib/storage";
 import {
   Dialog,
   DialogContent,
@@ -42,23 +43,15 @@ interface Collaborator {
   senha: string;
   salario_fixo: number | null;
   foto_url: string | null;
+  foto_url_2: string | null;
+  foto_url_3: string | null;
+  foto_url_4: string | null;
+  foto_url_5: string | null;
+  foto_url_6: string | null;
+  foto_url_7: string | null;
   ativo: boolean;
   colaborador_servicos?: (CollaboratorService & { servicos: { name: string } })[];
 }
-
-// Função auxiliar para deletar arquivos do storage
-const deleteStorageFile = async (url: string | null, bucket: string) => {
-  if (!url) return;
-  try {
-    const urlParts = url.split(`/public/${bucket}/`);
-    if (urlParts.length > 1) {
-      const filePath = urlParts[1];
-      await supabase.storage.from(bucket).remove([filePath]);
-    }
-  } catch (error) {
-    console.error(`Erro ao deletar arquivo do bucket ${bucket}:`, error);
-  }
-};
 
 function CollaboratorsPage() {
   const { tenant, loading: tenantLoading } = useTenant();
@@ -77,6 +70,11 @@ function CollaboratorsPage() {
   const [salarioFixo, setSalarioFixo] = useState("");
   const [foto, setFoto] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  
+  // Portfólio (Imagens adicionais)
+  const [portfolioImages, setPortfolioImages] = useState<(File | null)[]>([null, null, null, null, null, null]);
+  const [portfolioPreviews, setPortfolioPreviews] = useState<(string | null)[]>([null, null, null, null, null, null]);
+  
   const [selectedServices, setSelectedServices] = useState<CollaboratorService[]>([]);
   const [ativo, setAtivo] = useState(true);
 
@@ -131,6 +129,8 @@ function CollaboratorsPage() {
     setSalarioFixo("");
     setFoto(null);
     setFotoPreview(null);
+    setPortfolioImages([null, null, null, null, null, null]);
+    setPortfolioPreviews([null, null, null, null, null, null]);
     setSelectedServices([]);
     setAtivo(true);
     setEditingCollaborator(null);
@@ -144,6 +144,14 @@ function CollaboratorsPage() {
     setSenha(colab.senha);
     setSalarioFixo(colab.salario_fixo?.toString() || "");
     setFotoPreview(colab.foto_url);
+    setPortfolioPreviews([
+      colab.foto_url_2,
+      colab.foto_url_3,
+      colab.foto_url_4,
+      colab.foto_url_5,
+      colab.foto_url_6,
+      colab.foto_url_7,
+    ]);
     setAtivo(colab.ativo);
     
     const services = colab.colaborador_servicos?.map(s => ({
@@ -210,6 +218,48 @@ function CollaboratorsPage() {
     }));
   };
 
+  const handlePortfolioImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const newImages = [...portfolioImages];
+      newImages[index] = file;
+      setPortfolioImages(newImages);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newPreviews = [...portfolioPreviews];
+        newPreviews[index] = reader.result as string;
+        setPortfolioPreviews(newPreviews);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePortfolioImage = async (index: number) => {
+    const oldUrl = portfolioPreviews[index];
+    if (oldUrl && !portfolioImages[index]) {
+      if (confirm("Deseja remover esta imagem do portfólio permanentemente?")) {
+        await deleteByPublicUrl("collaborator-images", oldUrl);
+        if (editingCollaborator) {
+          const colName = `foto_url_${index + 2}`;
+          const updateData: any = {};
+          updateData[colName] = null;
+          await supabase.from("colaboradores").update(updateData).eq("id", editingCollaborator.id);
+        }
+      } else {
+        return;
+      }
+    }
+
+    const newImages = [...portfolioImages];
+    newImages[index] = null;
+    setPortfolioImages(newImages);
+
+    const newPreviews = [...portfolioPreviews];
+    newPreviews[index] = null;
+    setPortfolioPreviews(newPreviews);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenant) return;
@@ -228,7 +278,6 @@ function CollaboratorsPage() {
     }
 
     try {
-      // 1. Verificações de Login Único dentro da mesma barbearia (apenas para novos ou se mudar o login)
       if (!editingCollaborator || cleanLogin !== editingCollaborator.login.replace(/\D/g, "")) {
         const { data: existingUser } = await supabase
           .from("usuarios")
@@ -242,73 +291,9 @@ function CollaboratorsPage() {
         }
       }
 
-      let fotoUrl = fotoPreview;
-
-      if (foto) {
-        const fileExt = foto.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        
-        // Se estiver editando e mudar a foto, vamos guardar a antiga para deletar
-        const oldFotoUrl = editingCollaborator?.foto_url;
-
-        const { error: uploadError } = await supabase.storage
-          .from("collaborator-images")
-          .upload(filePath, foto);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("collaborator-images")
-          .getPublicUrl(filePath);
-        
-        fotoUrl = publicUrl;
-
-        // Deletar foto antiga
-        if (oldFotoUrl) {
-          await deleteStorageFile(oldFotoUrl, "collaborator-images");
-        }
-      }
-
-      const colabData = {
-        barbearia_id: tenant.id,
-        nome,
-        resumo,
-        login: cleanLogin,
-        senha,
-        salario_fixo: parseFloat(salarioFixo) || 0,
-        foto_url: fotoUrl,
-        ativo: ativo,
-      };
-
       let colabId = editingCollaborator?.id;
 
-      if (editingCollaborator && colabId) {
-        // Update collaborator
-        const { error } = await supabase
-          .from("colaboradores")
-          .update(colabData)
-          .eq("id", colabId);
-        if (error) throw error;
-
-        // Update user in 'usuarios' table
-        const { error: userError } = await supabase
-          .from("usuarios")
-          .update({ 
-            nome, 
-            login: cleanLogin, 
-            senha,
-            nivel: ativo ? 2 : 10 // 2 if active, 10 if inactive (prevents login)
-          })
-          .eq("login", editingCollaborator.login);
-        if (userError) throw userError;
-
-        // Clear existing services to re-insert
-        if (colabId) {
-          await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
-        }
-      } else {
-        // Create user in 'usuarios' table FIRST
+      if (!editingCollaborator) {
         const { error: userError } = await supabase
           .from("usuarios")
           .insert([{ 
@@ -325,23 +310,90 @@ function CollaboratorsPage() {
           throw userError;
         }
 
-        // Create collaborator
+        const initialColabData = {
+          barbearia_id: tenant.id,
+          nome,
+          resumo,
+          login: cleanLogin,
+          senha,
+          salario_fixo: parseFloat(salarioFixo) || 0,
+          ativo: ativo,
+        };
+
         const { data, error: colabError } = await supabase
           .from("colaboradores")
-          .insert([colabData])
+          .insert([initialColabData])
           .select()
           .maybeSingle();
         
         if (colabError || !data) {
-          // Se der erro ao criar colaborador, tentamos remover o usuário criado para manter consistência
           await supabase.from("usuarios").delete().eq("login", cleanLogin);
           throw colabError || new Error("Erro ao criar colaborador");
         }
         colabId = data.id;
       }
 
-      // Insert services
-      if (colabId && selectedServices.length > 0) {
+      if (!colabId) throw new Error("ID do colaborador não encontrado");
+
+      let fotoUrl = fotoPreview;
+      if (foto) {
+        if (editingCollaborator?.foto_url) {
+          await deleteByPublicUrl("collaborator-images", editingCollaborator.foto_url);
+        }
+        fotoUrl = await uploadImage("collaborator-images", tenant.id, colabId, "main", foto);
+      }
+
+      const portfolioUrls = [...portfolioPreviews];
+      for (let i = 0; i < portfolioImages.length; i++) {
+        if (portfolioImages[i]) {
+          const oldUrl = portfolioPreviews[i];
+          if (oldUrl) {
+            await deleteByPublicUrl("collaborator-images", oldUrl);
+          }
+          portfolioUrls[i] = await uploadImage("collaborator-images", tenant.id, colabId, (i + 2).toString(), portfolioImages[i]!);
+        }
+      }
+
+      const colabData = {
+        barbearia_id: tenant.id,
+        nome,
+        resumo,
+        login: cleanLogin,
+        senha,
+        salario_fixo: parseFloat(salarioFixo) || 0,
+        foto_url: fotoUrl,
+        foto_url_2: portfolioUrls[0],
+        foto_url_3: portfolioUrls[1],
+        foto_url_4: portfolioUrls[2],
+        foto_url_5: portfolioUrls[3],
+        foto_url_6: portfolioUrls[4],
+        foto_url_7: portfolioUrls[5],
+        ativo: ativo,
+      };
+
+      const { error: updateError } = await supabase
+        .from("colaboradores")
+        .update(colabData)
+        .eq("id", colabId);
+      
+      if (updateError) throw updateError;
+
+      if (editingCollaborator) {
+        const { error: userError } = await supabase
+          .from("usuarios")
+          .update({ 
+            nome, 
+            login: cleanLogin, 
+            senha,
+            nivel: ativo ? 2 : 10
+          })
+          .eq("login", editingCollaborator.login);
+        if (userError) throw userError;
+
+        await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
+      }
+
+      if (selectedServices.length > 0) {
         const servicesToInsert = selectedServices.map(s => ({
           barbearia_id: tenant.id,
           colaborador_id: colabId as string,
@@ -372,19 +424,19 @@ function CollaboratorsPage() {
     if (!confirm(`Tem certeza que deseja remover ${colab.nome}?`)) return;
 
     try {
-      // 0. Se tiver foto, excluir do storage
-      if (colab.foto_url) {
-        await deleteStorageFile(colab.foto_url, "collaborator-images");
-      }
+      await deleteByPublicUrl("collaborator-images", colab.foto_url);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_2);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_3);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_4);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_5);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_6);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_7);
 
-      // 1. Delete from colaborador_servicos explicitly just in case cascade isn't set
       await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colab.id);
 
-      // 2. Delete from colaboradores
       const { error } = await supabase.from("colaboradores").delete().eq("id", colab.id);
       if (error) throw error;
 
-      // 3. Delete from usuarios
       const { error: userError } = await supabase.from("usuarios").delete().eq("login", colab.login);
       if (userError) throw userError;
 
@@ -482,13 +534,41 @@ function CollaboratorsPage() {
               {/* Status toggle removed from here as requested, now on the card */}
 
               <div className="space-y-2">
-                <Label>Foto (Quadrada 1:1)</Label>
+                <Label>Foto Principal (Quadrada 1:1)</Label>
                 <Input type="file" accept="image/*" onChange={handleFotoChange} />
                 {fotoPreview && (
                   <div className="mt-2 flex justify-center">
                     <img src={fotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-border" />
                   </div>
                 )}
+              </div>
+              <div className="space-y-4">
+                <Label>Portfólio (até 6 imagens)</Label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                  {portfolioPreviews.map((preview, index) => (
+                    <div key={index} className="relative aspect-square border-2 border-dashed border-border rounded-lg overflow-hidden group">
+                      {preview ? (
+                        <>
+                          <img src={preview} alt={`Portfolio ${index + 2}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                            <label className="cursor-pointer p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                              <Upload className="w-3 h-3 text-white" />
+                              <input type="file" className="hidden" accept="image/*" onChange={(e) => handlePortfolioImageChange(index, e)} />
+                            </label>
+                            <button type="button" onClick={() => removePortfolioImage(index)} className="p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <label className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                          <Plus className="w-5 h-5 text-muted-foreground" />
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handlePortfolioImageChange(index, e)} />
+                        </label>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-4">
