@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
-import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save, Image as ImageIcon } from "lucide-react";
 import { format, parseISO, addMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,8 +44,12 @@ function ClientePage() {
   const [user, setUser] = useState<any>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [historico, setHistorico] = useState<any[]>([]);
+  const [servicos, setServicos] = useState<any[]>([]);
+  const [equipe, setEquipe] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingHistorico, setLoadingHistorico] = useState(true);
+  const [loadingServicos, setLoadingServicos] = useState(true);
+  const [loadingEquipe, setLoadingEquipe] = useState(true);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPromocaoEnabled, setIsPromocaoEnabled] = useState(true);
@@ -91,6 +96,36 @@ function ClientePage() {
     
     setHistorico(data || []);
     setLoadingHistorico(false);
+  }, []);
+
+  const fetchServicos = useCallback(async (tenantId: string) => {
+    setLoadingServicos(true);
+    const { data } = await supabase
+      .from('servicos')
+      .select('*')
+      .eq('barbearia_id', tenantId)
+      .order('name', { ascending: true });
+    
+    setServicos(data || []);
+    setLoadingServicos(false);
+  }, []);
+
+  const fetchEquipe = useCallback(async (tenantId: string) => {
+    setLoadingEquipe(true);
+    const { data } = await supabase
+      .from('colaboradores')
+      .select(`
+        *,
+        colaborador_servicos(
+          servicos(name)
+        )
+      `)
+      .eq('barbearia_id', tenantId)
+      .eq('ativo', true)
+      .order('nome', { ascending: true });
+    
+    setEquipe(data || []);
+    setLoadingEquipe(false);
   }, []);
 
   const fetchUserPromocao = useCallback(async (userId: string) => {
@@ -148,8 +183,12 @@ function ClientePage() {
       fetchHistorico(parsedUser.id);
       fetchUserPromocao(parsedUser.id);
       fetchTempoExcluir();
+      if (tenant?.id) {
+        fetchServicos(tenant.id);
+        fetchEquipe(tenant.id);
+      }
     }
-  }, [fetchAgendamentos, fetchHistorico, fetchUserPromocao, fetchTempoExcluir, tenant, tenantLoading, navigate]);
+  }, [fetchAgendamentos, fetchHistorico, fetchUserPromocao, fetchTempoExcluir, fetchServicos, fetchEquipe, tenant, tenantLoading, navigate]);
 
   const handlePromocaoToggle = async (checked: boolean) => {
     if (!user) return;
@@ -433,6 +472,199 @@ function ClientePage() {
                           </Button>
                         </div>
                       </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section: Nossos Serviços */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Scissors className="w-5 h-5 text-primary" />
+                Nossos Serviços
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingServicos ? (
+                <p className="text-center py-4 text-muted-foreground">Carregando...</p>
+              ) : servicos.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                  Nenhum serviço cadastrado.
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {servicos.map((servico) => (
+                    <Card key={servico.id} className="bg-card hover:bg-accent/5 transition-colors border-border overflow-hidden">
+                      <div className="flex h-full">
+                        <div className="w-32 h-auto flex-shrink-0 bg-muted relative">
+                          {servico.image_url ? (
+                            <img 
+                              src={servico.image_url} 
+                              alt={servico.name} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Scissors className="w-8 h-8 text-muted-foreground/20" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 p-4 flex flex-col justify-between">
+                          <div>
+                            <div className="flex justify-between items-start mb-1">
+                              <h3 className="font-bold text-lg leading-tight">{servico.name}</h3>
+                              <span className="font-bold text-primary whitespace-nowrap ml-2">
+                                R$ {Number(servico.price).toFixed(2).replace(".", ",")}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                              {servico.detalhes || "Sem descrição disponível."}
+                            </p>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              {servico.duration} min
+                            </div>
+                          </div>
+                          
+                          {(servico.image_url_2 || servico.image_url_3 || servico.image_url_4 || servico.image_url_5) && (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className="mt-2 w-fit h-7 text-xs gap-1 self-end text-primary hover:text-primary hover:bg-primary/10">
+                                  <ImageIcon className="w-3 h-3" />
+                                  Ver Fotos
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-black/95 border-none">
+                                <DialogHeader className="p-4 bg-background/50 backdrop-blur-sm absolute top-0 w-full z-10">
+                                  <DialogTitle className="text-white">Fotos: {servico.name}</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex items-center justify-center min-h-[400px]">
+                                  <Carousel className="w-full max-w-md mx-auto">
+                                    <CarouselContent>
+                                      {[servico.image_url, servico.image_url_2, servico.image_url_3, servico.image_url_4, servico.image_url_5]
+                                        .filter(Boolean)
+                                        .map((url, idx) => (
+                                          <CarouselItem key={idx}>
+                                            <div className="aspect-square relative overflow-hidden flex items-center justify-center">
+                                              <img 
+                                                src={url} 
+                                                alt={`${servico.name} - foto ${idx + 1}`}
+                                                className="max-w-full max-h-full object-contain"
+                                              />
+                                            </div>
+                                          </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="left-4 bg-white/20 hover:bg-white/40 border-none text-white" />
+                                    <CarouselNext className="right-4 bg-white/20 hover:bg-white/40 border-none text-white" />
+                                  </Carousel>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section: Nossa Equipe */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5 text-primary" />
+                Nossa Equipe
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingEquipe ? (
+                <p className="text-center py-4 text-muted-foreground">Carregando...</p>
+              ) : equipe.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                  Nenhum colaborador disponível no momento.
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {equipe.map((colab) => (
+                    <Card key={colab.id} className="bg-card hover:bg-accent/5 transition-colors border-border overflow-hidden">
+                      <div className="flex h-full">
+                        <div className="w-32 h-auto flex-shrink-0 bg-muted relative">
+                          {colab.foto_url ? (
+                            <img 
+                              src={colab.foto_url} 
+                              alt={colab.nome} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <User className="w-8 h-8 text-muted-foreground/20" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 p-4 flex flex-col justify-between">
+                          <div>
+                            <h3 className="font-bold text-lg leading-tight mb-1">{colab.nome}</h3>
+                            <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                              {colab.resumo || "Profissional dedicado ao melhor atendimento."}
+                            </p>
+                            {colab.colaborador_servicos?.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {colab.colaborador_servicos.slice(0, 3).map((cs: any, idx: number) => (
+                                  <Badge key={idx} variant="secondary" className="text-[10px] h-4 py-0 px-1">
+                                    {cs.servicos?.name}
+                                  </Badge>
+                                ))}
+                                {colab.colaborador_servicos.length > 3 && (
+                                  <span className="text-[10px] text-muted-foreground">+{colab.colaborador_servicos.length - 3}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {(colab.foto_url_2 || colab.foto_url_3 || colab.foto_url_4 || colab.foto_url_5 || colab.foto_url_6 || colab.foto_url_7) && (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className="mt-2 w-fit h-7 text-xs gap-1 self-end text-primary hover:text-primary hover:bg-primary/10">
+                                  <ImageIcon className="w-3 h-3" />
+                                  Portfólio
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-black/95 border-none">
+                                <DialogHeader className="p-4 bg-background/50 backdrop-blur-sm absolute top-0 w-full z-10">
+                                  <DialogTitle className="text-white">Portfólio: {colab.nome}</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex items-center justify-center min-h-[400px]">
+                                  <Carousel className="w-full max-w-md mx-auto">
+                                    <CarouselContent>
+                                      {[colab.foto_url, colab.foto_url_2, colab.foto_url_3, colab.foto_url_4, colab.foto_url_5, colab.foto_url_6, colab.foto_url_7]
+                                        .filter(Boolean)
+                                        .map((url, idx) => (
+                                          <CarouselItem key={idx}>
+                                            <div className="aspect-square relative overflow-hidden flex items-center justify-center">
+                                              <img 
+                                                src={url} 
+                                                alt={`${colab.nome} - portfólio ${idx + 1}`}
+                                                className="max-w-full max-h-full object-contain"
+                                              />
+                                            </div>
+                                          </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="left-4 bg-white/20 hover:bg-white/40 border-none text-white" />
+                                    <CarouselNext className="right-4 bg-white/20 hover:bg-white/40 border-none text-white" />
+                                  </Carousel>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                        </div>
+                      </div>
                     </Card>
                   ))}
                 </div>
