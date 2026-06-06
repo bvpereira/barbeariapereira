@@ -218,6 +218,48 @@ function CollaboratorsPage() {
     }));
   };
 
+  const handlePortfolioImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const newImages = [...portfolioImages];
+      newImages[index] = file;
+      setPortfolioImages(newImages);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newPreviews = [...portfolioPreviews];
+        newPreviews[index] = reader.result as string;
+        setPortfolioPreviews(newPreviews);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePortfolioImage = async (index: number) => {
+    const oldUrl = portfolioPreviews[index];
+    if (oldUrl && !portfolioImages[index]) {
+      if (confirm("Deseja remover esta imagem do portfólio permanentemente?")) {
+        await deleteByPublicUrl("collaborator-images", oldUrl);
+        if (editingCollaborator) {
+          const colName = `foto_url_${index + 2}`;
+          const updateData: any = {};
+          updateData[colName] = null;
+          await supabase.from("colaboradores").update(updateData).eq("id", editingCollaborator.id);
+        }
+      } else {
+        return;
+      }
+    }
+
+    const newImages = [...portfolioImages];
+    newImages[index] = null;
+    setPortfolioImages(newImages);
+
+    const newPreviews = [...portfolioPreviews];
+    newPreviews[index] = null;
+    setPortfolioPreviews(newPreviews);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenant) return;
@@ -236,7 +278,6 @@ function CollaboratorsPage() {
     }
 
     try {
-      // 1. Verificações de Login Único dentro da mesma barbearia (apenas para novos ou se mudar o login)
       if (!editingCollaborator || cleanLogin !== editingCollaborator.login.replace(/\D/g, "")) {
         const { data: existingUser } = await supabase
           .from("usuarios")
@@ -250,73 +291,9 @@ function CollaboratorsPage() {
         }
       }
 
-      let fotoUrl = fotoPreview;
-
-      if (foto) {
-        const fileExt = foto.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        
-        // Se estiver editando e mudar a foto, vamos guardar a antiga para deletar
-        const oldFotoUrl = editingCollaborator?.foto_url;
-
-        const { error: uploadError } = await supabase.storage
-          .from("collaborator-images")
-          .upload(filePath, foto);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("collaborator-images")
-          .getPublicUrl(filePath);
-        
-        fotoUrl = publicUrl;
-
-        // Deletar foto antiga
-        if (oldFotoUrl) {
-          await deleteStorageFile(oldFotoUrl, "collaborator-images");
-        }
-      }
-
-      const colabData = {
-        barbearia_id: tenant.id,
-        nome,
-        resumo,
-        login: cleanLogin,
-        senha,
-        salario_fixo: parseFloat(salarioFixo) || 0,
-        foto_url: fotoUrl,
-        ativo: ativo,
-      };
-
       let colabId = editingCollaborator?.id;
 
-      if (editingCollaborator && colabId) {
-        // Update collaborator
-        const { error } = await supabase
-          .from("colaboradores")
-          .update(colabData)
-          .eq("id", colabId);
-        if (error) throw error;
-
-        // Update user in 'usuarios' table
-        const { error: userError } = await supabase
-          .from("usuarios")
-          .update({ 
-            nome, 
-            login: cleanLogin, 
-            senha,
-            nivel: ativo ? 2 : 10 // 2 if active, 10 if inactive (prevents login)
-          })
-          .eq("login", editingCollaborator.login);
-        if (userError) throw userError;
-
-        // Clear existing services to re-insert
-        if (colabId) {
-          await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
-        }
-      } else {
-        // Create user in 'usuarios' table FIRST
+      if (!editingCollaborator) {
         const { error: userError } = await supabase
           .from("usuarios")
           .insert([{ 
@@ -333,23 +310,90 @@ function CollaboratorsPage() {
           throw userError;
         }
 
-        // Create collaborator
+        const initialColabData = {
+          barbearia_id: tenant.id,
+          nome,
+          resumo,
+          login: cleanLogin,
+          senha,
+          salario_fixo: parseFloat(salarioFixo) || 0,
+          ativo: ativo,
+        };
+
         const { data, error: colabError } = await supabase
           .from("colaboradores")
-          .insert([colabData])
+          .insert([initialColabData])
           .select()
           .maybeSingle();
         
         if (colabError || !data) {
-          // Se der erro ao criar colaborador, tentamos remover o usuário criado para manter consistência
           await supabase.from("usuarios").delete().eq("login", cleanLogin);
           throw colabError || new Error("Erro ao criar colaborador");
         }
         colabId = data.id;
       }
 
-      // Insert services
-      if (colabId && selectedServices.length > 0) {
+      if (!colabId) throw new Error("ID do colaborador não encontrado");
+
+      let fotoUrl = fotoPreview;
+      if (foto) {
+        if (editingCollaborator?.foto_url) {
+          await deleteByPublicUrl("collaborator-images", editingCollaborator.foto_url);
+        }
+        fotoUrl = await uploadImage("collaborator-images", tenant.id, colabId, "main", foto);
+      }
+
+      const portfolioUrls = [...portfolioPreviews];
+      for (let i = 0; i < portfolioImages.length; i++) {
+        if (portfolioImages[i]) {
+          const oldUrl = portfolioPreviews[i];
+          if (oldUrl) {
+            await deleteByPublicUrl("collaborator-images", oldUrl);
+          }
+          portfolioUrls[i] = await uploadImage("collaborator-images", tenant.id, colabId, (i + 2).toString(), portfolioImages[i]!);
+        }
+      }
+
+      const colabData = {
+        barbearia_id: tenant.id,
+        nome,
+        resumo,
+        login: cleanLogin,
+        senha,
+        salario_fixo: parseFloat(salarioFixo) || 0,
+        foto_url: fotoUrl,
+        foto_url_2: portfolioUrls[0],
+        foto_url_3: portfolioUrls[1],
+        foto_url_4: portfolioUrls[2],
+        foto_url_5: portfolioUrls[3],
+        foto_url_6: portfolioUrls[4],
+        foto_url_7: portfolioUrls[5],
+        ativo: ativo,
+      };
+
+      const { error: updateError } = await supabase
+        .from("colaboradores")
+        .update(colabData)
+        .eq("id", colabId);
+      
+      if (updateError) throw updateError;
+
+      if (editingCollaborator) {
+        const { error: userError } = await supabase
+          .from("usuarios")
+          .update({ 
+            nome, 
+            login: cleanLogin, 
+            senha,
+            nivel: ativo ? 2 : 10
+          })
+          .eq("login", editingCollaborator.login);
+        if (userError) throw userError;
+
+        await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colabId);
+      }
+
+      if (selectedServices.length > 0) {
         const servicesToInsert = selectedServices.map(s => ({
           barbearia_id: tenant.id,
           colaborador_id: colabId as string,
