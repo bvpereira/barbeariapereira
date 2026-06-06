@@ -424,19 +424,19 @@ function CollaboratorsPage() {
     if (!confirm(`Tem certeza que deseja remover ${colab.nome}?`)) return;
 
     try {
-      // 0. Se tiver foto, excluir do storage
-      if (colab.foto_url) {
-        await deleteStorageFile(colab.foto_url, "collaborator-images");
-      }
+      await deleteByPublicUrl("collaborator-images", colab.foto_url);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_2);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_3);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_4);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_5);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_6);
+      await deleteByPublicUrl("collaborator-images", colab.foto_url_7);
 
-      // 1. Delete from colaborador_servicos explicitly just in case cascade isn't set
       await supabase.from("colaborador_servicos").delete().eq("colaborador_id", colab.id);
 
-      // 2. Delete from colaboradores
       const { error } = await supabase.from("colaboradores").delete().eq("id", colab.id);
       if (error) throw error;
 
-      // 3. Delete from usuarios
       const { error: userError } = await supabase.from("usuarios").delete().eq("login", colab.login);
       if (userError) throw userError;
 
