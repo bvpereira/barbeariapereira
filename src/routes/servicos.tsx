@@ -28,22 +28,12 @@ interface Service {
   price: number;
   duration: number;
   image_url: string | null;
+  image_url_2: string | null;
+  image_url_3: string | null;
+  image_url_4: string | null;
+  image_url_5: string | null;
   detalhes: string | null;
 }
-
-// Função auxiliar para deletar arquivos do storage
-const deleteStorageFile = async (url: string | null, bucket: string) => {
-  if (!url) return;
-  try {
-    const urlParts = url.split(`/public/${bucket}/`);
-    if (urlParts.length > 1) {
-      const filePath = urlParts[1];
-      await supabase.storage.from(bucket).remove([filePath]);
-    }
-  } catch (error) {
-    console.error(`Erro ao deletar arquivo do bucket ${bucket}:`, error);
-  }
-};
 
 function ServicesPage() {
   const { tenant, loading: tenantLoading } = useTenant();
