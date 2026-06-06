@@ -143,7 +143,7 @@ function ServicesPage() {
       if (confirm("Deseja remover esta imagem permanentemente?")) {
         await deleteByPublicUrl("service-images", oldUrl);
         if (editingService) {
-          const colName = `image_url_${index + 2}`;
+          const colName = `image_url_${index + 2}` as keyof Service;
           await supabase.from("servicos").update({ [colName]: null }).eq("id", editingService.id);
         }
       } else {
