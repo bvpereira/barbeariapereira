@@ -811,7 +811,20 @@ function ColaboradorPage() {
           </Card>
 
           <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
-...
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar pedido de exclusão?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta ação enviará um pedido de exclusão para o administrador. 
+                  O atendimento continuará visível até que seja aprovado.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleRequestDeletion} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Confirmar Pedido
+                </AlertDialogAction>
+              </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
