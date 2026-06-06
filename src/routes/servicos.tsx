@@ -240,10 +240,18 @@ function ServicesPage() {
     if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
 
     try {
-      // 0. Buscar o serviço para pegar a URL da imagem
-      const { data: service } = await supabase.from("servicos").select("image_url").eq("id", id).single();
-      if (service?.image_url) {
-        await deleteStorageFile(service.image_url, "service-images");
+      const { data: service } = await supabase
+        .from("servicos")
+        .select("image_url, image_url_2, image_url_3, image_url_4, image_url_5")
+        .eq("id", id)
+        .single();
+      
+      if (service) {
+        await deleteByPublicUrl("service-images", service.image_url);
+        await deleteByPublicUrl("service-images", service.image_url_2);
+        await deleteByPublicUrl("service-images", service.image_url_3);
+        await deleteByPublicUrl("service-images", service.image_url_4);
+        await deleteByPublicUrl("service-images", service.image_url_5);
       }
 
       const { error } = await supabase.from("servicos").delete().eq("id", id);
