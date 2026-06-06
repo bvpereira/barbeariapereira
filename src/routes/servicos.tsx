@@ -119,64 +119,113 @@ function ServicesPage() {
     }
   };
 
+  const handleExtraImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const newImages = [...extraImages];
+      newImages[index] = file;
+      setExtraImages(newImages);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newPreviews = [...extraPreviews];
+        newPreviews[index] = reader.result as string;
+        setExtraPreviews(newPreviews);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeExtraImage = async (index: number) => {
+    const oldUrl = extraPreviews[index];
+    if (oldUrl && !extraImages[index]) {
+      // Se já estava salvo no banco (não é apenas preview de upload pendente)
+      if (confirm("Deseja remover esta imagem permanentemente?")) {
+        await deleteByPublicUrl("service-images", oldUrl);
+        if (editingService) {
+          const colName = `image_url_${index + 2}`;
+          await supabase.from("servicos").update({ [colName]: null }).eq("id", editingService.id);
+        }
+      } else {
+        return;
+      }
+    }
+
+    const newImages = [...extraImages];
+    newImages[index] = null;
+    setExtraImages(newImages);
+
+    const newPreviews = [...extraPreviews];
+    newPreviews[index] = null;
+    setExtraPreviews(newPreviews);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenant) return;
     setIsSubmitting(true);
 
     try {
-      let imageUrl = imagePreview;
+      let currentServiceId = editingService?.id;
 
+      // Se for novo serviço, precisamos criar primeiro para ter o ID
+      if (!editingService) {
+        const { data, error: insertError } = await supabase
+          .from("servicos")
+          .insert([{
+            barbearia_id: tenant.id,
+            name,
+            price: parseFloat(price),
+            duration: parseInt(duration),
+            detalhes,
+          }])
+          .select()
+          .single();
+        
+        if (insertError) throw insertError;
+        currentServiceId = data.id;
+      }
+
+      // Agora tratamos os uploads com o ID do serviço
+      let mainUrl = imagePreview;
       if (image) {
-        const fileExt = image.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        
-        // Se estiver editando e mudar a imagem, guardar a antiga
-        const oldImageUrl = editingService?.image_url;
+        if (editingService?.image_url) {
+          await deleteByPublicUrl("service-images", editingService.image_url);
+        }
+        mainUrl = await uploadImage("service-images", tenant.id, currentServiceId!, "main", image);
+      }
 
-        const { error: uploadError } = await supabase.storage
-          .from("service-images")
-          .upload(filePath, image);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("service-images")
-          .getPublicUrl(filePath);
-        
-        imageUrl = publicUrl;
-
-        // Deletar imagem antiga
-        if (oldImageUrl) {
-          await deleteStorageFile(oldImageUrl, "service-images");
+      const extraUrls = [...extraPreviews];
+      for (let i = 0; i < extraImages.length; i++) {
+        if (extraImages[i]) {
+          const oldUrl = extraPreviews[i];
+          if (oldUrl) {
+            await deleteByPublicUrl("service-images", oldUrl);
+          }
+          extraUrls[i] = await uploadImage("service-images", tenant.id, currentServiceId!, (i + 2).toString(), extraImages[i]!);
         }
       }
 
       const serviceData = {
-        barbearia_id: tenant.id,
         name,
         price: parseFloat(price),
         duration: parseInt(duration),
-        image_url: imageUrl,
         detalhes,
+        image_url: mainUrl,
+        image_url_2: extraUrls[0],
+        image_url_3: extraUrls[1],
+        image_url_4: extraUrls[2],
+        image_url_5: extraUrls[3],
       };
 
-      if (editingService) {
-        const { error } = await supabase
-          .from("servicos")
-          .update(serviceData)
-          .eq("id", editingService.id);
-        if (error) throw error;
-        toast.success("Serviço atualizado com sucesso!");
-      } else {
-        const { error } = await supabase
-          .from("servicos")
-          .insert([serviceData]);
-        if (error) throw error;
-        toast.success("Serviço criado com sucesso!");
-      }
+      const { error: updateError } = await supabase
+        .from("servicos")
+        .update(serviceData)
+        .eq("id", currentServiceId);
+      
+      if (updateError) throw updateError;
 
+      toast.success(editingService ? "Serviço atualizado!" : "Serviço criado!");
       setIsDialogOpen(false);
       resetForm();
       fetchServices();
