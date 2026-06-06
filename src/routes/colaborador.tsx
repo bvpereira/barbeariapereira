@@ -753,12 +753,12 @@ function ColaboradorPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-8">
-                {colaboradorCompleto?.image_url && (
+                {colaboradorCompleto?.foto_url && (
                   <div>
                     <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Foto Principal</h3>
                     <div className="aspect-square w-48 mx-auto overflow-hidden rounded-xl border-2 border-primary/10 shadow-sm">
                       <img 
-                        src={colaboradorCompleto.image_url} 
+                        src={colaboradorCompleto.foto_url} 
                         alt={user.nome} 
                         className="w-full h-full object-cover"
                       />
@@ -770,12 +770,12 @@ function ColaboradorPage() {
                   <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Trabalhos Realizados</h3>
                   {(() => {
                     const extraImages = [
-                      colaboradorCompleto?.extra_image_1,
-                      colaboradorCompleto?.extra_image_2,
-                      colaboradorCompleto?.extra_image_3,
-                      colaboradorCompleto?.extra_image_4,
-                      colaboradorCompleto?.extra_image_5,
-                      colaboradorCompleto?.extra_image_6
+                      colaboradorCompleto?.foto_url_2,
+                      colaboradorCompleto?.foto_url_3,
+                      colaboradorCompleto?.foto_url_4,
+                      colaboradorCompleto?.foto_url_5,
+                      colaboradorCompleto?.foto_url_6,
+                      colaboradorCompleto?.foto_url_7
                     ].filter(Boolean);
 
                     if (extraImages.length === 0) {
