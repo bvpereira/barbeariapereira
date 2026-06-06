@@ -533,6 +533,15 @@ function CollaboratorsPage() {
 
               {/* Status toggle removed from here as requested, now on the card */}
 
+              <div className="space-y-2">
+                <Label>Foto Principal (Quadrada 1:1)</Label>
+                <Input type="file" accept="image/*" onChange={handleFotoChange} />
+                {fotoPreview && (
+                  <div className="mt-2 flex justify-center">
+                    <img src={fotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-border" />
+                  </div>
+                )}
+              </div>
               <div className="space-y-4">
                 <Label>Portfólio (até 6 imagens)</Label>
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
