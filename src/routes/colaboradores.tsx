@@ -42,23 +42,15 @@ interface Collaborator {
   senha: string;
   salario_fixo: number | null;
   foto_url: string | null;
+  foto_url_2: string | null;
+  foto_url_3: string | null;
+  foto_url_4: string | null;
+  foto_url_5: string | null;
+  foto_url_6: string | null;
+  foto_url_7: string | null;
   ativo: boolean;
   colaborador_servicos?: (CollaboratorService & { servicos: { name: string } })[];
 }
-
-// Função auxiliar para deletar arquivos do storage
-const deleteStorageFile = async (url: string | null, bucket: string) => {
-  if (!url) return;
-  try {
-    const urlParts = url.split(`/public/${bucket}/`);
-    if (urlParts.length > 1) {
-      const filePath = urlParts[1];
-      await supabase.storage.from(bucket).remove([filePath]);
-    }
-  } catch (error) {
-    console.error(`Erro ao deletar arquivo do bucket ${bucket}:`, error);
-  }
-};
 
 function CollaboratorsPage() {
   const { tenant, loading: tenantLoading } = useTenant();
