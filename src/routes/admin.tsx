@@ -33,6 +33,8 @@ import {
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { migrateImages } from "@/lib/migrate-images.functions";
+import { verifyMigration } from "@/lib/verify-migration.functions";
+
 
 
 
@@ -486,23 +488,44 @@ function AdminPage() {
             <p className="text-xs text-muted-foreground mb-4">
               Reorganizar arquivos de imagens para a nova estrutura de pastas por barbearia e serviço/colaborador.
             </p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={async () => {
-                if (confirm("Deseja iniciar a migração das imagens para a nova estrutura? Isso moverá os arquivos no storage.")) {
-                  const res = await migrateImages();
-                  if (res.success) {
-                    toast.success("Migração concluída com sucesso!");
-                    console.log("Resultados da migração:", res.results);
-                  } else {
-                    toast.error("Erro na migração: " + res.error);
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  if (confirm("Deseja iniciar a migração das imagens para a nova estrutura? Isso moverá os arquivos no storage.")) {
+                    const res = await migrateImages();
+                    if (res.success) {
+                      toast.success("Migração concluída com sucesso!");
+                      console.log("Resultados da migração:", res.results);
+                    } else {
+                      toast.error("Erro na migração: " + res.error);
+                    }
                   }
-                }
-              }}
-            >
-              Migrar Imagens para Nova Estrutura
-            </Button>
+                }}
+              >
+                Migrar Imagens
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-primary hover:text-primary"
+                onClick={async () => {
+                  toast.info("Iniciando verificação...");
+                  const res = await verifyMigration();
+                  if (res.success) {
+                    console.table(res.report?.servicos?.detalhes);
+                    console.table(res.report?.colaboradores?.detalhes);
+                    console.log("Resumo do Storage:", res.report?.storage_checks);
+                    toast.success(`Verificação concluída! ${res.report?.servicos?.migrados}/${res.report?.servicos?.total} serviços e ${res.report?.colaboradores?.migrados}/${res.report?.colaboradores?.total} colaboradores migrados.`);
+                  } else {
+                    toast.error("Erro na verificação: " + res.error);
+                  }
+                }}
+              >
+                Verificar Migração
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
