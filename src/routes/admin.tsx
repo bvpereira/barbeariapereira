@@ -17,7 +17,8 @@ import {
   Clock, 
   AlertTriangle,
   ArrowRight,
-  UserPlus
+  UserPlus,
+  RefreshCw
 } from "lucide-react";
 import { 
   format, 
