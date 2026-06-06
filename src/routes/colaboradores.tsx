@@ -70,6 +70,11 @@ function CollaboratorsPage() {
   const [salarioFixo, setSalarioFixo] = useState("");
   const [foto, setFoto] = useState<File | null>(null);
   const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  
+  // Portfólio (Imagens adicionais)
+  const [portfolioImages, setPortfolioImages] = useState<(File | null)[]>([null, null, null, null, null, null]);
+  const [portfolioPreviews, setPortfolioPreviews] = useState<(string | null)[]>([null, null, null, null, null, null]);
+  
   const [selectedServices, setSelectedServices] = useState<CollaboratorService[]>([]);
   const [ativo, setAtivo] = useState(true);
 
