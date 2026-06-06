@@ -86,6 +86,8 @@ function ServicesPage() {
     setDetalhes("");
     setImage(null);
     setImagePreview(null);
+    setExtraImages([null, null, null, null]);
+    setExtraPreviews([null, null, null, null]);
     setEditingService(null);
   };
 
@@ -96,6 +98,12 @@ function ServicesPage() {
     setDuration(service.duration.toString());
     setDetalhes(service.detalhes || "");
     setImagePreview(service.image_url);
+    setExtraPreviews([
+      service.image_url_2,
+      service.image_url_3,
+      service.image_url_4,
+      service.image_url_5,
+    ]);
     setIsDialogOpen(true);
   };
 
