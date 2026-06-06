@@ -348,9 +348,39 @@ function ServicesPage() {
                     </div>
                   )}
                 </div>
+                <div className="space-y-2">
+                  <Label>Imagens adicionais (até 4)</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {extraPreviews.map((preview, index) => (
+                      <div key={index} className="relative aspect-square border-2 border-dashed border-border rounded-lg overflow-hidden group">
+                        {preview ? (
+                          <>
+                            <img src={preview} alt={`Extra ${index + 2}`} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <label className="cursor-pointer p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                                <Upload className="w-4 h-4 text-white" />
+                                <input type="file" className="hidden" accept="image/*" onChange={(e) => handleExtraImageChange(index, e)} />
+                              </label>
+                              <button type="button" onClick={() => removeExtraImage(index)} className="p-1 bg-white/20 hover:bg-white/40 rounded-full">
+                                <X className="w-4 h-4 text-white" />
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                            <Plus className="w-6 h-6 text-muted-foreground" />
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleExtraImageChange(index, e)} />
+                          </label>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Salvando..." : (editingService ? "Atualizar" : "Salvar")}
                 </Button>
+
               </form>
             </DialogContent>
           </Dialog>
