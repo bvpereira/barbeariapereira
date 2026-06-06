@@ -144,6 +144,14 @@ function CollaboratorsPage() {
     setSenha(colab.senha);
     setSalarioFixo(colab.salario_fixo?.toString() || "");
     setFotoPreview(colab.foto_url);
+    setPortfolioPreviews([
+      colab.foto_url_2,
+      colab.foto_url_3,
+      colab.foto_url_4,
+      colab.foto_url_5,
+      colab.foto_url_6,
+      colab.foto_url_7,
+    ]);
     setAtivo(colab.ativo);
     
     const services = colab.colaborador_servicos?.map(s => ({
