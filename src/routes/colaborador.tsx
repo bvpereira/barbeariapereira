@@ -65,7 +65,7 @@ function ColaboradorPage() {
   const [hasMore, setHasMore] = useState(true);
   const [hasMoreFuturos, setHasMoreFuturos] = useState(true);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-  const [showPortfolio, setShowPortfolio] = useState(false);
+  
   const itemsPerPage = 10;
 
   const fetchColaboradorId = async (login: string) => {
@@ -379,14 +379,6 @@ function ColaboradorPage() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
                 variant="default"
               />
-              <Button 
-                variant="outline" 
-                className="gap-2"
-                onClick={() => setShowPortfolio(true)}
-              >
-                <ImageIcon className="w-4 h-4" />
-                Ver Portfólio
-              </Button>
             </CardContent>
           </Card>
 
@@ -752,6 +744,72 @@ function ColaboradorPage() {
             </CardContent>
           </Card>
 
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary" />
+                Meu Portfólio
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-8">
+                {colaboradorCompleto?.image_url && (
+                  <div>
+                    <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Foto Principal</h3>
+                    <div className="aspect-square w-48 mx-auto overflow-hidden rounded-xl border-2 border-primary/10 shadow-sm">
+                      <img 
+                        src={colaboradorCompleto.image_url} 
+                        alt={user.nome} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                <div>
+                  <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Trabalhos Realizados</h3>
+                  {(() => {
+                    const extraImages = [
+                      colaboradorCompleto?.extra_image_1,
+                      colaboradorCompleto?.extra_image_2,
+                      colaboradorCompleto?.extra_image_3,
+                      colaboradorCompleto?.extra_image_4,
+                      colaboradorCompleto?.extra_image_5,
+                      colaboradorCompleto?.extra_image_6
+                    ].filter(Boolean);
+
+                    if (extraImages.length === 0) {
+                      return (
+                        <div className="text-center py-12 border-2 border-dashed rounded-xl bg-muted/30">
+                          <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-2 opacity-20" />
+                          <p className="text-muted-foreground text-sm">Nenhuma imagem extra cadastrada no portfólio.</p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {extraImages.map((img, idx) => (
+                          <div 
+                            key={idx} 
+                            className="aspect-square relative overflow-hidden rounded-xl shadow-sm border bg-black/5 hover:opacity-90 transition-opacity cursor-pointer"
+                            onClick={() => window.open(img, '_blank')}
+                          >
+                            <img 
+                              src={img} 
+                              alt={`Trabalho ${idx + 1}`} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -769,74 +827,6 @@ function ColaboradorPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-
-          <Dialog open={showPortfolio} onOpenChange={setShowPortfolio}>
-            <DialogContent className="max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>Portfólio de {user.nome}</DialogTitle>
-              </DialogHeader>
-              <div className="mt-4">
-                {colaboradorCompleto?.image_url && (
-                  <div className="mb-8">
-                    <h3 className="text-sm font-medium mb-2 text-muted-foreground uppercase tracking-wider">Foto Principal</h3>
-                    <div className="aspect-square w-48 mx-auto overflow-hidden rounded-xl border-2 border-primary/10">
-                      <img 
-                        src={colaboradorCompleto.image_url} 
-                        alt={user.nome} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                )}
-                
-                <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wider">Fotos do Portfólio</h3>
-                {(() => {
-                  const extraImages = [
-                    colaboradorCompleto?.extra_image_1,
-                    colaboradorCompleto?.extra_image_2,
-                    colaboradorCompleto?.extra_image_3,
-                    colaboradorCompleto?.extra_image_4,
-                    colaboradorCompleto?.extra_image_5,
-                    colaboradorCompleto?.extra_image_6
-                  ].filter(Boolean);
-
-                  if (extraImages.length === 0) {
-                    return (
-                      <div className="text-center py-12 border-2 border-dashed rounded-xl bg-muted/50">
-                        <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-2 opacity-20" />
-                        <p className="text-muted-foreground">Nenhuma imagem extra cadastrada no portfólio.</p>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="px-12">
-                      <Carousel className="w-full">
-                        <CarouselContent>
-                          {extraImages.map((img, idx) => (
-                            <CarouselItem key={idx}>
-                              <div className="aspect-video relative overflow-hidden rounded-xl shadow-lg border bg-black/5">
-                                <img 
-                                  src={img} 
-                                  alt={`Portfólio ${idx + 1}`} 
-                                  className="w-full h-full object-contain"
-                                />
-                              </div>
-                            </CarouselItem>
-                          ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                      </Carousel>
-                      <p className="text-center text-xs text-muted-foreground mt-4 italic">
-                        Deslize para ver mais imagens ({extraImages.length} fotos)
-                      </p>
-                    </div>
-                  );
-                })()}
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
     </div>
