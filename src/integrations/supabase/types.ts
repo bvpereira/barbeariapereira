@@ -298,6 +298,12 @@ export type Database = {
           barbearia_id: string
           created_at: string
           foto_url: string | null
+          foto_url_2: string | null
+          foto_url_3: string | null
+          foto_url_4: string | null
+          foto_url_5: string | null
+          foto_url_6: string | null
+          foto_url_7: string | null
           id: string
           login: string
           nome: string
@@ -311,6 +317,12 @@ export type Database = {
           barbearia_id: string
           created_at?: string
           foto_url?: string | null
+          foto_url_2?: string | null
+          foto_url_3?: string | null
+          foto_url_4?: string | null
+          foto_url_5?: string | null
+          foto_url_6?: string | null
+          foto_url_7?: string | null
           id?: string
           login: string
           nome: string
@@ -324,6 +336,12 @@ export type Database = {
           barbearia_id?: string
           created_at?: string
           foto_url?: string | null
+          foto_url_2?: string | null
+          foto_url_3?: string | null
+          foto_url_4?: string | null
+          foto_url_5?: string | null
+          foto_url_6?: string | null
+          foto_url_7?: string | null
           id?: string
           login?: string
           nome?: string
@@ -719,6 +737,10 @@ export type Database = {
           duration: number
           id: string
           image_url: string | null
+          image_url_2: string | null
+          image_url_3: string | null
+          image_url_4: string | null
+          image_url_5: string | null
           name: string
           price: number
           updated_at: string
@@ -730,6 +752,10 @@ export type Database = {
           duration: number
           id?: string
           image_url?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+          image_url_4?: string | null
+          image_url_5?: string | null
           name: string
           price: number
           updated_at?: string
@@ -741,6 +767,10 @@ export type Database = {
           duration?: number
           id?: string
           image_url?: string | null
+          image_url_2?: string | null
+          image_url_3?: string | null
+          image_url_4?: string | null
+          image_url_5?: string | null
           name?: string
           price?: number
           updated_at?: string
