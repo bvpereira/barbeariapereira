@@ -50,6 +50,10 @@ function ServicesPage() {
   const [detalhes, setDetalhes] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  // Imagens adicionais
+  const [extraImages, setExtraImages] = useState<(File | null)[]>([null, null, null, null]);
+  const [extraPreviews, setExtraPreviews] = useState<(string | null)[]>([null, null, null, null]);
 
   useEffect(() => {
     if (!tenantLoading && tenant) {
