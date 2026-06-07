@@ -24,14 +24,14 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [tenant, setTenant] = useState<Barbearia | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchTenant = async () => {
+  const fetchTenant = async (forceSlug?: string) => {
     setLoading(true);
     try {
       // Prioritize explicit slug from URL
       const url = new URL(window.location.href);
       const pathParts = url.pathname.split("/").filter(Boolean);
-      const slugFromUrl = pathParts[0];
-      const slugFromQuery = url.searchParams.get("tenant");
+      const slugFromUrl = forceSlug || pathParts[0];
+      const slugFromQuery = forceSlug || url.searchParams.get("tenant");
       
       let targetSlug = ""; 
       
@@ -96,6 +96,25 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     fetchTenant();
+    
+    // Check for slug changes in the URL path
+    let lastPathname = window.location.pathname;
+    
+    const checkSlugChange = () => {
+      if (window.location.pathname !== lastPathname) {
+        lastPathname = window.location.pathname;
+        fetchTenant();
+      }
+    };
+
+    const interval = setInterval(checkSlugChange, 500);
+
+    window.addEventListener('popstate', checkSlugChange);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('popstate', checkSlugChange);
+    };
   }, []);
 
   return (
