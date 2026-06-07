@@ -20,7 +20,8 @@ import {
   UsersRound,
   Banknote,
   QrCode,
-  CreditCard
+  CreditCard,
+  HelpCircle
 } from "lucide-react";
 import {
   Dialog,
@@ -29,6 +30,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import useEmblaCarousel from "embla-carousel-react";
 import AutoScroll from "embla-carousel-auto-scroll";
 import { cn } from "../lib/utils";
@@ -120,7 +127,7 @@ function BarbeariaLanding() {
       <Localizacao tenantId={tenant?.id} />
       <Servicos tenantId={tenant?.id} />
       <Colaboradores tenantId={tenant?.id} />
-      <Contato tenantId={tenant?.id} />
+      <Contato tenantId={tenant?.id} slug={slug} />
       <Footer tenantName={tenant?.nome} slug={slug} logoUrl={logoUrl} />
     </div>
   );
@@ -570,7 +577,7 @@ function Colaboradores({ tenantId }: { tenantId?: string }) {
   );
 }
 
-function Contato({ tenantId }: { tenantId?: string }) {
+function Contato({ tenantId, slug }: { tenantId?: string; slug?: string }) {
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
   useEffect(() => {
@@ -597,17 +604,81 @@ function Contato({ tenantId }: { tenantId?: string }) {
   }, [tenantId]);
 
   const whatsappLink = `https://wa.me/${whatsappNumber}`;
+
+  const faqItems = [
+    {
+      question: "Preciso agendar com antecedência?",
+      answer: "Recomendamos o agendamento prévio para garantir seu horário com o barbeiro de sua preferência, mas também atendemos por ordem de chegada conforme disponibilidade."
+    },
+    {
+      question: "Posso cancelar ou remarcar meu horário?",
+      answer: "Sim, você pode cancelar ou remarcar diretamente pelo nosso site com até 2 horas de antecedência sem custo."
+    },
+    {
+      question: "Quais formas de pagamento vocês aceitam?",
+      answer: "Aceitamos dinheiro, cartões de débito e crédito (todas as bandeiras), Pix e pagamentos via aproximação."
+    },
+    {
+      question: "Quais produtos vocês utilizam?",
+      answer: "Trabalhamos apenas com linhas profissionais de alta performance, incluindo marcas renomadas de pomadas, óleos para barba e shampoos masculinos."
+    },
+    {
+      question: "Vocês fazem cortes infantis?",
+      answer: "Sim! Temos barbeiros especializados em cortes infantis, garantindo uma experiência tranquila e divertida para os pequenos."
+    }
+  ];
   
   return (
     <section className="bg-card py-16 px-4 border-t border-primary/10 bg-black">
       <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
-          <Phone className="w-8 h-8" />
-          Pronto para dar um trato no visual?
-        </h2>
-        <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Estamos prontos para te atender. Entre em contato caso tenha alguma dúvida pelo botão abaixo.
-        </p>
+        {slug === "barb0" ? (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-8 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
+                <HelpCircle className="w-8 h-8" />
+                Perguntas Frequentes
+              </h2>
+              <div className="w-20 h-1 bg-primary mx-auto mb-12" />
+              
+              <Accordion type="single" collapsible className="w-full text-left bg-card/50 rounded-2xl border border-primary/10 overflow-hidden">
+                {faqItems.map((item, index) => (
+                  <AccordionItem key={index} value={`item-${index}`} className="border-primary/10 px-6">
+                    <AccordionTrigger className="text-lg font-bold hover:text-primary transition-colors py-6 uppercase tracking-wide">
+                      {item.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground text-lg pb-6">
+                      {item.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </motion.div>
+
+            <motion.p 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
+            >
+              Ainda ficou com alguma dúvida ou quiser entrar em contato por algum motivo é só falar através dos botões de whatsapp ou instagram abaixo.
+            </motion.p>
+          </>
+        ) : (
+          <>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-primary uppercase tracking-widest flex flex-col items-center justify-center gap-3">
+              <Phone className="w-8 h-8" />
+              Pronto para dar um trato no visual?
+            </h2>
+            <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Estamos prontos para te atender. Entre em contato caso tenha alguma dúvida pelo botão abaixo.
+            </p>
+          </>
+        )}
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button asChild size="lg" className="rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold h-auto py-4 px-8 text-lg hover:scale-105 transition-transform border-none">
