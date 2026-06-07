@@ -54,6 +54,12 @@ function BarbeariaLanding() {
   const [logoUrl, setLogoUrl] = useState<string>("/logo.png");
 
   useEffect(() => {
+    if (slug && (!tenant || tenant.slug !== slug)) {
+      refreshTenant(slug);
+    }
+  }, [slug, tenant?.slug, refreshTenant]);
+
+  useEffect(() => {
     if (!tenant) return;
     const fetchLogo = async () => {
       const { data } = await supabase
