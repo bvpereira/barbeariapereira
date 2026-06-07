@@ -24,14 +24,14 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [tenant, setTenant] = useState<Barbearia | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchTenant = async () => {
+  const fetchTenant = async (forceSlug?: string) => {
     setLoading(true);
     try {
       // Prioritize explicit slug from URL
       const url = new URL(window.location.href);
       const pathParts = url.pathname.split("/").filter(Boolean);
-      const slugFromUrl = pathParts[0];
-      const slugFromQuery = url.searchParams.get("tenant");
+      const slugFromUrl = forceSlug || pathParts[0];
+      const slugFromQuery = forceSlug || url.searchParams.get("tenant");
       
       let targetSlug = ""; 
       
@@ -97,30 +97,23 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     fetchTenant();
     
-    // Listen for URL changes as TanStack Router doesn't trigger re-mounts on navigation between dynamic routes
-    const handleLocationChange = () => {
-      fetchTenant();
-    };
-
-    window.addEventListener('popstate', handleLocationChange);
+    // Check for slug changes in the URL path
+    let lastPathname = window.location.pathname;
     
-    // Add a small delay to ensure URL state is updated before fetching
-    const originalPushState = window.history.pushState;
-    window.history.pushState = function(...args) {
-      originalPushState.apply(this, args);
-      handleLocationChange();
+    const checkSlugChange = () => {
+      if (window.location.pathname !== lastPathname) {
+        lastPathname = window.location.pathname;
+        fetchTenant();
+      }
     };
 
-    const originalReplaceState = window.history.replaceState;
-    window.history.replaceState = function(...args) {
-      originalReplaceState.apply(this, args);
-      handleLocationChange();
-    };
+    const interval = setInterval(checkSlugChange, 500);
 
+    window.addEventListener('popstate', checkSlugChange);
+    
     return () => {
-      window.removeEventListener('popstate', handleLocationChange);
-      window.history.pushState = originalPushState;
-      window.history.replaceState = originalReplaceState;
+      clearInterval(interval);
+      window.removeEventListener('popstate', checkSlugChange);
     };
   }, []);
 
