@@ -96,6 +96,32 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     fetchTenant();
+    
+    // Listen for URL changes as TanStack Router doesn't trigger re-mounts on navigation between dynamic routes
+    const handleLocationChange = () => {
+      fetchTenant();
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    
+    // Add a small delay to ensure URL state is updated before fetching
+    const originalPushState = window.history.pushState;
+    window.history.pushState = function(...args) {
+      originalPushState.apply(this, args);
+      handleLocationChange();
+    };
+
+    const originalReplaceState = window.history.replaceState;
+    window.history.replaceState = function(...args) {
+      originalReplaceState.apply(this, args);
+      handleLocationChange();
+    };
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.history.pushState = originalPushState;
+      window.history.replaceState = originalReplaceState;
+    };
   }, []);
 
   return (
