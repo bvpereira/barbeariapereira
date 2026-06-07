@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,15 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+import { useTenant } from "@/contexts/TenantContext";
+
 function Index() {
+  const { refreshTenant } = useTenant();
+  
+  useEffect(() => {
+    refreshTenant();
+  }, [refreshTenant]);
+
   const { data: barbearias, isLoading } = useQuery({
     queryKey: ["barbearias"],
     queryFn: async () => {

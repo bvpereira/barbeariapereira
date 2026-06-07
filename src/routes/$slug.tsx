@@ -50,8 +50,14 @@ export const Route = createFileRoute("/$slug")({
 
 function BarbeariaLanding() {
   const { slug } = useParams({ from: "/$slug" });
-  const { tenant, loading: tenantLoading } = useTenant();
+  const { tenant, loading: tenantLoading, refreshTenant } = useTenant();
   const [logoUrl, setLogoUrl] = useState<string>("/logo.png");
+
+  useEffect(() => {
+    if (slug && (!tenant || tenant.slug !== slug)) {
+      refreshTenant(slug);
+    }
+  }, [slug, tenant?.slug, refreshTenant]);
 
   useEffect(() => {
     if (!tenant) return;
@@ -111,7 +117,13 @@ function BarbeariaLanding() {
 
 
 
-  if (tenantLoading) return null;
+  if (tenantLoading || (slug && (!tenant || tenant.slug !== slug))) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="animate-pulse text-primary font-josefin">Carregando barbearia...</div>
+      </div>
+    );
+  }
   if (!tenant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">

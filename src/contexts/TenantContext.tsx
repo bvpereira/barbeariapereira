@@ -11,7 +11,7 @@ interface Barbearia {
 interface TenantContextType {
   tenant: Barbearia | null;
   loading: boolean;
-  refreshTenant: () => Promise<void>;
+  refreshTenant: (forceSlug?: string) => Promise<void>;
 }
 
 const TenantContext = createContext<TenantContextType>({
@@ -85,7 +85,13 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           .select("*")
           .eq("slug", "barb0")
           .maybeSingle();
-         if (defaultData) setTenant(defaultData);
+         if (defaultData) {
+           setTenant(defaultData);
+         } else {
+           setTenant(null);
+         }
+      } else {
+        setTenant(null);
       }
     } catch (err) {
       console.error("Error fetching tenant", err);
