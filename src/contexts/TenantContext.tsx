@@ -11,7 +11,7 @@ interface Barbearia {
 interface TenantContextType {
   tenant: Barbearia | null;
   loading: boolean;
-  refreshTenant: () => Promise<void>;
+  refreshTenant: (forceSlug?: string) => Promise<void>;
 }
 
 const TenantContext = createContext<TenantContextType>({
