@@ -117,7 +117,13 @@ function BarbeariaLanding() {
 
 
 
-  if (tenantLoading) return null;
+  if (tenantLoading || (slug && (!tenant || tenant.slug !== slug))) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="animate-pulse text-primary font-josefin">Carregando barbearia...</div>
+      </div>
+    );
+  }
   if (!tenant) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">
