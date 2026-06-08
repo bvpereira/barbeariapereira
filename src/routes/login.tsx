@@ -82,10 +82,12 @@ function Login() {
     setIsLoading(true);
 
     try {
-      // Se não houver tenant na URL, tentamos identificar pelo login do usuário
+      // No login, sempre filtramos pela unidade (tenant) se ela estiver disponível
       let activeTenantId = tenant?.id;
 
       if (!activeTenantId) {
+        // Se não houver tenant na URL, tentamos identificar pelo login
+        // Mas o ideal é que o login sempre ocorra dentro do contexto de uma barbearia
         const { data: userBarbearia } = await supabase
           .from("usuarios")
           .select("barbearia_id")
@@ -102,7 +104,7 @@ function Login() {
           setAlertState({
             open: true,
             title: "Usuário não encontrado",
-            description: "Este número de usuário não foi encontrado no nosso banco de dados. Crie um novo usuário e cadastre sua senha."
+            description: "Este número de usuário não foi encontrado no nosso banco de dados."
           });
           setIsLoading(false);
           return;
@@ -127,7 +129,7 @@ function Login() {
         return;
       }
 
-      // Se existe, tenta o login com a senha
+      // Se existe, tenta o login com a senha dentro da unidade correta
       const { data, error } = await supabase
         .from("usuarios")
         .select("*")
