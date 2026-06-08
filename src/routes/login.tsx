@@ -394,7 +394,11 @@ function Login() {
         <div className="flex flex-col items-center gap-4 text-sm w-full">
           <div className="text-center text-muted-foreground">
             Ainda não tem uma conta?{" "}
-            <Link to="/cadastro" className="text-primary hover:underline font-medium">
+            <Link 
+              to="/cadastro" 
+              search={tenant?.slug ? { tenant: tenant.slug } : undefined}
+              className="text-primary hover:underline font-medium"
+            >
               Clique aqui para criar agora
             </Link>
           </div>
