@@ -97,9 +97,8 @@ function Login() {
         if (userBarbearia && userBarbearia.length === 1) {
           activeTenantId = userBarbearia[0].barbearia_id;
         } else if (userBarbearia && userBarbearia.length > 1) {
-          toast.error("Usuário encontrado em múltiplas unidades. Por favor, acesse pelo link da sua barbearia.");
-          setIsLoading(false);
-          return;
+          // Se houver duplicidade em unidades diferentes, tentamos o login sem assumir uma unidade
+          // O handleSignIn continuará filtrando pelo activeTenantId se ele for encontrado depois
         } else {
           setAlertState({
             open: true,
@@ -111,40 +110,31 @@ function Login() {
         }
       }
 
-      // Primeiro verifica se o usuário existe na unidade identificada
-      const { data: userExists, error: checkError } = await supabase
-        .from("usuarios")
-        .select("login")
-        .eq("login", cleanLogin)
-        .eq("barbearia_id", activeTenantId)
-        .maybeSingle();
+      // Se temos um activeTenantId, filtramos por ele. Se não, tentamos autenticar globalmente
+      // mas priorizando o contexto da barbearia se fornecido.
+      
+      const query = supabase.from("usuarios").select("*").eq("login", cleanLogin).eq("senha", senha);
+      
+      if (activeTenantId) {
+        query.eq("barbearia_id", activeTenantId);
+      }
 
-      if (!userExists) {
+      const { data, error } = await query.maybeSingle();
+
+      if (error || !data) {
+        // Se falhou com tenant, ou falhou geral
         setAlertState({
           open: true,
-          title: "Usuário não encontrado",
-          description: "Este número de usuário não foi encontrado nesta unidade. Verifique se você está na página da barbearia correta."
+          title: "Dados incorretos",
+          description: activeTenantId 
+            ? "Usuário ou senha incorretos para esta unidade." 
+            : "Usuário ou senha incorretos."
         });
         setIsLoading(false);
         return;
       }
 
-      // Se existe, tenta o login com a senha dentro da unidade correta
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("*")
-        .eq("login", cleanLogin)
-        .eq("senha", senha)
-        .eq("barbearia_id", activeTenantId)
-        .maybeSingle();
-
-      if (error || !data) {
-        setAlertState({
-          open: true,
-          title: "Senha incorreta",
-          description: "A senha informada está incorreta para este usuário. Por favor, tente novamente."
-        });
-      } else if (data.nivel === 10) {
+      if (data.nivel === 10) {
         setAlertState({
           open: true,
           title: "Acesso bloqueado",

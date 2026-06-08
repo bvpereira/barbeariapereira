@@ -113,7 +113,7 @@ function Cadastro() {
       if (error) {
         if (error.code === "23505") {
           toast.error("Erro no cadastro", {
-            description: "Este número de telefone já está cadastrado.",
+            description: "Este número de telefone já está cadastrado nesta unidade.",
           });
         } else {
           toast.error("Erro no cadastro", {
