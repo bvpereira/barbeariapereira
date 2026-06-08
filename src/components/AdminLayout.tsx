@@ -22,6 +22,16 @@ const menuItems = [
 ];
 
 function handleLogout() {
+  const userData = localStorage.getItem("user");
+  let tenantSlug = "";
+  if (userData) {
+    try {
+      const user = JSON.parse(userData);
+      // We could fetch the slug here, but let's see if we can just redirect to /
+      // Actually, if we want to preserve the unit, we need the slug.
+    } catch (e) {}
+  }
+  
   localStorage.removeItem("user");
   document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   window.location.href = "/login";
