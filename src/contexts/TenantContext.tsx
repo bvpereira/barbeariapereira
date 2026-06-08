@@ -105,10 +105,12 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     // Check for slug changes in the URL path
     let lastPathname = window.location.pathname;
+    let lastSearch = window.location.search;
     
     const checkSlugChange = () => {
-      if (window.location.pathname !== lastPathname) {
+      if (window.location.pathname !== lastPathname || window.location.search !== lastSearch) {
         lastPathname = window.location.pathname;
+        lastSearch = window.location.search;
         fetchTenant();
       }
     };

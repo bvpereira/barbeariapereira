@@ -225,7 +225,11 @@ function Cadastro() {
         </form>
 
         <div className="text-center text-sm">
-          <Link to="/login" className="text-primary hover:underline">
+          <Link 
+            to="/login" 
+            search={tenant?.slug ? { tenant: tenant.slug } : undefined}
+            className="text-primary hover:underline"
+          >
             Já tem uma conta? Entrar
           </Link>
         </div>
