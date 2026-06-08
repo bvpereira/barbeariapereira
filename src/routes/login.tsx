@@ -78,28 +78,50 @@ function Login() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tenant) {
-      toast.error("Unidade não identificada. Por favor, volte à página inicial.");
-      return;
-    }
+    const cleanLogin = login.replace(/[^\d]/g, "");
     setIsLoading(true);
 
-    const cleanLogin = login.replace(/[^\d]/g, "");
-
     try {
-      // Primeiro verifica se o usuário existe
+      // Se não houver tenant na URL, tentamos identificar pelo login do usuário
+      let activeTenantId = tenant?.id;
+
+      if (!activeTenantId) {
+        const { data: userBarbearia } = await supabase
+          .from("usuarios")
+          .select("barbearia_id")
+          .eq("login", cleanLogin)
+          .limit(2);
+        
+        if (userBarbearia && userBarbearia.length === 1) {
+          activeTenantId = userBarbearia[0].barbearia_id;
+        } else if (userBarbearia && userBarbearia.length > 1) {
+          toast.error("Usuário encontrado em múltiplas unidades. Por favor, acesse pelo link da sua barbearia.");
+          setIsLoading(false);
+          return;
+        } else {
+          setAlertState({
+            open: true,
+            title: "Usuário não encontrado",
+            description: "Este número de usuário não foi encontrado no nosso banco de dados. Crie um novo usuário e cadastre sua senha."
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Primeiro verifica se o usuário existe na unidade identificada
       const { data: userExists, error: checkError } = await supabase
         .from("usuarios")
         .select("login")
         .eq("login", cleanLogin)
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", activeTenantId)
         .maybeSingle();
 
       if (!userExists) {
         setAlertState({
           open: true,
           title: "Usuário não encontrado",
-          description: "Este número de usuário não foi encontrado no nosso banco de dados. Crie um novo usuário e cadastre sua senha."
+          description: "Este número de usuário não foi encontrado nesta unidade. Verifique se você está na página da barbearia correta."
         });
         setIsLoading(false);
         return;
@@ -111,7 +133,7 @@ function Login() {
         .select("*")
         .eq("login", cleanLogin)
         .eq("senha", senha)
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", activeTenantId)
         .maybeSingle();
 
       if (error || !data) {
