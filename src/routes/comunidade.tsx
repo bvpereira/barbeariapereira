@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
+import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,8 @@ interface Post {
 function ComunidadePage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [newPostText, setNewPostText] = useState("");
