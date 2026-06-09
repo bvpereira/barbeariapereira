@@ -460,6 +460,15 @@ function BlogPage() {
           </div>
         )}
       </div>
+
+      <div className="flex justify-center pt-8 border-t border-primary/10">
+        <button 
+          onClick={() => navigate({ to: ".." })}
+          className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 font-josefin uppercase tracking-widest text-sm"
+        >
+          ← Voltar para a página anterior
+        </button>
+      </div>
     </div>
   );
 
