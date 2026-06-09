@@ -479,8 +479,8 @@ function ComunidadePage() {
             </div>
           )}
       </div>
-    </div>
   );
+
 
   return isAdmin ? (
     <SuperAdminLayout>{content}</SuperAdminLayout>
