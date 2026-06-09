@@ -1,12 +1,13 @@
 import { useEffect } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Scissors } from "lucide-react";
+import { Scissors, LogOut } from "lucide-react";
 import { WebhookSettings } from "@/components/WebhookSettings";
 import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { useTenant } from "@/contexts/TenantContext";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/superadmin")({
   component: SuperAdmin,
@@ -14,10 +15,29 @@ export const Route = createFileRoute("/superadmin")({
 
 function SuperAdmin() {
   const { refreshTenant } = useTenant();
+  const navigate = useNavigate();
   
   useEffect(() => {
+    const session = localStorage.getItem("superadmin_session");
+    if (!session) {
+      navigate({ to: "/superlogin" });
+      return;
+    }
+    
+    const user = JSON.parse(session);
+    if (user.nivel !== 0) {
+      localStorage.removeItem("superadmin_session");
+      navigate({ to: "/superlogin" });
+      return;
+    }
+
     refreshTenant();
-  }, [refreshTenant]);
+  }, [refreshTenant, navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("superadmin_session");
+    navigate({ to: "/superlogin" });
+  };
 
   const { data: barbearias, isLoading } = useQuery({
     queryKey: ["barbearias"],
@@ -32,7 +52,14 @@ function SuperAdmin() {
   });
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4 relative">
+      <div className="absolute top-4 right-4">
+        <Button variant="ghost" className="text-white hover:text-primary" onClick={handleLogout}>
+          <LogOut className="w-5 h-5 mr-2" />
+          Sair
+        </Button>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
