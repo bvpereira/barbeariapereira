@@ -63,14 +63,17 @@ function ComunidadePage() {
       
       if (adminSession) {
         setUser(JSON.parse(adminSession));
+        setIsAdmin(true);
       } else if (userSession) {
         setUser(JSON.parse(userSession));
+        setIsAdmin(false);
       } else {
         navigate({ to: "/login" });
       }
     };
     checkUser();
   }, [navigate]);
+
 
   useEffect(() => {
     if (user) {
