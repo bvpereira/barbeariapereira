@@ -14,6 +14,59 @@ export const Route = createFileRoute("/superadmin")({
   component: SuperAdmin,
 });
 
+interface SidebarProps {
+  handleLogout: () => void;
+  onNavigate?: () => void;
+}
+
+const SidebarContent = ({ handleLogout, onNavigate }: SidebarProps) => {
+  const sidebarLinks = [
+    { title: "Painel SuperAdmin", icon: LayoutDashboard, href: "/superadmin" as const },
+    { title: "Comunidade", icon: MessageSquare, href: "/comunidade" as const },
+  ];
+
+  return (
+    <div className="flex flex-col h-full bg-card border-r border-primary/10">
+      <div className="p-6">
+        <h2 className="text-xl font-bold font-josefin uppercase tracking-widest text-primary flex items-center gap-2">
+          <Scissors className="w-6 h-6" />
+          SuperAdmin
+        </h2>
+      </div>
+      
+      <nav className="flex-1 px-4 space-y-2">
+        {sidebarLinks.map((link) => (
+          <Link
+            key={link.href}
+            to={link.href}
+            onClick={onNavigate}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-primary/10 text-muted-foreground hover:text-primary pointer-events-auto cursor-pointer"
+            activeProps={{ className: "bg-primary/20 text-primary border border-primary/20" }}
+          >
+            <link.icon className="w-5 h-5" />
+            <span className="font-medium">{link.title}</span>
+          </Link>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t border-primary/10 relative z-50">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleLogout();
+          }}
+        >
+          <LogOut className="w-5 h-5" />
+          Sair
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 function SuperAdmin() {
   const { refreshTenant } = useTenant();
   const navigate = useNavigate();
@@ -52,51 +105,6 @@ function SuperAdmin() {
       return data;
     },
   });
-
-  const sidebarLinks = [
-    { title: "Painel SuperAdmin", icon: LayoutDashboard, href: "/superadmin" as const },
-    { title: "Comunidade", icon: MessageSquare, href: "/comunidade" as const },
-  ];
-
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-card border-r border-primary/10">
-      <div className="p-6">
-        <h2 className="text-xl font-bold font-josefin uppercase tracking-widest text-primary flex items-center gap-2">
-          <Scissors className="w-6 h-6" />
-          SuperAdmin
-        </h2>
-      </div>
-      
-      <nav className="flex-1 px-4 space-y-2">
-        {sidebarLinks.map((link) => (
-          <Link
-            key={link.href}
-            to={link.href}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-primary/10 text-muted-foreground hover:text-primary pointer-events-auto"
-            activeProps={{ className: "bg-primary/20 text-primary border border-primary/20" }}
-          >
-            <link.icon className="w-5 h-5" />
-            <span className="font-medium">{link.title}</span>
-          </Link>
-        ))}
-      </nav>
-
-      <div className="p-4 border-t border-primary/10 relative z-50">
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleLogout();
-          }}
-        >
-          <LogOut className="w-5 h-5" />
-          Sair
-        </Button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="flex min-h-screen bg-black text-white">
