@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SuperadminRouteImport } from './routes/superadmin'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
@@ -30,6 +31,11 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SuperadminRoute = SuperadminRouteImport.update({
+  id: '/superadmin',
+  path: '/superadmin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
+  '/superadmin': typeof SuperadminRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
+  '/superadmin': typeof SuperadminRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
+  '/superadmin': typeof SuperadminRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/registro'
     | '/servicos'
+    | '/superadmin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/registro'
     | '/servicos'
+    | '/superadmin'
   id:
     | '__root__'
     | '/'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/redefinir-senha'
     | '/registro'
     | '/servicos'
+    | '/superadmin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -288,10 +300,18 @@ export interface RootRouteChildren {
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RegistroRoute: typeof RegistroRoute
   ServicosRoute: typeof ServicosRoute
+  SuperadminRoute: typeof SuperadminRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/superadmin': {
+      id: '/superadmin'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof SuperadminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/servicos': {
       id: '/servicos'
       path: '/servicos'
@@ -456,16 +476,8 @@ const rootRouteChildren: RootRouteChildren = {
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RegistroRoute: RegistroRoute,
   ServicosRoute: ServicosRoute,
+  SuperadminRoute: SuperadminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
