@@ -303,14 +303,14 @@ function ComunidadePage() {
     }
   };
 
-  return (
-    <AdminLayout>
-      <div className="max-w-3xl mx-auto space-y-6 pb-20">
-        <header className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold font-josefin uppercase tracking-wider text-primary">Comunidade</h1>
-        </header>
+  const content = (
+    <div className="max-w-3xl mx-auto space-y-6 pb-20">
+      <header className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold font-josefin uppercase tracking-wider text-primary">Comunidade</h1>
+      </header>
 
-        {/* Área de Criação */}
+      {/* Área de Criação */}
+
         <Card className="border-primary/20 bg-card/50">
           <CardContent className="pt-6 space-y-4">
             <Textarea 
