@@ -360,6 +360,60 @@ export type Database = {
           },
         ]
       }
+      comunidade: {
+        Row: {
+          autor_id: string
+          created_at: string | null
+          id: string
+          imagem_url: string | null
+          parent_id: string | null
+          reacao_tipo: string | null
+          status: string | null
+          texto: string | null
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          autor_id: string
+          created_at?: string | null
+          id?: string
+          imagem_url?: string | null
+          parent_id?: string | null
+          reacao_tipo?: string | null
+          status?: string | null
+          texto?: string | null
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          autor_id?: string
+          created_at?: string | null
+          id?: string
+          imagem_url?: string | null
+          parent_id?: string | null
+          reacao_tipo?: string | null
+          status?: string | null
+          texto?: string | null
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comunidade_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comunidade_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comunidade"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dias_agenda: {
         Row: {
           ativo: boolean
