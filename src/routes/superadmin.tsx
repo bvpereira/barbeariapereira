@@ -3,7 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Scissors, LogOut } from "lucide-react";
+import { Scissors, LogOut, MessageSquare } from "lucide-react";
 import { WebhookSettings } from "@/components/WebhookSettings";
 import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { useTenant } from "@/contexts/TenantContext";
@@ -53,7 +53,11 @@ function SuperAdmin() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4 relative">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex gap-4">
+        <Button variant="ghost" className="text-white hover:text-primary" onClick={() => navigate({ to: "/comunidade" })}>
+          <MessageSquare className="w-5 h-5 mr-2" />
+          Comunidade
+        </Button>
         <Button variant="ghost" className="text-white hover:text-primary" onClick={handleLogout}>
           <LogOut className="w-5 h-5 mr-2" />
           Sair
