@@ -150,7 +150,10 @@ function ComunidadePage() {
   };
 
   const handleCreatePost = async () => {
-    if (!newPostText.trim() && !imageUrl) return;
+    if (!newPostText.trim()) {
+      toast.error("O texto do post é obrigatório");
+      return;
+    }
 
     try {
       const { error } = await supabase.from("comunidade").insert({
@@ -169,6 +172,7 @@ function ComunidadePage() {
       setPage(0);
       fetchPosts();
     } catch (error) {
+      console.error("Erro ao criar post:", error);
       toast.error("Erro ao criar post");
     }
   };
@@ -254,11 +258,25 @@ function ComunidadePage() {
   const handleDelete = async (postId: string) => {
     if (!confirm("Deseja realmente excluir este post?")) return;
     try {
+      const postToDelete = posts.find(p => p.id === postId);
+      
+      // Deletar imagem do storage se existir
+      if (postToDelete?.imagem_url) {
+        const url = postToDelete.imagem_url;
+        const bucket = 'comunidade_midia';
+        const urlParts = url.split(`/public/${bucket}/`);
+        if (urlParts.length > 1) {
+          const filePath = urlParts[1];
+          await supabase.storage.from(bucket).remove([filePath]);
+        }
+      }
+
       const { error } = await supabase.from("comunidade").delete().eq("id", postId);
       if (error) throw error;
       toast.success("Post removido");
       fetchPosts();
     } catch (error) {
+      console.error("Erro ao remover:", error);
       toast.error("Erro ao remover");
     }
   };
@@ -268,9 +286,6 @@ function ComunidadePage() {
       <div className="max-w-3xl mx-auto space-y-6 pb-20">
         <header className="flex items-center justify-between">
           <h1 className="text-3xl font-bold font-josefin uppercase tracking-wider text-primary">Comunidade</h1>
-          <Badge variant="outline" className="text-primary border-primary/20">
-            {user?.nivel === 0 ? "Super Admin" : "Colaborador"}
-          </Badge>
         </header>
 
         {/* Área de Criação */}
@@ -307,7 +322,7 @@ function ComunidadePage() {
                   </Button>
                 </label>
               </div>
-              <Button onClick={handleCreatePost} disabled={uploading || (!newPostText.trim() && !imageUrl)} className="gap-2">
+              <Button onClick={handleCreatePost} disabled={uploading || !newPostText.trim()} className="gap-2">
                 <Send className="h-4 w-4" />
                 Publicar
               </Button>
