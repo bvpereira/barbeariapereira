@@ -478,15 +478,10 @@ function ComunidadePage() {
               <p>Nenhuma publicação encontrada.</p>
             </div>
           )}
+        </div>
+      </div>
     </div>
   );
-
-
-
-
-
-
-
 
   return isAdmin ? (
     <SuperAdminLayout>{content}</SuperAdminLayout>
@@ -494,4 +489,5 @@ function ComunidadePage() {
     <AdminLayout>{content}</AdminLayout>
   );
 }
+
 
