@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
-import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical, Image as ImageIcon } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical, Image as ImageIcon, LayoutGrid } from "lucide-react";
 import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -379,6 +379,16 @@ function ColaboradorPage() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
                 variant="default"
               />
+              {Number(user?.nivel) === 2 && (
+                <Button 
+                  variant="outline" 
+                  className="gap-2 border-primary/20 text-primary hover:bg-primary/10"
+                  onClick={() => navigate({ to: "/blog" })}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  Acessar Blog
+                </Button>
+              )}
             </CardContent>
           </Card>
 

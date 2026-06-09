@@ -28,6 +28,7 @@ import { Route as ColaboradorRouteImport } from './routes/colaborador'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as ClienteRouteImport } from './routes/cliente'
 import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AtendimentosRouteImport } from './routes/atendimentos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as SlugRouteImport } from './routes/$slug'
@@ -128,6 +129,11 @@ const CadastroRoute = CadastroRouteImport.update({
   path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AtendimentosRoute = AtendimentosRouteImport.update({
   id: '/atendimentos',
   path: '/atendimentos',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRoute
   '/atendimentos': typeof AtendimentosRoute
+  '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRoute
   '/atendimentos': typeof AtendimentosRoute
+  '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRoute
   '/atendimentos': typeof AtendimentosRoute
+  '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin'
     | '/atendimentos'
+    | '/blog'
     | '/cadastro'
     | '/cliente'
     | '/clientes'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin'
     | '/atendimentos'
+    | '/blog'
     | '/cadastro'
     | '/cliente'
     | '/clientes'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin'
     | '/atendimentos'
+    | '/blog'
     | '/cadastro'
     | '/cliente'
     | '/clientes'
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   AdminRoute: typeof AdminRoute
   AtendimentosRoute: typeof AtendimentosRoute
+  BlogRoute: typeof BlogRoute
   CadastroRoute: typeof CadastroRoute
   ClienteRoute: typeof ClienteRoute
   ClientesRoute: typeof ClientesRoute
@@ -464,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/atendimentos': {
       id: '/atendimentos'
       path: '/atendimentos'
@@ -500,6 +520,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRoute: SlugRoute,
   AdminRoute: AdminRoute,
   AtendimentosRoute: AtendimentosRoute,
+  BlogRoute: BlogRoute,
   CadastroRoute: CadastroRoute,
   ClienteRoute: ClienteRoute,
   ClientesRoute: ClientesRoute,
