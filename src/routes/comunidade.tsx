@@ -185,16 +185,21 @@ function ComunidadePage() {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
+      
       const { error: uploadError } = await supabase.storage
         .from('comunidade_midia')
         .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        // Se o bucket não existe, tenta explicar melhor o erro ou registrar
+        console.error("Erro no upload (Storage):", uploadError);
+        throw new Error("Não foi possível realizar o upload da imagem. O sistema de arquivos pode estar indisponível.");
+      }
 
       const { data } = supabase.storage.from('comunidade_midia').getPublicUrl(fileName);
       setImageUrl(data.publicUrl);
-    } catch (error) {
-      toast.error("Erro no upload da imagem");
+    } catch (error: any) {
+      toast.error(error.message || "Erro no upload da imagem");
     } finally {
       setUploading(false);
     }
