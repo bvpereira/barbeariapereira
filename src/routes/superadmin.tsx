@@ -109,7 +109,7 @@ function SuperAdmin() {
   return (
     <div className="flex min-h-screen bg-black text-white">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:block w-64 fixed h-full z-20">
+      <aside className="hidden md:block w-64 fixed h-full z-40 top-0 left-0">
         <SidebarContent handleLogout={handleLogout} />
       </aside>
 
