@@ -342,7 +342,7 @@ function BlogPage() {
           </CardContent>
           <CardFooter className="bg-primary/5 border-t border-primary/10 flex justify-end gap-3 p-4">
             <Button variant="ghost" onClick={() => { setShowForm(false); setEditingPost(null); resetForm(); }}>Cancelar</Button>
-            <Button onClick={handleSubmit} disabled={isSubmitting || !titulo || !resumo} className="min-w-[120px]">
+            <Button onClick={handleSubmit} disabled={isSubmitting || !titulo.trim() || !resumo.trim() || !imagePreview} className="min-w-[120px]">
               {isSubmitting ? "Enviando..." : editingPost ? "Salvar Alterações" : "Publicar"}
             </Button>
           </CardFooter>
