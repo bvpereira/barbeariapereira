@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
-import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical, Image as ImageIcon } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, CheckCircle2, AlertTriangle, Search, History, ChevronDown, Trash2, MoreVertical, Image as ImageIcon, LayoutGrid } from "lucide-react";
 import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
