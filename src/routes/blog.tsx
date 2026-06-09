@@ -12,6 +12,7 @@ import {
   Plus, 
   Trash2, 
   ThumbsUp, 
+  ThumbsDown,
   ExternalLink, 
   Image as ImageIcon, 
   Edit2, 
@@ -250,6 +251,29 @@ function BlogPage() {
     }
   };
 
+  const handleDislike = async (post: BlogPost) => {
+    const isDisliked = post.dislikes?.includes(user.id);
+    let newDislikes = post.dislikes || [];
+
+    if (isDisliked) {
+      newDislikes = newDislikes.filter(id => id !== user.id);
+    } else {
+      newDislikes = [...newDislikes, user.id];
+    }
+
+    try {
+      const { error } = await (supabase.from("blog" as any) as any)
+        .update({ dislikes: newDislikes })
+        .eq("id", post.id);
+      
+      if (error) throw error;
+      
+      setPosts(prev => prev.map(p => p.id === post.id ? { ...p, dislikes: newDislikes } : p));
+    } catch (error) {
+      toast.error("Erro ao processar descurtida");
+    }
+  };
+
   const content = (
     <div className="max-w-4xl mx-auto space-y-8 pb-20 px-4">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-primary/10 pb-6">
@@ -397,6 +421,16 @@ function BlogPage() {
                     >
                       <ThumbsUp className={`w-4 h-4 ${post.likes?.includes(user?.id) ? 'fill-primary' : ''}`} />
                       <span className="font-bold">{post.likes?.length || 0}</span>
+                    </Button>
+
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`gap-2 ${post.dislikes?.includes(user?.id) ? 'bg-destructive/20 text-destructive' : 'hover:bg-destructive/10'}`}
+                      onClick={() => handleDislike(post)}
+                    >
+                      <ThumbsDown className={`w-4 h-4 ${post.dislikes?.includes(user?.id) ? 'fill-destructive' : ''}`} />
+                      <span className="font-bold">{post.dislikes?.length || 0}</span>
                     </Button>
                   </div>
                   
