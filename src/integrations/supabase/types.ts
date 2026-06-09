@@ -837,7 +837,7 @@ export type Database = {
       }
       usuarios: {
         Row: {
-          barbearia_id: string
+          barbearia_id: string | null
           created_at: string
           id: string
           login: string
@@ -851,7 +851,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          barbearia_id: string
+          barbearia_id?: string | null
           created_at?: string
           id?: string
           login: string
@@ -865,7 +865,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          barbearia_id?: string
+          barbearia_id?: string | null
           created_at?: string
           id?: string
           login?: string

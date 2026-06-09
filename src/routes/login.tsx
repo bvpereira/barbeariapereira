@@ -95,7 +95,7 @@ function Login() {
           .limit(2);
         
         if (userBarbearia && userBarbearia.length === 1) {
-          activeTenantId = userBarbearia[0].barbearia_id;
+          activeTenantId = userBarbearia[0].barbearia_id || undefined;
         } else if (userBarbearia && userBarbearia.length > 1) {
           // Se houver duplicidade em unidades diferentes, tentamos o login sem assumir uma unidade
           // O handleSignIn continuará filtrando pelo activeTenantId se ele for encontrado depois
@@ -189,7 +189,7 @@ function Login() {
           .limit(2);
         
         if (userBarbearia && userBarbearia.length === 1) {
-          activeTenantId = userBarbearia[0].barbearia_id;
+          activeTenantId = userBarbearia[0].barbearia_id || undefined;
         } else {
           toast.error("Unidade não identificada. Por favor, acesse pelo link da sua barbearia.");
           setIsRecoveryLoading(false);
@@ -203,7 +203,7 @@ function Login() {
         .from("usuarios")
         .select("nome, login")
         .eq("login", cleanLogin)
-        .eq("barbearia_id", activeTenantId)
+        .eq("barbearia_id", activeTenantId as string)
         .maybeSingle();
       
       console.log("User check result:", { usuario, userError });
@@ -227,7 +227,7 @@ function Login() {
         .from("usuarios")
         .update({ recovery_token: recoveryToken })
         .eq("login", usuario.login)
-        .eq("barbearia_id", tenant!.id);
+        .eq("barbearia_id", tenant?.id || "");
 
       console.log("Token update result:", updateError);
 
@@ -259,7 +259,7 @@ function Login() {
         .from("informacoes" as any)
         .select("tel_contato")
         .eq("userrr", "admin")
-        .eq("barbearia_id", tenant!.id)
+        .eq("barbearia_id", tenant?.id || "")
         .maybeSingle());
 
       console.log("Admin info fetch result:", { info, infoError });
@@ -275,9 +275,9 @@ function Login() {
             tel_cliente: usuario.login,
             nome_cliente: usuario.nome,
             tel_contato: telContato,
-            barbearia_id: tenant!.id,
-            id_barbearia: tenant!.id,
-            ID_BARBEARIA: tenant!.id,
+            barbearia_id: tenant?.id || "",
+            id_barbearia: tenant?.id || "",
+            ID_BARBEARIA: tenant?.id || "",
             link_recuperacao: `${window.location.origin}/redefinir-senha?user=${recoveryToken}`
           }
         };
