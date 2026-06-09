@@ -110,7 +110,7 @@ function SuperAdmin() {
     <div className="flex min-h-screen bg-black text-white">
       {/* Desktop Sidebar */}
       <aside className="hidden md:block w-64 fixed h-full z-20">
-        <SidebarContent />
+        <SidebarContent handleLogout={handleLogout} />
       </aside>
 
       {/* Mobile Header */}
@@ -132,7 +132,10 @@ function SuperAdmin() {
                 Menu
               </SheetTitle>
             </SheetHeader>
-            <SidebarContent />
+            <SidebarContent 
+              handleLogout={handleLogout} 
+              onNavigate={() => setIsMobileMenuOpen(false)} 
+            />
           </SheetContent>
         </Sheet>
       </header>
