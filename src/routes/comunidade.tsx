@@ -44,8 +44,14 @@ interface Post {
 
 function ComunidadePage() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<any>(() => {
+    const adminSession = localStorage.getItem("superadmin_session");
+    const userSession = localStorage.getItem("user");
+    if (adminSession) return JSON.parse(adminSession);
+    if (userSession) return JSON.parse(userSession);
+    return null;
+  });
+  const [isAdmin, setIsAdmin] = useState(() => !!localStorage.getItem("superadmin_session"));
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
