@@ -379,6 +379,16 @@ function ColaboradorPage() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
                 variant="default"
               />
+              {Number(user?.nivel) === 2 && (
+                <Button 
+                  variant="outline" 
+                  className="gap-2 border-primary/20 text-primary hover:bg-primary/10"
+                  onClick={() => navigate({ to: "/blog" })}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  Acessar Blog
+                </Button>
+              )}
             </CardContent>
           </Card>
 
