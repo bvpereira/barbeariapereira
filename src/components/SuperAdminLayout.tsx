@@ -11,6 +11,7 @@ interface SuperAdminLayoutProps {
 const sidebarLinks = [
   { title: "Painel SuperAdmin", icon: LayoutDashboard, href: "/superadmin" as const },
   { title: "Comunidade", icon: MessageSquare, href: "/comunidade" as const },
+  { title: "Blog", icon: LayoutDashboard, href: "/blog" as const },
 ];
 
 function SidebarContent({ onNavigate, handleLogout }: { onNavigate?: () => void; handleLogout: () => void }) {
