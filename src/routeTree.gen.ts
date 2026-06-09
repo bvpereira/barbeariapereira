@@ -22,6 +22,7 @@ import { Route as IacodconsumiRouteImport } from './routes/iacodconsumi'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
+import { Route as ComunidadeRouteImport } from './routes/comunidade'
 import { Route as ColaboradoresRouteImport } from './routes/colaboradores'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
 import { Route as ClientesRouteImport } from './routes/clientes'
@@ -97,6 +98,11 @@ const FinanceiroRoute = FinanceiroRouteImport.update({
   path: '/financeiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComunidadeRoute = ComunidadeRouteImport.update({
+  id: '/comunidade',
+  path: '/comunidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColaboradoresRoute = ColaboradoresRouteImport.update({
   id: '/colaboradores',
   path: '/colaboradores',
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof ClientesRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
+  '/comunidade': typeof ComunidadeRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByTo {
   '/clientes': typeof ClientesRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
+  '/comunidade': typeof ComunidadeRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -202,6 +210,7 @@ export interface FileRoutesById {
   '/clientes': typeof ClientesRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
+  '/comunidade': typeof ComunidadeRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/colaborador'
     | '/colaboradores'
+    | '/comunidade'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/colaborador'
     | '/colaboradores'
+    | '/comunidade'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/colaborador'
     | '/colaboradores'
+    | '/comunidade'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -301,6 +313,7 @@ export interface RootRouteChildren {
   ClientesRoute: typeof ClientesRoute
   ColaboradorRoute: typeof ColaboradorRoute
   ColaboradoresRoute: typeof ColaboradoresRoute
+  ComunidadeRoute: typeof ComunidadeRoute
   FinanceiroRoute: typeof FinanceiroRoute
   GastosRoute: typeof GastosRoute
   HorariosRoute: typeof HorariosRoute
@@ -409,6 +422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comunidade': {
+      id: '/comunidade'
+      path: '/comunidade'
+      fullPath: '/comunidade'
+      preLoaderRoute: typeof ComunidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/colaboradores': {
       id: '/colaboradores'
       path: '/colaboradores'
@@ -485,6 +505,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClientesRoute: ClientesRoute,
   ColaboradorRoute: ColaboradorRoute,
   ColaboradoresRoute: ColaboradoresRoute,
+  ComunidadeRoute: ComunidadeRoute,
   FinanceiroRoute: FinanceiroRoute,
   GastosRoute: GastosRoute,
   HorariosRoute: HorariosRoute,
