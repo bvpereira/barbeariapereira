@@ -1,13 +1,14 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { Scissors, LogOut, MessageSquare } from "lucide-react";
+import { Scissors, LogOut, MessageSquare, LayoutDashboard, Menu, Home } from "lucide-react";
 import { WebhookSettings } from "@/components/WebhookSettings";
 import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/superadmin")({
   component: SuperAdmin,
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/superadmin")({
 function SuperAdmin() {
   const { refreshTenant } = useTenant();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   useEffect(() => {
     const session = localStorage.getItem("superadmin_session");
@@ -51,91 +53,153 @@ function SuperAdmin() {
     },
   });
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4 relative">
-      <div className="absolute top-4 right-4 flex gap-4">
-        <Button variant="ghost" className="text-white hover:text-primary" onClick={() => navigate({ to: "/comunidade" })}>
-          <MessageSquare className="w-5 h-5 mr-2" />
-          Comunidade
-        </Button>
-        <Button variant="ghost" className="text-white hover:text-primary" onClick={handleLogout}>
-          <LogOut className="w-5 h-5 mr-2" />
+  const sidebarLinks = [
+    { title: "Painel SuperAdmin", icon: LayoutDashboard, href: "/superadmin" },
+    { title: "Comunidade", icon: MessageSquare, href: "/comunidade" },
+  ];
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full bg-card border-r border-primary/10">
+      <div className="p-6">
+        <h2 className="text-xl font-bold font-josefin uppercase tracking-widest text-primary flex items-center gap-2">
+          <Scissors className="w-6 h-6" />
+          SuperAdmin
+        </h2>
+      </div>
+      
+      <nav className="flex-1 px-4 space-y-2">
+        {sidebarLinks.map((link) => (
+          <Link
+            key={link.href}
+            to={link.href}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-primary/10 text-muted-foreground hover:text-primary"
+            activeProps={{ className: "bg-primary/20 text-primary border border-primary/20" }}
+          >
+            <link.icon className="w-5 h-5" />
+            <span className="font-medium">{link.title}</span>
+          </Link>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t border-primary/10">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-5 h-5" />
           Sair
         </Button>
       </div>
+    </div>
+  );
 
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-12"
-      >
-        <h1 className="text-4xl md:text-6xl font-bold font-josefin uppercase tracking-widest text-primary mb-4">
-          Painel Super Admin
-        </h1>
-        <div className="w-24 h-1 bg-primary mx-auto mb-8" />
-        <p className="text-muted-foreground text-lg max-w-md mx-auto">
-          Gerenciamento global de unidades e integrações.
-        </p>
-      </motion.div>
+  return (
+    <div className="flex min-h-screen bg-black text-white">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:block w-64 fixed h-full z-20">
+        <SidebarContent />
+      </aside>
 
-      {isLoading ? (
-        <div className="animate-pulse text-primary font-josefin">Carregando unidades...</div>
-      ) : (
-        <div className="grid gap-6 w-full max-w-md">
-          {barbearias?.map((barb, index) => (
-            <motion.div
-              key={barb.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Link
-                to={`/${barb.slug}`}
-                className="group flex items-center justify-between p-6 bg-card border border-primary/10 rounded-2xl hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+      {/* Mobile Header */}
+      <header className="md:hidden fixed top-0 inset-x-0 h-16 z-30 flex items-center justify-between px-4 bg-black/80 backdrop-blur-md border-b border-primary/10">
+        <h2 className="text-lg font-bold font-josefin text-primary flex items-center gap-2">
+          <Scissors className="w-5 h-5" />
+          SuperAdmin
+        </h2>
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-primary">
+              <Menu className="w-6 h-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-64 bg-black border-r border-primary/20">
+            <SheetHeader className="p-6 border-b border-primary/10 text-left">
+              <SheetTitle className="text-primary font-josefin uppercase tracking-widest flex items-center gap-2">
+                <Scissors className="w-6 h-6" />
+                Menu
+              </SheetTitle>
+            </SheetHeader>
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl md:text-6xl font-bold font-josefin uppercase tracking-widest text-primary mb-4">
+            Painel Super Admin
+          </h1>
+          <div className="w-24 h-1 bg-primary mx-auto mb-8" />
+          <p className="text-muted-foreground text-lg max-w-md mx-auto">
+            Gerenciamento global de unidades e integrações.
+          </p>
+        </motion.div>
+
+        {isLoading ? (
+          <div className="animate-pulse text-primary font-josefin">Carregando unidades...</div>
+        ) : (
+          <div className="grid gap-6 w-full max-w-md">
+            {barbearias?.map((barb, index) => (
+              <motion.div
+                key={barb.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Scissors className="text-primary w-6 h-6" />
+                <Link
+                  to={`/${barb.slug}`}
+                  className="group flex items-center justify-between p-6 bg-card border border-primary/10 rounded-2xl hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Scissors className="text-primary w-6 h-6" />
+                    </div>
+                    <span className="text-xl font-bold font-josefin uppercase tracking-wide">
+                      {barb.nome}
+                    </span>
                   </div>
-                  <span className="text-xl font-bold font-josefin uppercase tracking-wide">
-                    {barb.nome}
-                  </span>
-                </div>
-                <div className="w-8 h-8 rounded-full border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                  →
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      )}
+                  <div className="w-8 h-8 rounded-full border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                    →
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-20 w-full max-w-6xl"
-      >
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
-            Configurações de Webhooks
-          </h2>
-          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
-        </div>
-        <div className="bg-card/50 backdrop-blur-sm border border-primary/10 rounded-3xl p-8 mb-8">
-          <WebhookSettings />
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-20 w-full max-w-4xl"
+        >
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
+              Configurações de Webhooks
+            </h2>
+            <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
+          </div>
+          <div className="bg-card/50 backdrop-blur-sm border border-primary/10 rounded-3xl p-8 mb-8 overflow-x-auto">
+            <WebhookSettings />
+          </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
-            Configurações do Evolution
-          </h2>
-          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
-        </div>
-        <div className="max-w-2xl mx-auto">
-          <EvolutionSettings />
-        </div>
-      </motion.div>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
+              Configurações do Evolution
+            </h2>
+            <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
+          </div>
+          <div className="max-w-2xl mx-auto">
+            <EvolutionSettings />
+          </div>
+        </motion.div>
+      </main>
     </div>
   );
 }
