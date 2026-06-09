@@ -342,11 +342,11 @@ function ComunidadePage() {
                 </div>
                 <div className="flex items-center gap-2">
                   {post.status === 'pendente' ? (
-                    <Badge variant="warning" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 gap-1">
+                    <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 gap-1">
                       <Clock className="h-3 w-3" /> Pendente
                     </Badge>
                   ) : (
-                    <Badge variant="success" className="bg-green-500/10 text-green-500 border-green-500/20 gap-1">
+                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 gap-1">
                       <CheckCircle className="h-3 w-3" /> Aprovado
                     </Badge>
                   )}
