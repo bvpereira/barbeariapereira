@@ -463,11 +463,20 @@ function BlogPage() {
     </div>
   );
 
-  return isSuperAdmin ? (
-    <SuperAdminLayout>{content}</SuperAdminLayout>
-  ) : (
-    <AdminLayout>{content}</AdminLayout>
-  );
+  if (isSuperAdmin) {
+    return <SuperAdminLayout>{content}</SuperAdminLayout>;
+  }
+
+  // Se for colaborador (nível 2), não renderiza o AdminLayout com sidebar
+  if (user?.nivel === 2) {
+    return (
+      <div className="min-h-screen bg-background">
+        {content}
+      </div>
+    );
+  }
+
+  return <AdminLayout>{content}</AdminLayout>;
 }
 
 export default BlogPage;
