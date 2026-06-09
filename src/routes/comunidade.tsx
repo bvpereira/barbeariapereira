@@ -52,6 +52,7 @@ function ComunidadePage() {
     return null;
   });
   const [isAdmin, setIsAdmin] = useState(() => !!localStorage.getItem("superadmin_session"));
+  const [isUser, setIsUser] = useState(() => !!localStorage.getItem("user"));
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
