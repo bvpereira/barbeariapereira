@@ -483,6 +483,7 @@ function ComunidadePage() {
   );
 
 
+
   return isAdmin ? (
     <SuperAdminLayout>{content}</SuperAdminLayout>
   ) : (
