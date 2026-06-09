@@ -426,9 +426,12 @@ function Login() {
             </DialogContent>
           </Dialog>
 
-          <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
-            Voltar para página inicial
-          </Link>
+          <button 
+            onClick={() => window.history.back()} 
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
+            Voltar para página anterior
+          </button>
         </div>
       </div>
 
@@ -445,7 +448,7 @@ function Login() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction 
-              onClick={() => navigate({ to: "/" })}
+              onClick={() => window.history.back()}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Entendido
