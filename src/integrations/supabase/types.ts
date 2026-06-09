@@ -240,6 +240,48 @@ export type Database = {
         }
         Relationships: []
       }
+      blog: {
+        Row: {
+          autor_id: string
+          barbearia_id: string | null
+          created_at: string
+          dislikes: string[] | null
+          id: string
+          imagem_url: string | null
+          likes: string[] | null
+          link_noticia: string | null
+          resumo: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          autor_id: string
+          barbearia_id?: string | null
+          created_at?: string
+          dislikes?: string[] | null
+          id?: string
+          imagem_url?: string | null
+          likes?: string[] | null
+          link_noticia?: string | null
+          resumo: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          autor_id?: string
+          barbearia_id?: string | null
+          created_at?: string
+          dislikes?: string[] | null
+          id?: string
+          imagem_url?: string | null
+          likes?: string[] | null
+          link_noticia?: string | null
+          resumo?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       colaborador_servicos: {
         Row: {
           barbearia_id: string
