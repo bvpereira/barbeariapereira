@@ -478,10 +478,10 @@ function ComunidadePage() {
               <p>Nenhuma publicação encontrada.</p>
             </div>
           )}
-        </div>
       </div>
     </div>
   );
+
 
 
 
