@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,10 +15,8 @@ import {
   ExternalLink, 
   Image as ImageIcon, 
   Edit2, 
-  LayoutGrid,
   TrendingUp,
-  Clock,
-  ArrowLeft
+  Clock
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -53,7 +51,6 @@ function BlogPage() {
   const [hasMore, setHasMore] = useState(true);
   const [sortBy, setSortBy] = useState<'recent' | 'likes'>('recent');
 
-  // Form states
   const [showForm, setShowForm] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [titulo, setTitulo] = useState("");
@@ -98,26 +95,17 @@ function BlogPage() {
     setLoading(true);
     const currentPage = reset ? 0 : page;
     try {
-      let query = supabase
-        .from("blog")
+      // Cast to any to bypass type generation issues for a newly created table
+      let query = (supabase.from("blog" as any) as any)
         .select("*")
         .range(currentPage * 10, (currentPage + 1) * 10 - 1);
 
-      if (sortBy === 'recent') {
-        query = query.order("created_at", { ascending: false });
-      } else {
-        // Para ordenar por likes, precisaríamos de uma coluna calculada ou fazer client-side
-        // Como o Supabase não suporta order by array_length facilmente sem RPC,
-        // vamos carregar e ordenar client-side se for 'likes' para simplificar, 
-        // ou ordenar por data e depois permitir toggle.
-        // Ajuste: Ordenar por likes usando lógica client-side para o lote atual ou buscar tudo.
-        query = query.order("created_at", { ascending: false });
-      }
+      query = query.order("created_at", { ascending: false });
 
       const { data, error } = await query;
       if (error) throw error;
 
-      let processedData = data || [];
+      let processedData = (data as BlogPost[]) || [];
       if (sortBy === 'likes') {
         processedData = [...processedData].sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
       }
@@ -155,7 +143,6 @@ function BlogPage() {
       let imageUrl = editingPost?.imagem_url || null;
 
       if (image) {
-        // Se já tem imagem e estamos editando, apagar a antiga
         if (editingPost?.imagem_url) {
           const oldPath = editingPost.imagem_url.split('/').pop();
           if (oldPath) await supabase.storage.from('blog_midia').remove([oldPath]);
@@ -182,11 +169,11 @@ function BlogPage() {
       };
 
       if (editingPost) {
-        const { error } = await supabase.from("blog").update(postData).eq("id", editingPost.id);
+        const { error } = await (supabase.from("blog" as any) as any).update(postData).eq("id", editingPost.id);
         if (error) throw error;
         toast.success("Post atualizado!");
       } else {
-        const { error } = await supabase.from("blog").insert([postData]);
+        const { error } = await (supabase.from("blog" as any) as any).insert([postData]);
         if (error) throw error;
         toast.success("Post criado!");
       }
@@ -227,7 +214,7 @@ function BlogPage() {
         const fileName = post.imagem_url.split('/').pop();
         if (fileName) await supabase.storage.from('blog_midia').remove([fileName]);
       }
-      const { error } = await supabase.from("blog").delete().eq("id", post.id);
+      const { error } = await (supabase.from("blog" as any) as any).delete().eq("id", post.id);
       if (error) throw error;
       toast.success("Post removido");
       fetchPosts(true);
@@ -247,8 +234,7 @@ function BlogPage() {
     }
 
     try {
-      const { error } = await supabase
-        .from("blog")
+      const { error } = await (supabase.from("blog" as any) as any)
         .update({ likes: newLikes })
         .eq("id", post.id);
       
