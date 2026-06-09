@@ -311,6 +311,7 @@ function ComunidadePage() {
 
       {/* Área de Criação */}
 
+
         <Card className="border-primary/20 bg-card/50">
           <CardContent className="pt-6 space-y-4">
             <Textarea 
