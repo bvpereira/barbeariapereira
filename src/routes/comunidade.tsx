@@ -461,9 +461,13 @@ function ComunidadePage() {
     </div>
   );
 
-  return isAdmin ? (
-    <SuperAdminLayout>{content}</SuperAdminLayout>
-  ) : (
-    <AdminLayout>{content}</AdminLayout>
-  );
+  if (isAdmin) {
+    return <SuperAdminLayout>{content}</SuperAdminLayout>;
+  }
+
+  if (isUser) {
+    return <AdminLayout>{content}</AdminLayout>;
+  }
+
+  return null;
 }
