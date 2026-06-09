@@ -16,6 +16,7 @@ const menuItems = [
   { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
   { title: "Promoções", icon: Megaphone, href: "/promocao" },
   { title: "Comunidade", icon: MessageSquare, href: "/comunidade" },
+  { title: "Blog", icon: LayoutDashboard, href: "/blog" },
   
   { title: "IA – CDC", icon: Scale, href: "/iacodconsumi" },
   { title: "IA – Imagem", icon: ImageIcon, href: "/iaimagem" },
