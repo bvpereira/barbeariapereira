@@ -44,8 +44,15 @@ interface Post {
 
 function ComunidadePage() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<any>(() => {
+    const adminSession = localStorage.getItem("superadmin_session");
+    const userSession = localStorage.getItem("user");
+    if (adminSession) return JSON.parse(adminSession);
+    if (userSession) return JSON.parse(userSession);
+    return null;
+  });
+  const [isAdmin, setIsAdmin] = useState(() => !!localStorage.getItem("superadmin_session"));
+  const [isUser, setIsUser] = useState(() => !!localStorage.getItem("user"));
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,9 +71,11 @@ function ComunidadePage() {
       if (adminSession) {
         setUser(JSON.parse(adminSession));
         setIsAdmin(true);
+        setIsUser(false);
       } else if (userSession) {
         setUser(JSON.parse(userSession));
         setIsAdmin(false);
+        setIsUser(true);
       } else {
         navigate({ to: "/login" });
       }
@@ -454,9 +463,13 @@ function ComunidadePage() {
     </div>
   );
 
-  return isAdmin ? (
-    <SuperAdminLayout>{content}</SuperAdminLayout>
-  ) : (
-    <AdminLayout>{content}</AdminLayout>
-  );
+  if (isAdmin) {
+    return <SuperAdminLayout>{content}</SuperAdminLayout>;
+  }
+
+  if (isUser) {
+    return <AdminLayout>{content}</AdminLayout>;
+  }
+
+  return null;
 }
