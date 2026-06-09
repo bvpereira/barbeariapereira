@@ -154,7 +154,11 @@ function BlogPage() {
           .from('blog_midia')
           .upload(fileName, image);
         
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          toast.error("Erro no upload da imagem: " + uploadError.message);
+          setIsSubmitting(false);
+          return;
+        }
         const { data } = supabase.storage.from('blog_midia').getPublicUrl(fileName);
         imageUrl = data.publicUrl;
       }
