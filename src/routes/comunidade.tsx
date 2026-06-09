@@ -156,24 +156,29 @@ function ComunidadePage() {
     }
 
     try {
-      const { error } = await supabase.from("comunidade").insert({
+      console.log("Tentando criar post:", { texto: newPostText, imagem_url: imageUrl, autor_id: user.id });
+      const { data, error } = await supabase.from("comunidade").insert({
         texto: newPostText,
         imagem_url: imageUrl,
         autor_id: user.id,
         tipo: "post",
         status: user.nivel === 0 ? "aprovado" : "pendente"
-      });
+      }).select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro detalhado do Supabase (Insert):", error);
+        throw error;
+      }
 
+      console.log("Post criado com sucesso:", data);
       toast.success(user.nivel === 0 ? "Post publicado!" : "Post enviado para aprovação!");
       setNewPostText("");
       setImageUrl(null);
       setPage(0);
       fetchPosts();
-    } catch (error) {
-      console.error("Erro ao criar post:", error);
-      toast.error("Erro ao criar post");
+    } catch (error: any) {
+      console.error("Erro capturado no handleCreatePost:", error);
+      toast.error(`Erro ao criar post: ${error.message || "Erro desconhecido"}`);
     }
   };
 
@@ -183,23 +188,29 @@ function ComunidadePage() {
 
     setUploading(true);
     try {
+      console.log("Iniciando upload de arquivo:", file.name, "Tamanho:", file.size);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
       
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('comunidade_midia')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
-        // Se o bucket não existe, tenta explicar melhor o erro ou registrar
-        console.error("Erro no upload (Storage):", uploadError);
-        throw new Error("Não foi possível realizar o upload da imagem. O sistema de arquivos pode estar indisponível.");
+        console.error("Erro detalhado do Supabase (Storage Upload):", uploadError);
+        throw uploadError;
       }
 
+      console.log("Upload concluído:", uploadData);
       const { data } = supabase.storage.from('comunidade_midia').getPublicUrl(fileName);
       setImageUrl(data.publicUrl);
+      console.log("URL pública gerada:", data.publicUrl);
     } catch (error: any) {
-      toast.error(error.message || "Erro no upload da imagem");
+      console.error("Erro capturado no handleImageUpload:", error);
+      toast.error(`Erro no upload da imagem: ${error.message || "Verifique se o bucket 'comunidade_midia' é público e existe"}`);
     } finally {
       setUploading(false);
     }
