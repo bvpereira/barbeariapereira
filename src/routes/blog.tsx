@@ -460,14 +460,32 @@ function BlogPage() {
           </div>
         )}
       </div>
+
+      <div className="flex justify-center pt-8 border-t border-primary/10">
+        <button 
+          onClick={() => navigate({ to: ".." })}
+          className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2 font-josefin uppercase tracking-widest text-sm"
+        >
+          ← Voltar para a página anterior
+        </button>
+      </div>
     </div>
   );
 
-  return isSuperAdmin ? (
-    <SuperAdminLayout>{content}</SuperAdminLayout>
-  ) : (
-    <AdminLayout>{content}</AdminLayout>
-  );
+  if (isSuperAdmin) {
+    return <SuperAdminLayout>{content}</SuperAdminLayout>;
+  }
+
+  // Se for colaborador (nível 2), não renderiza o AdminLayout com sidebar
+  if (user?.nivel === 2) {
+    return (
+      <div className="min-h-screen bg-background">
+        {content}
+      </div>
+    );
+  }
+
+  return <AdminLayout>{content}</AdminLayout>;
 }
 
 export default BlogPage;
