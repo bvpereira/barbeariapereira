@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SuperloginRouteImport } from './routes/superlogin'
 import { Route as SuperadminRouteImport } from './routes/superadmin'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RegistroRouteImport } from './routes/registro'
@@ -31,6 +32,11 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SuperloginRoute = SuperloginRouteImport.update({
+  id: '/superlogin',
+  path: '/superlogin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperadminRoute = SuperadminRouteImport.update({
   id: '/superadmin',
   path: '/superadmin',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
   '/superadmin': typeof SuperadminRoute
+  '/superlogin': typeof SuperloginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
   '/superadmin': typeof SuperadminRoute
+  '/superlogin': typeof SuperloginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/registro': typeof RegistroRoute
   '/servicos': typeof ServicosRoute
   '/superadmin': typeof SuperadminRoute
+  '/superlogin': typeof SuperloginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/servicos'
     | '/superadmin'
+    | '/superlogin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/servicos'
     | '/superadmin'
+    | '/superlogin'
   id:
     | '__root__'
     | '/'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/servicos'
     | '/superadmin'
+    | '/superlogin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -301,10 +313,18 @@ export interface RootRouteChildren {
   RegistroRoute: typeof RegistroRoute
   ServicosRoute: typeof ServicosRoute
   SuperadminRoute: typeof SuperadminRoute
+  SuperloginRoute: typeof SuperloginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/superlogin': {
+      id: '/superlogin'
+      path: '/superlogin'
+      fullPath: '/superlogin'
+      preLoaderRoute: typeof SuperloginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/superadmin': {
       id: '/superadmin'
       path: '/superadmin'
@@ -477,6 +497,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegistroRoute: RegistroRoute,
   ServicosRoute: ServicosRoute,
   SuperadminRoute: SuperadminRoute,
+  SuperloginRoute: SuperloginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
