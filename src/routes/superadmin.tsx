@@ -54,8 +54,8 @@ function SuperAdmin() {
   });
 
   const sidebarLinks = [
-    { title: "Painel SuperAdmin", icon: LayoutDashboard, href: "/superadmin" },
-    { title: "Comunidade", icon: MessageSquare, href: "/comunidade" },
+    { title: "Painel SuperAdmin", icon: LayoutDashboard, href: "/superadmin" as const },
+    { title: "Comunidade", icon: MessageSquare, href: "/comunidade" as const },
   ];
 
   const SidebarContent = () => (
@@ -72,7 +72,7 @@ function SuperAdmin() {
           <Link
             key={link.href}
             to={link.href}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-primary/10 text-muted-foreground hover:text-primary"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-primary/10 text-muted-foreground hover:text-primary pointer-events-auto"
             activeProps={{ className: "bg-primary/20 text-primary border border-primary/20" }}
           >
             <link.icon className="w-5 h-5" />
@@ -81,11 +81,15 @@ function SuperAdmin() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-primary/10">
+      <div className="p-4 border-t border-primary/10 relative z-50">
         <Button
           variant="ghost"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-          onClick={handleLogout}
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleLogout();
+          }}
         >
           <LogOut className="w-5 h-5" />
           Sair
