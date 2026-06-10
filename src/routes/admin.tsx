@@ -318,11 +318,11 @@ function AdminPage() {
           </CardHeader>
           <CardContent>
             {data.imagemBanner ? (
-              <div className=\"relative w-full md:w-1/2 overflow-hidden border rounded-lg\">
+              <div className="relative w-full md:w-1/2 overflow-hidden border rounded-lg">
                 <img 
                   src={data.imagemBanner} 
-                  alt=\"Banner Atual\" 
-                  className=\"w-full h-auto block\" 
+                  alt="Banner Atual" 
+                  className="w-full h-auto block" 
                 />
               </div>
             ) : (

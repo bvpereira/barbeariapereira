@@ -384,11 +384,11 @@ function ClientePage() {
         <div className="grid gap-6 md:grid-cols-2">
           {/* Section 0: Banner Promocional */}
           {imagemBanner && (
-            <div className=\"md:col-span-2 rounded-xl overflow-hidden shadow-sm border border-border/50\">
+            <div className="md:col-span-2 rounded-xl overflow-hidden shadow-sm border border-border/50">
               <img 
                 src={imagemBanner} 
-                alt=\"Banner Promocional\" 
-                className=\"w-full h-auto block\"
+                alt="Banner Promocional" 
+                className="w-full h-auto block"
               />
             </div>
           )}
