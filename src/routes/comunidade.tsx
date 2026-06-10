@@ -35,11 +35,15 @@ interface Post {
   status: 'pendente' | 'aprovado';
   autor_id: string;
   created_at: string;
-  autor: { nome: string };
+  autor: { 
+    nome: string;
+    barbearia_id: string;
+  };
   likes: number;
   dislikes: number;
   user_reaction: 'like' | 'dislike' | null;
   comentarios: any[];
+  autor_foto_perfil?: string | null;
 }
 
 function ComunidadePage() {
@@ -96,7 +100,7 @@ function ComunidadePage() {
         .from("comunidade")
         .select(`
           *,
-          autor:usuarios!autor_id(nome)
+          autor:usuarios!autor_id(nome, barbearia_id)
         `)
         .eq("tipo", "post")
         .order("created_at", { ascending: false })
@@ -135,12 +139,27 @@ function ComunidadePage() {
           const dislikes = reactions?.filter(r => r.reacao_tipo === 'dislike').length || 0;
           const user_reaction = reactions?.find(r => r.autor_id === user.id)?.reacao_tipo || null;
 
+          // Buscar foto de perfil da tabela informacoes baseada no barbearia_id do autor
+          let autor_foto_perfil = null;
+          if (post.autor?.barbearia_id) {
+            const { data: infoData } = await supabase
+              .from("informacoes" as any)
+              .select("foto_perfil")
+              .eq("barbearia_id", post.autor.barbearia_id)
+              .maybeSingle();
+            
+            if (infoData) {
+              autor_foto_perfil = (infoData as any).foto_perfil;
+            }
+          }
+
           return {
             ...post,
             likes,
             dislikes,
             user_reaction,
-            comentarios: comments || []
+            comentarios: comments || [],
+            autor_foto_perfil
           };
         }));
 
@@ -350,8 +369,12 @@ function ComunidadePage() {
           <Card key={post.id} className="border-primary/10 bg-card/30 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
+                  {post.autor_foto_perfil ? (
+                    <img src={post.autor_foto_perfil} alt={post.autor?.nome} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="h-5 w-5 text-primary" />
+                  )}
                 </div>
                 <div>
                   <p className="font-bold text-sm uppercase">{post.autor?.nome || "Usuário"}</p>
