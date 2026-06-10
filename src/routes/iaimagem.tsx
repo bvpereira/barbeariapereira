@@ -831,6 +831,47 @@ function IAImagemPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
+                </div>
+
+                {/* Terceira sub-área: Estilo de Texto e Emojis */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Configurações de Texto</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Estilo de Texto */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Estilo de Texto</label>
+                      <Select
+                        value={selections.texto_estilo}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_estilo: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione estilo de texto..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_estilo.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Uso de emojis */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Uso de emojis</label>
+                      <Select
+                        value={selections.texto_emoji}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_emoji: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione uso de emojis..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_emoji.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
                     {/* Com endereço? (Texto) */}
                     <div className="space-y-2">
@@ -880,47 +921,6 @@ function IAImagemPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {options.texto_telcontato.map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Terceira sub-área: Estilo de Texto e Emojis */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Configurações de Texto</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Estilo de Texto */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Estilo de Texto</label>
-                      <Select
-                        value={selections.texto_estilo}
-                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_estilo: val }))}
-                      >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
-                          <SelectValue placeholder="Selecione estilo de texto..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {options.texto_estilo.map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* Uso de emojis */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Uso de emojis</label>
-                      <Select
-                        value={selections.texto_emoji}
-                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_emoji: val }))}
-                      >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
-                          <SelectValue placeholder="Selecione uso de emojis..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {options.texto_emoji.map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
