@@ -22,6 +22,7 @@ import {
   Save,
   ClipboardPaste,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,6 +57,7 @@ function PromocaoPage() {
   const [promoAtual, setPromoAtual] = useState<any>({
     texto_promo: "",
     imagem_promo: null,
+    imagem_banner: null,
     testada: "nao",
   });
   
@@ -134,19 +136,22 @@ function PromocaoPage() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isBanner: boolean = false) => {
     const file = e.target.files?.[0];
     if (!file || !tenant) return;
 
     setUploading(true);
     try {
+      const bucket = isBanner ? "promocoes" : "promocoes"; // Using the same bucket for simplicity or you can use "banners" if exists
+      const existingUrl = isBanner ? promoAtual.imagem_banner : promoAtual.imagem_promo;
+
       // Deletar imagem anterior se existir
-      if (promoAtual.imagem_promo) {
+      if (existingUrl) {
         try {
-          const urlParts = promoAtual.imagem_promo.split("/");
+          const urlParts = existingUrl.split("/");
           const fileName = urlParts[urlParts.length - 1];
           await supabase.storage
-            .from("promocoes")
+            .from(bucket)
             .remove([fileName]);
           console.log("Imagem anterior removida com sucesso");
         } catch (err) {
@@ -154,30 +159,39 @@ function PromocaoPage() {
         }
       }
 
-      const fileName = `promo_${Date.now()}.jpg`;
+      const fileName = `${isBanner ? 'banner' : 'promo'}_${Date.now()}.jpg`;
       const { data, error: uploadError } = await supabase.storage
-        .from("promocoes")
+        .from(bucket)
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from("promocoes")
+        .from(bucket)
         .getPublicUrl(fileName);
 
-      // Save to Row 0 immediately and reset testada to "nao"
+      // Update Database
+      const updateData: any = {};
+      if (isBanner) {
+        updateData.imagem_banner = publicUrl;
+      } else {
+        updateData.imagem_promo = publicUrl;
+        updateData.testada = "nao";
+      }
+
       const { error: updateError } = await supabase
         .from("promocao")
-        .update({ 
-          imagem_promo: publicUrl,
-          testada: "nao"
-        })
+        .update(updateData)
         .eq("numero_promo", 0)
         .eq("barbearia_id", tenant.id);
 
       if (updateError) throw updateError;
 
-      setPromoAtual({ ...promoAtual, imagem_promo: publicUrl, testada: "nao" });
+      if (isBanner) {
+        setPromoAtual({ ...promoAtual, imagem_banner: publicUrl });
+      } else {
+        setPromoAtual({ ...promoAtual, imagem_promo: publicUrl, testada: "nao" });
+      }
       toast.success("Imagem enviada com sucesso!");
     } catch (error: any) {
       console.error(error);
@@ -185,6 +199,37 @@ function PromocaoPage() {
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDeleteBanner = async () => {
+    if (!tenant || !promoAtual.imagem_banner) return;
+    
+    setUploading(true);
+    try {
+      // 1. Delete from storage
+      const urlParts = promoAtual.imagem_banner.split("/");
+      const fileName = urlParts[urlParts.length - 1];
+      await supabase.storage
+        .from("promocoes")
+        .remove([fileName]);
+
+      // 2. Update database
+      const { error } = await supabase
+        .from("promocao")
+        .update({ imagem_banner: null })
+        .eq("numero_promo", 0)
+        .eq("barbearia_id", tenant.id);
+
+      if (error) throw error;
+
+      setPromoAtual({ ...promoAtual, imagem_banner: null });
+      toast.success("Banner removido com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao remover banner:", error);
+      toast.error("Erro ao remover banner");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -439,10 +484,84 @@ function PromocaoPage() {
   return (
     <AdminLayout>
       <div className="space-y-6 pb-10">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gerenciar Promoções</h1>
-          <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de promoções da barbearia.</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Promoções</h1>
+            <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de promoções da barbearia.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="px-3 py-1 bg-primary/5 text-primary border-primary/20">
+              Banner Clientes: {promoAtual.imagem_banner ? "Ativo" : "Não configurado"}
+            </Badge>
+          </div>
         </div>
+
+        {/* Upload de Banner para a página de clientes */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-primary" />
+              Banner para Clientes
+            </CardTitle>
+            <CardDescription>Esta imagem aparecerá no topo da página do cliente (Barber Web).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              <div className="relative w-full md:w-64 aspect-video rounded-lg border-2 border-dashed border-primary/30 bg-background flex items-center justify-center overflow-hidden">
+                {promoAtual.imagem_banner ? (
+                  <img src={promoAtual.imagem_banner} alt="Banner" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center p-4">
+                    <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2 opacity-50" />
+                    <p className="text-xs text-muted-foreground">Sem banner</p>
+                  </div>
+                )}
+                {uploading && (
+                  <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex-1 space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => handleImageUpload(e as any, true);
+                      input.click();
+                    }}
+                    disabled={uploading}
+                    className="gap-2"
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                    {promoAtual.imagem_banner ? "Alterar Banner" : "Fazer Upload"}
+                  </Button>
+                  
+                  {promoAtual.imagem_banner && (
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={handleDeleteBanner}
+                      disabled={uploading}
+                      className="gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Remover
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground italic">
+                  * Recomendado: 1200x400px ou proporção 3:1 para melhor exibição.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid gap-6 md:grid-cols-2">
 

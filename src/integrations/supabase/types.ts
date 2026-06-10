@@ -808,6 +808,7 @@ export type Database = {
           created_at: string | null
           data_promo: string | null
           id: string
+          imagem_banner: string | null
           imagem_ia: string | null
           imagem_promo: string | null
           numero_promo: number
@@ -822,6 +823,7 @@ export type Database = {
           created_at?: string | null
           data_promo?: string | null
           id?: string
+          imagem_banner?: string | null
           imagem_ia?: string | null
           imagem_promo?: string | null
           numero_promo: number
@@ -836,6 +838,7 @@ export type Database = {
           created_at?: string | null
           data_promo?: string | null
           id?: string
+          imagem_banner?: string | null
           imagem_ia?: string | null
           imagem_promo?: string | null
           numero_promo?: number
