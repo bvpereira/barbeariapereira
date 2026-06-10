@@ -777,6 +777,114 @@ function IAImagemPage() {
                         )}
                       </div>
                     </div>
+
+                    {/* Com endereço? (Imagem) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com endereço?</label>
+                      <Select
+                        value={selections.imagem_endereco}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_endereco: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com endereço?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_endereco.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com instagram? (Imagem) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com instagram?</label>
+                      <Select
+                        value={selections.imagem_instagram}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_instagram: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com instagram?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_instagram.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com telefone de contato? (Imagem) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com telefone de contato?</label>
+                      <Select
+                        value={selections.imagem_telcontato}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_telcontato: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com telefone de contato?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_telcontato.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com endereço? (Texto) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com endereço?</label>
+                      <Select
+                        value={selections.texto_endereco}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_endereco: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com endereço?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_endereco.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com instagram? (Texto) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com instagram?</label>
+                      <Select
+                        value={selections.texto_instagram}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_instagram: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com instagram?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_instagram.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com telefone de contato? (Texto) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com telefone de contato?</label>
+                      <Select
+                        value={selections.texto_telcontato}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_telcontato: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com telefone de contato?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_telcontato.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
