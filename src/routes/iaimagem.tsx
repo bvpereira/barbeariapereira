@@ -42,6 +42,12 @@ function IAImagemPage() {
     imagem_formato: [],
     texto_estilo: ["Estilo formal", "Estilo informal"],
     texto_emoji: ["Com emojis", "Sem emojis"],
+    imagem_endereco: ["Com endereço", "Sem endereço"],
+    imagem_instagram: ["Com instagram", "Sem instagram"],
+    imagem_telcontato: ["Com telefone", "Sem telefone"],
+    texto_endereco: ["Com endereço", "Sem endereço"],
+    texto_instagram: ["Com instagram", "Sem instagram"],
+    texto_telcontato: ["Com telefone", "Sem telefone"],
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
@@ -63,6 +69,12 @@ function IAImagemPage() {
     imagem_formato: "",
     texto_estilo: "",
     texto_emoji: "",
+    imagem_endereco: "",
+    imagem_instagram: "",
+    imagem_telcontato: "",
+    texto_endereco: "",
+    texto_instagram: "",
+    texto_telcontato: "",
   });
 
   const fields = [
@@ -73,8 +85,14 @@ function IAImagemPage() {
     { key: "imagem_formato", label: "Formato de Imagem" },
     { key: "imagem_comlogo", label: "Com Logo?" },
     { key: "imagem_imareferencia", label: "Imagem de Referência" },
+    { key: "imagem_endereco", label: "Com endereço? (Imagem)" },
+    { key: "imagem_instagram", label: "Com instagram? (Imagem)" },
+    { key: "imagem_telcontato", label: "Com telefone de contato? (Imagem)" },
     { key: "texto_estilo", label: "Estilo de Texto" },
     { key: "texto_emoji", label: "Uso de emojis" },
+    { key: "texto_endereco", label: "Com endereço? (Texto)" },
+    { key: "texto_instagram", label: "Com instagram? (Texto)" },
+    { key: "texto_telcontato", label: "Com telefone de contato? (Texto)" },
   ];
 
   useEffect(() => {
@@ -194,6 +212,12 @@ function IAImagemPage() {
           imagem_formato: "",
           texto_estilo: "",
           texto_emoji: "",
+          imagem_endereco: "",
+          imagem_instagram: "",
+          imagem_telcontato: "",
+          texto_endereco: "",
+          texto_instagram: "",
+          texto_telcontato: "",
         });
       }
 
@@ -207,6 +231,12 @@ function IAImagemPage() {
         imagem_formato: ["Quadrado (1:1)", "Vertical (4:5)", "Story (9:16)", "Horizontal (16:9)"],
         texto_estilo: ["Estilo formal", "Estilo informal"],
         texto_emoji: ["Com emojis", "Sem emojis"],
+        imagem_endereco: ["Com endereço", "Sem endereço"],
+        imagem_instagram: ["Com instagram", "Sem instagram"],
+        imagem_telcontato: ["Com telefone", "Sem telefone"],
+        texto_endereco: ["Com endereço", "Sem endereço"],
+        texto_instagram: ["Com instagram", "Sem instagram"],
+        texto_telcontato: ["Com telefone", "Sem telefone"],
       };
 
       setOptions(newOptions);
@@ -229,8 +259,8 @@ function IAImagemPage() {
 
     const subAreas = {
       dadosCriacao: ["imagem_informacoes", "imagem_objetivo", "imagem_campanha"],
-      visualReferencia: ["imagem_estilovisual", "imagem_formato", "imagem_comlogo", "imagem_imareferencia"],
-      configuracoesTexto: ["texto_estilo", "texto_emoji"]
+      visualReferencia: ["imagem_estilovisual", "imagem_formato", "imagem_comlogo", "imagem_imareferencia", "imagem_endereco", "imagem_instagram", "imagem_telcontato"],
+      configuracoesTexto: ["texto_estilo", "texto_emoji", "texto_endereco", "texto_instagram", "texto_telcontato"]
     };
 
     let requiredFields: string[] = [];
@@ -294,6 +324,12 @@ function IAImagemPage() {
           imagem_formato: selections.imagem_formato,
           texto_estilo: selections.texto_estilo,
           texto_emoji: selections.texto_emoji,
+          imagem_endereco: selections.imagem_endereco,
+          imagem_instagram: selections.imagem_instagram,
+          imagem_telcontato: selections.imagem_telcontato,
+          texto_endereco: selections.texto_endereco,
+          texto_instagram: selections.texto_instagram,
+          texto_telcontato: selections.texto_telcontato,
           num_imagens_criadas: newCount,
           last_reset_month: newResetMonth,
           oq_criar: generationType,
@@ -362,6 +398,12 @@ function IAImagemPage() {
         imagem_formato: "",
         texto_estilo: "",
         texto_emoji: "",
+        imagem_endereco: "",
+        imagem_instagram: "",
+        imagem_telcontato: "",
+        texto_endereco: "",
+        texto_instagram: "",
+        texto_telcontato: "",
       });
 
     } catch (error: any) {
@@ -734,6 +776,114 @@ function IAImagemPage() {
                           </div>
                         )}
                       </div>
+                    </div>
+
+                    {/* Com endereço? (Imagem) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com endereço?</label>
+                      <Select
+                        value={selections.imagem_endereco}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_endereco: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com endereço?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_endereco.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com instagram? (Imagem) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com instagram?</label>
+                      <Select
+                        value={selections.imagem_instagram}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_instagram: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com instagram?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_instagram.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com telefone de contato? (Imagem) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com telefone de contato?</label>
+                      <Select
+                        value={selections.imagem_telcontato}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_telcontato: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com telefone de contato?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_telcontato.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com endereço? (Texto) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com endereço?</label>
+                      <Select
+                        value={selections.texto_endereco}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_endereco: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com endereço?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_endereco.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com instagram? (Texto) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com instagram?</label>
+                      <Select
+                        value={selections.texto_instagram}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_instagram: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com instagram?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_instagram.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Com telefone de contato? (Texto) */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Com telefone de contato?</label>
+                      <Select
+                        value={selections.texto_telcontato}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, texto_telcontato: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione com telefone de contato?..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.texto_telcontato.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
