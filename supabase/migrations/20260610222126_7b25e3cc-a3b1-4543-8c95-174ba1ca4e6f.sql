@@ -1,0 +1,1 @@
+ALTER TABLE public.promocao ADD COLUMN IF NOT EXISTS imagem_banner TEXT;
