@@ -39,6 +39,9 @@ function MinhaContaPage() {
   const [infoId, setInfoId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [imagemLogo, setImagemLogo] = useState<string | null>(null);
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const [instagram, setInstagram] = useState("");
+  const [endereco, setEndereco] = useState("");
   const [googleAvaliacao, setGoogleAvaliacao] = useState("");
   const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
@@ -47,9 +50,11 @@ function MinhaContaPage() {
   const [uploadingImage, setUploadingImage] = useState<number | null>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingFotoPerfil, setUploadingFotoPerfil] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const fotoPerfilInputRef = useRef<HTMLInputElement>(null);
   
   // Password state
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -71,7 +76,7 @@ function MinhaContaPage() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo")
+          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo, instagram, endereco, foto_perfil")
           .eq("barbearia_id", parsedUser.barbearia_id)
           .maybeSingle());
 
@@ -86,6 +91,9 @@ function MinhaContaPage() {
           setVideoUrl(infoData.video_local || null);
           setImagemLogo(infoData.imagem_logo || null);
           setGoogleAvaliacao(infoData.google_avaliacao || "");
+          setInstagram(infoData.instagram || "");
+          setEndereco(infoData.endereco || "");
+          setFotoPerfil(infoData.foto_perfil || null);
           setTempoMarcar(infoData.tempo_marcar ?? 60);
           setTempoExcluir(infoData.tempo_excluir ?? 60);
           setImagens([
@@ -135,14 +143,14 @@ function MinhaContaPage() {
       if (existingInfo) {
         const { error: infoError } = await (supabase
           .from("informacoes" as any)
-          .update({ tel_contato: telContato, email, usuario_id: user.id } as any)
+          .update({ tel_contato: telContato, email, instagram, endereco, usuario_id: user.id } as any)
           .eq("id", (existingInfo as any).id));
         if (infoError) throw infoError;
         setInfoId((existingInfo as any).id);
       } else {
         const { data: newInfo, error: infoError } = await (supabase
           .from("informacoes" as any)
-          .insert({ tel_contato: telContato, email, user_id: user.id, usuario_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
+          .insert({ tel_contato: telContato, email, instagram, endereco, user_id: user.id, usuario_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
           .select()
           .single());
         if (infoError) throw infoError;
@@ -506,6 +514,86 @@ function MinhaContaPage() {
     }
   };
 
+  const handleFotoPerfilUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploadingFotoPerfil(true);
+
+    try {
+      const fileName = `foto_perfil/${user.id}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const oldFotoUrl = fotoPerfil;
+
+      const { data, error: uploadError } = await supabase.storage
+        .from("informacoes_imagens")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("informacoes_imagens")
+        .getPublicUrl(fileName);
+
+      setFotoPerfil(publicUrl);
+
+      if (oldFotoUrl) {
+        await deleteStorageFile(oldFotoUrl, "informacoes_imagens");
+      }
+
+      const updateObj: any = { foto_perfil: publicUrl, usuario_id: user.id };
+      const { data: existingInfo } = await (supabase
+        .from("informacoes" as any)
+        .select("id")
+        .eq("barbearia_id", user.barbearia_id)
+        .maybeSingle());
+
+      if (existingInfo) {
+        await (supabase.from("informacoes") as any).update(updateObj).eq("id", (existingInfo as any).id);
+        setInfoId((existingInfo as any).id);
+      } else {
+        const { data: newInfo } = await (supabase
+          .from("informacoes") as any)
+          .insert({ ...updateObj, user_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
+          .select()
+          .single();
+        if (newInfo) setInfoId(newInfo.id);
+      }
+
+      toast.success("Foto de perfil atualizada com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao enviar foto de perfil: " + error.message);
+    } finally {
+      setUploadingFotoPerfil(false);
+      if (fotoPerfilInputRef.current) fotoPerfilInputRef.current.value = "";
+    }
+  };
+
+  const removeFotoPerfil = async () => {
+    if (!infoId) return;
+
+    try {
+      const oldFotoUrl = fotoPerfil;
+      setFotoPerfil(null);
+
+      const { error } = await (supabase
+        .from("informacoes" as any)
+        .update({ foto_perfil: null })
+        .eq("id", infoId));
+
+      if (error) throw error;
+
+      if (oldFotoUrl) {
+        await deleteStorageFile(oldFotoUrl, "informacoes_imagens");
+      }
+
+      toast.success("Foto de perfil removida");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Erro ao remover foto de perfil");
+    }
+  };
+
   const handleUpdateGoogleAvaliacao = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -654,6 +742,24 @@ function MinhaContaPage() {
                   />
                   <p className="text-xs text-muted-foreground">Insira exatamente 11 números (DDD + número).</p>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram</Label>
+                  <Input
+                    id="instagram"
+                    value={instagram}
+                    onChange={(e) => setInstagram(e.target.value)}
+                    placeholder="@suabarbearia"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endereco">Endereço</Label>
+                  <Input
+                    id="endereco"
+                    value={endereco}
+                    onChange={(e) => setEndereco(e.target.value)}
+                    placeholder="Rua, Número, Bairro, Cidade"
+                  />
+                </div>
                 <Button type="submit" disabled={loading} className="gap-2">
                   <Save className="h-4 w-4" />
                   Salvar Alterações
@@ -701,6 +807,67 @@ function MinhaContaPage() {
                   Salvar Tempos
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Foto de Perfil */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" />
+                Foto de Perfil
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col items-center justify-center border rounded-lg p-6 bg-muted/30">
+                {fotoPerfil ? (
+                  <div className="relative group">
+                    <img src={fotoPerfil} alt="Foto de perfil" className="w-32 h-32 object-cover rounded-full" />
+                    <button
+                      onClick={removeFotoPerfil}
+                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center mb-2">
+                      <User className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">Nenhuma foto configurada</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="pt-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={fotoPerfilInputRef}
+                  onChange={handleFotoPerfilUpload}
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full gap-2"
+                  onClick={() => fotoPerfilInputRef.current?.click()}
+                  disabled={uploadingFotoPerfil}
+                >
+                  {uploadingFotoPerfil ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Enviando foto...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4" />
+                      {fotoPerfil ? "Alterar Foto" : "Adicionar Foto"}
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
