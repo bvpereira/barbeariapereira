@@ -339,6 +339,12 @@ function BlogPage() {
                 placeholder="https://exemplo.com/noticia" 
                 value={link} 
                 onChange={(e) => setLink(e.target.value)}
+                onBlur={(e) => {
+                  const value = e.target.value.trim();
+                  if (value && !/^https?:\/\//i.test(value)) {
+                    setLink(`https://${value}`);
+                  }
+                }}
                 className="border-primary/20 focus-visible:ring-primary"
               />
             </div>
@@ -436,7 +442,11 @@ function BlogPage() {
                   
                   {post.link_noticia && (
                     <Button variant="link" className="text-primary p-0 h-auto gap-1" asChild>
-                      <a href={post.link_noticia} target="_blank" rel="noopener noreferrer">
+                      <a 
+                        href={post.link_noticia.startsWith('http') ? post.link_noticia : `https://${post.link_noticia}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
                         Ler notícia completa <ExternalLink className="w-3 h-3" />
                       </a>
                     </Button>
