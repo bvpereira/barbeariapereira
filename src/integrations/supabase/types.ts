@@ -588,6 +588,8 @@ export type Database = {
           barbearia_id: string
           created_at: string
           email: string | null
+          endereco: string | null
+          foto_perfil: string | null
           google_avaliacao: string | null
           id: string
           imagem_1: string | null
@@ -599,6 +601,7 @@ export type Database = {
           imagem_7: string | null
           imagem_8: string | null
           imagem_logo: string | null
+          instagram: string | null
           instancia_api: string | null
           instancia_evo: string | null
           instancia_propria: string | null
@@ -616,6 +619,8 @@ export type Database = {
           barbearia_id: string
           created_at?: string
           email?: string | null
+          endereco?: string | null
+          foto_perfil?: string | null
           google_avaliacao?: string | null
           id?: string
           imagem_1?: string | null
@@ -627,6 +632,7 @@ export type Database = {
           imagem_7?: string | null
           imagem_8?: string | null
           imagem_logo?: string | null
+          instagram?: string | null
           instancia_api?: string | null
           instancia_evo?: string | null
           instancia_propria?: string | null
@@ -644,6 +650,8 @@ export type Database = {
           barbearia_id?: string
           created_at?: string
           email?: string | null
+          endereco?: string | null
+          foto_perfil?: string | null
           google_avaliacao?: string | null
           id?: string
           imagem_1?: string | null
@@ -655,6 +663,7 @@ export type Database = {
           imagem_7?: string | null
           imagem_8?: string | null
           imagem_logo?: string | null
+          instagram?: string | null
           instancia_api?: string | null
           instancia_evo?: string | null
           instancia_propria?: string | null
