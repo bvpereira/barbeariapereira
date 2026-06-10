@@ -55,6 +55,7 @@ interface DashboardData {
   agendamentosProximos: any[];
   agendamentosEmAberto: any[];
   agendaAbertaAte: string | null;
+  imagemBanner: string | null;
 }
 
 function AdminPage() {
@@ -74,7 +75,8 @@ function AdminPage() {
     colaboradoresAtivos: [],
     agendamentosProximos: [],
     agendamentosEmAberto: [],
-    agendaAbertaAte: null
+    agendaAbertaAte: null,
+    imagemBanner: null
   });
 
   useEffect(() => {
@@ -114,6 +116,14 @@ function AdminPage() {
       const eDay = endOfDay(now);
       const sMonth = startOfMonth(now);
       const eMonth = endOfMonth(now);
+
+      // 0. Imagem Banner
+      const { data: bannerData } = await supabase
+        .from("promocao")
+        .select("imagem_banner")
+        .eq("barbearia_id", tenant.id)
+        .eq("numero_promo", 0)
+        .maybeSingle();
 
       // 0. Agenda aberta até
       const { data: lastDayData } = await supabase
@@ -249,7 +259,8 @@ function AdminPage() {
         colaboradoresAtivos: (colaboradoresAtivosData || []).map(colaborador => colaborador.nome).filter(Boolean),
         agendamentosProximos,
         agendamentosEmAberto,
-        agendaAbertaAte: lastDayData?.data || null
+        agendaAbertaAte: lastDayData?.data || null,
+        imagemBanner: bannerData?.imagem_banner || null
       });
 
     } catch (error) {
@@ -295,6 +306,43 @@ function AdminPage() {
             </Button>
           </div>
         </div>
+
+        {/* Banner Preview para Página de Clientes */}
+        <Card className="border-primary/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-primary" />
+              Imagem Banner (Página de Clientes)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data.imagemBanner ? (
+              <div className="relative w-full aspect-[21/9] md:aspect-[3/1] rounded-lg overflow-hidden border">
+                <img 
+                  src={data.imagemBanner} 
+                  alt="Banner Atual" 
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-8 bg-muted/30 rounded-lg border border-dashed text-center">
+                <ImageIcon className="h-10 w-10 text-muted-foreground mb-3 opacity-20" />
+                <p className="text-sm font-medium">Nenhuma imagem de banner configurada</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Vá em "Promoções" para fazer o upload de uma imagem.
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-4"
+                  onClick={() => navigate({ to: "/promocao" } as any)}
+                >
+                  Configurar Banner
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Cards de Resumo Hoje */}
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">

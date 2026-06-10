@@ -62,6 +62,7 @@ function ClientePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
+  const [imagemBanner, setImagemBanner] = useState<string | null>(null);
 
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
@@ -152,6 +153,19 @@ function ClientePage() {
     }
   }, []);
 
+  const fetchBanner = useCallback(async (tenantId: string) => {
+    const { data } = await supabase
+      .from('promocao')
+      .select('imagem_banner')
+      .eq('barbearia_id', tenantId)
+      .eq('numero_promo', 0)
+      .maybeSingle();
+    
+    if (data) {
+      setImagemBanner(data.imagem_banner);
+    }
+  }, []);
+
   useEffect(() => {
     const getUserData = () => {
       const stored = localStorage.getItem("user");
@@ -186,9 +200,10 @@ function ClientePage() {
       if (tenant?.id) {
         fetchServicos(tenant.id);
         fetchEquipe(tenant.id);
+        fetchBanner(tenant.id);
       }
     }
-  }, [fetchAgendamentos, fetchHistorico, fetchUserPromocao, fetchTempoExcluir, fetchServicos, fetchEquipe, tenant, tenantLoading, navigate]);
+  }, [fetchAgendamentos, fetchHistorico, fetchUserPromocao, fetchTempoExcluir, fetchServicos, fetchEquipe, fetchBanner, tenant, tenantLoading, navigate]);
 
   const handlePromocaoToggle = async (checked: boolean) => {
     if (!user) return;
@@ -367,6 +382,17 @@ function ClientePage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
+          {/* Section 0: Banner Promocional */}
+          {imagemBanner && (
+            <div className="md:col-span-2 rounded-xl overflow-hidden shadow-sm border border-border/50">
+              <img 
+                src={imagemBanner} 
+                alt="Banner Promocional" 
+                className="w-full h-auto object-cover max-h-[300px] md:max-h-[400px]"
+              />
+            </div>
+          )}
+
           {/* Section 1: Novo Agendamento */}
           <Card className="md:col-span-2 bg-primary/5 border-primary/20">
             <CardHeader>
