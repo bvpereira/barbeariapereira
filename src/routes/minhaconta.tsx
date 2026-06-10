@@ -768,48 +768,6 @@ function MinhaContaPage() {
             </CardContent>
           </Card>
 
-          {/* Tempos */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                Tempos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUpdateTempos} className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="tempoMarcar">Tempo para marcar (em minutos)</Label>
-                    <Input
-                      id="tempoMarcar"
-                      type="number"
-                      value={tempoMarcar}
-                      onChange={(e) => setTempoMarcar(Number(e.target.value))}
-                      placeholder="Ex: 60"
-                    />
-                    <p className="text-xs text-muted-foreground">Antecedência mínima para um cliente agendar.</p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tempoExcluir">Tempo para excluir (em minutos)</Label>
-                    <Input
-                      id="tempoExcluir"
-                      type="number"
-                      value={tempoExcluir}
-                      onChange={(e) => setTempoExcluir(Number(e.target.value))}
-                      placeholder="Ex: 60"
-                    />
-                    <p className="text-xs text-muted-foreground">Antecedência mínima para excluir ou reagendar.</p>
-                  </div>
-                </div>
-                <Button type="submit" disabled={loading} className="gap-2">
-                  <Save className="h-4 w-4" />
-                  Salvar Tempos
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
           {/* Foto de Perfil */}
           <Card>
             <CardHeader>
@@ -1051,6 +1009,48 @@ function MinhaContaPage() {
             </CardContent>
           </Card>
 
+          {/* Tempos */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-primary" />
+                Tempos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateTempos} className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="tempoMarcar">Tempo para marcar (em minutos)</Label>
+                    <Input
+                      id="tempoMarcar"
+                      type="number"
+                      value={tempoMarcar}
+                      onChange={(e) => setTempoMarcar(Number(e.target.value))}
+                      placeholder="Ex: 60"
+                    />
+                    <p className="text-xs text-muted-foreground">Antecedência mínima para um cliente agendar.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tempoExcluir">Tempo para excluir (em minutos)</Label>
+                    <Input
+                      id="tempoExcluir"
+                      type="number"
+                      value={tempoExcluir}
+                      onChange={(e) => setTempoExcluir(Number(e.target.value))}
+                      placeholder="Ex: 60"
+                    />
+                    <p className="text-xs text-muted-foreground">Antecedência mínima para excluir ou reagendar.</p>
+                  </div>
+                </div>
+                <Button type="submit" disabled={loading} className="gap-2">
+                  <Save className="h-4 w-4" />
+                  Salvar Tempos
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
           {/* Google Avaliação */}
           <Card>
             <CardHeader>
@@ -1156,3 +1156,5 @@ function MinhaContaPage() {
     </AdminLayout>
   );
 }
+
+export default MinhaContaPage;
