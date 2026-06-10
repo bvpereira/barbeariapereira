@@ -388,7 +388,7 @@ function ClientePage() {
               <img 
                 src={imagemBanner} 
                 alt="Banner Promocional" 
-                className="w-full h-auto object-cover max-h-[300px] md:max-h-[400px]"
+                className="w-full h-auto block"
               />
             </div>
           )}
