@@ -1,0 +1,4 @@
+ALTER TABLE public.informacoes 
+ADD COLUMN IF NOT EXISTS instagram TEXT,
+ADD COLUMN IF NOT EXISTS endereco TEXT,
+ADD COLUMN IF NOT EXISTS foto_perfil TEXT;
