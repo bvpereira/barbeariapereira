@@ -339,6 +339,12 @@ function BlogPage() {
                 placeholder="https://exemplo.com/noticia" 
                 value={link} 
                 onChange={(e) => setLink(e.target.value)}
+                onBlur={(e) => {
+                  const value = e.target.value.trim();
+                  if (value && !/^https?:\/\//i.test(value)) {
+                    setLink(`https://${value}`);
+                  }
+                }}
                 className="border-primary/20 focus-visible:ring-primary"
               />
             </div>
