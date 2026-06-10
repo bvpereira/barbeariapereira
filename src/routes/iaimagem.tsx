@@ -200,24 +200,23 @@ function IAImagemPage() {
           setLastResetMonth(dbMonth);
         }
 
-        // Não preenchemos os campos com os valores do banco ao carregar a página
-        // para garantir que eles comecem vazios como solicitado pelo usuário.
+        // Preenchemos os campos com os valores do banco ao carregar a página
         setSelections({
-          imagem_objetivo: "",
-          imagem_campanha: "",
-          imagem_estilovisual: "",
-          imagem_informacoes: "",
-          imagem_imareferencia: "",
-          imagem_comlogo: "",
-          imagem_formato: "",
-          texto_estilo: "",
-          texto_emoji: "",
-          imagem_endereco: "",
-          imagem_instagram: "",
-          imagem_telcontato: "",
-          texto_endereco: "",
-          texto_instagram: "",
-          texto_telcontato: "",
+          imagem_objetivo: selectionData.imagem_objetivo || "",
+          imagem_campanha: selectionData.imagem_campanha || "",
+          imagem_estilovisual: selectionData.imagem_estilovisual || "",
+          imagem_informacoes: selectionData.imagem_informacoes || "",
+          imagem_imareferencia: selectionData.imagem_imareferencia || "",
+          imagem_comlogo: selectionData.imagem_comlogo || "",
+          imagem_formato: selectionData.imagem_formato || "",
+          texto_estilo: selectionData.texto_estilo || "",
+          texto_emoji: selectionData.texto_emoji || "",
+          imagem_endereco: selectionData.imagem_endereco || "",
+          imagem_instagram: selectionData.imagem_instagram || "",
+          imagem_telcontato: selectionData.imagem_telcontato || "",
+          texto_endereco: selectionData.texto_endereco || "",
+          texto_instagram: selectionData.texto_instagram || "",
+          texto_telcontato: selectionData.texto_telcontato || "",
         });
       }
 
@@ -387,7 +386,13 @@ function IAImagemPage() {
       // Mas o fetch dispara a requisição.
       toast.success("Geração de imagem solicitada com sucesso!");
 
-      // Limpar todos os campos após o sucesso
+      // Limpar campos gerados após o sucesso, mas manter as seleções
+      // para que o usuário saiba o que foi enviado e possa ajustar se necessário.
+      // (Campos de seleção não são mais resetados para strings vazias aqui)
+      
+      // No entanto, se quiser manter o comportamento de reset após a geração, 
+      // descomente abaixo, mas por agora vamos manter para persistência visual.
+      /*
       setSelections({
         imagem_objetivo: "",
         imagem_campanha: "",
@@ -405,6 +410,7 @@ function IAImagemPage() {
         texto_instagram: "",
         texto_telcontato: "",
       });
+      */
 
     } catch (error: any) {
       console.error("Erro no processo de geração:", error);
