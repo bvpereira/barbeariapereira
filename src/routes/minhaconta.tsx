@@ -798,7 +798,7 @@ function MinhaContaPage() {
                 )}
               </div>
               
-              <div className="pt-2">
+              <div className="pt-2 flex flex-col gap-2">
                 <input
                   type="file"
                   accept="image/*"
@@ -821,10 +821,23 @@ function MinhaContaPage() {
                   ) : (
                     <>
                       <Upload className="h-4 w-4" />
-                      {fotoPerfil ? "Alterar Foto" : "Adicionar Foto"}
+                      {fotoPerfil ? "Trocar Foto" : "Adicionar Foto"}
                     </>
                   )}
                 </Button>
+                
+                {fotoPerfil && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="w-full gap-2"
+                    onClick={removeFotoPerfil}
+                    disabled={uploadingFotoPerfil}
+                  >
+                    <X className="h-4 w-4" />
+                    Remover Foto
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
