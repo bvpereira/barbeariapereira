@@ -18,7 +18,8 @@ import {
   AlertTriangle,
   ArrowRight,
   UserPlus,
-  RefreshCw
+  RefreshCw,
+  Image as ImageIcon
 } from "lucide-react";
 import { 
   format, 
