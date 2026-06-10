@@ -442,7 +442,11 @@ function BlogPage() {
                   
                   {post.link_noticia && (
                     <Button variant="link" className="text-primary p-0 h-auto gap-1" asChild>
-                      <a href={post.link_noticia} target="_blank" rel="noopener noreferrer">
+                      <a 
+                        href={post.link_noticia.startsWith('http') ? post.link_noticia : `https://${post.link_noticia}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
                         Ler notícia completa <ExternalLink className="w-3 h-3" />
                       </a>
                     </Button>
