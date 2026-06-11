@@ -49,7 +49,7 @@ function IAImagemPage() {
     texto_instagram: ["Com instagram", "Sem instagram"],
     texto_telcontato: ["Com telefone", "Sem telefone"],
     tom_comunicacao: ["Urgente", "Amigável", "Sofisticado", "descontraído", "Técnico"],
-    imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis"],
+    imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis", "Minha paleta (baseada no logo)"],
     imagem_elem_central: ["Produto", "Pessoa", "Texto", "Ambiente", "Ícone"],
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
@@ -140,13 +140,19 @@ function IAImagemPage() {
       // Limpeza da imagem de referência se não foi confirmada a geração
       if (!isGenerationConfirmedRef.current && uploadedImageUrlRef.current && tenant?.id) {
         console.log("Limpando imagem de referência não utilizada do banco de dados...");
+        const tenantId = tenant.id;
         supabase
           .from("agentes_ia")
           .update({ imagem_referencia_ia: null })
-          .eq("barbearia_id", tenant.id)
+          .eq("barbearia_id", tenantId)
           .then(({ error }) => {
             if (error) console.error("Erro ao limpar imagem de referência:", error);
           });
+        // Também remove o arquivo do storage
+        const filePath = `referencia/${tenantId}/imagem_referencia.jpg`;
+        supabase.storage.from("informacoes_imagens").remove([filePath]).then(({ error }) => {
+          if (error) console.error("Erro ao remover arquivo de referência do storage:", error);
+        });
       }
     };
   }, [tenant, tenantLoading]);
@@ -209,27 +215,8 @@ function IAImagemPage() {
           setLastResetMonth(dbMonth);
         }
 
-        // Preenchemos os campos com os valores do banco ao carregar a página
-        setSelections({
-          imagem_objetivo: selectionData.imagem_objetivo || "",
-          imagem_campanha: selectionData.imagem_campanha || "",
-          imagem_estilovisual: selectionData.imagem_estilovisual || "",
-          imagem_informacoes: selectionData.imagem_informacoes || "",
-          imagem_imareferencia: selectionData.imagem_imareferencia || "",
-          imagem_comlogo: selectionData.imagem_comlogo || "",
-          imagem_formato: selectionData.imagem_formato || "",
-          texto_estilo: selectionData.texto_estilo || "",
-          texto_emoji: selectionData.texto_emoji || "",
-          imagem_endereco: selectionData.imagem_endereco || "",
-          imagem_instagram: selectionData.imagem_instagram || "",
-          imagem_telcontato: selectionData.imagem_telcontato || "",
-          texto_endereco: selectionData.texto_endereco || "",
-          texto_instagram: selectionData.texto_instagram || "",
-          texto_telcontato: selectionData.texto_telcontato || "",
-          tom_comunicacao: selectionData.tom_comunicacao || "",
-          imagem_paleta: selectionData.imagem_paleta || "",
-          imagem_elem_central: selectionData.imagem_elem_central || "",
-        });
+        // Campos sempre iniciam vazios (não carregamos seleções do banco).
+
       }
 
       const newOptions: Record<string, string[]> = {
@@ -249,7 +236,7 @@ function IAImagemPage() {
         texto_instagram: ["Com instagram", "Sem instagram"],
         texto_telcontato: ["Com telefone", "Sem telefone"],
         tom_comunicacao: ["Urgente", "Amigável", "Sofisticado", "descontraído", "Técnico"],
-        imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis"],
+        imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis", "Minha paleta (baseada no logo)"],
         imagem_elem_central: ["Produto", "Pessoa", "Texto", "Ambiente", "Ícone"],
       };
 
@@ -299,6 +286,16 @@ function IAImagemPage() {
 
     if (missingFields.length > 0) {
       toast.error(`Por favor, preencha os seguintes campos: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    // Validação: "Minha paleta (baseada no logo)" requer "Com logo"
+    if (
+      (type === "ambos" || type === "imagem") &&
+      selections.imagem_paleta === "Minha paleta (baseada no logo)" &&
+      selections.imagem_comlogo !== "Com logo"
+    ) {
+      toast.error("Para usar 'Minha paleta (baseada no logo)' é necessário selecionar 'Com logo' no campo 'Com logo?'.");
       return;
     }
 
