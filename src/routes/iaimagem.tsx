@@ -140,13 +140,19 @@ function IAImagemPage() {
       // Limpeza da imagem de referência se não foi confirmada a geração
       if (!isGenerationConfirmedRef.current && uploadedImageUrlRef.current && tenant?.id) {
         console.log("Limpando imagem de referência não utilizada do banco de dados...");
+        const tenantId = tenant.id;
         supabase
           .from("agentes_ia")
           .update({ imagem_referencia_ia: null })
-          .eq("barbearia_id", tenant.id)
+          .eq("barbearia_id", tenantId)
           .then(({ error }) => {
             if (error) console.error("Erro ao limpar imagem de referência:", error);
           });
+        // Também remove o arquivo do storage
+        const filePath = `referencia/${tenantId}/imagem_referencia.jpg`;
+        supabase.storage.from("informacoes_imagens").remove([filePath]).then(({ error }) => {
+          if (error) console.error("Erro ao remover arquivo de referência do storage:", error);
+        });
       }
     };
   }, [tenant, tenantLoading]);
