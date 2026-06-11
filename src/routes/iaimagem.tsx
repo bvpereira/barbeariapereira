@@ -627,7 +627,7 @@ function IAImagemPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Informações Adicionais (Full width) */}
                     <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-medium text-gray-700">Informações Adicionais</label>
+                      <label className="text-sm font-medium text-white">Informações Adicionais</label>
                       <Textarea
                         value={selections.imagem_informacoes}
                         onChange={(e) => setSelections(prev => ({ ...prev, imagem_informacoes: e.target.value }))}
@@ -637,7 +637,7 @@ function IAImagemPage() {
                     </div>
                     {/* Objetivo da Imagem */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Objetivo da Imagem</label>
+                      <label className="text-sm font-medium text-white">Objetivo da Imagem</label>
                       <Select
                         value={selections.imagem_objetivo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_objetivo: val }))}
@@ -654,7 +654,7 @@ function IAImagemPage() {
                     </div>
                     {/* Campanha */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Campanha</label>
+                      <label className="text-sm font-medium text-white">Campanha</label>
                       <Select
                         value={selections.imagem_campanha}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_campanha: val }))}
@@ -671,7 +671,7 @@ function IAImagemPage() {
                     </div>
                     {/* Tom de comunicação */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Tom de comunicação</label>
+                      <label className="text-sm font-medium text-white">Tom de comunicação</label>
                       <Select
                         value={selections.tom_comunicacao}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, tom_comunicacao: val }))}
@@ -695,7 +695,7 @@ function IAImagemPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Estilo Visual */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Estilo visual</label>
+                      <label className="text-sm font-medium text-white">Estilo visual</label>
                       <Select
                         value={selections.imagem_estilovisual}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_estilovisual: val }))}
@@ -712,7 +712,7 @@ function IAImagemPage() {
                     </div>
                     {/* Paleta de cores */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Paleta de cores</label>
+                      <label className="text-sm font-medium text-white">Paleta de cores</label>
                       <Select
                         value={selections.imagem_paleta}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_paleta: val }))}
@@ -729,7 +729,7 @@ function IAImagemPage() {
                     </div>
                     {/* Elemento central */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Elemento central</label>
+                      <label className="text-sm font-medium text-white">Elemento central</label>
                       <Select
                         value={selections.imagem_elem_central}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_elem_central: val }))}
@@ -746,7 +746,7 @@ function IAImagemPage() {
                     </div>
                     {/* Formato de Imagem */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Formato de Imagem</label>
+                      <label className="text-sm font-medium text-white">Formato de Imagem</label>
                       <Select
                         value={selections.imagem_formato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_formato: val }))}
@@ -763,7 +763,7 @@ function IAImagemPage() {
                     </div>
                     {/* Com Logo? */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Com logo?</label>
+                      <label className="text-sm font-medium text-white">Com logo?</label>
                       <Select
                         value={selections.imagem_comlogo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_comlogo: val }))}
@@ -780,7 +780,7 @@ function IAImagemPage() {
                     </div>
                     {/* Imagem de Referência */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Imagem de Referência</label>
+                      <label className="text-sm font-medium text-white">Imagem de Referência</label>
                       <div className="space-y-3">
                         <Select
                           value={selections.imagem_imareferencia?.startsWith("http") ? "Upar imagem de referência" : selections.imagem_imareferencia}
@@ -852,7 +852,7 @@ function IAImagemPage() {
 
                     {/* Com endereço? (Imagem) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Com endereço?</label>
+                      <label className="text-sm font-medium text-white">Com endereço?</label>
                       <Select
                         value={selections.imagem_endereco}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_endereco: val }))}
@@ -870,7 +870,7 @@ function IAImagemPage() {
 
                     {/* Com instagram? (Imagem) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Com instagram?</label>
+                      <label className="text-sm font-medium text-white">Com instagram?</label>
                       <Select
                         value={selections.imagem_instagram}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_instagram: val }))}
@@ -888,7 +888,7 @@ function IAImagemPage() {
 
                     {/* Com telefone de contato? (Imagem) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Com telefone de contato?</label>
+                      <label className="text-sm font-medium text-white">Com telefone de contato?</label>
                       <Select
                         value={selections.imagem_telcontato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_telcontato: val }))}
@@ -912,7 +912,7 @@ function IAImagemPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Estilo de Texto */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Estilo de Texto</label>
+                      <label className="text-sm font-medium text-white">Estilo de Texto</label>
                       <Select
                         value={selections.texto_estilo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_estilo: val }))}
@@ -929,7 +929,7 @@ function IAImagemPage() {
                     </div>
                     {/* Uso de emojis */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Uso de emojis</label>
+                      <label className="text-sm font-medium text-white">Uso de emojis</label>
                       <Select
                         value={selections.texto_emoji}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_emoji: val }))}
@@ -947,7 +947,7 @@ function IAImagemPage() {
 
                     {/* Com endereço? (Texto) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Com endereço?</label>
+                      <label className="text-sm font-medium text-white">Com endereço?</label>
                       <Select
                         value={selections.texto_endereco}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_endereco: val }))}
@@ -965,7 +965,7 @@ function IAImagemPage() {
 
                     {/* Com instagram? (Texto) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Com instagram?</label>
+                      <label className="text-sm font-medium text-white">Com instagram?</label>
                       <Select
                         value={selections.texto_instagram}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_instagram: val }))}
@@ -983,7 +983,7 @@ function IAImagemPage() {
 
                     {/* Com telefone de contato? (Texto) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Com telefone de contato?</label>
+                      <label className="text-sm font-medium text-white">Com telefone de contato?</label>
                       <Select
                         value={selections.texto_telcontato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_telcontato: val }))}
