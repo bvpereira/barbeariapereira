@@ -209,27 +209,8 @@ function IAImagemPage() {
           setLastResetMonth(dbMonth);
         }
 
-        // Preenchemos os campos com os valores do banco ao carregar a página
-        setSelections({
-          imagem_objetivo: selectionData.imagem_objetivo || "",
-          imagem_campanha: selectionData.imagem_campanha || "",
-          imagem_estilovisual: selectionData.imagem_estilovisual || "",
-          imagem_informacoes: selectionData.imagem_informacoes || "",
-          imagem_imareferencia: selectionData.imagem_imareferencia || "",
-          imagem_comlogo: selectionData.imagem_comlogo || "",
-          imagem_formato: selectionData.imagem_formato || "",
-          texto_estilo: selectionData.texto_estilo || "",
-          texto_emoji: selectionData.texto_emoji || "",
-          imagem_endereco: selectionData.imagem_endereco || "",
-          imagem_instagram: selectionData.imagem_instagram || "",
-          imagem_telcontato: selectionData.imagem_telcontato || "",
-          texto_endereco: selectionData.texto_endereco || "",
-          texto_instagram: selectionData.texto_instagram || "",
-          texto_telcontato: selectionData.texto_telcontato || "",
-          tom_comunicacao: selectionData.tom_comunicacao || "",
-          imagem_paleta: selectionData.imagem_paleta || "",
-          imagem_elem_central: selectionData.imagem_elem_central || "",
-        });
+        // Campos sempre iniciam vazios (não carregamos seleções do banco).
+
       }
 
       const newOptions: Record<string, string[]> = {
