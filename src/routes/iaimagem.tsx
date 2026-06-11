@@ -672,6 +672,23 @@ function IAImagemPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* Tom de comunicação */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Tom de comunicação</label>
+                      <Select
+                        value={selections.tom_comunicacao}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, tom_comunicacao: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione tom de comunicação..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.tom_comunicacao.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
@@ -691,6 +708,40 @@ function IAImagemPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {options.imagem_estilovisual.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Paleta de cores */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Paleta de cores</label>
+                      <Select
+                        value={selections.imagem_paleta}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_paleta: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione paleta de cores..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_paleta.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Elemento central */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Elemento central</label>
+                      <Select
+                        value={selections.imagem_elem_central}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_elem_central: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione elemento central..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_elem_central.map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
