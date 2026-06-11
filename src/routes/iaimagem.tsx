@@ -646,7 +646,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione objetivo da imagem..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_objetivo.map((opt) => (
+                          {[...options.imagem_objetivo].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -663,7 +663,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione campanha..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_campanha.map((opt) => (
+                          {[...options.imagem_campanha].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -680,7 +680,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione tom de comunicação..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.tom_comunicacao.map((opt) => (
+                          {[...options.tom_comunicacao].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -704,7 +704,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione estilo visual..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_estilovisual.map((opt) => (
+                          {[...options.imagem_estilovisual].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -721,7 +721,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione paleta de cores..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_paleta.map((opt) => (
+                          {[...options.imagem_paleta].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -738,7 +738,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione elemento central..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_elem_central.map((opt) => (
+                          {[...options.imagem_elem_central].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -755,7 +755,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione formato de imagem..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_formato.map((opt) => (
+                          {[...options.imagem_formato].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -772,7 +772,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione com logo?..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_comlogo.map((opt) => (
+                          {[...options.imagem_comlogo].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -861,7 +861,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione com endereço?..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_endereco.map((opt) => (
+                          {[...options.imagem_endereco].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -879,7 +879,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione com instagram?..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_instagram.map((opt) => (
+                          {[...options.imagem_instagram].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -897,7 +897,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione com telefone de contato?..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.imagem_telcontato.map((opt) => (
+                          {[...options.imagem_telcontato].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -921,7 +921,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione estilo de texto..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.texto_estilo.map((opt) => (
+                          {[...options.texto_estilo].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -938,7 +938,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione uso de emojis..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.texto_emoji.map((opt) => (
+                          {[...options.texto_emoji].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -956,7 +956,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione com endereço?..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.texto_endereco.map((opt) => (
+                          {[...options.texto_endereco].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -974,7 +974,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione com instagram?..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.texto_instagram.map((opt) => (
+                          {[...options.texto_instagram].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -992,7 +992,7 @@ function IAImagemPage() {
                           <SelectValue placeholder="Selecione com telefone de contato?..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {options.texto_telcontato.map((opt) => (
+                          {[...options.texto_telcontato].sort((a,b)=>a.localeCompare(b,"pt-BR")).map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
