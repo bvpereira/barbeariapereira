@@ -22,6 +22,7 @@ export type Database = {
           imagem_campanha: string | null
           imagem_comlogo: string | null
           imagem_criada_ia: string | null
+          imagem_elem_central: string | null
           imagem_endereco: string | null
           imagem_estilovisual: string | null
           imagem_formato: string
@@ -29,6 +30,7 @@ export type Database = {
           imagem_informacoes: string | null
           imagem_instagram: string | null
           imagem_objetivo: string | null
+          imagem_paleta: string | null
           imagem_referencia_ia: string | null
           imagem_telcontato: string | null
           last_reset_month: string | null
@@ -42,6 +44,7 @@ export type Database = {
           texto_estilo: string | null
           texto_instagram: string | null
           texto_telcontato: string | null
+          tom_comunicacao: string | null
           updated_at: string
         }
         Insert: {
@@ -51,6 +54,7 @@ export type Database = {
           imagem_campanha?: string | null
           imagem_comlogo?: string | null
           imagem_criada_ia?: string | null
+          imagem_elem_central?: string | null
           imagem_endereco?: string | null
           imagem_estilovisual?: string | null
           imagem_formato: string
@@ -58,6 +62,7 @@ export type Database = {
           imagem_informacoes?: string | null
           imagem_instagram?: string | null
           imagem_objetivo?: string | null
+          imagem_paleta?: string | null
           imagem_referencia_ia?: string | null
           imagem_telcontato?: string | null
           last_reset_month?: string | null
@@ -71,6 +76,7 @@ export type Database = {
           texto_estilo?: string | null
           texto_instagram?: string | null
           texto_telcontato?: string | null
+          tom_comunicacao?: string | null
           updated_at?: string
         }
         Update: {
@@ -80,6 +86,7 @@ export type Database = {
           imagem_campanha?: string | null
           imagem_comlogo?: string | null
           imagem_criada_ia?: string | null
+          imagem_elem_central?: string | null
           imagem_endereco?: string | null
           imagem_estilovisual?: string | null
           imagem_formato?: string
@@ -87,6 +94,7 @@ export type Database = {
           imagem_informacoes?: string | null
           imagem_instagram?: string | null
           imagem_objetivo?: string | null
+          imagem_paleta?: string | null
           imagem_referencia_ia?: string | null
           imagem_telcontato?: string | null
           last_reset_month?: string | null
@@ -100,6 +108,7 @@ export type Database = {
           texto_estilo?: string | null
           texto_instagram?: string | null
           texto_telcontato?: string | null
+          tom_comunicacao?: string | null
           updated_at?: string
         }
         Relationships: [
