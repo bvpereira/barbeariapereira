@@ -283,6 +283,16 @@ function IAImagemPage() {
       return;
     }
 
+    // Validação: "Minha paleta (baseada no logo)" requer "Com logo"
+    if (
+      (type === "ambos" || type === "imagem") &&
+      selections.imagem_paleta === "Minha paleta (baseada no logo)" &&
+      selections.imagem_comlogo !== "Com logo"
+    ) {
+      toast.error("Para usar 'Minha paleta (baseada no logo)' é necessário selecionar 'Com logo' no campo 'Com logo?'.");
+      return;
+    }
+
     setGenerationType(type);
     setShowConfirmModal(true);
   };
