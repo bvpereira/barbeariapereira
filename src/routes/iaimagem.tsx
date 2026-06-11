@@ -48,6 +48,9 @@ function IAImagemPage() {
     texto_endereco: ["Com endereço", "Sem endereço"],
     texto_instagram: ["Com instagram", "Sem instagram"],
     texto_telcontato: ["Com telefone", "Sem telefone"],
+    tom_comunicacao: ["Urgente", "Amigável", "Sofisticado", "descontraído", "Técnico"],
+    imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis"],
+    imagem_elem_central: ["Produto", "Pessoa", "Texto", "Ambiente", "Ícone"],
   });
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [createdImageUrl, setCreatedImageUrl] = useState<string | null>(null);
@@ -75,13 +78,19 @@ function IAImagemPage() {
     texto_endereco: "",
     texto_instagram: "",
     texto_telcontato: "",
+    tom_comunicacao: "",
+    imagem_paleta: "",
+    imagem_elem_central: "",
   });
 
   const fields = [
     { key: "imagem_informacoes", label: "Informações Adicionais" },
     { key: "imagem_objetivo", label: "Objetivo da Imagem" },
     { key: "imagem_campanha", label: "Campanha" },
+    { key: "tom_comunicacao", label: "Tom de comunicação" },
     { key: "imagem_estilovisual", label: "Estilo Visual" },
+    { key: "imagem_paleta", label: "Paleta de cores" },
+    { key: "imagem_elem_central", label: "Elemento central" },
     { key: "imagem_formato", label: "Formato de Imagem" },
     { key: "imagem_comlogo", label: "Com Logo?" },
     { key: "imagem_imareferencia", label: "Imagem de Referência" },
@@ -217,13 +226,16 @@ function IAImagemPage() {
           texto_endereco: selectionData.texto_endereco || "",
           texto_instagram: selectionData.texto_instagram || "",
           texto_telcontato: selectionData.texto_telcontato || "",
+          tom_comunicacao: selectionData.tom_comunicacao || "",
+          imagem_paleta: selectionData.imagem_paleta || "",
+          imagem_elem_central: selectionData.imagem_elem_central || "",
         });
       }
 
       const newOptions: Record<string, string[]> = {
-        imagem_objetivo: ["Captar cliente", "Vender", "Teste objetivo"],
-        imagem_campanha: ["Post de Promoção", "Post de Comemoração", "Lançamento", "Conteúdo Informativo"],
-        imagem_estilovisual: ["Minimalista", "Agressivo em vendas", "Fotorealista", "Moderno", "Limpo"],
+        imagem_objetivo: ["Captar cliente", "Vender", "Teste objetivo", "engajamento", "Institucional", "Retenção"],
+        imagem_campanha: ["Promoção", "Data comemorativa", "Lançamento", "Conteúdo informativo", "Depoimento", "Urgência", "Dica/tutorial"],
+        imagem_estilovisual: ["Minimalista", "Agressivo em vendas", "Fotorealista", "Moderno", "Limpo", "Corporativo", "Divertido", "Luxury/Premium", "Flat design", "Tipográfico"],
         imagem_informacoes: [],
         imagem_imareferencia: [],
         imagem_comlogo: ["Com logo", "Sem logo"],
@@ -236,6 +248,9 @@ function IAImagemPage() {
         texto_endereco: ["Com endereço", "Sem endereço"],
         texto_instagram: ["Com instagram", "Sem instagram"],
         texto_telcontato: ["Com telefone", "Sem telefone"],
+        tom_comunicacao: ["Urgente", "Amigável", "Sofisticado", "descontraído", "Técnico"],
+        imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis"],
+        imagem_elem_central: ["Produto", "Pessoa", "Texto", "Ambiente", "Ícone"],
       };
 
       setOptions(newOptions);
@@ -257,8 +272,8 @@ function IAImagemPage() {
     }
 
     const subAreas = {
-      dadosCriacao: ["imagem_informacoes", "imagem_objetivo", "imagem_campanha"],
-      visualReferencia: ["imagem_estilovisual", "imagem_formato", "imagem_comlogo", "imagem_imareferencia", "imagem_endereco", "imagem_instagram", "imagem_telcontato"],
+      dadosCriacao: ["imagem_informacoes", "imagem_objetivo", "imagem_campanha", "tom_comunicacao"],
+      visualReferencia: ["imagem_estilovisual", "imagem_paleta", "imagem_elem_central", "imagem_formato", "imagem_comlogo", "imagem_imareferencia", "imagem_endereco", "imagem_instagram", "imagem_telcontato"],
       configuracoesTexto: ["texto_estilo", "texto_emoji", "texto_endereco", "texto_instagram", "texto_telcontato"]
     };
 
@@ -329,6 +344,9 @@ function IAImagemPage() {
           texto_endereco: selections.texto_endereco,
           texto_instagram: selections.texto_instagram,
           texto_telcontato: selections.texto_telcontato,
+          tom_comunicacao: selections.tom_comunicacao,
+          imagem_paleta: selections.imagem_paleta,
+          imagem_elem_central: selections.imagem_elem_central,
           num_imagens_criadas: newCount,
           last_reset_month: newResetMonth,
           oq_criar: generationType,
@@ -654,6 +672,23 @@ function IAImagemPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* Tom de comunicação */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Tom de comunicação</label>
+                      <Select
+                        value={selections.tom_comunicacao}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, tom_comunicacao: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione tom de comunicação..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.tom_comunicacao.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
@@ -673,6 +708,40 @@ function IAImagemPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {options.imagem_estilovisual.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Paleta de cores */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Paleta de cores</label>
+                      <Select
+                        value={selections.imagem_paleta}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_paleta: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione paleta de cores..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_paleta.map((opt) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Elemento central */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Elemento central</label>
+                      <Select
+                        value={selections.imagem_elem_central}
+                        onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_elem_central: val }))}
+                      >
+                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectValue placeholder="Selecione elemento central..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.imagem_elem_central.map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
