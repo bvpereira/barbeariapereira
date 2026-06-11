@@ -249,7 +249,7 @@ function IAImagemPage() {
         texto_instagram: ["Com instagram", "Sem instagram"],
         texto_telcontato: ["Com telefone", "Sem telefone"],
         tom_comunicacao: ["Urgente", "Amigável", "Sofisticado", "descontraído", "Técnico"],
-        imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis"],
+        imagem_paleta: ["Neutros", "Vibrantes", "Dark", "Pastéis", "Minha paleta (baseada no logo)"],
         imagem_elem_central: ["Produto", "Pessoa", "Texto", "Ambiente", "Ícone"],
       };
 
