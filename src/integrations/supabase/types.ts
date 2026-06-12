@@ -811,6 +811,42 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          canal: string
+          created_at: string
+          id: string
+          numero_notificacao: number | null
+          publicada_em: string | null
+          testada: boolean
+          texto: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          canal: string
+          created_at?: string
+          id?: string
+          numero_notificacao?: number | null
+          publicada_em?: string | null
+          testada?: boolean
+          texto?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Update: {
+          canal?: string
+          created_at?: string
+          id?: string
+          numero_notificacao?: number | null
+          publicada_em?: string | null
+          testada?: boolean
+          texto?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       promocao: {
         Row: {
           barbearia_id: string
