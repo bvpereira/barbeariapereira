@@ -8,6 +8,7 @@ import { WebhookSettings } from "@/components/WebhookSettings";
 import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { useTenant } from "@/contexts/TenantContext";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
+import { NotificationsPanel } from "@/components/NotificationsPanel";
 
 export const Route = createFileRoute("/superadmin")({
   component: SuperAdmin,
@@ -61,6 +62,10 @@ function SuperAdmin() {
           Gerenciamento global de unidades e integrações.
         </p>
       </motion.div>
+
+      <div className="mb-12 w-full max-w-4xl">
+        <NotificationsPanel />
+      </div>
 
       {isLoading ? (
         <div className="animate-pulse text-primary font-josefin">Carregando unidades...</div>

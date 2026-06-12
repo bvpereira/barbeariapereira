@@ -15,6 +15,7 @@ import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as PromocaoRouteImport } from './routes/promocao'
+import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as MinhacontaRouteImport } from './routes/minhaconta'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IaimagemRouteImport } from './routes/iaimagem'
@@ -63,6 +64,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const PromocaoRoute = PromocaoRouteImport.update({
   id: '/promocao',
   path: '/promocao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificacoesRoute = NotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MinhacontaRoute = MinhacontaRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/iaimagem': typeof IaimagemRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/promocao': typeof PromocaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/iaimagem': typeof IaimagemRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/promocao': typeof PromocaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/iaimagem': typeof IaimagemRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/promocao': typeof PromocaoRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/registro': typeof RegistroRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/iaimagem'
     | '/login'
     | '/minhaconta'
+    | '/notificacoes'
     | '/promocao'
     | '/redefinir-senha'
     | '/registro'
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/iaimagem'
     | '/login'
     | '/minhaconta'
+    | '/notificacoes'
     | '/promocao'
     | '/redefinir-senha'
     | '/registro'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/iaimagem'
     | '/login'
     | '/minhaconta'
+    | '/notificacoes'
     | '/promocao'
     | '/redefinir-senha'
     | '/registro'
@@ -347,6 +359,7 @@ export interface RootRouteChildren {
   IaimagemRoute: typeof IaimagemRoute
   LoginRoute: typeof LoginRoute
   MinhacontaRoute: typeof MinhacontaRoute
+  NotificacoesRoute: typeof NotificacoesRoute
   PromocaoRoute: typeof PromocaoRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RegistroRoute: typeof RegistroRoute
@@ -397,6 +410,13 @@ declare module '@tanstack/react-router' {
       path: '/promocao'
       fullPath: '/promocao'
       preLoaderRoute: typeof PromocaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notificacoes': {
+      id: '/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof NotificacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/minhaconta': {
@@ -555,6 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   IaimagemRoute: IaimagemRoute,
   LoginRoute: LoginRoute,
   MinhacontaRoute: MinhacontaRoute,
+  NotificacoesRoute: NotificacoesRoute,
   PromocaoRoute: PromocaoRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RegistroRoute: RegistroRoute,
