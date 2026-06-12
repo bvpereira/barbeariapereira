@@ -253,8 +253,17 @@ function BarbeariasPage() {
       try {
         const rawSession = localStorage.getItem("superadmin_session");
         const session = rawSession ? JSON.parse(rawSession) : null;
-        if (!session?.id || Number(session.nivel) !== 0) throw new Error("Acesso não autorizado");
-        const { data, error } = await supabase.from("usuarios").select("id").eq("id", session.id).eq("nivel", 0).maybeSingle();
+        if (!session?.id || !session?.login || !session?.senha || Number(session.nivel) !== 0) {
+          throw new Error("Acesso não autorizado");
+        }
+        const { data, error } = await supabase
+          .from("usuarios")
+          .select("id")
+          .eq("id", session.id)
+          .eq("login", session.login)
+          .eq("senha", session.senha)
+          .eq("nivel", 0)
+          .maybeSingle();
         if (error || !data) throw new Error("Acesso não autorizado");
         setAuthorized(true);
       } catch {
