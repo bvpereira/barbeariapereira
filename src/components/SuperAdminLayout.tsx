@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Scissors, LogOut, MessageSquare, LayoutDashboard, Menu } from "lucide-react";
+import { Scissors, LogOut, MessageSquare, LayoutDashboard, Menu, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 
@@ -10,6 +10,7 @@ interface SuperAdminLayoutProps {
 
 const sidebarLinks = [
   { title: "Painel SuperAdmin", icon: LayoutDashboard, href: "/superadmin" as const },
+  { title: "Barbearias", icon: Store, href: "/barbearias" as const },
   { title: "Comunidade", icon: MessageSquare, href: "/comunidade" as const },
   { title: "Blog", icon: LayoutDashboard, href: "/blog" as const },
 ];
