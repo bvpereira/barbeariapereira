@@ -29,6 +29,7 @@ import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as ClienteRouteImport } from './routes/cliente'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as BarbeariasRouteImport } from './routes/barbearias'
 import { Route as AtendimentosRouteImport } from './routes/atendimentos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as SlugRouteImport } from './routes/$slug'
@@ -134,6 +135,11 @@ const BlogRoute = BlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BarbeariasRoute = BarbeariasRouteImport.update({
+  id: '/barbearias',
+  path: '/barbearias',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AtendimentosRoute = AtendimentosRouteImport.update({
   id: '/atendimentos',
   path: '/atendimentos',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRoute
   '/atendimentos': typeof AtendimentosRoute
+  '/barbearias': typeof BarbeariasRoute
   '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRoute
   '/atendimentos': typeof AtendimentosRoute
+  '/barbearias': typeof BarbeariasRoute
   '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/admin': typeof AdminRoute
   '/atendimentos': typeof AtendimentosRoute
+  '/barbearias': typeof BarbeariasRoute
   '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin'
     | '/atendimentos'
+    | '/barbearias'
     | '/blog'
     | '/cadastro'
     | '/cliente'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin'
     | '/atendimentos'
+    | '/barbearias'
     | '/blog'
     | '/cadastro'
     | '/cliente'
@@ -293,6 +304,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin'
     | '/atendimentos'
+    | '/barbearias'
     | '/blog'
     | '/cadastro'
     | '/cliente'
@@ -320,6 +332,7 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   AdminRoute: typeof AdminRoute
   AtendimentosRoute: typeof AtendimentosRoute
+  BarbeariasRoute: typeof BarbeariasRoute
   BlogRoute: typeof BlogRoute
   CadastroRoute: typeof CadastroRoute
   ClienteRoute: typeof ClienteRoute
@@ -484,6 +497,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/barbearias': {
+      id: '/barbearias'
+      path: '/barbearias'
+      fullPath: '/barbearias'
+      preLoaderRoute: typeof BarbeariasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/atendimentos': {
       id: '/atendimentos'
       path: '/atendimentos'
@@ -520,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRoute: SlugRoute,
   AdminRoute: AdminRoute,
   AtendimentosRoute: AtendimentosRoute,
+  BarbeariasRoute: BarbeariasRoute,
   BlogRoute: BlogRoute,
   CadastroRoute: CadastroRoute,
   ClienteRoute: ClienteRoute,
@@ -544,12 +565,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

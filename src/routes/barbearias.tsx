@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Instagram, MessageCircle, Save, Scissors, Users } from "lucide-react";
+import { AtSign, ExternalLink, MessageCircle, Save, Scissors, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
@@ -71,7 +71,7 @@ function formatDate(value: string) {
 }
 
 function ReadOnlyField({ label, value, href, icon }: { label: string; value: string; href?: string; icon?: "link" | "whatsapp" | "instagram" }) {
-  const Icon = icon === "whatsapp" ? MessageCircle : icon === "instagram" ? Instagram : ExternalLink;
+  const Icon = icon === "whatsapp" ? MessageCircle : icon === "instagram" ? AtSign : ExternalLink;
   return (
     <div className="space-y-2">
       <Label className="text-muted-foreground">{label}</Label>
