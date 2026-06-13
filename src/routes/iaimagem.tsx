@@ -600,6 +600,17 @@ function IAImagemPage() {
     try {
       const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const filePath = `edicao/${tenant.id}/imagem-original.${extension}`;
+      const { data: previousFiles, error: listError } = await supabase.storage
+        .from("informacoes_imagens")
+        .list(`edicao/${tenant.id}`);
+      if (listError) throw listError;
+
+      const previousPaths = (previousFiles ?? []).map((storedFile) => `edicao/${tenant.id}/${storedFile.name}`);
+      if (previousPaths.length > 0) {
+        const { error: removeError } = await supabase.storage.from("informacoes_imagens").remove(previousPaths);
+        if (removeError) throw removeError;
+      }
+
       const { error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
         .upload(filePath, file, { upsert: true, contentType: file.type });
@@ -613,6 +624,8 @@ function IAImagemPage() {
         .eq("barbearia_id", tenant.id);
       if (updateError) throw updateError;
 
+      editUploadedPathRef.current = filePath;
+      isEditConfirmedRef.current = false;
       setEditUploadedImage(imageUrl);
       toast.success("Imagem enviada com sucesso!");
     } catch (error: unknown) {
@@ -661,6 +674,7 @@ function IAImagemPage() {
         .eq("barbearia_id", tenant.id);
       if (updateError) throw updateError;
 
+      isEditConfirmedRef.current = true;
       setNumImagensCriadas(newCount);
       setLastResetMonth(currentMonth);
 
