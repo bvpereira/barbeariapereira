@@ -40,7 +40,7 @@ async function manageNotifications(
 }
 
 async function sendWebhook(webhookUrl: string, payload: Record<string, unknown>) {
-  if (!webhookUrl) throw new Error("Webhook de promoções não configurado.");
+  if (!webhookUrl) throw new Error("Webhook de Notificações – Super Admin não configurado.");
   const response = await fetch(webhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -108,6 +108,7 @@ export const testWhatsAppNotification = createServerFn({ method: "POST" })
     const config = await manageNotifications(data.credentials, "webhook_config");
     await sendWebhook(String(config.webhook_url ?? ""), {
       tipo: "teste_notificacao",
+      tipo_envio: "teste",
       telefone: data.credentials.login,
       titulo: data.notification.titulo,
       texto: data.notification.texto,
@@ -124,6 +125,7 @@ export const sendWhatsAppNotification = createServerFn({ method: "POST" })
     const notification = notificationSchema.parse(prepared.notification);
     await sendWebhook(String(prepared.webhook_url ?? ""), {
       tipo: "envio_notificacao",
+      tipo_envio: "envio",
       ...notification,
       data: new Date().toISOString(),
     });
