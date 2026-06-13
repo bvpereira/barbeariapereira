@@ -821,7 +821,7 @@ function IAImagemPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto flex max-w-4xl flex-col gap-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
             <ImageIcon className="h-6 w-6 text-blue-600" />
@@ -1287,7 +1287,7 @@ function IAImagemPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-100 shadow-sm bg-white">
+        <Card className="order-last border-blue-100 bg-white shadow-sm">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
               <ImageIcon className="h-6 w-6 text-blue-600" />
