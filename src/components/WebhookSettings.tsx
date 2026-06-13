@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Loader2, Megaphone, CheckCircle2, UserKey, Calendar, Code, Image as ImageIcon, Play } from "lucide-react";
+import { Save, Loader2, Megaphone, CheckCircle2, UserKey, Calendar, Code, Image as ImageIcon, Play, Bell } from "lucide-react";
 
 export function WebhookSettings() {
   const { tenant, loading: tenantLoading } = useTenant();
@@ -16,6 +16,7 @@ export function WebhookSettings() {
   const [promocaoWebhookUrl, setPromocaoWebhookUrl] = useState("");
   const [iaCodConsumiWebhookUrl, setIaCodConsumiWebhookUrl] = useState("");
   const [iaGerarImagemWebhookUrl, setIaGerarImagemWebhookUrl] = useState("");
+  const [notificacaoSuperAdminWebhookUrl, setNotificacaoSuperAdminWebhookUrl] = useState("https://n8n.servidorpereira.shop/webhook-test/superadminnotificacoes");
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -24,6 +25,7 @@ export function WebhookSettings() {
   const [savingPromocao, setSavingPromocao] = useState(false);
   const [savingIaCodConsumi, setSavingIaCodConsumi] = useState(false);
   const [savingIaGerarImagem, setSavingIaGerarImagem] = useState(false);
+  const [savingNotificacaoSuperAdmin, setSavingNotificacaoSuperAdmin] = useState(false);
   
   const [integrationId, setIntegrationId] = useState<string | null>(null);
   const [finishIntegrationId, setFinishIntegrationId] = useState<string | null>(null);
@@ -31,6 +33,7 @@ export function WebhookSettings() {
   const [promocaoIntegrationId, setPromocaoIntegrationId] = useState<string | null>(null);
   const [iaCodConsumiIntegrationId, setIaCodConsumiIntegrationId] = useState<string | null>(null);
   const [iaGerarImagemIntegrationId, setIaGerarImagemIntegrationId] = useState<string | null>(null);
+  const [notificacaoSuperAdminIntegrationId, setNotificacaoSuperAdminIntegrationId] = useState<string | null>(null);
   const [testingType, setTestingType] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,6 +59,7 @@ export function WebhookSettings() {
         const promocao = data.find(i => i.tipo === "promocao");
         const iaCodConsumi = data.find(i => i.tipo === "ia_codconsumi");
         const iaGerarImagem = data.find(i => i.tipo === "ia_gerarimagem");
+        const notificacaoSuperAdmin = data.find(i => i.tipo === "notificacao_superadmin");
 
         if (standard) {
           setWebhookUrl(standard.webhook_url);
@@ -85,6 +89,11 @@ export function WebhookSettings() {
         if (iaGerarImagem) {
           setIaGerarImagemWebhookUrl(iaGerarImagem.webhook_url);
           setIaGerarImagemIntegrationId(iaGerarImagem.id);
+        }
+
+        if (notificacaoSuperAdmin) {
+          setNotificacaoSuperAdminWebhookUrl(notificacaoSuperAdmin.webhook_url);
+          setNotificacaoSuperAdminIntegrationId(notificacaoSuperAdmin.id);
         }
       }
     } catch (error) {
@@ -269,6 +278,39 @@ export function WebhookSettings() {
                 disabled={saving}
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="flex flex-col">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-primary text-lg">
+            <Bell className="h-5 w-5" />
+            Notificações – Super Admin
+          </CardTitle>
+          <CardDescription>
+            Utilizado nos testes e envios de notificações por WhatsApp do Super Admin.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+          <div className="space-y-2">
+            <Label htmlFor="notificacao-superadmin-webhook-url">URL do Webhook</Label>
+            <div className="flex gap-2">
+              <Input
+                id="notificacao-superadmin-webhook-url"
+                placeholder="https://exemplo.com/webhook-notificacoes"
+                value={notificacaoSuperAdminWebhookUrl}
+                onChange={(event) => setNotificacaoSuperAdminWebhookUrl(event.target.value)}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => handleSaveGeneric(notificacaoSuperAdminWebhookUrl, "notificacao_superadmin", notificacaoSuperAdminIntegrationId, setNotificacaoSuperAdminIntegrationId, setSavingNotificacaoSuperAdmin, "Configuração de notificações salva!")}
+                disabled={savingNotificacaoSuperAdmin}
+                title="Salvar webhook"
+              >
+                {savingNotificacaoSuperAdmin ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               </Button>
             </div>
           </div>
