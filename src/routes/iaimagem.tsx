@@ -20,6 +20,48 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const EDIT_SECTIONS = [
+  {
+    title: "Fundo e cenário",
+    fields: [
+      { key: "edit_tipo_fundo", label: "Tipo de fundo", options: ["Fundo infinito", "Fundo desfocado", "Ambiente natural", "Ambiente urbano", "Estúdio minimalista", "Manter fundo original"] },
+      { key: "edit_cor_fundo", label: "Cor do fundo infinito", options: ["Branco", "Preto", "Cinza", "Chumbo", "Azul", "Automático (cores do produto)"], onlyInfinite: true },
+      { key: "edit_textura_fundo", label: "Textura do fundo", options: ["Lisa", "Concreto", "Madeira", "Mármore", "Tecido", "Sem textura"] },
+    ],
+  },
+  {
+    title: "Iluminação",
+    fields: [
+      { key: "edit_tipo_iluminacao", label: "Tipo de iluminação", options: ["Luz de estúdio (softbox)", "Luz natural suave", "Luz dramática (contraste alto)", "Luz lateral", "Luz de produto (ring light)", "Contraluz (backlight)"] },
+      { key: "edit_intensidade_luz", label: "Intensidade da luz", options: ["Suave", "Equilibrada", "Intensa"] },
+      { key: "edit_temperatura_cor", label: "Temperatura da cor", options: ["Fria (azulada)", "Neutra", "Quente (amarelada)"] },
+      { key: "edit_sombra", label: "Sombra", options: ["Sem sombra", "Sombra suave no chão", "Sombra projetada", "Sombra espelhada (reflexo)"] },
+    ],
+  },
+  {
+    title: "Tratamento da imagem",
+    fields: [
+      { key: "edit_estilo_cor", label: "Estilo de cor", options: ["Natural e fiel", "Cores vibrantes", "Tons pastéis", "Preto e branco", "Vintage/filme", "High key (muito claro)", "Low key (muito escuro)"] },
+      { key: "edit_nivel_retoque", label: "Nível de retoque", options: ["Sem retoque", "Retoque leve (remover imperfeições)", "Retoque completo (pele/produto perfeito)"] },
+      { key: "edit_nitidez", label: "Nitidez", options: ["Padrão", "Hiper-nítido", "Levemente suavizado"] },
+    ],
+  },
+  {
+    title: "Produto e contexto",
+    fields: [
+      { key: "edit_tipo_produto", label: "Tipo de produto", options: ["Produto isolado", "Produto em uso", "Produto com props/acessórios", "Produto em embalagem"] },
+      { key: "edit_acessorios", label: "Props/Acessórios", options: ["Sem props", "Flores e folhas", "Tecidos e texturas", "Alimentos (para culinária)", "Objetos de lifestyle", "Deixar a IA sugerir"] },
+      { key: "edit_escala_produto", label: "Escala do produto na imagem", options: ["Produto pequeno (ambiente em destaque)", "Produto médio (equilibrado)", "Produto grande (produto em destaque)", "Produto ocupando quase toda a imagem"] },
+    ],
+  },
+] as const;
+
+type EditFieldKey = (typeof EDIT_SECTIONS)[number]["fields"][number]["key"];
+
+const EMPTY_EDIT_SELECTIONS = Object.fromEntries(
+  EDIT_SECTIONS.flatMap((section) => section.fields.map((field) => [field.key, ""])),
+) as Record<EditFieldKey, string>;
+
 export const Route = createFileRoute("/iaimagem")({
   component: IAImagemPage,
 });
@@ -61,6 +103,13 @@ function IAImagemPage() {
   const [showLimitAlert, setShowLimitAlert] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [generationType, setGenerationType] = useState<"ambos" | "imagem" | "legenda">("ambos");
+  const [editSelections, setEditSelections] = useState<Record<EditFieldKey, string>>({ ...EMPTY_EDIT_SELECTIONS });
+  const [editUploadedImage, setEditUploadedImage] = useState<string | null>(null);
+  const [editedImage, setEditedImage] = useState<string | null>(null);
+  const [uploadingEdit, setUploadingEdit] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [showEditConfirm, setShowEditConfirm] = useState(false);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -128,6 +177,9 @@ function IAImagemPage() {
             }
             if ((payload.new as any).legenda_criada_ia !== undefined) {
               setCreatedCaption((payload.new as any).legenda_criada_ia);
+            }
+            if ((payload.new as any).edit_imagemeditada !== undefined) {
+              setEditedImage((payload.new as any).edit_imagemeditada || null);
             }
           }
         }
@@ -198,6 +250,11 @@ function IAImagemPage() {
         setCreatedImageUrl(selectionData.imagem_criada_ia || null);
         setCreatedCaption(selectionData.legenda_criada_ia || null);
         setNumLimiteImagens(selectionData.num_limite_imagens || 0);
+        setEditUploadedImage((selectionData as any).edit_imagemupada || null);
+        setEditedImage((selectionData as any).edit_imagemeditada || null);
+        setEditSelections(Object.fromEntries(
+          EDIT_SECTIONS.flatMap((section) => section.fields.map((field) => [field.key, (selectionData as any)[field.key] || ""])),
+        ) as Record<EditFieldKey, string>);
         
         const currentMonth = new Date().toISOString().slice(0, 7);
         const dbMonth = selectionData.last_reset_month || "";
@@ -503,6 +560,116 @@ function IAImagemPage() {
     if (!createdCaption) return;
     navigator.clipboard.writeText(createdCaption);
     toast.success("Legenda copiada com sucesso!");
+  };
+
+  const handleEditImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !tenant?.id) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem válido.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 10 MB.");
+      return;
+    }
+
+    setUploadingEdit(true);
+    try {
+      const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const filePath = `edicao/${tenant.id}/imagem-original.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from("informacoes_imagens")
+        .upload(filePath, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+
+      const { data: publicData } = supabase.storage.from("informacoes_imagens").getPublicUrl(filePath);
+      const imageUrl = `${publicData.publicUrl}?t=${Date.now()}`;
+      const { error: updateError } = await supabase
+        .from("agentes_ia")
+        .update({ edit_imagemupada: imageUrl } as any)
+        .eq("barbearia_id", tenant.id);
+      if (updateError) throw updateError;
+
+      setEditUploadedImage(imageUrl);
+      toast.success("Imagem enviada com sucesso!");
+    } catch (error: any) {
+      console.error("Erro no upload da imagem para edição:", error);
+      toast.error(error.message || "Não foi possível enviar a imagem.");
+    } finally {
+      setUploadingEdit(false);
+      if (editFileInputRef.current) editFileInputRef.current.value = "";
+    }
+  };
+
+  const requestEditConfirmation = () => {
+    if (!editUploadedImage) {
+      toast.error("Envie uma imagem antes de gerar a edição.");
+      return;
+    }
+    const missing = EDIT_SECTIONS.flatMap((section) => section.fields)
+      .filter((field) => !field.onlyInfinite || editSelections.edit_tipo_fundo === "Fundo infinito")
+      .filter((field) => !editSelections[field.key])
+      .map((field) => field.label);
+    if (missing.length > 0) {
+      toast.error(`Preencha os campos: ${missing.join(", ")}`);
+      return;
+    }
+    setShowEditConfirm(true);
+  };
+
+  const confirmImageEdit = async () => {
+    if (!tenant?.id || !editUploadedImage) return;
+    setShowEditConfirm(false);
+    setSavingEdit(true);
+    try {
+      const payload = {
+        ...editSelections,
+        edit_cor_fundo: editSelections.edit_tipo_fundo === "Fundo infinito" ? editSelections.edit_cor_fundo : null,
+        edit_imagemupada: editUploadedImage,
+      };
+      const { error: updateError } = await supabase
+        .from("agentes_ia")
+        .update(payload as any)
+        .eq("barbearia_id", tenant.id);
+      if (updateError) throw updateError;
+
+      if (webhookUrl) {
+        await fetch(webhookUrl.trim().replace(/\s/g, "%20"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          mode: "no-cors",
+          body: JSON.stringify({ ...payload, barbearia_id: tenant.id, id_barbearia: tenant.id, action: "edit_image", timestamp: new Date().toISOString() }),
+        });
+        toast.success("Edição de imagem solicitada com sucesso!");
+      } else {
+        toast.success("Dados de edição salvos com sucesso!");
+        toast.info("Webhook 'ia_gerarimagem' não configurado em Integrações.");
+      }
+    } catch (error: any) {
+      console.error("Erro ao solicitar edição:", error);
+      toast.error(error.message || "Não foi possível solicitar a edição.");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const downloadEditedImage = async () => {
+    if (!editedImage) return;
+    try {
+      const response = await fetch(editedImage);
+      if (!response.ok) throw new Error("Falha ao baixar a imagem.");
+      const objectUrl = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = `imagem_editada_${tenant?.id || "ia"}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      toast.error("Não foi possível baixar a imagem editada.");
+    }
   };
 
   return (
