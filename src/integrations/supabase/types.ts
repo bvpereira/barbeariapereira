@@ -813,6 +813,7 @@ export type Database = {
       }
       notificacoes: {
         Row: {
+          barbearia_id: string | null
           canal: string
           created_at: string
           id: string
@@ -824,6 +825,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          barbearia_id?: string | null
           canal: string
           created_at?: string
           id?: string
@@ -835,6 +837,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          barbearia_id?: string | null
           canal?: string
           created_at?: string
           id?: string
@@ -845,7 +848,15 @@ export type Database = {
           titulo?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       promocao: {
         Row: {
@@ -1067,6 +1078,25 @@ export type Database = {
       get_atendimento_servicos_names: {
         Args: { atendimento_id_val: string }
         Returns: string
+      }
+      get_latest_site_notifications: {
+        Args: never
+        Returns: {
+          id: string
+          publicada_em: string
+          texto: string
+          titulo: string
+        }[]
+      }
+      manage_notificacoes: {
+        Args: {
+          p_action: string
+          p_admin_id: string
+          p_login: string
+          p_payload?: Json
+          p_senha: string
+        }
+        Returns: Json
       }
     }
     Enums: {
