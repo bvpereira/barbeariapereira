@@ -68,6 +68,8 @@ const EMPTY_EDIT_SELECTIONS = Object.fromEntries(
   EDIT_SECTIONS.flatMap((section) => section.fields.map((field) => [field.key, ""])),
 ) as Record<EditFieldKey, string>;
 
+const IMAGE_CREATION_WEBHOOK_URL = "https://n8n.servidorpereira.shop/webhook-test/bfa3904d-7309-4c15-baf5-e762c939df92";
+
 export const Route = createFileRoute("/iaimagem")({
   component: IAImagemPage,
 });
@@ -633,6 +635,7 @@ function IAImagemPage() {
         ...editSelections,
         edit_cor_fundo: editSelections.edit_tipo_fundo === "Fundo infinito" ? editSelections.edit_cor_fundo : null,
         edit_imagemupada: editUploadedImage,
+        oq_criar: "edicao_imagem",
       };
       const { error: updateError } = await supabase
         .from("agentes_ia")
@@ -640,18 +643,20 @@ function IAImagemPage() {
         .eq("barbearia_id", tenant.id);
       if (updateError) throw updateError;
 
-      if (webhookUrl) {
-        await fetch(webhookUrl.trim().replace(/\s/g, "%20"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          mode: "no-cors",
-          body: JSON.stringify({ ...payload, barbearia_id: tenant.id, id_barbearia: tenant.id, action: "edit_image", timestamp: new Date().toISOString() }),
-        });
-        toast.success("Edição de imagem solicitada com sucesso!");
-      } else {
-        toast.success("Dados de edição salvos com sucesso!");
-        toast.info("Webhook 'ia_gerarimagem' não configurado em Integrações.");
-      }
+      await fetch(IMAGE_CREATION_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        mode: "no-cors",
+        body: JSON.stringify({
+          ...payload,
+          barbearia_id: tenant.id,
+          id_barbearia: tenant.id,
+          ID_BARBEARIA: tenant.id,
+          action: "edit_image",
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      toast.success("Edição de imagem solicitada com sucesso!");
     } catch (error: unknown) {
       console.error("Erro ao solicitar edição:", error);
       toast.error(error instanceof Error ? error.message : "Não foi possível solicitar a edição.");
