@@ -1,0 +1,16 @@
+ALTER TABLE public.agentes_ia
+  ADD COLUMN IF NOT EXISTS edit_tipo_fundo text,
+  ADD COLUMN IF NOT EXISTS edit_cor_fundo text,
+  ADD COLUMN IF NOT EXISTS edit_textura_fundo text,
+  ADD COLUMN IF NOT EXISTS edit_tipo_iluminacao text,
+  ADD COLUMN IF NOT EXISTS edit_intensidade_luz text,
+  ADD COLUMN IF NOT EXISTS edit_temperatura_cor text,
+  ADD COLUMN IF NOT EXISTS edit_sombra text,
+  ADD COLUMN IF NOT EXISTS edit_estilo_cor text,
+  ADD COLUMN IF NOT EXISTS edit_nivel_retoque text,
+  ADD COLUMN IF NOT EXISTS edit_nitidez text,
+  ADD COLUMN IF NOT EXISTS edit_tipo_produto text,
+  ADD COLUMN IF NOT EXISTS edit_acessorios text,
+  ADD COLUMN IF NOT EXISTS edit_escala_produto text,
+  ADD COLUMN IF NOT EXISTS edit_imagemupada text,
+  ADD COLUMN IF NOT EXISTS edit_imagemeditada text;

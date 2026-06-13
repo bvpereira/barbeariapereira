@@ -18,6 +18,21 @@ export type Database = {
         Row: {
           barbearia_id: string
           created_at: string
+          edit_acessorios: string | null
+          edit_cor_fundo: string | null
+          edit_escala_produto: string | null
+          edit_estilo_cor: string | null
+          edit_imagemeditada: string | null
+          edit_imagemupada: string | null
+          edit_intensidade_luz: string | null
+          edit_nitidez: string | null
+          edit_nivel_retoque: string | null
+          edit_sombra: string | null
+          edit_temperatura_cor: string | null
+          edit_textura_fundo: string | null
+          edit_tipo_fundo: string | null
+          edit_tipo_iluminacao: string | null
+          edit_tipo_produto: string | null
           id: string
           imagem_campanha: string | null
           imagem_comlogo: string | null
@@ -50,6 +65,21 @@ export type Database = {
         Insert: {
           barbearia_id: string
           created_at?: string
+          edit_acessorios?: string | null
+          edit_cor_fundo?: string | null
+          edit_escala_produto?: string | null
+          edit_estilo_cor?: string | null
+          edit_imagemeditada?: string | null
+          edit_imagemupada?: string | null
+          edit_intensidade_luz?: string | null
+          edit_nitidez?: string | null
+          edit_nivel_retoque?: string | null
+          edit_sombra?: string | null
+          edit_temperatura_cor?: string | null
+          edit_textura_fundo?: string | null
+          edit_tipo_fundo?: string | null
+          edit_tipo_iluminacao?: string | null
+          edit_tipo_produto?: string | null
           id?: string
           imagem_campanha?: string | null
           imagem_comlogo?: string | null
@@ -82,6 +112,21 @@ export type Database = {
         Update: {
           barbearia_id?: string
           created_at?: string
+          edit_acessorios?: string | null
+          edit_cor_fundo?: string | null
+          edit_escala_produto?: string | null
+          edit_estilo_cor?: string | null
+          edit_imagemeditada?: string | null
+          edit_imagemupada?: string | null
+          edit_intensidade_luz?: string | null
+          edit_nitidez?: string | null
+          edit_nivel_retoque?: string | null
+          edit_sombra?: string | null
+          edit_temperatura_cor?: string | null
+          edit_textura_fundo?: string | null
+          edit_tipo_fundo?: string | null
+          edit_tipo_iluminacao?: string | null
+          edit_tipo_produto?: string | null
           id?: string
           imagem_campanha?: string | null
           imagem_comlogo?: string | null
