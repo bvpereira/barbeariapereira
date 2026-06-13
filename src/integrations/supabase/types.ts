@@ -817,7 +817,8 @@ export type Database = {
           canal: string
           created_at: string
           id: string
-          notificacao_auxiliar: boolean
+          noti_texto_auxiliar: string | null
+          noti_titulo_auxiliar: string | null
           numero_notificacao: number | null
           publicada_em: string | null
           testada: boolean
@@ -830,7 +831,8 @@ export type Database = {
           canal: string
           created_at?: string
           id?: string
-          notificacao_auxiliar?: boolean
+          noti_texto_auxiliar?: string | null
+          noti_titulo_auxiliar?: string | null
           numero_notificacao?: number | null
           publicada_em?: string | null
           testada?: boolean
@@ -843,7 +845,8 @@ export type Database = {
           canal?: string
           created_at?: string
           id?: string
-          notificacao_auxiliar?: boolean
+          noti_texto_auxiliar?: string | null
+          noti_titulo_auxiliar?: string | null
           numero_notificacao?: number | null
           publicada_em?: string | null
           testada?: boolean
