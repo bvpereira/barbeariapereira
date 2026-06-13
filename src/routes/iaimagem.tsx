@@ -631,10 +631,14 @@ function IAImagemPage() {
     setShowEditConfirm(false);
     setSavingEdit(true);
     try {
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      const newCount = lastResetMonth === currentMonth ? numImagensCriadas + 1 : 1;
       const payload = {
         ...editSelections,
         edit_cor_fundo: editSelections.edit_tipo_fundo === "Fundo infinito" ? editSelections.edit_cor_fundo : null,
         edit_imagemupada: editUploadedImage,
+        num_imagens_criadas: newCount,
+        last_reset_month: currentMonth,
         oq_criar: "edicao_imagem",
       };
       const { error: updateError } = await supabase
@@ -642,6 +646,9 @@ function IAImagemPage() {
         .update(payload)
         .eq("barbearia_id", tenant.id);
       if (updateError) throw updateError;
+
+      setNumImagensCriadas(newCount);
+      setLastResetMonth(currentMonth);
 
       await fetch(IMAGE_CREATION_WEBHOOK_URL, {
         method: "POST",
