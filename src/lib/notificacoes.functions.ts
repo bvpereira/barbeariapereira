@@ -131,12 +131,18 @@ export const sendWhatsAppNotification = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const prepared = await manageNotifications(data.credentials, "prepare_send");
     const notification = notificationSchema.parse(prepared.notification);
-    await sendWebhook(String(prepared.webhook_url ?? ""), {
-      tipo: "envio_notificacao",
-      tipo_envio: "envio",
-      ...notification,
-      data: new Date().toISOString(),
-    });
+    let webhookDelivered = true;
+    try {
+      await sendWebhook(String(prepared.webhook_url ?? ""), {
+        tipo: "envio_notificacao",
+        tipo_envio: "envio",
+        ...notification,
+        data: new Date().toISOString(),
+      });
+    } catch (error) {
+      webhookDelivered = false;
+      console.warn("Falha ao enviar webhook final de notificação:", error);
+    }
     await manageNotifications(data.credentials, "finalize_send");
-    return { ok: true };
+    return { ok: true, webhookDelivered };
   });
