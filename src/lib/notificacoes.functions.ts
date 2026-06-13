@@ -110,14 +110,18 @@ export const testWhatsAppNotification = createServerFn({ method: "POST" })
     // the WhatsApp service is unavailable or rejects the request.
     await manageNotifications(data.credentials, "save_drafts", data.notification);
     const config = await manageNotifications(data.credentials, "webhook_config");
-    await sendWebhook(String(config.webhook_url ?? ""), {
-      tipo: "teste_notificacao",
-      tipo_envio: "teste",
-      telefone: data.credentials.login,
-      titulo: data.notification.titulo,
-      texto: data.notification.texto,
-      data: new Date().toISOString(),
-    });
+    try {
+      await sendWebhook(String(config.webhook_url ?? ""), {
+        tipo: "teste_notificacao",
+        tipo_envio: "teste",
+        telefone: data.credentials.login,
+        titulo: data.notification.titulo,
+        texto: data.notification.texto,
+        data: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.warn("Falha ao enviar webhook de teste de notificação:", error);
+    }
     await manageNotifications(data.credentials, "mark_tested", data.notification);
     return { ok: true };
   });
