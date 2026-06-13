@@ -105,6 +105,10 @@ export const testWhatsAppNotification = createServerFn({ method: "POST" })
     z.object({ credentials: credentialsSchema, notification: notificationSchema }).parse(input),
   )
   .handler(async ({ data }) => {
+    // Persist the current test payload in the control row before calling the
+    // external webhook. This keeps numero_notificacao = 0 up to date even if
+    // the WhatsApp service is unavailable or rejects the request.
+    await manageNotifications(data.credentials, "save_drafts", data.notification);
     const config = await manageNotifications(data.credentials, "webhook_config");
     await sendWebhook(String(config.webhook_url ?? ""), {
       tipo: "teste_notificacao",
