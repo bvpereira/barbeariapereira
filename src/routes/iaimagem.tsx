@@ -593,15 +593,15 @@ function IAImagemPage() {
       const imageUrl = `${publicData.publicUrl}?t=${Date.now()}`;
       const { error: updateError } = await supabase
         .from("agentes_ia")
-        .update({ edit_imagemupada: imageUrl } as any)
+        .update({ edit_imagemupada: imageUrl })
         .eq("barbearia_id", tenant.id);
       if (updateError) throw updateError;
 
       setEditUploadedImage(imageUrl);
       toast.success("Imagem enviada com sucesso!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro no upload da imagem para edição:", error);
-      toast.error(error.message || "Não foi possível enviar a imagem.");
+      toast.error(error instanceof Error ? error.message : "Não foi possível enviar a imagem.");
     } finally {
       setUploadingEdit(false);
       if (editFileInputRef.current) editFileInputRef.current.value = "";
@@ -636,7 +636,7 @@ function IAImagemPage() {
       };
       const { error: updateError } = await supabase
         .from("agentes_ia")
-        .update(payload as any)
+        .update(payload)
         .eq("barbearia_id", tenant.id);
       if (updateError) throw updateError;
 
@@ -652,9 +652,9 @@ function IAImagemPage() {
         toast.success("Dados de edição salvos com sucesso!");
         toast.info("Webhook 'ia_gerarimagem' não configurado em Integrações.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao solicitar edição:", error);
-      toast.error(error.message || "Não foi possível solicitar a edição.");
+      toast.error(error instanceof Error ? error.message : "Não foi possível solicitar a edição.");
     } finally {
       setSavingEdit(false);
     }
