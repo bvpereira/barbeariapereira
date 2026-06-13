@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { Json } from "@/integrations/supabase/types";
 
 const credentialsSchema = z.object({
   id: z.string().uuid(),
@@ -32,7 +33,7 @@ async function manageNotifications(
     p_login: credentials.login,
     p_senha: credentials.senha,
     p_action: action,
-    p_payload: payload,
+    p_payload: payload as Json,
   });
   if (error) throw new Error(error.message);
   return data as Record<string, unknown>;
