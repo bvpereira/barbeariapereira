@@ -46,7 +46,8 @@ async function sendWebhook(webhookUrl: string, payload: Record<string, unknown>)
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!response.ok) throw new Error(`O serviço de WhatsApp respondeu com status ${response.status}.`);
+  if (!response.ok)
+    throw new Error(`O serviço de WhatsApp respondeu com status ${response.status}.`);
 }
 
 export const getLatestSiteNotifications = createServerFn({ method: "GET" }).handler(async () => {
@@ -57,36 +58,52 @@ export const getLatestSiteNotifications = createServerFn({ method: "GET" }).hand
 });
 
 export const getNotificationsPage = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ credentials: credentialsSchema, page: z.number().int().min(0).max(10000) }).parse(input))
+  .inputValidator((input) =>
+    z
+      .object({ credentials: credentialsSchema, page: z.number().int().min(0).max(10000) })
+      .parse(input),
+  )
   .handler(async ({ data }) => {
     const result = await manageNotifications(data.credentials, "page", { page: data.page });
     const drafts = Array.isArray(result.drafts) ? result.drafts : [];
-    return { rows: Array.isArray(result.rows) ? result.rows : [], count: Number(result.count ?? 0), draft: drafts[0] ?? null };
+    return {
+      rows: Array.isArray(result.rows) ? result.rows : [],
+      count: Number(result.count ?? 0),
+      draft: drafts[0] ?? null,
+    };
   });
 
 export const publishSiteNotification = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ credentials: credentialsSchema, notification: notificationSchema }).parse(input))
+  .inputValidator((input) =>
+    z.object({ credentials: credentialsSchema, notification: notificationSchema }).parse(input),
+  )
   .handler(async ({ data }) => {
     await manageNotifications(data.credentials, "publish_site", data.notification);
     return { ok: true };
   });
 
 export const deleteNotification = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ credentials: credentialsSchema, id: z.string().uuid() }).parse(input))
+  .inputValidator((input) =>
+    z.object({ credentials: credentialsSchema, id: z.string().uuid() }).parse(input),
+  )
   .handler(async ({ data }) => {
     await manageNotifications(data.credentials, "delete", { id: data.id });
     return { ok: true };
   });
 
 export const saveWhatsAppDraft = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ credentials: credentialsSchema, notification: notificationSchema }).parse(input))
+  .inputValidator((input) =>
+    z.object({ credentials: credentialsSchema, notification: notificationSchema }).parse(input),
+  )
   .handler(async ({ data }) => {
     await manageNotifications(data.credentials, "save_drafts", data.notification);
     return { ok: true };
   });
 
 export const testWhatsAppNotification = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ credentials: credentialsSchema, notification: notificationSchema }).parse(input))
+  .inputValidator((input) =>
+    z.object({ credentials: credentialsSchema, notification: notificationSchema }).parse(input),
+  )
   .handler(async ({ data }) => {
     const config = await manageNotifications(data.credentials, "webhook_config");
     await sendWebhook(String(config.webhook_url ?? ""), {
@@ -105,7 +122,11 @@ export const sendWhatsAppNotification = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const prepared = await manageNotifications(data.credentials, "prepare_send");
     const notification = notificationSchema.parse(prepared.notification);
-    await sendWebhook(String(prepared.webhook_url ?? ""), { tipo: "envio_notificacao", ...notification, data: new Date().toISOString() });
+    await sendWebhook(String(prepared.webhook_url ?? ""), {
+      tipo: "envio_notificacao",
+      ...notification,
+      data: new Date().toISOString(),
+    });
     await manageNotifications(data.credentials, "finalize_send");
     return { ok: true };
   });
