@@ -118,6 +118,8 @@ function IAImagemPage() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [showEditConfirm, setShowEditConfirm] = useState(false);
   const editFileInputRef = useRef<HTMLInputElement>(null);
+  const editUploadedPathRef = useRef<string | null>(null);
+  const isEditConfirmedRef = useRef(false);
 
   const [selections, setSelections] = useState<Record<string, string>>({
     imagem_objetivo: "",
@@ -214,6 +216,20 @@ function IAImagemPage() {
           if (error) console.error("Erro ao remover arquivo de referência do storage:", error);
         });
       }
+
+      if (!isEditConfirmedRef.current && editUploadedPathRef.current) {
+        const editPath = editUploadedPathRef.current;
+        supabase
+          .from("agentes_ia")
+          .update({ edit_imagemupada: null })
+          .eq("barbearia_id", tenant.id)
+          .then(({ error }) => {
+            if (error) console.error("Erro ao limpar imagem de edição:", error);
+          });
+        supabase.storage.from("informacoes_imagens").remove([editPath]).then(({ error }) => {
+          if (error) console.error("Erro ao remover imagem de edição do storage:", error);
+        });
+      }
     };
   }, [tenant, tenantLoading]);
 
@@ -258,11 +274,9 @@ function IAImagemPage() {
         setCreatedImageUrl(selectionData.imagem_criada_ia || null);
         setCreatedCaption(selectionData.legenda_criada_ia || null);
         setNumLimiteImagens(selectionData.num_limite_imagens || 0);
-        setEditUploadedImage((selectionData as any).edit_imagemupada || null);
+        setEditUploadedImage(null);
         setEditedImage((selectionData as any).edit_imagemeditada || null);
-        setEditSelections(Object.fromEntries(
-          EDIT_SECTIONS.flatMap((section) => section.fields.map((field) => [field.key, (selectionData as any)[field.key] || ""])),
-        ) as Record<EditFieldKey, string>);
+        setEditSelections({ ...EMPTY_EDIT_SELECTIONS });
         
         const currentMonth = new Date().toISOString().slice(0, 7);
         const dbMonth = selectionData.last_reset_month || "";
