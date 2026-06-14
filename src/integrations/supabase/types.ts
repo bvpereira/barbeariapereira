@@ -1255,6 +1255,15 @@ export type Database = {
         }
         Returns: Json
       }
+      delete_cupom_desconto: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+          p_id: string
+        }
+        Returns: boolean
+      }
       get_atendimento_servicos_names: {
         Args: { atendimento_id_val: string }
         Returns: string
