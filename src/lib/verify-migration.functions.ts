@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 /**
  * Função para verificar a integridade da migração das imagens.
  * Cruza os dados do banco com a estrutura de pastas do Storage.
  */
 export const verifyMigration = createServerFn({ method: "POST" }).handler(async () => {
+  const { createCouponsDbClient } = await import("@/lib/coupons-db.server");
+  const db = createCouponsDbClient();
   const report = {
     servicos: { total: 0, migrados: 0, pendentes: 0, detalhes: [] as any[] },
     colaboradores: { total: 0, migrados: 0, pendentes: 0, detalhes: [] as any[] },
@@ -14,7 +15,7 @@ export const verifyMigration = createServerFn({ method: "POST" }).handler(async 
 
   try {
     // 1. Verificar Serviços
-    const { data: servicos } = await supabaseAdmin
+    const { data: servicos } = await db
       .from("servicos")
       .select("id, barbearia_id, image_url, name")
       .not("image_url", "is", null);
@@ -42,7 +43,7 @@ export const verifyMigration = createServerFn({ method: "POST" }).handler(async 
     }
 
     // 2. Verificar Colaboradores
-    const { data: colabs } = await supabaseAdmin
+    const { data: colabs } = await db
       .from("colaboradores")
       .select("id, barbearia_id, foto_url, nome")
       .not("foto_url", "is", null);
@@ -71,11 +72,11 @@ export const verifyMigration = createServerFn({ method: "POST" }).handler(async 
 
     // 3. Verificação física no Storage (Amostragem)
     // Vamos listar as pastas raiz para ver se ainda existem arquivos soltos
-    const { data: rootFilesServicos } = await supabaseAdmin.storage.from("service-images").list();
+    const { data: rootFilesServicos } = await db.storage.from("service-images").list();
     const legacyFilesServicos = rootFilesServicos?.filter(f => !f.id && f.name.includes(".")).length || 0;
     report.storage_checks.push(`Arquivos soltos na raiz de service-images: ${legacyFilesServicos}`);
 
-    const { data: rootFilesColabs } = await supabaseAdmin.storage.from("collaborator-images").list();
+    const { data: rootFilesColabs } = await db.storage.from("collaborator-images").list();
     const legacyFilesColabs = rootFilesColabs?.filter(f => !f.id && f.name.includes(".")).length || 0;
     report.storage_checks.push(`Arquivos soltos na raiz de collaborator-images: ${legacyFilesColabs}`);
 
