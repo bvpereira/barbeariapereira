@@ -69,6 +69,7 @@ interface Atendimento {
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
+  cupom_codigo?: string | null;
 }
 
 interface Cliente {
@@ -728,6 +729,7 @@ function AtendimentosPage() {
                 colaborador_id: item.colaborador.id,
                 data: item.data,
                 valor: item.valor,
+                cupom_codigo: item.cupom_codigo,
                 servicos_ids: item.servicos.map(s => s.id)
               }}
             />
