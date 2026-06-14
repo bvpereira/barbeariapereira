@@ -73,11 +73,25 @@ export const saveCoupon = createServerFn({ method: "POST" })
   .inputValidator((input) => couponSchema.parse(input))
   .handler(async ({ data }) => {
     const db = await requireAdmin(data);
-    const { admin_id: _adminId, admin_password: _password, id, ...values } = data;
-    const query = id
-      ? db.from("cupons_desconto").update(values).eq("id", id).eq("barbearia_id", data.barbearia_id)
-      : db.from("cupons_desconto").insert(values);
-    const { data: coupon, error } = await query.select().single();
+    const { data: coupon, error } = await db.rpc("save_cupom_desconto", {
+      p_admin_id: data.admin_id,
+      p_admin_password: data.admin_password,
+      p_id: data.id ?? null,
+      p_barbearia_id: data.barbearia_id,
+      p_nome: data.nome,
+      p_descricao: data.descricao,
+      p_codigo: data.codigo,
+      p_data_inicio: data.data_inicio,
+      p_data_fim: data.data_fim,
+      p_dias_semana: data.dias_semana,
+      p_limite_por_cliente: data.limite_por_cliente,
+      p_somente_novos_clientes: data.somente_novos_clientes,
+      p_inatividade_dias: data.inatividade_dias,
+      p_valor_minimo_total: data.valor_minimo_total,
+      p_tipo_desconto_total: data.tipo_desconto_total,
+      p_valor_desconto_total: data.valor_desconto_total,
+      p_regras_servicos: data.regras_servicos,
+    });
     if (error?.code === "23505") throw new Error("Já existe um cupom com este código nesta barbearia.");
     if (error) throw new Error(error.message);
     return coupon;
