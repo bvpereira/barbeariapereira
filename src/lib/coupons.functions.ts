@@ -52,21 +52,13 @@ export const listCoupons = createServerFn({ method: "POST" })
   .inputValidator((input) => credentialsSchema.parse(input))
   .handler(async ({ data }) => {
     const db = await requireAdmin(data);
-    const { data: coupons, error } = await db
-      .from("cupons_desconto")
-      .select("*")
-      .eq("barbearia_id", data.barbearia_id)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false });
+    const { data: coupons, error } = await db.rpc("list_cupons_desconto", {
+      p_admin_id: data.admin_id,
+      p_admin_password: data.admin_password,
+      p_barbearia_id: data.barbearia_id,
+    });
     if (error) throw new Error(error.message);
-    const ids = (coupons ?? []).map((coupon) => coupon.id);
-    const { data: uses } = ids.length
-      ? await db.from("atendimentos").select("cupom_id").in("cupom_id", ids).eq("cupom_status", "aplicado").neq("status", "Não compareceu")
-      : { data: [] };
-    return (coupons ?? []).map((coupon) => ({
-      ...coupon,
-      usos: (uses ?? []).filter((use) => use.cupom_id === coupon.id).length,
-    }));
+    return coupons ?? [];
   });
 
 export const saveCoupon = createServerFn({ method: "POST" })
