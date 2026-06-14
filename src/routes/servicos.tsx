@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { CouponsSection } from "@/components/CouponsSection";
 
 export const Route = createFileRoute("/servicos")({
   component: ServicesPage,
@@ -449,6 +450,7 @@ function ServicesPage() {
             ))}
           </div>
         )}
+        {!isLoading && tenant?.id && <CouponsSection tenantId={tenant.id} services={services} />}
       </div>
     </AdminLayout>
   );

@@ -101,6 +101,7 @@ const applySchema = z.object({
   atendimento_id: z.string().uuid(),
   barbearia_id: z.string().uuid(),
   cliente_id: z.string().uuid(),
+  actor_id: z.string().uuid(),
   password: z.string().min(1).max(200),
   codigo: z.string().trim().min(4).max(10),
 });
@@ -109,9 +110,9 @@ export const applyCoupon = createServerFn({ method: "POST" })
   .inputValidator((input) => applySchema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: user } = await supabaseAdmin.from("usuarios").select("id")
-      .eq("id", data.cliente_id).eq("barbearia_id", data.barbearia_id).eq("senha", data.password).maybeSingle();
-    if (!user) throw new Error("Usuário não autorizado.");
+    const { data: user } = await supabaseAdmin.from("usuarios").select("id, nivel")
+      .eq("id", data.actor_id).eq("barbearia_id", data.barbearia_id).eq("senha", data.password).maybeSingle();
+    if (!user || (user.nivel !== 1 && user.id !== data.cliente_id)) throw new Error("Usuário não autorizado.");
     const { data: result, error } = await supabaseAdmin.rpc("apply_coupon_to_appointment", {
       p_atendimento_id: data.atendimento_id,
       p_barbearia_id: data.barbearia_id,
