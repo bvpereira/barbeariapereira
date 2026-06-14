@@ -106,6 +106,72 @@ const applySchema = z.object({
   codigo: z.string().trim().min(4).max(10),
 });
 
+const previewSchema = z.object({
+  barbearia_id: z.string().uuid(), cliente_id: z.string().uuid(), actor_id: z.string().uuid(),
+  password: z.string().min(1).max(200), codigo: z.string().trim().min(4).max(10),
+  data: z.string().date(), servicos_ids: z.array(z.string().uuid()).min(1).max(100),
+});
+
+export const previewCoupon = createServerFn({ method: "POST" })
+  .inputValidator((input) => previewSchema.parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: actor } = await supabaseAdmin.from("usuarios").select("id, nivel")
+      .eq("id", data.actor_id).eq("barbearia_id", data.barbearia_id).eq("senha", data.password).maybeSingle();
+    if (!actor || (actor.nivel !== 1 && actor.id !== data.cliente_id)) throw new Error("Usuário não autorizado.");
+    const { data: coupon } = await supabaseAdmin.from("cupons_desconto").select("*")
+      .eq("barbearia_id", data.barbearia_id).ilike("codigo", data.codigo.trim()).is("deleted_at", null).maybeSingle();
+    if (!coupon) throw new Error("Cupom não encontrado.");
+    const appointmentDate = new Date(`${data.data}T12:00:00-03:00`);
+    const day = appointmentDate.getDay();
+    if (data.data < coupon.data_inicio) throw new Error("Este cupom ainda não está ativo.");
+    if (data.data > coupon.data_fim) throw new Error("Este cupom expirou.");
+    if (!coupon.dias_semana.includes(day)) throw new Error("Cupom indisponível para o dia selecionado.");
+    const rules = Array.isArray(coupon.regras_servicos) ? coupon.regras_servicos as Array<{ servico_id: string; tipo_desconto: string | null; valor_desconto: number | null }> : [];
+    if (!data.servicos_ids.some((id) => rules.some((rule) => rule.servico_id === id))) throw new Error("Cupom não válido para os serviços selecionados.");
+    if (coupon.somente_novos_clientes) {
+      const { count } = await supabaseAdmin.from("atendimentos").select("id", { count: "exact", head: true })
+        .eq("barbearia_id", data.barbearia_id).eq("cliente_id", data.cliente_id);
+      if ((count ?? 0) > 0) throw new Error("Este cupom é exclusivo para novos clientes.");
+    }
+    if (coupon.inatividade_dias) {
+      const { data: last } = await supabaseAdmin.from("atendimentos").select("data")
+        .eq("barbearia_id", data.barbearia_id).eq("cliente_id", data.cliente_id).eq("status", "Finalizado")
+        .order("data", { ascending: false }).limit(1).maybeSingle();
+      if (last) {
+        const elapsed = Math.floor((appointmentDate.getTime() - new Date(last.data).getTime()) / 86400000);
+        if (elapsed <= coupon.inatividade_dias) throw new Error(`Este cupom exige ${coupon.inatividade_dias} dias sem atendimento.`);
+      }
+    }
+    if (coupon.limite_por_cliente === "1") {
+      const { count } = await supabaseAdmin.from("atendimentos").select("id", { count: "exact", head: true })
+        .eq("cupom_id", coupon.id).eq("cliente_id", data.cliente_id).eq("cupom_status", "aplicado").neq("status", "Não compareceu");
+      if ((count ?? 0) > 0) throw new Error("Você já utilizou este cupom.");
+    }
+    const { data: services, error } = await supabaseAdmin.from("servicos").select("id, name, price")
+      .eq("barbearia_id", data.barbearia_id).in("id", data.servicos_ids);
+    if (error || !services || services.length !== data.servicos_ids.length) throw new Error("Serviços inválidos.");
+    const original = services.reduce((sum, service) => sum + Number(service.price), 0);
+    if (coupon.valor_minimo_total && original < coupon.valor_minimo_total) throw new Error(`O valor mínimo para este cupom é R$ ${Number(coupon.valor_minimo_total).toFixed(2)}.`);
+    let totalDiscount = 0;
+    const details = services.map((service) => {
+      const price = Number(service.price); const rule = rules.find((item) => item.servico_id === service.id); let discount = 0;
+      if (!coupon.valor_minimo_total && rule) discount = rule.tipo_desconto === "percentual" ? price * Number(rule.valor_desconto) / 100 : Math.min(price, Number(rule.valor_desconto));
+      totalDiscount += discount;
+      return { servico_id: service.id, nome: service.name, valor_original: price, valor_desconto: Math.round(discount * 100) / 100, valor_final: Math.round((price - discount) * 100) / 100 };
+    });
+    if (coupon.valor_minimo_total) {
+      totalDiscount = coupon.tipo_desconto_total === "percentual" ? original * Number(coupon.valor_desconto_total) / 100 : Math.min(original, Number(coupon.valor_desconto_total));
+      for (const detail of details) {
+        detail.valor_desconto = Math.round(totalDiscount * detail.valor_original / original * 100) / 100;
+        detail.valor_final = Math.round((detail.valor_original - detail.valor_desconto) * 100) / 100;
+      }
+    }
+    totalDiscount = Math.round(totalDiscount * 100) / 100;
+    return { cupom_id: coupon.id, codigo: coupon.codigo, nome: coupon.nome, valor_original: original,
+      valor_desconto: totalDiscount, valor_final: Math.round((original - totalDiscount) * 100) / 100, servicos: details };
+  });
+
 export const applyCoupon = createServerFn({ method: "POST" })
   .inputValidator((input) => applySchema.parse(input))
   .handler(async ({ data }) => {
