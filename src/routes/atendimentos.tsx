@@ -55,6 +55,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { invalidateAppointmentCoupon } from "@/lib/coupons.functions";
 
 export const Route = createFileRoute("/atendimentos")({
   component: AtendimentosPage,
@@ -108,6 +110,7 @@ function AtendimentosPage() {
   const [hasMoreAgendados, setHasMoreAgendados] = useState(false);
   const [hasMoreConcluidos, setHasMoreConcluidos] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
+  const invalidateCouponFn = useServerFn(invalidateAppointmentCoupon);
 
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -573,6 +576,14 @@ function AtendimentosPage() {
       
       const { error } = await supabase.from('atendimentos').update(payload).eq('barbearia_id', tenant.id).eq('id', id);
       if (error) throw error;
+
+      if (newStatus === 'Não compareceu') {
+        const stored = JSON.parse(localStorage.getItem("user") || "null");
+        if (stored?.id && stored?.senha) {
+          await invalidateCouponFn({ data: { atendimento_id: id, barbearia_id: tenant.id,
+            admin_id: stored.id, admin_password: stored.senha, reason: "Atendimento marcado como não compareceu." } });
+        }
+      }
 
       // Trigger Finalização/Não compareceu Webhook
       if (newStatus === 'Finalizado' || newStatus === 'Não compareceu') {
