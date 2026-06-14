@@ -480,6 +480,7 @@ function ClientePage() {
                               cliente_nome: user.nome,
                               colaborador_id: item.colaborador_id,
                               valor: item.valor,
+                              cupom_codigo: item.cupom_codigo,
                               servicos_ids: item.atendimento_servicos.map((as: any) => as.servicos?.id).filter(Boolean)
                             }}
                             onSuccess={() => {

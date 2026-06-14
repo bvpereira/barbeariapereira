@@ -177,6 +177,10 @@ export type Database = {
           id: string
           name_servico: string | null
           servico_id: string
+          tipo_desconto_cupom: string | null
+          valor_desconto: number
+          valor_original: number
+          valor_regra_cupom: number | null
           valor_servico: number
         }
         Insert: {
@@ -186,6 +190,10 @@ export type Database = {
           id?: string
           name_servico?: string | null
           servico_id: string
+          tipo_desconto_cupom?: string | null
+          valor_desconto?: number
+          valor_original: number
+          valor_regra_cupom?: number | null
           valor_servico: number
         }
         Update: {
@@ -195,6 +203,10 @@ export type Database = {
           id?: string
           name_servico?: string | null
           servico_id?: string
+          tipo_desconto_cupom?: string | null
+          valor_desconto?: number
+          valor_original?: number
+          valor_regra_cupom?: number | null
           valor_servico?: number
         }
         Relationships: [
@@ -228,6 +240,13 @@ export type Database = {
           colaborador_id: string
           comissao: number
           created_at: string
+          cupom_aplicado_em: string | null
+          cupom_codigo: string | null
+          cupom_id: string | null
+          cupom_invalidado_em: string | null
+          cupom_motivo_invalidacao: string | null
+          cupom_nome: string | null
+          cupom_status: string | null
           data: string
           id: string
           pedido_exclusao: boolean | null
@@ -235,6 +254,8 @@ export type Database = {
           status: string
           updated_at: string
           valor: number
+          valor_desconto: number
+          valor_original: number
         }
         Insert: {
           barbearia_id: string
@@ -242,6 +263,13 @@ export type Database = {
           colaborador_id: string
           comissao?: number
           created_at?: string
+          cupom_aplicado_em?: string | null
+          cupom_codigo?: string | null
+          cupom_id?: string | null
+          cupom_invalidado_em?: string | null
+          cupom_motivo_invalidacao?: string | null
+          cupom_nome?: string | null
+          cupom_status?: string | null
           data: string
           id?: string
           pedido_exclusao?: boolean | null
@@ -249,6 +277,8 @@ export type Database = {
           status: string
           updated_at?: string
           valor?: number
+          valor_desconto?: number
+          valor_original: number
         }
         Update: {
           barbearia_id?: string
@@ -256,6 +286,13 @@ export type Database = {
           colaborador_id?: string
           comissao?: number
           created_at?: string
+          cupom_aplicado_em?: string | null
+          cupom_codigo?: string | null
+          cupom_id?: string | null
+          cupom_invalidado_em?: string | null
+          cupom_motivo_invalidacao?: string | null
+          cupom_nome?: string | null
+          cupom_status?: string | null
           data?: string
           id?: string
           pedido_exclusao?: boolean | null
@@ -263,6 +300,8 @@ export type Database = {
           status?: string
           updated_at?: string
           valor?: number
+          valor_desconto?: number
+          valor_original?: number
         }
         Relationships: [
           {
@@ -284,6 +323,13 @@ export type Database = {
             columns: ["colaborador_id"]
             isOneToOne: false
             referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimentos_cupom_id_fkey"
+            columns: ["cupom_id"]
+            isOneToOne: false
+            referencedRelation: "cupons_desconto"
             referencedColumns: ["id"]
           },
         ]
@@ -527,6 +573,77 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "comunidade"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cupons_desconto: {
+        Row: {
+          barbearia_id: string
+          codigo: string
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          deleted_at: string | null
+          descricao: string
+          dias_semana: number[]
+          id: string
+          inatividade_dias: number | null
+          limite_por_cliente: string
+          nome: string
+          regras_servicos: Json
+          somente_novos_clientes: boolean
+          tipo_desconto_total: string | null
+          updated_at: string
+          valor_desconto_total: number | null
+          valor_minimo_total: number | null
+        }
+        Insert: {
+          barbearia_id: string
+          codigo: string
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          deleted_at?: string | null
+          descricao?: string
+          dias_semana: number[]
+          id?: string
+          inatividade_dias?: number | null
+          limite_por_cliente?: string
+          nome: string
+          regras_servicos?: Json
+          somente_novos_clientes?: boolean
+          tipo_desconto_total?: string | null
+          updated_at?: string
+          valor_desconto_total?: number | null
+          valor_minimo_total?: number | null
+        }
+        Update: {
+          barbearia_id?: string
+          codigo?: string
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          deleted_at?: string | null
+          descricao?: string
+          dias_semana?: number[]
+          id?: string
+          inatividade_dias?: number | null
+          limite_por_cliente?: string
+          nome?: string
+          regras_servicos?: Json
+          somente_novos_clientes?: boolean
+          tipo_desconto_total?: string | null
+          updated_at?: string
+          valor_desconto_total?: number | null
+          valor_minimo_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cupons_desconto_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
             referencedColumns: ["id"]
           },
         ]
@@ -1129,6 +1246,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_coupon_to_appointment: {
+        Args: {
+          p_atendimento_id: string
+          p_barbearia_id: string
+          p_cliente_id: string
+          p_codigo: string
+        }
+        Returns: Json
+      }
       get_atendimento_servicos_names: {
         Args: { atendimento_id_val: string }
         Returns: string
@@ -1151,6 +1277,10 @@ export type Database = {
           p_senha: string
         }
         Returns: Json
+      }
+      remove_coupon_from_appointment: {
+        Args: { p_atendimento_id: string; p_reason?: string }
+        Returns: undefined
       }
     }
     Enums: {
