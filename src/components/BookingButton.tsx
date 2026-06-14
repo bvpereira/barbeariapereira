@@ -35,6 +35,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format, parseISO, isAfter, addMinutes, startOfToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { applyCoupon, removeCoupon } from "@/lib/coupons.functions";
 
 interface Cliente {
   id: string;
@@ -116,6 +118,11 @@ export function BookingButton({
   const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponResult, setCouponResult] = useState<any>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const applyCouponFn = useServerFn(applyCoupon);
+  const removeCouponFn = useServerFn(removeCoupon);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
@@ -174,6 +181,7 @@ export function BookingButton({
         setSelectedTimePart(format(parseISO(initialData.data), "HH:mm"));
         setSelectedServicos(initialData.servicos_ids || []);
         setValorFinal(initialData.valor?.toString() || "0");
+        setCouponCode(initialData.cupom_codigo || "");
         fetchColabServicos(initialData.colaborador_id);
       } else {
         if (fixedClientId) {
@@ -214,6 +222,7 @@ export function BookingButton({
       const newSelection = isRemoving ? prev.filter(id => id !== servicoId) : [...prev, servicoId];
       const newTotal = newSelection.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
       setValorFinal(newTotal.toString());
+      setCouponResult(null);
       return newSelection;
     });
   };
@@ -382,6 +391,20 @@ export function BookingButton({
         valor_original: allServicos.find(s => s.id === sId)?.price || 0
       })));
 
+      if (couponCode.trim()) {
+        if (!user?.id || !user?.senha) throw new Error("Faça login novamente para aplicar o cupom.");
+        const discount = await applyCouponFn({ data: {
+          atendimento_id: atendimentoId, barbearia_id: tenant.id, cliente_id: selectedCliente.id,
+          actor_id: user.id, password: user.senha, codigo: couponCode,
+        } });
+        setCouponResult(discount);
+        setValorFinal(String((discount as any).valor_final));
+      } else if (initialData?.cupom_codigo) {
+        if (!user?.id || !user?.senha) throw new Error("Faça login novamente para remover o cupom.");
+        await removeCouponFn({ data: { atendimento_id: atendimentoId, barbearia_id: tenant.id,
+          cliente_id: selectedCliente.id, actor_id: user.id, password: user.senha } });
+      }
+
       // Trigger Webhook
       const colab = colaboradores.find(c => c.id === selectedColaborador);
       const { data: colabData } = await supabase.from('colaboradores').select('login').eq('id', selectedColaborador).maybeSingle();
@@ -445,6 +468,8 @@ export function BookingButton({
     setSelectedTimePart("");
     setSelectedServicos([]);
     setValorFinal("0");
+    setCouponCode("");
+    setCouponResult(null);
     setColabServicosIds([]);
   };
 
@@ -702,6 +727,25 @@ export function BookingButton({
                 disabled={currentUser?.nivel === 3 || currentUser?.nivel === "3"}
               />
             </div>
+            {selectedDatePart && selectedServicos.length > 0 && (
+              <div className="space-y-2 rounded-lg border p-3">
+                <Label htmlFor="coupon-code">Cupom de desconto</Label>
+                <div className="flex gap-2">
+                  <Input id="coupon-code" minLength={4} maxLength={10} placeholder="Digite o código"
+                    value={couponCode} onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponResult(null); }} />
+                  {couponCode && <Button type="button" variant="outline" disabled={applyingCoupon} onClick={() => {
+                    setApplyingCoupon(true);
+                    toast.info("O cupom será validado ao confirmar o agendamento.");
+                    setApplyingCoupon(false);
+                  }}>Aplicar</Button>}
+                </div>
+                {couponResult && <div className="rounded-md bg-primary/10 p-3 text-sm">
+                  <p className="font-semibold text-primary">Cupom {(couponResult as any).codigo} aplicado</p>
+                  <p>De R$ {Number((couponResult as any).valor_original).toFixed(2)} por R$ {Number((couponResult as any).valor_final).toFixed(2)}</p>
+                  <p className="text-muted-foreground">Economia de R$ {Number((couponResult as any).valor_desconto).toFixed(2)}</p>
+                </div>}
+              </div>
+            )}
           </div>
           <DialogFooter className="p-6 pt-2">
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
