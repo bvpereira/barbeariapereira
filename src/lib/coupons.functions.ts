@@ -91,7 +91,7 @@ export const saveCoupon = createServerFn({ method: "POST" })
       p_tipo_desconto_total: data.tipo_desconto_total,
       p_valor_desconto_total: data.valor_desconto_total,
       p_regras_servicos: data.regras_servicos,
-    });
+    } as never);
     if (error?.code === "23505") throw new Error("Já existe um cupom com este código nesta barbearia.");
     if (error) throw new Error(error.message);
     return coupon;
