@@ -355,6 +355,7 @@ export function BookingButton({
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart}:00-03:00`,
         valor: parseFloat(valorFinal),
+        valor_original: parseFloat(valorFinal),
         comissao: totalComissao,
         status: 'Agendado'
       };
@@ -377,7 +378,8 @@ export function BookingButton({
         barbearia_id: tenant!.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
-        valor_servico: allServicos.find(s => s.id === sId)?.price || 0
+        valor_servico: allServicos.find(s => s.id === sId)?.price || 0,
+        valor_original: allServicos.find(s => s.id === sId)?.price || 0
       })));
 
       // Trigger Webhook

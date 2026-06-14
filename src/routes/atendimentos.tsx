@@ -457,6 +457,7 @@ function AtendimentosPage() {
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
         valor: parseFloat(valorFinal),
+        valor_original: parseFloat(valorFinal),
         comissao: parseFloat(comissaoFinal),
         status: isScheduling ? 'Agendado' : status
       };
@@ -476,7 +477,8 @@ function AtendimentosPage() {
         barbearia_id: tenant.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
-        valor_servico: allServicos.find(s => s.id === sId)?.price || 0
+        valor_servico: allServicos.find(s => s.id === sId)?.price || 0,
+        valor_original: allServicos.find(s => s.id === sId)?.price || 0
       })));
 
       // Trigger Webhook
