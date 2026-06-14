@@ -142,3 +142,20 @@ export const removeCoupon = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const invalidateAppointmentCoupon = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({
+    atendimento_id: z.string().uuid(), barbearia_id: z.string().uuid(), admin_id: z.string().uuid(),
+    admin_password: z.string().min(1).max(200), reason: z.string().trim().min(1).max(200),
+  }).parse(input))
+  .handler(async ({ data }) => {
+    const db = await requireAdmin(data);
+    const { data: appointment } = await db.from("atendimentos").select("id, cupom_id")
+      .eq("id", data.atendimento_id).eq("barbearia_id", data.barbearia_id).maybeSingle();
+    if (!appointment?.cupom_id) return { ok: true };
+    const { error } = await db.rpc("remove_coupon_from_appointment", {
+      p_atendimento_id: data.atendimento_id, p_reason: data.reason,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
