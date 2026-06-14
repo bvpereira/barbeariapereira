@@ -36,7 +36,7 @@ import { format, parseISO, isAfter, addMinutes, startOfToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
-import { applyCoupon, removeCoupon } from "@/lib/coupons.functions";
+import { applyCoupon, previewCoupon, removeCoupon } from "@/lib/coupons.functions";
 
 interface Cliente {
   id: string;
@@ -122,6 +122,7 @@ export function BookingButton({
   const [couponResult, setCouponResult] = useState<any>(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const applyCouponFn = useServerFn(applyCoupon);
+  const previewCouponFn = useServerFn(previewCoupon);
   const removeCouponFn = useServerFn(removeCoupon);
 
   const fetchFormData = async () => {
@@ -733,16 +734,23 @@ export function BookingButton({
                 <div className="flex gap-2">
                   <Input id="coupon-code" minLength={4} maxLength={10} placeholder="Digite o código"
                     value={couponCode} onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponResult(null); }} />
-                  {couponCode && <Button type="button" variant="outline" disabled={applyingCoupon} onClick={() => {
+                  {couponCode && <Button type="button" variant="outline" disabled={applyingCoupon} onClick={async () => {
+                    if (!currentUser?.id || !currentUser?.senha || !selectedCliente) return toast.error("Faça login novamente para aplicar o cupom.");
                     setApplyingCoupon(true);
-                    toast.info("O cupom será validado ao confirmar o agendamento.");
-                    setApplyingCoupon(false);
-                  }}>Aplicar</Button>}
+                    try {
+                      const result = await previewCouponFn({ data: { barbearia_id: tenant!.id, cliente_id: selectedCliente.id,
+                        actor_id: currentUser.id, password: currentUser.senha, codigo: couponCode,
+                        data: selectedDatePart, servicos_ids: selectedServicos } });
+                      setCouponResult(result); setValorFinal(String((result as any).valor_final)); toast.success("Cupom válido!");
+                    } catch (error) { setCouponResult(null); toast.error(error instanceof Error ? error.message : "Cupom inválido."); }
+                    finally { setApplyingCoupon(false); }
+                  }}>{applyingCoupon ? "Validando..." : "Aplicar"}</Button>}
                 </div>
                 {couponResult && <div className="rounded-md bg-primary/10 p-3 text-sm">
                   <p className="font-semibold text-primary">Cupom {(couponResult as any).codigo} aplicado</p>
                   <p>De R$ {Number((couponResult as any).valor_original).toFixed(2)} por R$ {Number((couponResult as any).valor_final).toFixed(2)}</p>
                   <p className="text-muted-foreground">Economia de R$ {Number((couponResult as any).valor_desconto).toFixed(2)}</p>
+                  <div className="mt-2 space-y-1">{((couponResult as any).servicos ?? []).map((service: any) => <p key={service.servico_id} className="text-xs">{service.nome}: <span className="line-through">R$ {Number(service.valor_original).toFixed(2)}</span> → R$ {Number(service.valor_final).toFixed(2)}</p>)}</div>
                 </div>}
               </div>
             )}
