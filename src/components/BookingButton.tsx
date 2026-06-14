@@ -306,6 +306,10 @@ export function BookingButton({
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+    if (couponCode.trim() && !couponResult) {
+      toast.error("Clique em Aplicar para validar o cupom antes de confirmar.");
+      return;
+    }
 
     const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
@@ -661,7 +665,7 @@ export function BookingButton({
                             <button
                               key={dateStr}
                               type="button"
-                              onClick={() => setSelectedDatePart(dateStr)}
+                              onClick={() => { setSelectedDatePart(dateStr); setCouponResult(null); }}
                               className={cn(
                                 "flex flex-col items-center justify-center min-w-[65px] h-[85px] rounded-xl border-2 transition-all",
                                 isSelected 
