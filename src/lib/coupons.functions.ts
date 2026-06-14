@@ -34,8 +34,9 @@ const credentialsSchema = z.object({
 });
 
 async function requireAdmin(data: z.infer<typeof credentialsSchema>) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: admin } = await supabaseAdmin
+  const { createCouponsDbClient } = await import("@/lib/coupons-db.server");
+  const db = createCouponsDbClient();
+  const { data: admin } = await db
     .from("usuarios")
     .select("id")
     .eq("id", data.admin_id)
@@ -44,7 +45,7 @@ async function requireAdmin(data: z.infer<typeof credentialsSchema>) {
     .eq("nivel", 1)
     .maybeSingle();
   if (!admin) throw new Error("Acesso administrativo não autorizado.");
-  return supabaseAdmin;
+  return db;
 }
 
 export const listCoupons = createServerFn({ method: "POST" })
@@ -115,11 +116,12 @@ const previewSchema = z.object({
 export const previewCoupon = createServerFn({ method: "POST" })
   .inputValidator((input) => previewSchema.parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: actor } = await supabaseAdmin.from("usuarios").select("id, nivel")
+    const { createCouponsDbClient } = await import("@/lib/coupons-db.server");
+    const db = createCouponsDbClient();
+    const { data: actor } = await db.from("usuarios").select("id, nivel")
       .eq("id", data.actor_id).eq("barbearia_id", data.barbearia_id).eq("senha", data.password).maybeSingle();
     if (!actor || (actor.nivel !== 1 && actor.id !== data.cliente_id)) throw new Error("Usuário não autorizado.");
-    const { data: coupon } = await supabaseAdmin.from("cupons_desconto").select("*")
+    const { data: coupon } = await db.from("cupons_desconto").select("*")
       .eq("barbearia_id", data.barbearia_id).ilike("codigo", data.codigo.trim()).is("deleted_at", null).maybeSingle();
     if (!coupon) throw new Error("Cupom não encontrado.");
     const appointmentDate = new Date(`${data.data}T12:00:00-03:00`);
@@ -130,12 +132,12 @@ export const previewCoupon = createServerFn({ method: "POST" })
     const rules = Array.isArray(coupon.regras_servicos) ? coupon.regras_servicos as Array<{ servico_id: string; tipo_desconto: string | null; valor_desconto: number | null }> : [];
     if (!data.servicos_ids.some((id) => rules.some((rule) => rule.servico_id === id))) throw new Error("Cupom não válido para os serviços selecionados.");
     if (coupon.somente_novos_clientes) {
-      const { count } = await supabaseAdmin.from("atendimentos").select("id", { count: "exact", head: true })
+      const { count } = await db.from("atendimentos").select("id", { count: "exact", head: true })
         .eq("barbearia_id", data.barbearia_id).eq("cliente_id", data.cliente_id);
       if ((count ?? 0) > 0) throw new Error("Este cupom é exclusivo para novos clientes.");
     }
     if (coupon.inatividade_dias) {
-      const { data: last } = await supabaseAdmin.from("atendimentos").select("data")
+      const { data: last } = await db.from("atendimentos").select("data")
         .eq("barbearia_id", data.barbearia_id).eq("cliente_id", data.cliente_id).eq("status", "Finalizado")
         .order("data", { ascending: false }).limit(1).maybeSingle();
       if (last) {
@@ -144,11 +146,11 @@ export const previewCoupon = createServerFn({ method: "POST" })
       }
     }
     if (coupon.limite_por_cliente === "1") {
-      const { count } = await supabaseAdmin.from("atendimentos").select("id", { count: "exact", head: true })
+      const { count } = await db.from("atendimentos").select("id", { count: "exact", head: true })
         .eq("cupom_id", coupon.id).eq("cliente_id", data.cliente_id).eq("cupom_status", "aplicado").neq("status", "Não compareceu");
       if ((count ?? 0) > 0) throw new Error("Você já utilizou este cupom.");
     }
-    const { data: services, error } = await supabaseAdmin.from("servicos").select("id, name, price")
+    const { data: services, error } = await db.from("servicos").select("id, name, price")
       .eq("barbearia_id", data.barbearia_id).in("id", data.servicos_ids);
     if (error || !services || services.length !== data.servicos_ids.length) throw new Error("Serviços inválidos.");
     const original = services.reduce((sum, service) => sum + Number(service.price), 0);
@@ -175,11 +177,12 @@ export const previewCoupon = createServerFn({ method: "POST" })
 export const applyCoupon = createServerFn({ method: "POST" })
   .inputValidator((input) => applySchema.parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: user } = await supabaseAdmin.from("usuarios").select("id, nivel")
+    const { createCouponsDbClient } = await import("@/lib/coupons-db.server");
+    const db = createCouponsDbClient();
+    const { data: user } = await db.from("usuarios").select("id, nivel")
       .eq("id", data.actor_id).eq("barbearia_id", data.barbearia_id).eq("senha", data.password).maybeSingle();
     if (!user || (user.nivel !== 1 && user.id !== data.cliente_id)) throw new Error("Usuário não autorizado.");
-    const { data: result, error } = await supabaseAdmin.rpc("apply_coupon_to_appointment", {
+    const { data: result, error } = await db.rpc("apply_coupon_to_appointment", {
       p_atendimento_id: data.atendimento_id,
       p_barbearia_id: data.barbearia_id,
       p_cliente_id: data.cliente_id,
@@ -195,14 +198,15 @@ export const removeCoupon = createServerFn({ method: "POST" })
     actor_id: z.string().uuid(), password: z.string().min(1).max(200),
   }).parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: user } = await supabaseAdmin.from("usuarios").select("id, nivel")
+    const { createCouponsDbClient } = await import("@/lib/coupons-db.server");
+    const db = createCouponsDbClient();
+    const { data: user } = await db.from("usuarios").select("id, nivel")
       .eq("id", data.actor_id).eq("barbearia_id", data.barbearia_id).eq("senha", data.password).maybeSingle();
     if (!user || (user.nivel !== 1 && user.id !== data.cliente_id)) throw new Error("Usuário não autorizado.");
-    const { data: appointment } = await supabaseAdmin.from("atendimentos").select("id")
+    const { data: appointment } = await db.from("atendimentos").select("id")
       .eq("id", data.atendimento_id).eq("barbearia_id", data.barbearia_id).eq("cliente_id", data.cliente_id).maybeSingle();
     if (!appointment) throw new Error("Atendimento não encontrado.");
-    const { error } = await supabaseAdmin.rpc("remove_coupon_from_appointment", {
+    const { error } = await db.rpc("remove_coupon_from_appointment", {
       p_atendimento_id: data.atendimento_id, p_reason: "Cupom removido pelo usuário.",
     });
     if (error) throw new Error(error.message);
