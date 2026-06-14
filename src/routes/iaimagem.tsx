@@ -23,7 +23,7 @@ import {
 type EditFieldKey =
   | "edit_tipo_fundo" | "edit_cor_fundo" | "edit_textura_fundo"
   | "edit_tipo_iluminacao" | "edit_intensidade_luz" | "edit_temperatura_cor" | "edit_sombra"
-  | "edit_estilo_cor" | "edit_nivel_retoque" | "edit_nitidez"
+  | "edit_estilo_cor" | "edit_nivel_retoque" | "edit_nitidez" | "edit_formato"
   | "edit_tipo_produto" | "edit_acessorios" | "edit_escala_produto";
 
 type EditField = { key: EditFieldKey; label: string; options: readonly string[]; onlyInfinite?: boolean };
@@ -52,6 +52,7 @@ const EDIT_SECTIONS: ReadonlyArray<{ title: string; fields: ReadonlyArray<EditFi
       { key: "edit_estilo_cor", label: "Estilo de cor", options: ["Natural e fiel", "Cores vibrantes", "Tons pastéis", "Preto e branco", "Vintage/filme", "High key (muito claro)", "Low key (muito escuro)"] },
       { key: "edit_nivel_retoque", label: "Nível de retoque", options: ["Sem retoque", "Retoque leve (remover imperfeições)", "Retoque completo (pele/produto perfeito)"] },
       { key: "edit_nitidez", label: "Nitidez", options: ["Padrão", "Hiper-nítido", "Levemente suavizado"] },
+      { key: "edit_formato", label: "Formato", options: ["Quadrado", "Vertical", "horizontal"] },
     ],
   },
   {

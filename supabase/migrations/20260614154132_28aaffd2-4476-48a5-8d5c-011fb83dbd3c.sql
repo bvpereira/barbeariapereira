@@ -1,0 +1,1 @@
+ALTER TABLE public.agentes_ia ADD COLUMN IF NOT EXISTS edit_formato text;

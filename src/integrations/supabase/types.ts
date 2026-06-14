@@ -22,6 +22,7 @@ export type Database = {
           edit_cor_fundo: string | null
           edit_escala_produto: string | null
           edit_estilo_cor: string | null
+          edit_formato: string | null
           edit_imagemeditada: string | null
           edit_imagemupada: string | null
           edit_intensidade_luz: string | null
@@ -69,6 +70,7 @@ export type Database = {
           edit_cor_fundo?: string | null
           edit_escala_produto?: string | null
           edit_estilo_cor?: string | null
+          edit_formato?: string | null
           edit_imagemeditada?: string | null
           edit_imagemupada?: string | null
           edit_intensidade_luz?: string | null
@@ -116,6 +118,7 @@ export type Database = {
           edit_cor_fundo?: string | null
           edit_escala_produto?: string | null
           edit_estilo_cor?: string | null
+          edit_formato?: string | null
           edit_imagemeditada?: string | null
           edit_imagemupada?: string | null
           edit_intensidade_luz?: string | null
