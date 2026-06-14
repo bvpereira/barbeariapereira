@@ -122,3 +122,23 @@ export const applyCoupon = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return result;
   });
+
+export const removeCoupon = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({
+    atendimento_id: z.string().uuid(), barbearia_id: z.string().uuid(), cliente_id: z.string().uuid(),
+    actor_id: z.string().uuid(), password: z.string().min(1).max(200),
+  }).parse(input))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: user } = await supabaseAdmin.from("usuarios").select("id, nivel")
+      .eq("id", data.actor_id).eq("barbearia_id", data.barbearia_id).eq("senha", data.password).maybeSingle();
+    if (!user || (user.nivel !== 1 && user.id !== data.cliente_id)) throw new Error("Usuário não autorizado.");
+    const { data: appointment } = await supabaseAdmin.from("atendimentos").select("id")
+      .eq("id", data.atendimento_id).eq("barbearia_id", data.barbearia_id).eq("cliente_id", data.cliente_id).maybeSingle();
+    if (!appointment) throw new Error("Atendimento não encontrado.");
+    const { error } = await supabaseAdmin.rpc("remove_coupon_from_appointment", {
+      p_atendimento_id: data.atendimento_id, p_reason: "Cupom removido pelo usuário.",
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
