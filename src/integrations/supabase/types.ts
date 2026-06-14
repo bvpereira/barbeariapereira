@@ -1268,6 +1268,34 @@ export type Database = {
           titulo: string
         }[]
       }
+      list_cupons_desconto: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+        }
+        Returns: {
+          barbearia_id: string
+          codigo: string
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          deleted_at: string
+          descricao: string
+          dias_semana: number[]
+          id: string
+          inatividade_dias: number
+          limite_por_cliente: string
+          nome: string
+          regras_servicos: Json
+          somente_novos_clientes: boolean
+          tipo_desconto_total: string
+          updated_at: string
+          usos: number
+          valor_desconto_total: number
+          valor_minimo_total: number
+        }[]
+      }
       manage_notificacoes: {
         Args: {
           p_action: string
