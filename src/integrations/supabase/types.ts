@@ -1282,6 +1282,53 @@ export type Database = {
         Args: { p_atendimento_id: string; p_reason?: string }
         Returns: undefined
       }
+      save_cupom_desconto: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+          p_codigo: string
+          p_data_fim: string
+          p_data_inicio: string
+          p_descricao: string
+          p_dias_semana: number[]
+          p_id: string
+          p_inatividade_dias: number
+          p_limite_por_cliente: string
+          p_nome: string
+          p_regras_servicos: Json
+          p_somente_novos_clientes: boolean
+          p_tipo_desconto_total: string
+          p_valor_desconto_total: number
+          p_valor_minimo_total: number
+        }
+        Returns: {
+          barbearia_id: string
+          codigo: string
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          deleted_at: string | null
+          descricao: string
+          dias_semana: number[]
+          id: string
+          inatividade_dias: number | null
+          limite_por_cliente: string
+          nome: string
+          regras_servicos: Json
+          somente_novos_clientes: boolean
+          tipo_desconto_total: string | null
+          updated_at: string
+          valor_desconto_total: number | null
+          valor_minimo_total: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cupons_desconto"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       tipo_transacao: "receita" | "despesa"
