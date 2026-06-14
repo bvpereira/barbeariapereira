@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 /**
  * Função para migrar imagens existentes para a nova estrutura de pastas:
  * {barbearia_id}/{id}/main-{filename}
  */
 export const migrateImages = createServerFn({ method: "POST" }).handler(async () => {
+  const { createCouponsDbClient } = await import("@/lib/coupons-db.server");
+  const db = createCouponsDbClient();
   const results = {
     servicos: [] as string[],
     colaboradores: [] as string[],
@@ -14,7 +15,7 @@ export const migrateImages = createServerFn({ method: "POST" }).handler(async ()
 
   try {
     // 1. Migrar serviços
-    const { data: servicos, error: servicosErr } = await supabaseAdmin
+    const { data: servicos, error: servicosErr } = await db
       .from("servicos")
       .select("id, barbearia_id, image_url")
       .not("image_url", "is", null);
@@ -36,16 +37,16 @@ export const migrateImages = createServerFn({ method: "POST" }).handler(async ()
         if (!oldPath.includes("/")) {
           const newPath = `${servico.barbearia_id}/${servico.id}/main-${oldPath}`;
           
-          const { error: moveError } = await supabaseAdmin.storage
+          const { error: moveError } = await db.storage
             .from("service-images")
             .move(oldPath, newPath);
 
           if (!moveError || moveError.message.includes("already exists")) {
-            const { data: { publicUrl } } = supabaseAdmin.storage
+            const { data: { publicUrl } } = db.storage
               .from("service-images")
               .getPublicUrl(newPath);
             
-            await supabaseAdmin
+            await db
               .from("servicos")
               .update({ image_url: publicUrl })
               .eq("id", servico.id);
@@ -59,7 +60,7 @@ export const migrateImages = createServerFn({ method: "POST" }).handler(async ()
     }
 
     // 2. Migrar colaboradores
-    const { data: colabs, error: colabsErr } = await supabaseAdmin
+    const { data: colabs, error: colabsErr } = await db
       .from("colaboradores")
       .select("id, barbearia_id, foto_url")
       .not("foto_url", "is", null);
@@ -79,16 +80,16 @@ export const migrateImages = createServerFn({ method: "POST" }).handler(async ()
         if (!oldPath.includes("/")) {
           const newPath = `${colab.barbearia_id}/${colab.id}/main-${oldPath}`;
           
-          const { error: moveError } = await supabaseAdmin.storage
+          const { error: moveError } = await db.storage
             .from("collaborator-images")
             .move(oldPath, newPath);
 
           if (!moveError || moveError.message.includes("already exists")) {
-            const { data: { publicUrl } } = supabaseAdmin.storage
+            const { data: { publicUrl } } = db.storage
               .from("collaborator-images")
               .getPublicUrl(newPath);
             
-            await supabaseAdmin
+            await db
               .from("colaboradores")
               .update({ foto_url: publicUrl })
               .eq("id", colab.id);
