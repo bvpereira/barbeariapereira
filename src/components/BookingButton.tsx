@@ -363,13 +363,14 @@ export function BookingButton({
         }
       });
 
+      const originalTotal = selectedServicos.reduce((sum, id) => sum + (allServicos.find((service) => service.id === id)?.price || 0), 0);
       const payload = {
         barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart}:00-03:00`,
-        valor: parseFloat(valorFinal),
-        valor_original: parseFloat(valorFinal),
+        valor: originalTotal,
+        valor_original: originalTotal,
         comissao: totalComissao,
         status: 'Agendado'
       };
