@@ -93,14 +93,14 @@ export const deleteCoupon = createServerFn({ method: "POST" })
   .inputValidator((input) => credentialsSchema.extend({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const db = await requireAdmin(data);
-    const { error } = await db.from("cupons_desconto").update({ deleted_at: new Date().toISOString() })
-      .eq("id", data.id).eq("barbearia_id", data.barbearia_id);
+    const { data: deleted, error } = await db.rpc("delete_cupom_desconto", {
+      p_admin_id: data.admin_id,
+      p_admin_password: data.admin_password,
+      p_barbearia_id: data.barbearia_id,
+      p_id: data.id,
+    });
     if (error) throw new Error(error.message);
-    const { data: appointments } = await db.from("atendimentos").select("id")
-      .eq("cupom_id", data.id).eq("cupom_status", "aplicado").eq("status", "Agendado");
-    for (const appointment of appointments ?? []) {
-      await db.rpc("remove_coupon_from_appointment", { p_atendimento_id: appointment.id, p_reason: "Cupom excluído." });
-    }
+    if (!deleted) throw new Error("Não foi possível excluir o cupom.");
     return { ok: true };
   });
 
