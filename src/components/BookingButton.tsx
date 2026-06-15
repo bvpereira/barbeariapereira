@@ -823,6 +823,18 @@ export function BookingButton({
                 </div>}
               </div>
             )}
+            {clubePreview && (
+              <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm space-y-1">
+                <p className="font-semibold text-primary">Clube de assinatura aplicado</p>
+                <p>De R$ {clubePreview.valor_original.toFixed(2)} por <span className="font-semibold">R$ {clubePreview.valor_final.toFixed(2)}</span></p>
+                <p className="text-muted-foreground">Desconto de R$ {clubePreview.desconto.toFixed(2)}</p>
+                <div className="mt-1 space-y-0.5">
+                  {clubePreview.itens.map((it, i) => (
+                    <p key={i} className="text-xs">{it.nome}: -R$ {it.desconto.toFixed(2)}</p>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter className="p-6 pt-2">
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
