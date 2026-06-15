@@ -178,3 +178,34 @@ export const restoreBarbeariaFn = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const updateBarbeariaSlugFn = createServerFn({ method: "POST" })
+  .inputValidator((input: AdminAuth & { id: string; newSlug: string }) => input)
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.rpc("update_barbearia_slug", {
+      p_admin_id: data.adminId,
+      p_admin_login: data.adminLogin,
+      p_admin_senha: data.adminSenha,
+      p_id: data.id,
+      p_new_slug: data.newSlug,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setBarbeariaAtivaFn = createServerFn({ method: "POST" })
+  .inputValidator((input: AdminAuth & { id: string; ativa: boolean }) => input)
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.rpc("set_barbearia_ativa", {
+      p_admin_id: data.adminId,
+      p_admin_login: data.adminLogin,
+      p_admin_senha: data.adminSenha,
+      p_id: data.id,
+      p_ativa: data.ativa,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
