@@ -126,6 +126,8 @@ export function BookingButton({
   const previewCouponFn = useServerFn(previewCoupon);
   const removeCouponFn = useServerFn(removeCoupon);
   const applyClubeFn = useServerFn(applyClubeToAppointment);
+  const getClubeStatusFn = useServerFn(getClienteClubeStatus);
+  const [clubePreview, setClubePreview] = useState<{ desconto: number; valor_final: number; valor_original: number; itens: Array<{ nome: string; desconto: number }> } | null>(null);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
