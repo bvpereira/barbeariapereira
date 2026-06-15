@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookingButton } from "@/components/BookingButton";
+import { ClienteClubeView } from "@/components/ClienteClubeView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -414,6 +415,12 @@ function ClientePage() {
               />
             </CardContent>
           </Card>
+
+          {tenant?.id && (
+            <ClienteClubeView barbeariaId={tenant.id} clienteId={user.id} />
+          )}
+
+
 
           {/* Section 2: Meus Próximos Horários */}
           <Card className="md:col-span-2">
