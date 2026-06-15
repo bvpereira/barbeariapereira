@@ -1,14 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AtSign, ExternalLink, MessageCircle, Save, Scissors, Users } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Archive, ArchiveRestore, AtSign, ExternalLink, MessageCircle, Save, Scissors, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
+import { softDeleteBarbeariaFn, restoreBarbeariaFn } from "@/lib/barbearias-admin.functions";
 
 export const Route = createFileRoute("/barbearias")({
   component: BarbeariasPage,
