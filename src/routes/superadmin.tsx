@@ -65,7 +65,8 @@ function SuperAdmin() {
         </p>
       </motion.div>
 
-      <div className="mb-12 w-full max-w-4xl">
+      <div className="mb-12 w-full max-w-4xl flex flex-col items-center gap-8">
+        <CriarBarbeariaForm />
         <NotificationsPanel />
       </div>
 
