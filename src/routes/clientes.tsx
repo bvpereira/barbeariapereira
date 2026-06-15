@@ -271,6 +271,8 @@ function ClientesPage() {
         senha, 
         observacao,
         registro,
+        clube_id,
+        clube_data_fim,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
       .eq("barbearia_id", tenant.id)
