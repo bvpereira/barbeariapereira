@@ -199,6 +199,8 @@ export const cloneBarbeariaFn = createServerFn({ method: "POST" })
       for (const bucket of BUCKETS) {
         await cloneStorageForBucket(supabaseAdmin, bucket, result.mapping, uploadedTracker);
       }
+      // Bucket informacoes_imagens usa paths por user_id; precisa de cópia dedicada.
+      await cloneInformacoesAssets(supabaseAdmin, result.mapping, uploadedTracker);
     } catch (storageErr) {
       // Rollback DB
       await supabaseAdmin.rpc("rollback_barbearia", {
