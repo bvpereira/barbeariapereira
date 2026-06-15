@@ -9,6 +9,7 @@ import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { useTenant } from "@/contexts/TenantContext";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { CriarBarbeariaForm } from "@/components/CriarBarbeariaForm";
 
 export const Route = createFileRoute("/superadmin")({
   component: SuperAdmin,
