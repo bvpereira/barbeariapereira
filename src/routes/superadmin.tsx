@@ -29,14 +29,18 @@ export const Route = createFileRoute("/superadmin")({
 function SuperAdmin() {
   const { refreshTenant } = useTenant();
   const navigate = useNavigate();
-  
+  const queryClient = useQueryClient();
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; nome: string } | null>(null);
+  const [confirmSenha, setConfirmSenha] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     const session = localStorage.getItem("superadmin_session");
     if (!session) {
       navigate({ to: "/superlogin" });
       return;
     }
-    
+
     const user = JSON.parse(session);
     if (user.nivel !== 0) {
       localStorage.removeItem("superadmin_session");
@@ -46,6 +50,37 @@ function SuperAdmin() {
 
     refreshTenant();
   }, [refreshTenant, navigate]);
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const session = localStorage.getItem("superadmin_session");
+    if (!session) {
+      navigate({ to: "/superlogin" });
+      return;
+    }
+    const user = JSON.parse(session);
+    setDeleting(true);
+    try {
+      await hardDeleteBarbeariaFn({
+        data: {
+          adminId: user.id,
+          adminLogin: user.login,
+          adminSenha: user.senha,
+          id: deleteTarget.id,
+          confirmSenha,
+        },
+      });
+      toast.success(`Barbearia "${deleteTarget.nome}" excluída.`);
+      setDeleteTarget(null);
+      setConfirmSenha("");
+      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao excluir.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
 
   const { data: barbearias, isLoading } = useQuery({
     queryKey: ["barbearias"],
