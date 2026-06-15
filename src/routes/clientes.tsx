@@ -134,6 +134,9 @@ function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const isMobile = useIsMobile();
   const [totalClientes, setTotalClientes] = useState(0);
+  const [totalAssinantes, setTotalAssinantes] = useState(0);
+  const [clubesMap, setClubesMap] = useState<Record<string, string>>({});
+  const listClubesPublicosFn = useServerFn(listClubesPublicos);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(20);
