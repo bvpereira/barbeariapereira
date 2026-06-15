@@ -344,6 +344,7 @@ export type Database = {
         Row: {
           config: Json | null
           created_at: string
+          deleted_at: string | null
           id: string
           nome: string
           slug: string
@@ -352,6 +353,7 @@ export type Database = {
         Insert: {
           config?: Json | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           nome: string
           slug: string
@@ -360,6 +362,7 @@ export type Database = {
         Update: {
           config?: Json | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           nome?: string
           slug?: string
@@ -1330,6 +1333,19 @@ export type Database = {
         }
         Returns: Json
       }
+      clone_barbearia: {
+        Args: {
+          p_admin_id: string
+          p_admin_login: string
+          p_admin_senha: string
+          p_modelo_id: string
+          p_new_admin_login: string
+          p_new_admin_senha: string
+          p_new_nome: string
+          p_new_slug: string
+        }
+        Returns: Json
+      }
       delete_clube_assinatura: {
         Args: {
           p_admin_id: string
@@ -1459,6 +1475,24 @@ export type Database = {
         Args: { p_atendimento_id: string; p_reason?: string }
         Returns: undefined
       }
+      restore_barbearia: {
+        Args: {
+          p_admin_id: string
+          p_admin_login: string
+          p_admin_senha: string
+          p_id: string
+        }
+        Returns: boolean
+      }
+      rollback_barbearia: {
+        Args: {
+          p_admin_id: string
+          p_admin_login: string
+          p_admin_senha: string
+          p_id: string
+        }
+        Returns: boolean
+      }
       save_clube_assinatura: {
         Args: {
           p_admin_id: string
@@ -1549,6 +1583,15 @@ export type Database = {
           p_valor: number
         }
         Returns: undefined
+      }
+      soft_delete_barbearia: {
+        Args: {
+          p_admin_id: string
+          p_admin_login: string
+          p_admin_senha: string
+          p_id: string
+        }
+        Returns: boolean
       }
       toggle_clube_assinatura: {
         Args: {
