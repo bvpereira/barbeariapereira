@@ -88,6 +88,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, MessageCircle } from "lucide-react";
+import { ClienteClubeSection } from "@/components/ClienteClubeSection";
 
 export const Route = createFileRoute("/clientes")({
   component: ClientesPage,
@@ -911,6 +912,9 @@ function ClientesPage() {
                   />
                 </div>
               </div>
+              {isEditing && selectedCliente && tenant?.id && (
+                <ClienteClubeSection tenantId={tenant.id} clienteId={selectedCliente.id} />
+              )}
             </div>
             <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
