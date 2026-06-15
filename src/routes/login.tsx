@@ -122,7 +122,6 @@ function Login() {
       const { data, error } = await query.maybeSingle();
 
       if (error || !data) {
-        // Se falhou com tenant, ou falhou geral
         setAlertState({
           open: true,
           title: "Dados incorretos",
@@ -133,6 +132,25 @@ function Login() {
         setIsLoading(false);
         return;
       }
+
+      // Bloqueia login se a barbearia estiver desativada
+      if (data.barbearia_id) {
+        const { data: barb } = await supabase
+          .from("barbearias")
+          .select("ativa, deleted_at")
+          .eq("id", data.barbearia_id)
+          .maybeSingle();
+        if (!barb || barb.deleted_at || (barb as any).ativa === false) {
+          setAlertState({
+            open: true,
+            title: "Barbearia indisponível",
+            description: "Esta barbearia está desativada no momento."
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
 
       if (data.nivel === 10) {
         setAlertState({
