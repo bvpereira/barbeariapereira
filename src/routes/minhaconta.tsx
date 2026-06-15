@@ -145,14 +145,14 @@ function MinhaContaPage() {
       if (existingInfo) {
         const { error: infoError } = await (supabase
           .from("informacoes" as any)
-          .update({ tel_contato: telContato, email, instagram, endereco, usuario_id: user.id } as any)
+          .update({ tel_contato: telContato, email, instagram, endereco, nome_barbearia: nomeBarbearia, usuario_id: user.id } as any)
           .eq("id", (existingInfo as any).id));
         if (infoError) throw infoError;
         setInfoId((existingInfo as any).id);
       } else {
         const { data: newInfo, error: infoError } = await (supabase
           .from("informacoes" as any)
-          .insert({ tel_contato: telContato, email, instagram, endereco, user_id: user.id, usuario_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
+          .insert({ tel_contato: telContato, email, instagram, endereco, nome_barbearia: nomeBarbearia, user_id: user.id, usuario_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
           .select()
           .single());
         if (infoError) throw infoError;
