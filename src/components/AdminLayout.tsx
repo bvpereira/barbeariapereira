@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ const menuItems = [
   { title: "Serviços", icon: Scissors, href: "/servicos" },
   { title: "Colaboradores", icon: Users, href: "/colaboradores" },
   { title: "Clientes", icon: UserCircle, href: "/clientes" },
+  { title: "Clube de Assinatura", icon: Crown, href: "/clube" },
   { title: "Horários", icon: Clock, href: "/horarios" },
   { title: "Gastos", icon: Wallet, href: "/gastos" },
   { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
