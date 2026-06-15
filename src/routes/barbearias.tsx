@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AtSign, ExternalLink, MessageCircle, Power, Save, Scissors, Users } from "lucide-react";
+import { AtSign, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { updateBarbeariaSlugFn, setBarbeariaAtivaFn } from "@/lib/barbearias-admin.functions";
+import { updateBarbeariaSlugFn, setBarbeariaAtivaFn, hardDeleteBarbeariaFn } from "@/lib/barbearias-admin.functions";
+
+const MODELO_BARBEARIA_ID = "01879baf-8f8b-4c3d-810f-7740b6432cd9";
 
 export const Route = createFileRoute("/barbearias")({
   component: BarbeariasPage,
