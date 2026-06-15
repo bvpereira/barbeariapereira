@@ -1,14 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AtSign, ExternalLink, MessageCircle, Save, Scissors, Users } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Archive, ArchiveRestore, AtSign, ExternalLink, MessageCircle, Save, Scissors, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
+import { softDeleteBarbeariaFn, restoreBarbeariaFn } from "@/lib/barbearias-admin.functions";
 
 export const Route = createFileRoute("/barbearias")({
   component: BarbeariasPage,
@@ -40,6 +48,7 @@ type BarbeariaData = {
   colaboradoresAtivos: number;
   colaboradoresInativos: number;
   servicos: number;
+  deletedAt: string | null;
 };
 
 const SITE_ORIGIN = "https://barbeariapereira.lovable.app";
@@ -92,7 +101,7 @@ function ReadOnlyField({ label, value, href, icon }: { label: string; value: str
 async function fetchBarbearias(): Promise<BarbeariaData[]> {
   const { data: barbearias, error } = await supabase
     .from("barbearias")
-    .select("id, slug, created_at")
+    .select("id, slug, created_at, deleted_at")
     .order("created_at", { ascending: true });
   if (error) throw error;
 
@@ -135,6 +144,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         colaboradoresAtivos: colaboradores.filter((item) => item.ativo).length,
         colaboradoresInativos: colaboradores.filter((item) => !item.ativo).length,
         servicos: servicosResult.count ?? 0,
+        deletedAt: barbearia.deleted_at,
       };
     }),
   );
@@ -181,13 +191,55 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     ["Serviços cadastrados", barbearia.servicos],
   ];
 
+  const archiveFn = useServerFn(softDeleteBarbeariaFn);
+  const restoreFn = useServerFn(restoreBarbeariaFn);
+  const archiveMutation = useMutation({
+    mutationFn: async () => {
+      const session = JSON.parse(localStorage.getItem("superadmin_session") || "{}");
+      const fn = barbearia.deletedAt ? restoreFn : archiveFn;
+      return fn({ data: {
+        adminId: session.id, adminLogin: session.login, adminSenha: session.senha,
+        id: barbearia.id,
+      }});
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
+      toast.success(barbearia.deletedAt ? "Barbearia restaurada." : "Barbearia arquivada.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
-    <Card className="overflow-hidden border-primary/20 bg-card/80">
-      <CardHeader className="border-b border-primary/10 bg-primary/5">
+    <Card className={`overflow-hidden border-primary/20 bg-card/80 ${barbearia.deletedAt ? "opacity-60" : ""}`}>
+      <CardHeader className="border-b border-primary/10 bg-primary/5 flex flex-row items-center justify-between gap-3">
         <CardTitle className="flex items-center gap-3 font-josefin text-2xl uppercase tracking-wide text-primary">
           <Scissors className="h-6 w-6" />
           {barbearia.nome}
+          {barbearia.deletedAt ? <span className="ml-2 text-xs font-normal text-muted-foreground">(arquivada)</span> : null}
         </CardTitle>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              {barbearia.deletedAt ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+              {barbearia.deletedAt ? "Restaurar" : "Arquivar"}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{barbearia.deletedAt ? "Restaurar barbearia?" : "Arquivar barbearia?"}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {barbearia.deletedAt
+                  ? "A barbearia voltará a ficar acessível pela URL."
+                  : "A barbearia ficará oculta para os usuários e não responderá pela URL pública. Os dados são preservados e podem ser restaurados."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={() => archiveMutation.mutate()}>Confirmar</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardHeader>
       <CardContent className="space-y-8 pt-6">
         <section className="grid gap-5 md:grid-cols-2">
@@ -280,22 +332,32 @@ function BarbeariasPage() {
     enabled: authorized,
   });
 
+  const [showArchived, setShowArchived] = useState(false);
+
   if (!authorized) return null;
+
+  const visible = (barbearias ?? []).filter((b) => showArchived || !b.deletedAt);
 
   return (
     <SuperAdminLayout>
       <div className="w-full max-w-7xl space-y-8">
-        <header>
-          <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
-          <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+        <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
+            <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch id="show-archived" checked={showArchived} onCheckedChange={setShowArchived} />
+            <Label htmlFor="show-archived" className="cursor-pointer">Mostrar arquivadas</Label>
+          </div>
         </header>
 
         {isLoading ? <p className="animate-pulse text-primary">Carregando barbearias...</p> : null}
         {error ? <p className="text-destructive">Não foi possível carregar as barbearias.</p> : null}
-        {!isLoading && !error && !barbearias?.length ? <p className="text-muted-foreground">Nenhuma barbearia cadastrada.</p> : null}
+        {!isLoading && !error && !visible.length ? <p className="text-muted-foreground">Nenhuma barbearia para exibir.</p> : null}
 
         <div className="space-y-8">
-          {barbearias?.map((barbearia) => <BarbeariaCard key={barbearia.id} barbearia={barbearia} />)}
+          {visible.map((barbearia) => <BarbeariaCard key={barbearia.id} barbearia={barbearia} />)}
         </div>
       </div>
     </SuperAdminLayout>

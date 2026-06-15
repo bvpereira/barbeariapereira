@@ -9,6 +9,7 @@ import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { useTenant } from "@/contexts/TenantContext";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { CriarBarbeariaForm } from "@/components/CriarBarbeariaForm";
 
 export const Route = createFileRoute("/superadmin")({
   component: SuperAdmin,
@@ -41,6 +42,7 @@ function SuperAdmin() {
       const { data, error } = await supabase
         .from("barbearias")
         .select("id, nome, slug")
+        .is("deleted_at", null)
         .order("nome");
       if (error) throw error;
       return data;
@@ -63,7 +65,8 @@ function SuperAdmin() {
         </p>
       </motion.div>
 
-      <div className="mb-12 w-full max-w-4xl">
+      <div className="mb-12 w-full max-w-4xl flex flex-col items-center gap-8">
+        <CriarBarbeariaForm />
         <NotificationsPanel />
       </div>
 

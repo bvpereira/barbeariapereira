@@ -74,6 +74,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .from("barbearias")
         .select("*")
         .eq("slug", targetSlug)
+        .is("deleted_at", null)
         .maybeSingle();
 
       if (data) {
