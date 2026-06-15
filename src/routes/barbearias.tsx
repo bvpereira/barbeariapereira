@@ -163,6 +163,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmSenha, setConfirmSenha] = useState("");
+  const [expanded, setExpanded] = useState(false);
   const siteUrl = `${SITE_ORIGIN}/${barbearia.slug}`;
   const isModelo = barbearia.id === MODELO_BARBEARIA_ID;
 
