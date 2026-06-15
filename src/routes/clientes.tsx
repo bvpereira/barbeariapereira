@@ -104,6 +104,8 @@ interface Cliente {
   observacao: string | null;
   registro?: string;
   hasAtendimentos?: boolean;
+  clube_id?: string | null;
+  clube_data_fim?: string | null;
 }
 
 interface Colaborador {
