@@ -348,6 +348,51 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           </div>
         </section>
       </CardContent>
+
+      <Dialog
+        open={deleteOpen}
+        onOpenChange={(open) => {
+          if (!open && !deleteMutation.isPending) {
+            setDeleteOpen(false);
+            setConfirmSenha("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir barbearia</DialogTitle>
+            <DialogDescription>
+              Esta ação irá apagar permanentemente todos os dados e imagens da barbearia
+              <span className="font-semibold"> {barbearia.nome}</span>. Digite sua senha
+              de superadmin para confirmar.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="password"
+            placeholder="Senha de superadmin"
+            value={confirmSenha}
+            onChange={(e) => setConfirmSenha(e.target.value)}
+            autoFocus
+            disabled={deleteMutation.isPending}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setDeleteOpen(false); setConfirmSenha(""); }}
+              disabled={deleteMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending || confirmSenha.length === 0}
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
