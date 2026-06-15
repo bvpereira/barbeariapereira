@@ -648,6 +648,16 @@ function ClientesPage() {
               <p className="text-xs text-muted-foreground">Cadastrados no sistema</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Clube de Assinatura</CardTitle>
+              <Crown className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalAssinantes}</div>
+              <p className="text-xs text-muted-foreground">Clientes com plano ativo</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Busca */}
