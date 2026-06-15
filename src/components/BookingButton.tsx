@@ -37,7 +37,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { applyCoupon, previewCoupon, removeCoupon } from "@/lib/coupons.functions";
-import { applyClubeToAppointment } from "@/lib/clube.functions";
+import { applyClubeToAppointment, getClienteClubeStatus } from "@/lib/clube.functions";
 
 interface Cliente {
   id: string;
