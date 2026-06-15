@@ -77,7 +77,7 @@ function MinhaContaPage() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo, instagram, endereco, foto_perfil")
+          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo, instagram, endereco, foto_perfil, nome_barbearia")
           .eq("barbearia_id", parsedUser.barbearia_id)
           .maybeSingle());
 
@@ -86,6 +86,7 @@ function MinhaContaPage() {
         if (data) {
           const infoData = data as any;
           setTelContato(infoData.tel_contato || "");
+          setNomeBarbearia(infoData.nome_barbearia || "");
           
           setEmail(infoData.email || "");
           setInfoId(infoData.id);
