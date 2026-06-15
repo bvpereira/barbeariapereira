@@ -93,6 +93,78 @@ async function cloneStorageForBucket(
   }
 }
 
+/**
+ * O bucket `informacoes_imagens` organiza arquivos por user_id (e prefixos
+ * `logos/`, `foto_perfil/`), e NÃO por barbearia_id. Portanto o walker padrão
+ * em `cloneStorageForBucket` não os copia. Esta função lê a linha de
+ * informacoes da barbearia fonte, copia cada arquivo referenciado para um
+ * caminho dentro da pasta da nova barbearia e atualiza a linha clonada.
+ */
+async function cloneInformacoesAssets(
+  supabaseAdmin: any,
+  mapping: Mapping,
+  uploadedTracker: Map<string, string[]>,
+) {
+  const bucket = "informacoes_imagens";
+  const tracker = uploadedTracker.get(bucket) ?? [];
+  uploadedTracker.set(bucket, tracker);
+
+  const sourceIds = Object.keys(mapping.informacoes);
+  if (sourceIds.length === 0) return;
+
+  const { data: sourceRows, error: srcErr } = await supabaseAdmin
+    .from("informacoes")
+    .select("*")
+    .in("id", sourceIds);
+  if (srcErr) throw new Error(`Lendo informacoes fonte: ${srcErr.message}`);
+
+  const fields = [
+    "imagem_1", "imagem_2", "imagem_3", "imagem_4",
+    "imagem_5", "imagem_6", "imagem_7", "imagem_8",
+    "imagem_logo", "foto_perfil", "video_local",
+  ];
+  const publicPrefix = `/storage/v1/object/public/${bucket}/`;
+
+  for (const srcRow of sourceRows ?? []) {
+    const newId = mapping.informacoes[srcRow.id];
+    if (!newId) continue;
+    const update: Record<string, string> = {};
+
+    for (const field of fields) {
+      const url = (srcRow as any)[field];
+      if (!url || typeof url !== "string") continue;
+      const idx = url.indexOf(publicPrefix);
+      if (idx === -1) continue;
+      const sourcePath = url.substring(idx + publicPrefix.length);
+      if (sourcePath.startsWith(`${mapping.barbearia.new}/`)) continue;
+
+      const dl = await supabaseAdmin.storage.from(bucket).download(sourcePath);
+      if (dl.error) continue; // arquivo fonte ausente — não bloqueia o clone
+
+      const ext = sourcePath.includes(".") ? sourcePath.split(".").pop() : "bin";
+      const uuid = Math.random().toString(36).substring(2, 10);
+      const newPath = `${mapping.barbearia.new}/${newId}/${field}-${uuid}.${ext}`;
+
+      const up = await supabaseAdmin.storage
+        .from(bucket)
+        .upload(newPath, dl.data, { upsert: true, contentType: dl.data.type || undefined });
+      if (up.error) throw new Error(`Upload ${bucket}/${newPath}: ${up.error.message}`);
+      tracker.push(newPath);
+
+      const { data: pub } = supabaseAdmin.storage.from(bucket).getPublicUrl(newPath);
+      update[field] = pub.publicUrl;
+    }
+
+    if (Object.keys(update).length > 0) {
+      const { error: updErr } = await supabaseAdmin
+        .from("informacoes")
+        .update(update)
+        .eq("id", newId);
+      if (updErr) throw new Error(`Atualizando informacoes ${newId}: ${updErr.message}`);
+    }
+  }
+}
+
 export const cloneBarbeariaFn = createServerFn({ method: "POST" })
   .inputValidator(
     (input: AdminAuth & {
@@ -127,6 +199,8 @@ export const cloneBarbeariaFn = createServerFn({ method: "POST" })
       for (const bucket of BUCKETS) {
         await cloneStorageForBucket(supabaseAdmin, bucket, result.mapping, uploadedTracker);
       }
+      // Bucket informacoes_imagens usa paths por user_id; precisa de cópia dedicada.
+      await cloneInformacoesAssets(supabaseAdmin, result.mapping, uploadedTracker);
     } catch (storageErr) {
       // Rollback DB
       await supabaseAdmin.rpc("rollback_barbearia", {
