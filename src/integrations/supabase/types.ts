@@ -237,6 +237,8 @@ export type Database = {
         Row: {
           barbearia_id: string
           cliente_id: string
+          clube_desconto_aplicado: number
+          clube_id: string | null
           colaborador_id: string
           comissao: number
           created_at: string
@@ -260,6 +262,8 @@ export type Database = {
         Insert: {
           barbearia_id: string
           cliente_id: string
+          clube_desconto_aplicado?: number
+          clube_id?: string | null
           colaborador_id: string
           comissao?: number
           created_at?: string
@@ -283,6 +287,8 @@ export type Database = {
         Update: {
           barbearia_id?: string
           cliente_id?: string
+          clube_desconto_aplicado?: number
+          clube_id?: string | null
           colaborador_id?: string
           comissao?: number
           created_at?: string
@@ -400,6 +406,45 @@ export type Database = {
           resumo?: string
           titulo?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      clube_assinatura: {
+        Row: {
+          ativo: boolean
+          barbearia_id: string
+          created_at: string
+          deleted_at: string | null
+          descricao: string
+          id: string
+          nome: string
+          regras_servicos: Json
+          updated_at: string
+          valor_mensal: number
+        }
+        Insert: {
+          ativo?: boolean
+          barbearia_id: string
+          created_at?: string
+          deleted_at?: string | null
+          descricao?: string
+          id?: string
+          nome: string
+          regras_servicos?: Json
+          updated_at?: string
+          valor_mensal: number
+        }
+        Update: {
+          ativo?: boolean
+          barbearia_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          descricao?: string
+          id?: string
+          nome?: string
+          regras_servicos?: Json
+          updated_at?: string
+          valor_mensal?: number
         }
         Relationships: []
       }
@@ -1191,6 +1236,11 @@ export type Database = {
       usuarios: {
         Row: {
           barbearia_id: string | null
+          clube_data_fim: string | null
+          clube_data_inicio: string | null
+          clube_historico: Json
+          clube_id: string | null
+          clube_valor_pago: number | null
           created_at: string
           id: string
           login: string
@@ -1205,6 +1255,11 @@ export type Database = {
         }
         Insert: {
           barbearia_id?: string | null
+          clube_data_fim?: string | null
+          clube_data_inicio?: string | null
+          clube_historico?: Json
+          clube_id?: string | null
+          clube_valor_pago?: number | null
           created_at?: string
           id?: string
           login: string
@@ -1219,6 +1274,11 @@ export type Database = {
         }
         Update: {
           barbearia_id?: string | null
+          clube_data_fim?: string | null
+          clube_data_inicio?: string | null
+          clube_historico?: Json
+          clube_id?: string | null
+          clube_valor_pago?: number | null
           created_at?: string
           id?: string
           login?: string
@@ -1239,6 +1299,13 @@ export type Database = {
             referencedRelation: "barbearias"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "usuarios_clube_id_fkey"
+            columns: ["clube_id"]
+            isOneToOne: false
+            referencedRelation: "clube_assinatura"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -1246,6 +1313,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_clube_to_appointment: {
+        Args: {
+          p_atendimento_id: string
+          p_barbearia_id: string
+          p_cliente_id: string
+        }
+        Returns: Json
+      }
       apply_coupon_to_appointment: {
         Args: {
           p_atendimento_id: string
@@ -1254,6 +1329,15 @@ export type Database = {
           p_codigo: string
         }
         Returns: Json
+      }
+      delete_clube_assinatura: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+          p_id: string
+        }
+        Returns: boolean
       }
       delete_cupom_desconto: {
         Args: {
@@ -1268,6 +1352,10 @@ export type Database = {
         Args: { atendimento_id_val: string }
         Returns: string
       }
+      get_cliente_clube_status: {
+        Args: { p_barbearia_id: string; p_cliente_id: string }
+        Returns: Json
+      }
       get_latest_site_notifications: {
         Args: never
         Returns: {
@@ -1275,6 +1363,49 @@ export type Database = {
           publicada_em: string
           texto: string
           titulo: string
+        }[]
+      }
+      list_clube_expirando: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+        }
+        Returns: {
+          cliente_id: string
+          cliente_login: string
+          cliente_nome: string
+          clube_id: string
+          clube_nome: string
+          data_fim: string
+          dias_restantes: number
+        }[]
+      }
+      list_clubes_assinatura: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+        }
+        Returns: {
+          assinantes: Json
+          ativo: boolean
+          created_at: string
+          descricao: string
+          id: string
+          nome: string
+          regras_servicos: Json
+          total_assinantes: number
+          valor_mensal: number
+        }[]
+      }
+      list_clubes_publicos: {
+        Args: { p_barbearia_id: string }
+        Returns: {
+          descricao: string
+          id: string
+          nome: string
+          valor_mensal: number
         }[]
       }
       list_cupons_desconto: {
@@ -1315,9 +1446,49 @@ export type Database = {
         }
         Returns: Json
       }
+      remove_cliente_clube: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+          p_cliente_id: string
+        }
+        Returns: undefined
+      }
       remove_coupon_from_appointment: {
         Args: { p_atendimento_id: string; p_reason?: string }
         Returns: undefined
+      }
+      save_clube_assinatura: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_ativo: boolean
+          p_barbearia_id: string
+          p_descricao: string
+          p_id: string
+          p_nome: string
+          p_regras_servicos: Json
+          p_valor_mensal: number
+        }
+        Returns: {
+          ativo: boolean
+          barbearia_id: string
+          created_at: string
+          deleted_at: string | null
+          descricao: string
+          id: string
+          nome: string
+          regras_servicos: Json
+          updated_at: string
+          valor_mensal: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "clube_assinatura"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       save_cupom_desconto: {
         Args: {
@@ -1365,6 +1536,29 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      set_cliente_clube: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+          p_cliente_id: string
+          p_clube_id: string
+          p_data_fim: string
+          p_data_inicio: string
+          p_valor: number
+        }
+        Returns: undefined
+      }
+      toggle_clube_assinatura: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_ativo: boolean
+          p_barbearia_id: string
+          p_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
