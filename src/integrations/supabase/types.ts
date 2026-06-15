@@ -1319,6 +1319,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _clone_rewrite_url: {
+        Args: {
+          p_new_barb: string
+          p_new_parent: string
+          p_old_barb: string
+          p_old_parent: string
+          p_url: string
+        }
+        Returns: string
+      }
+      _rewrite_clone_image_urls: {
+        Args: { p_new_barb: string; p_old_barb: string }
+        Returns: undefined
+      }
       apply_clube_to_appointment: {
         Args: {
           p_atendimento_id: string
