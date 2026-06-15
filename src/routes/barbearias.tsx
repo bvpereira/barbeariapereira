@@ -48,6 +48,7 @@ type BarbeariaData = {
   colaboradoresAtivos: number;
   colaboradoresInativos: number;
   servicos: number;
+  deletedAt: string | null;
 };
 
 const SITE_ORIGIN = "https://barbeariapereira.lovable.app";
