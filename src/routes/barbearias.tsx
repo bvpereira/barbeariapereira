@@ -332,22 +332,32 @@ function BarbeariasPage() {
     enabled: authorized,
   });
 
+  const [showArchived, setShowArchived] = useState(false);
+
   if (!authorized) return null;
+
+  const visible = (barbearias ?? []).filter((b) => showArchived || !b.deletedAt);
 
   return (
     <SuperAdminLayout>
       <div className="w-full max-w-7xl space-y-8">
-        <header>
-          <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
-          <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+        <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
+            <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch id="show-archived" checked={showArchived} onCheckedChange={setShowArchived} />
+            <Label htmlFor="show-archived" className="cursor-pointer">Mostrar arquivadas</Label>
+          </div>
         </header>
 
         {isLoading ? <p className="animate-pulse text-primary">Carregando barbearias...</p> : null}
         {error ? <p className="text-destructive">Não foi possível carregar as barbearias.</p> : null}
-        {!isLoading && !error && !barbearias?.length ? <p className="text-muted-foreground">Nenhuma barbearia cadastrada.</p> : null}
+        {!isLoading && !error && !visible.length ? <p className="text-muted-foreground">Nenhuma barbearia para exibir.</p> : null}
 
         <div className="space-y-8">
-          {barbearias?.map((barbearia) => <BarbeariaCard key={barbearia.id} barbearia={barbearia} />)}
+          {visible.map((barbearia) => <BarbeariaCard key={barbearia.id} barbearia={barbearia} />)}
         </div>
       </div>
     </SuperAdminLayout>
