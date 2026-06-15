@@ -37,7 +37,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { applyCoupon, previewCoupon, removeCoupon } from "@/lib/coupons.functions";
-import { applyClubeToAppointment } from "@/lib/clube.functions";
+import { applyClubeToAppointment, getClienteClubeStatus } from "@/lib/clube.functions";
 
 interface Cliente {
   id: string;
@@ -126,6 +126,8 @@ export function BookingButton({
   const previewCouponFn = useServerFn(previewCoupon);
   const removeCouponFn = useServerFn(removeCoupon);
   const applyClubeFn = useServerFn(applyClubeToAppointment);
+  const getClubeStatusFn = useServerFn(getClienteClubeStatus);
+  const [clubePreview, setClubePreview] = useState<{ desconto: number; valor_final: number; valor_original: number; itens: Array<{ nome: string; desconto: number }> } | null>(null);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
@@ -301,6 +303,53 @@ export function BookingButton({
       fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
     }
   }, [selectedDatePart, selectedColaborador, selectedServicos, isOpen, fetchAvailableTimes]);
+
+  // Preview do desconto do clube de assinatura
+  useEffect(() => {
+    if (!isOpen || !tenant || !selectedCliente || selectedServicos.length === 0 || !selectedDatePart) {
+      setClubePreview(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const status: any = await getClubeStatusFn({ data: { barbearia_id: tenant.id, cliente_id: selectedCliente.id } });
+        if (cancelled) return;
+        if (!status?.ativo || !Array.isArray(status.servicos)) { setClubePreview(null); return; }
+        const dow = parseISO(selectedDatePart).getDay();
+        const remaining: Record<string, number> = {};
+        status.servicos.forEach((s: any) => { remaining[s.servico_id] = Number(s.restantes) || 0; });
+        let desconto = 0;
+        const itens: Array<{ nome: string; desconto: number }> = [];
+        for (const sId of selectedServicos) {
+          const rule = status.servicos.find((x: any) => x.servico_id === sId);
+          if (!rule) continue;
+          if (!Array.isArray(rule.dias_semana) || !rule.dias_semana.includes(dow)) continue;
+          if ((remaining[sId] ?? 0) <= 0) continue;
+          const serv = allServicos.find(a => a.id === sId);
+          if (!serv) continue;
+          const d = rule.tipo_desconto === "percentual"
+            ? (Number(serv.price) * Number(rule.valor_desconto)) / 100
+            : Math.min(Number(rule.valor_desconto), Number(serv.price));
+          if (d <= 0) continue;
+          desconto += d;
+          itens.push({ nome: serv.name, desconto: d });
+          remaining[sId] -= 1;
+        }
+        if (desconto <= 0) { setClubePreview(null); return; }
+        const baseTotal = selectedServicos.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
+        setClubePreview({ desconto, valor_final: Math.max(0, baseTotal - desconto), valor_original: baseTotal, itens });
+      } catch { if (!cancelled) setClubePreview(null); }
+    })();
+    return () => { cancelled = true; };
+  }, [isOpen, tenant, selectedCliente, selectedServicos, selectedDatePart, allServicos, getClubeStatusFn]);
+
+  // Atualiza o valor final exibido com o desconto do clube quando não há cupom aplicado
+  useEffect(() => {
+    if (clubePreview && !couponResult) {
+      setValorFinal(String(clubePreview.valor_final.toFixed(2)));
+    }
+  }, [clubePreview, couponResult]);
 
   const handleSave = async (force: boolean = false) => {
     if (!tenant) return;
@@ -490,6 +539,7 @@ export function BookingButton({
     setValorFinal("0");
     setCouponCode("");
     setCouponResult(null);
+    setClubePreview(null);
     setColabServicosIds([]);
   };
 
@@ -771,6 +821,18 @@ export function BookingButton({
                   <p className="text-muted-foreground">Economia de R$ {Number((couponResult as any).valor_desconto).toFixed(2)}</p>
                   <div className="mt-2 space-y-1">{((couponResult as any).servicos ?? []).map((service: any) => <p key={service.servico_id} className="text-xs">{service.nome}: <span className="line-through">R$ {Number(service.valor_original).toFixed(2)}</span> → R$ {Number(service.valor_final).toFixed(2)}</p>)}</div>
                 </div>}
+              </div>
+            )}
+            {clubePreview && (
+              <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm space-y-1">
+                <p className="font-semibold text-primary">Clube de assinatura aplicado</p>
+                <p>De R$ {clubePreview.valor_original.toFixed(2)} por <span className="font-semibold">R$ {clubePreview.valor_final.toFixed(2)}</span></p>
+                <p className="text-muted-foreground">Desconto de R$ {clubePreview.desconto.toFixed(2)}</p>
+                <div className="mt-1 space-y-0.5">
+                  {clubePreview.itens.map((it, i) => (
+                    <p key={i} className="text-xs">{it.nome}: -R$ {it.desconto.toFixed(2)}</p>
+                  ))}
+                </div>
               </div>
             )}
           </div>
