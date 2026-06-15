@@ -342,6 +342,7 @@ export type Database = {
       }
       barbearias: {
         Row: {
+          ativa: boolean
           config: Json | null
           created_at: string
           deleted_at: string | null
@@ -351,6 +352,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ativa?: boolean
           config?: Json | null
           created_at?: string
           deleted_at?: string | null
@@ -360,6 +362,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ativa?: boolean
           config?: Json | null
           created_at?: string
           deleted_at?: string | null
@@ -1571,6 +1574,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_barbearia_ativa: {
+        Args: {
+          p_admin_id: string
+          p_admin_login: string
+          p_admin_senha: string
+          p_ativa: boolean
+          p_id: string
+        }
+        Returns: boolean
+      }
       set_cliente_clube: {
         Args: {
           p_admin_id: string
@@ -1600,6 +1613,16 @@ export type Database = {
           p_ativo: boolean
           p_barbearia_id: string
           p_id: string
+        }
+        Returns: boolean
+      }
+      update_barbearia_slug: {
+        Args: {
+          p_admin_id: string
+          p_admin_login: string
+          p_admin_senha: string
+          p_id: string
+          p_new_slug: string
         }
         Returns: boolean
       }

@@ -70,23 +70,26 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return;
       }
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("barbearias")
         .select("*")
         .eq("slug", targetSlug)
         .is("deleted_at", null)
         .maybeSingle();
 
-      if (data) {
+      if (data && (data as any).ativa !== false) {
         setTenant(data);
+      } else if (data && (data as any).ativa === false) {
+        // Slug existe mas está desativada — não fazer fallback
+        setTenant(null);
       } else if (targetSlug !== "barb0") {
-         // Fallback if URL slug invalid
          const { data: defaultData } = await supabase
           .from("barbearias")
           .select("*")
           .eq("slug", "barb0")
+          .is("deleted_at", null)
           .maybeSingle();
-         if (defaultData) {
+         if (defaultData && (defaultData as any).ativa !== false) {
            setTenant(defaultData);
          } else {
            setTenant(null);
@@ -94,6 +97,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       } else {
         setTenant(null);
       }
+
     } catch (err) {
       console.error("Error fetching tenant", err);
     } finally {
