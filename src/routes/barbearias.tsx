@@ -249,13 +249,16 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
 
   return (
     <Card className={`overflow-hidden border-primary/20 bg-card/80 ${!barbearia.ativa ? "opacity-70" : ""}`}>
-      <CardHeader className="border-b border-primary/10 bg-primary/5 flex flex-row items-center justify-between gap-3">
+      <CardHeader
+        className="border-b border-primary/10 bg-primary/5 flex flex-row items-center justify-between gap-3 cursor-pointer select-none"
+        onClick={() => setExpanded((v) => !v)}
+      >
         <CardTitle className="flex items-center gap-3 font-josefin text-2xl uppercase tracking-wide text-primary">
           <Scissors className="h-6 w-6" />
           {barbearia.nome}
           {!barbearia.ativa ? <span className="ml-2 text-xs font-normal text-destructive">(desativada)</span> : null}
         </CardTitle>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <Power className={`h-4 w-4 ${barbearia.ativa ? "text-primary" : "text-muted-foreground"}`} />
           <Switch
             checked={barbearia.ativa}
@@ -276,8 +279,18 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setExpanded((v) => !v)}
+            aria-label={expanded ? "Recolher" : "Expandir"}
+            title={expanded ? "Recolher" : "Expandir"}
+          >
+            <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </Button>
         </div>
       </CardHeader>
+      {expanded && (
       <CardContent className="space-y-8 pt-6">
         <section className="grid gap-5 md:grid-cols-2">
           <ReadOnlyField label="Site" value={siteUrl} href={siteUrl} icon="link" />
