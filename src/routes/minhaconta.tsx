@@ -34,6 +34,7 @@ function MinhaContaPage() {
   
   // Profile state
   const [nome, setNome] = useState("");
+  const [nomeBarbearia, setNomeBarbearia] = useState("");
   const [telContato, setTelContato] = useState("");
   const [email, setEmail] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
@@ -76,7 +77,7 @@ function MinhaContaPage() {
       try {
         const { data, error } = await (supabase
           .from("informacoes" as any)
-          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo, instagram, endereco, foto_perfil")
+          .select("id, tel_contato, email, imagem_1, imagem_2, imagem_3, imagem_4, imagem_5, imagem_6, imagem_7, imagem_8, video_local, google_avaliacao, tempo_marcar, tempo_excluir, imagem_logo, instagram, endereco, foto_perfil, nome_barbearia")
           .eq("barbearia_id", parsedUser.barbearia_id)
           .maybeSingle());
 
@@ -85,6 +86,7 @@ function MinhaContaPage() {
         if (data) {
           const infoData = data as any;
           setTelContato(infoData.tel_contato || "");
+          setNomeBarbearia(infoData.nome_barbearia || "");
           
           setEmail(infoData.email || "");
           setInfoId(infoData.id);
@@ -143,14 +145,14 @@ function MinhaContaPage() {
       if (existingInfo) {
         const { error: infoError } = await (supabase
           .from("informacoes" as any)
-          .update({ tel_contato: telContato, email, instagram, endereco, usuario_id: user.id } as any)
+          .update({ tel_contato: telContato, email, instagram, endereco, nome_barbearia: nomeBarbearia, usuario_id: user.id } as any)
           .eq("id", (existingInfo as any).id));
         if (infoError) throw infoError;
         setInfoId((existingInfo as any).id);
       } else {
         const { data: newInfo, error: infoError } = await (supabase
           .from("informacoes" as any)
-          .insert({ tel_contato: telContato, email, instagram, endereco, user_id: user.id, usuario_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
+          .insert({ tel_contato: telContato, email, instagram, endereco, nome_barbearia: nomeBarbearia, user_id: user.id, usuario_id: user.id, userrr: "admin", barbearia_id: user.barbearia_id } as any)
           .select()
           .single());
         if (infoError) throw infoError;
@@ -687,6 +689,15 @@ function MinhaContaPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nomeBarbearia">Nome da barbearia</Label>
+                  <Input
+                    id="nomeBarbearia"
+                    value={nomeBarbearia}
+                    onChange={(e) => setNomeBarbearia(e.target.value)}
+                    placeholder="Nome da barbearia"
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome Completo</Label>
                   <Input
