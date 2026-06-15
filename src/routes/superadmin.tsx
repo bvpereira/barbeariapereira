@@ -191,7 +191,56 @@ function SuperAdmin() {
           <EvolutionSettings />
         </div>
       </motion.div>
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open && !deleting) {
+            setDeleteTarget(null);
+            setConfirmSenha("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir barbearia</DialogTitle>
+            <DialogDescription>
+              Esta ação irá apagar permanentemente todos os dados e imagens da barbearia
+              <span className="font-semibold"> {deleteTarget?.nome}</span>. Digite sua senha
+              de superadmin para confirmar.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="password"
+            placeholder="Senha de superadmin"
+            value={confirmSenha}
+            onChange={(e) => setConfirmSenha(e.target.value)}
+            autoFocus
+            disabled={deleting}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteTarget(null);
+                setConfirmSenha("");
+              }}
+              disabled={deleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={deleting || confirmSenha.length === 0}
+            >
+              {deleting ? "Excluindo..." : "Excluir definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SuperAdminLayout>
   );
 }
+
 
