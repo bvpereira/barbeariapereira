@@ -771,13 +771,13 @@ function ClientesPage() {
                   <TableBody>
                     {loading && clientes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8">
+                        <TableCell colSpan={5} className="text-center py-8">
                           Carregando clientes...
                         </TableCell>
                       </TableRow>
                     ) : clientes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                           Nenhum cliente encontrado
                         </TableCell>
                       </TableRow>
