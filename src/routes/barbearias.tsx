@@ -144,6 +144,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         colaboradoresAtivos: colaboradores.filter((item) => item.ativo).length,
         colaboradoresInativos: colaboradores.filter((item) => !item.ativo).length,
         servicos: servicosResult.count ?? 0,
+        deletedAt: barbearia.deleted_at,
       };
     }),
   );
