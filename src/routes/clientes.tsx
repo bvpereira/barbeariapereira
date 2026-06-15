@@ -239,6 +239,23 @@ function ClientesPage() {
     } else {
       setTotalClientes(count || 0);
     }
+
+    const today = format(new Date(), "yyyy-MM-dd");
+    const { count: assinantesCount } = await supabase
+      .from("usuarios")
+      .select("*", { count: "exact", head: true })
+      .eq("barbearia_id", tenant.id)
+      .eq("nivel", 3)
+      .not("clube_id", "is", null)
+      .gte("clube_data_fim", today);
+    setTotalAssinantes(assinantesCount || 0);
+
+    try {
+      const list = await listClubesPublicosFn({ data: { barbearia_id: tenant.id } });
+      const map: Record<string, string> = {};
+      list.forEach((c) => { map[c.id] = c.nome; });
+      setClubesMap(map);
+    } catch (e) { console.error(e); }
   };
 
   const fetchClientes = async () => {
