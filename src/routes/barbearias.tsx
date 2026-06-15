@@ -2,21 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Archive, ArchiveRestore, AtSign, ExternalLink, MessageCircle, Save, Scissors, Users } from "lucide-react";
+import { AtSign, ExternalLink, MessageCircle, Power, Save, Scissors, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
-import { softDeleteBarbeariaFn, restoreBarbeariaFn } from "@/lib/barbearias-admin.functions";
+import { updateBarbeariaSlugFn, setBarbeariaAtivaFn } from "@/lib/barbearias-admin.functions";
 
 export const Route = createFileRoute("/barbearias")({
   component: BarbeariasPage,
@@ -48,7 +43,7 @@ type BarbeariaData = {
   colaboradoresAtivos: number;
   colaboradoresInativos: number;
   servicos: number;
-  deletedAt: string | null;
+  ativa: boolean;
 };
 
 const SITE_ORIGIN = "https://barbeariapereira.lovable.app";
@@ -101,12 +96,13 @@ function ReadOnlyField({ label, value, href, icon }: { label: string; value: str
 async function fetchBarbearias(): Promise<BarbeariaData[]> {
   const { data: barbearias, error } = await supabase
     .from("barbearias")
-    .select("id, slug, created_at, deleted_at")
+    .select("id, slug, created_at, ativa")
+    .is("deleted_at", null)
     .order("created_at", { ascending: true });
   if (error) throw error;
 
   return Promise.all(
-    (barbearias ?? []).map(async (barbearia) => {
+    (barbearias ?? []).map(async (barbearia: any) => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -144,7 +140,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         colaboradoresAtivos: colaboradores.filter((item) => item.ativo).length,
         colaboradoresInativos: colaboradores.filter((item) => !item.ativo).length,
         servicos: servicosResult.count ?? 0,
-        deletedAt: barbearia.deleted_at,
+        ativa: barbearia.ativa !== false,
       };
     }),
   );
@@ -158,9 +154,11 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
+  const [slugDraft, setSlugDraft] = useState(barbearia.slug);
   const siteUrl = `${SITE_ORIGIN}/${barbearia.slug}`;
 
   useEffect(() => setValues(initialValues), [initialValues]);
+  useEffect(() => setSlugDraft(barbearia.slug), [barbearia.slug]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -182,6 +180,39 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const updateSlugFn = useServerFn(updateBarbeariaSlugFn);
+  const setAtivaFn = useServerFn(setBarbeariaAtivaFn);
+
+  const adminAuth = () => {
+    const session = JSON.parse(localStorage.getItem("superadmin_session") || "{}");
+    return { adminId: session.id, adminLogin: session.login, adminSenha: session.senha };
+  };
+
+  const slugMutation = useMutation({
+    mutationFn: async () => {
+      const next = slugDraft.trim().toLowerCase();
+      if (next === barbearia.slug) throw new Error("Informe um slug diferente do atual.");
+      return updateSlugFn({ data: { ...adminAuth(), id: barbearia.id, newSlug: next } });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
+      toast.success("Slug atualizado.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const ativaMutation = useMutation({
+    mutationFn: async (ativa: boolean) =>
+      setAtivaFn({ data: { ...adminAuth(), id: barbearia.id, ativa } }),
+    onSuccess: async (_d, ativa) => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
+      toast.success(ativa ? "Barbearia ativada." : "Barbearia desativada.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const metrics = [
     ["Criada em", formatDate(barbearia.createdAt)],
     ["Clientes cadastrados", barbearia.clientes],
@@ -191,55 +222,24 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     ["Serviços cadastrados", barbearia.servicos],
   ];
 
-  const archiveFn = useServerFn(softDeleteBarbeariaFn);
-  const restoreFn = useServerFn(restoreBarbeariaFn);
-  const archiveMutation = useMutation({
-    mutationFn: async () => {
-      const session = JSON.parse(localStorage.getItem("superadmin_session") || "{}");
-      const fn = barbearia.deletedAt ? restoreFn : archiveFn;
-      return fn({ data: {
-        adminId: session.id, adminLogin: session.login, adminSenha: session.senha,
-        id: barbearia.id,
-      }});
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
-      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
-      toast.success(barbearia.deletedAt ? "Barbearia restaurada." : "Barbearia arquivada.");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
   return (
-    <Card className={`overflow-hidden border-primary/20 bg-card/80 ${barbearia.deletedAt ? "opacity-60" : ""}`}>
+    <Card className={`overflow-hidden border-primary/20 bg-card/80 ${!barbearia.ativa ? "opacity-70" : ""}`}>
       <CardHeader className="border-b border-primary/10 bg-primary/5 flex flex-row items-center justify-between gap-3">
         <CardTitle className="flex items-center gap-3 font-josefin text-2xl uppercase tracking-wide text-primary">
           <Scissors className="h-6 w-6" />
           {barbearia.nome}
-          {barbearia.deletedAt ? <span className="ml-2 text-xs font-normal text-muted-foreground">(arquivada)</span> : null}
+          {!barbearia.ativa ? <span className="ml-2 text-xs font-normal text-destructive">(desativada)</span> : null}
         </CardTitle>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              {barbearia.deletedAt ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-              {barbearia.deletedAt ? "Restaurar" : "Arquivar"}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{barbearia.deletedAt ? "Restaurar barbearia?" : "Arquivar barbearia?"}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {barbearia.deletedAt
-                  ? "A barbearia voltará a ficar acessível pela URL."
-                  : "A barbearia ficará oculta para os usuários e não responderá pela URL pública. Os dados são preservados e podem ser restaurados."}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={() => archiveMutation.mutate()}>Confirmar</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className="flex items-center gap-2">
+          <Power className={`h-4 w-4 ${barbearia.ativa ? "text-primary" : "text-muted-foreground"}`} />
+          <Switch
+            checked={barbearia.ativa}
+            disabled={ativaMutation.isPending}
+            onCheckedChange={(checked) => ativaMutation.mutate(checked)}
+            aria-label="Ativar/Desativar barbearia"
+          />
+          <Label className="text-sm">{barbearia.ativa ? "Ativa" : "Desativada"}</Label>
+        </div>
       </CardHeader>
       <CardContent className="space-y-8 pt-6">
         <section className="grid gap-5 md:grid-cols-2">
@@ -249,6 +249,26 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           <ReadOnlyField label="E-mail" value={barbearia.email} />
           <ReadOnlyField label="Site de avaliação do Google" value={barbearia.googleAvaliacao} href={normalizeUrl(barbearia.googleAvaliacao)} icon="link" />
           <ReadOnlyField label="Instagram" value={barbearia.instagram} href={instagramUrl(barbearia.instagram)} icon="instagram" />
+        </section>
+
+        <section className="space-y-3 rounded-lg border border-primary/10 bg-background/30 p-4">
+          <div>
+            <h3 className="font-josefin text-lg font-bold uppercase tracking-wide text-foreground">Alterar slug (URL)</h3>
+            <p className="text-sm text-muted-foreground">Use 3-30 caracteres: a-z, 0-9 e hífen.</p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-1 items-center gap-1 rounded-md border border-primary/15 bg-background/60 px-3 py-1.5 text-sm">
+              <span className="text-muted-foreground">{SITE_ORIGIN}/</span>
+              <Input
+                value={slugDraft}
+                onChange={(e) => setSlugDraft(e.target.value)}
+                className="h-7 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+              />
+            </div>
+            <Button onClick={() => slugMutation.mutate()} disabled={slugMutation.isPending}>
+              {slugMutation.isPending ? "Salvando..." : "Trocar slug"}
+            </Button>
+          </div>
         </section>
 
         <section className="space-y-4 border-y border-primary/10 py-6">
@@ -332,32 +352,22 @@ function BarbeariasPage() {
     enabled: authorized,
   });
 
-  const [showArchived, setShowArchived] = useState(false);
-
   if (!authorized) return null;
-
-  const visible = (barbearias ?? []).filter((b) => showArchived || !b.deletedAt);
 
   return (
     <SuperAdminLayout>
       <div className="w-full max-w-7xl space-y-8">
-        <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
-            <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch id="show-archived" checked={showArchived} onCheckedChange={setShowArchived} />
-            <Label htmlFor="show-archived" className="cursor-pointer">Mostrar arquivadas</Label>
-          </div>
+        <header>
+          <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
+          <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
         </header>
 
         {isLoading ? <p className="animate-pulse text-primary">Carregando barbearias...</p> : null}
         {error ? <p className="text-destructive">Não foi possível carregar as barbearias.</p> : null}
-        {!isLoading && !error && !visible.length ? <p className="text-muted-foreground">Nenhuma barbearia para exibir.</p> : null}
+        {!isLoading && !error && !(barbearias?.length) ? <p className="text-muted-foreground">Nenhuma barbearia para exibir.</p> : null}
 
         <div className="space-y-8">
-          {visible.map((barbearia) => <BarbeariaCard key={barbearia.id} barbearia={barbearia} />)}
+          {(barbearias ?? []).map((barbearia) => <BarbeariaCard key={barbearia.id} barbearia={barbearia} />)}
         </div>
       </div>
     </SuperAdminLayout>
