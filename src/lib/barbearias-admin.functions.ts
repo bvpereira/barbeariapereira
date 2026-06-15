@@ -283,3 +283,79 @@ export const setBarbeariaAtivaFn = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const hardDeleteBarbeariaFn = createServerFn({ method: "POST" })
+  .inputValidator((input: AdminAuth & { id: string; confirmSenha: string }) => input)
+  .handler(async ({ data }) => {
+    if (data.id === MODELO_BARBEARIA_ID) {
+      throw new Error("A barbearia base não pode ser excluída.");
+    }
+    if (data.confirmSenha !== data.adminSenha) {
+      throw new Error("Senha de confirmação incorreta.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verifica admin
+    const { data: adminRow, error: adminErr } = await supabaseAdmin
+      .from("usuarios")
+      .select("id")
+      .eq("id", data.adminId)
+      .eq("login", data.adminLogin)
+      .eq("senha", data.adminSenha)
+      .eq("nivel", 0)
+      .maybeSingle();
+    if (adminErr) throw new Error(adminErr.message);
+    if (!adminRow) throw new Error("Acesso não autorizado.");
+
+    // 1) Coleta caminhos extras em informacoes_imagens (paths por user_id) antes do delete do DB
+    const extraInfoPaths: string[] = [];
+    const { data: infoRows } = await supabaseAdmin
+      .from("informacoes")
+      .select("imagem_1,imagem_2,imagem_3,imagem_4,imagem_5,imagem_6,imagem_7,imagem_8,imagem_logo,foto_perfil,video_local")
+      .eq("barbearia_id", data.id);
+    const publicPrefix = `/storage/v1/object/public/informacoes_imagens/`;
+    for (const row of infoRows ?? []) {
+      for (const v of Object.values(row as Record<string, unknown>)) {
+        if (typeof v !== "string") continue;
+        const idx = v.indexOf(publicPrefix);
+        if (idx === -1) continue;
+        const path = v.substring(idx + publicPrefix.length);
+        if (path && !path.startsWith(`${data.id}/`)) extraInfoPaths.push(path);
+      }
+    }
+
+    // 2) Apaga arquivos de storage por prefixo {barbearia_id}/ em todos os buckets
+    for (const bucket of BUCKETS) {
+      try {
+        const files = await listAllFiles(supabaseAdmin, bucket, data.id);
+        if (files.length > 0) {
+          const CHUNK = 100;
+          for (let i = 0; i < files.length; i += CHUNK) {
+            await supabaseAdmin.storage.from(bucket).remove(files.slice(i, i + CHUNK));
+          }
+        }
+      } catch (e) {
+        // continua — não bloqueia exclusão
+        console.error(`Erro listando/removendo ${bucket}:`, e);
+      }
+    }
+
+    // 3) Apaga caminhos extras (informacoes_imagens em pastas por user_id)
+    if (extraInfoPaths.length > 0) {
+      const CHUNK = 100;
+      for (let i = 0; i < extraInfoPaths.length; i += CHUNK) {
+        await supabaseAdmin.storage.from("informacoes_imagens").remove(extraInfoPaths.slice(i, i + CHUNK));
+      }
+    }
+
+    // 4) Apaga dados via RPC existente
+    const { error } = await supabaseAdmin.rpc("rollback_barbearia", {
+      p_admin_id: data.adminId,
+      p_admin_login: data.adminLogin,
+      p_admin_senha: data.adminSenha,
+      p_id: data.id,
+    });
+    if (error) throw new Error(error.message);
+
+    return { ok: true };
+  });
+
