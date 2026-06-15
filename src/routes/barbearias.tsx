@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AtSign, ExternalLink, MessageCircle, Power, Save, Scissors, Users } from "lucide-react";
+import { AtSign, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { updateBarbeariaSlugFn, setBarbeariaAtivaFn } from "@/lib/barbearias-admin.functions";
+import { updateBarbeariaSlugFn, setBarbeariaAtivaFn, hardDeleteBarbeariaFn } from "@/lib/barbearias-admin.functions";
+
+const MODELO_BARBEARIA_ID = "01879baf-8f8b-4c3d-810f-7740b6432cd9";
 
 export const Route = createFileRoute("/barbearias")({
   component: BarbeariasPage,
@@ -155,7 +161,10 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [confirmSenha, setConfirmSenha] = useState("");
   const siteUrl = `${SITE_ORIGIN}/${barbearia.slug}`;
+  const isModelo = barbearia.id === MODELO_BARBEARIA_ID;
 
   useEffect(() => setValues(initialValues), [initialValues]);
   useEffect(() => setSlugDraft(barbearia.slug), [barbearia.slug]);
@@ -202,6 +211,21 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const deleteFn = useServerFn(hardDeleteBarbeariaFn);
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return deleteFn({ data: { ...adminAuth(), id: barbearia.id, confirmSenha } });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
+      toast.success(`Barbearia "${barbearia.nome}" excluída.`);
+      setDeleteOpen(false);
+      setConfirmSenha("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const ativaMutation = useMutation({
     mutationFn: async (ativa: boolean) =>
       setAtivaFn({ data: { ...adminAuth(), id: barbearia.id, ativa } }),
@@ -239,6 +263,18 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             aria-label="Ativar/Desativar barbearia"
           />
           <Label className="text-sm">{barbearia.ativa ? "Ativa" : "Desativada"}</Label>
+          {!isModelo && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-2 text-destructive hover:bg-destructive/10"
+              onClick={() => { setConfirmSenha(""); setDeleteOpen(true); }}
+              aria-label={`Excluir ${barbearia.nome}`}
+              title="Excluir barbearia"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-8 pt-6">
@@ -312,6 +348,51 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           </div>
         </section>
       </CardContent>
+
+      <Dialog
+        open={deleteOpen}
+        onOpenChange={(open) => {
+          if (!open && !deleteMutation.isPending) {
+            setDeleteOpen(false);
+            setConfirmSenha("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Excluir barbearia</DialogTitle>
+            <DialogDescription>
+              Esta ação irá apagar permanentemente todos os dados e imagens da barbearia
+              <span className="font-semibold"> {barbearia.nome}</span>. Digite sua senha
+              de superadmin para confirmar.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="password"
+            placeholder="Senha de superadmin"
+            value={confirmSenha}
+            onChange={(e) => setConfirmSenha(e.target.value)}
+            autoFocus
+            disabled={deleteMutation.isPending}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setDeleteOpen(false); setConfirmSenha(""); }}
+              disabled={deleteMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending || confirmSenha.length === 0}
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
