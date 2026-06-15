@@ -263,6 +263,18 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             aria-label="Ativar/Desativar barbearia"
           />
           <Label className="text-sm">{barbearia.ativa ? "Ativa" : "Desativada"}</Label>
+          {!isModelo && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-2 text-destructive hover:bg-destructive/10"
+              onClick={() => { setConfirmSenha(""); setDeleteOpen(true); }}
+              aria-label={`Excluir ${barbearia.nome}`}
+              title="Excluir barbearia"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-8 pt-6">
