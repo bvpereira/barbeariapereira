@@ -87,8 +87,10 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, MessageCircle } from "lucide-react";
+import { MoreVertical, MessageCircle, Crown } from "lucide-react";
 import { ClienteClubeSection } from "@/components/ClienteClubeSection";
+import { listClubesPublicos } from "@/lib/clube.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/clientes")({
   component: ClientesPage,
@@ -102,6 +104,8 @@ interface Cliente {
   observacao: string | null;
   registro?: string;
   hasAtendimentos?: boolean;
+  clube_id?: string | null;
+  clube_data_fim?: string | null;
 }
 
 interface Colaborador {
@@ -130,6 +134,9 @@ function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const isMobile = useIsMobile();
   const [totalClientes, setTotalClientes] = useState(0);
+  const [totalAssinantes, setTotalAssinantes] = useState(0);
+  const [clubesMap, setClubesMap] = useState<Record<string, string>>({});
+  const listClubesPublicosFn = useServerFn(listClubesPublicos);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(20);
@@ -232,6 +239,23 @@ function ClientesPage() {
     } else {
       setTotalClientes(count || 0);
     }
+
+    const today = format(new Date(), "yyyy-MM-dd");
+    const { count: assinantesCount } = await supabase
+      .from("usuarios")
+      .select("*", { count: "exact", head: true })
+      .eq("barbearia_id", tenant.id)
+      .eq("nivel", 3)
+      .not("clube_id", "is", null)
+      .gte("clube_data_fim", today);
+    setTotalAssinantes(assinantesCount || 0);
+
+    try {
+      const list = await listClubesPublicosFn({ data: { barbearia_id: tenant.id } });
+      const map: Record<string, string> = {};
+      list.forEach((c) => { map[c.id] = c.nome; });
+      setClubesMap(map);
+    } catch (e) { console.error(e); }
   };
 
   const fetchClientes = async () => {
@@ -247,6 +271,8 @@ function ClientesPage() {
         senha, 
         observacao,
         registro,
+        clube_id,
+        clube_data_fim,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
       .eq("barbearia_id", tenant.id)
@@ -622,6 +648,16 @@ function ClientesPage() {
               <p className="text-xs text-muted-foreground">Cadastrados no sistema</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Clube de Assinatura</CardTitle>
+              <Crown className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalAssinantes}</div>
+              <p className="text-xs text-muted-foreground">Clientes com plano ativo</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Busca */}
@@ -727,6 +763,7 @@ function ClientesPage() {
                     <TableRow>
                       <TableHead>Nome</TableHead>
                       <TableHead>Telefone</TableHead>
+                      <TableHead>Plano</TableHead>
                       <TableHead>Observação</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
@@ -734,13 +771,13 @@ function ClientesPage() {
                   <TableBody>
                     {loading && clientes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8">
+                        <TableCell colSpan={5} className="text-center py-8">
                           Carregando clientes...
                         </TableCell>
                       </TableRow>
                     ) : clientes.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                           Nenhum cliente encontrado
                         </TableCell>
                       </TableRow>
@@ -763,6 +800,13 @@ function ClientesPage() {
                             </div>
                           </TableCell>
                           <TableCell>{formatPhone(cliente.login)}</TableCell>
+                          <TableCell>
+                            {cliente.clube_id && cliente.clube_data_fim && cliente.clube_data_fim >= format(new Date(), "yyyy-MM-dd") ? (
+                              <Badge className="gap-1"><Crown className="w-3 h-3" />{clubesMap[cliente.clube_id] ?? "Plano ativo"}</Badge>
+                            ) : (
+                              <span className="text-xs text-muted-foreground/40">—</span>
+                            )}
+                          </TableCell>
                           <TableCell>
                             {cliente.observacao ? (
                               <span className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]" title={cliente.observacao}>
