@@ -101,7 +101,7 @@ function ReadOnlyField({ label, value, href, icon }: { label: string; value: str
 async function fetchBarbearias(): Promise<BarbeariaData[]> {
   const { data: barbearias, error } = await supabase
     .from("barbearias")
-    .select("id, slug, created_at")
+    .select("id, slug, created_at, deleted_at")
     .order("created_at", { ascending: true });
   if (error) throw error;
 
