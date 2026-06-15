@@ -26,6 +26,7 @@ import { Route as FinanceiroRouteImport } from './routes/financeiro'
 import { Route as ComunidadeRouteImport } from './routes/comunidade'
 import { Route as ColaboradoresRouteImport } from './routes/colaboradores'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
+import { Route as ClubeRouteImport } from './routes/clube'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as ClienteRouteImport } from './routes/cliente'
 import { Route as CadastroRouteImport } from './routes/cadastro'
@@ -121,6 +122,11 @@ const ColaboradorRoute = ColaboradorRouteImport.update({
   path: '/colaborador',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClubeRoute = ClubeRouteImport.update({
+  id: '/clube',
+  path: '/clube',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClientesRoute = ClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
+  '/clube': typeof ClubeRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
+  '/clube': typeof ClubeRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
+  '/clube': typeof ClubeRoute
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/cliente'
     | '/clientes'
+    | '/clube'
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/cliente'
     | '/clientes'
+    | '/clube'
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
@@ -320,6 +331,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/cliente'
     | '/clientes'
+    | '/clube'
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
@@ -349,6 +361,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   ClienteRoute: typeof ClienteRoute
   ClientesRoute: typeof ClientesRoute
+  ClubeRoute: typeof ClubeRoute
   ColaboradorRoute: typeof ColaboradorRoute
   ColaboradoresRoute: typeof ColaboradoresRoute
   ComunidadeRoute: typeof ComunidadeRoute
@@ -489,6 +502,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ColaboradorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clube': {
+      id: '/clube'
+      path: '/clube'
+      fullPath: '/clube'
+      preLoaderRoute: typeof ClubeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/clientes': {
       id: '/clientes'
       path: '/clientes'
@@ -565,6 +585,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   ClienteRoute: ClienteRoute,
   ClientesRoute: ClientesRoute,
+  ClubeRoute: ClubeRoute,
   ColaboradorRoute: ColaboradorRoute,
   ColaboradoresRoute: ColaboradoresRoute,
   ComunidadeRoute: ComunidadeRoute,
