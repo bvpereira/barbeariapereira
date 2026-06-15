@@ -34,6 +34,7 @@ function MinhaContaPage() {
   
   // Profile state
   const [nome, setNome] = useState("");
+  const [nomeBarbearia, setNomeBarbearia] = useState("");
   const [telContato, setTelContato] = useState("");
   const [email, setEmail] = useState("");
   const [infoId, setInfoId] = useState<string | null>(null);
