@@ -191,13 +191,55 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     ["Serviços cadastrados", barbearia.servicos],
   ];
 
+  const archiveFn = useServerFn(softDeleteBarbeariaFn);
+  const restoreFn = useServerFn(restoreBarbeariaFn);
+  const archiveMutation = useMutation({
+    mutationFn: async () => {
+      const session = JSON.parse(localStorage.getItem("superadmin_session") || "{}");
+      const fn = barbearia.deletedAt ? restoreFn : archiveFn;
+      return fn({ data: {
+        adminId: session.id, adminLogin: session.login, adminSenha: session.senha,
+        id: barbearia.id,
+      }});
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
+      toast.success(barbearia.deletedAt ? "Barbearia restaurada." : "Barbearia arquivada.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   return (
-    <Card className="overflow-hidden border-primary/20 bg-card/80">
-      <CardHeader className="border-b border-primary/10 bg-primary/5">
+    <Card className={`overflow-hidden border-primary/20 bg-card/80 ${barbearia.deletedAt ? "opacity-60" : ""}`}>
+      <CardHeader className="border-b border-primary/10 bg-primary/5 flex flex-row items-center justify-between gap-3">
         <CardTitle className="flex items-center gap-3 font-josefin text-2xl uppercase tracking-wide text-primary">
           <Scissors className="h-6 w-6" />
           {barbearia.nome}
+          {barbearia.deletedAt ? <span className="ml-2 text-xs font-normal text-muted-foreground">(arquivada)</span> : null}
         </CardTitle>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              {barbearia.deletedAt ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+              {barbearia.deletedAt ? "Restaurar" : "Arquivar"}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{barbearia.deletedAt ? "Restaurar barbearia?" : "Arquivar barbearia?"}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {barbearia.deletedAt
+                  ? "A barbearia voltará a ficar acessível pela URL."
+                  : "A barbearia ficará oculta para os usuários e não responderá pela URL pública. Os dados são preservados e podem ser restaurados."}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={() => archiveMutation.mutate()}>Confirmar</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardHeader>
       <CardContent className="space-y-8 pt-6">
         <section className="grid gap-5 md:grid-cols-2">
