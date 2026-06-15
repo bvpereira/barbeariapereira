@@ -304,6 +304,53 @@ export function BookingButton({
     }
   }, [selectedDatePart, selectedColaborador, selectedServicos, isOpen, fetchAvailableTimes]);
 
+  // Preview do desconto do clube de assinatura
+  useEffect(() => {
+    if (!isOpen || !tenant || !selectedCliente || selectedServicos.length === 0 || !selectedDatePart) {
+      setClubePreview(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const status: any = await getClubeStatusFn({ data: { barbearia_id: tenant.id, cliente_id: selectedCliente.id } });
+        if (cancelled) return;
+        if (!status?.ativo || !Array.isArray(status.servicos)) { setClubePreview(null); return; }
+        const dow = parseISO(selectedDatePart).getDay();
+        const remaining: Record<string, number> = {};
+        status.servicos.forEach((s: any) => { remaining[s.servico_id] = Number(s.restantes) || 0; });
+        let desconto = 0;
+        const itens: Array<{ nome: string; desconto: number }> = [];
+        for (const sId of selectedServicos) {
+          const rule = status.servicos.find((x: any) => x.servico_id === sId);
+          if (!rule) continue;
+          if (!Array.isArray(rule.dias_semana) || !rule.dias_semana.includes(dow)) continue;
+          if ((remaining[sId] ?? 0) <= 0) continue;
+          const serv = allServicos.find(a => a.id === sId);
+          if (!serv) continue;
+          const d = rule.tipo_desconto === "percentual"
+            ? (Number(serv.price) * Number(rule.valor_desconto)) / 100
+            : Math.min(Number(rule.valor_desconto), Number(serv.price));
+          if (d <= 0) continue;
+          desconto += d;
+          itens.push({ nome: serv.name, desconto: d });
+          remaining[sId] -= 1;
+        }
+        if (desconto <= 0) { setClubePreview(null); return; }
+        const baseTotal = selectedServicos.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
+        setClubePreview({ desconto, valor_final: Math.max(0, baseTotal - desconto), valor_original: baseTotal, itens });
+      } catch { if (!cancelled) setClubePreview(null); }
+    })();
+    return () => { cancelled = true; };
+  }, [isOpen, tenant, selectedCliente, selectedServicos, selectedDatePart, allServicos, getClubeStatusFn]);
+
+  // Atualiza o valor final exibido com o desconto do clube quando não há cupom aplicado
+  useEffect(() => {
+    if (clubePreview && !couponResult) {
+      setValorFinal(String(clubePreview.valor_final.toFixed(2)));
+    }
+  }, [clubePreview, couponResult]);
+
   const handleSave = async (force: boolean = false) => {
     if (!tenant) return;
     if (!selectedCliente || !selectedColaborador || selectedServicos.length === 0 || !selectedTimePart) {
