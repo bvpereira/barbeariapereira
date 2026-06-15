@@ -211,6 +211,21 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const deleteFn = useServerFn(hardDeleteBarbeariaFn);
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return deleteFn({ data: { ...adminAuth(), id: barbearia.id, confirmSenha } });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      await queryClient.invalidateQueries({ queryKey: ["barbearias"] });
+      toast.success(`Barbearia "${barbearia.nome}" excluída.`);
+      setDeleteOpen(false);
+      setConfirmSenha("");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const ativaMutation = useMutation({
     mutationFn: async (ativa: boolean) =>
       setAtivaFn({ data: { ...adminAuth(), id: barbearia.id, ativa } }),
