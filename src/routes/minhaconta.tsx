@@ -690,6 +690,15 @@ function MinhaContaPage() {
             <CardContent>
               <form onSubmit={handleUpdateProfile} className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="nomeBarbearia">Nome da barbearia</Label>
+                  <Input
+                    id="nomeBarbearia"
+                    value={nomeBarbearia}
+                    onChange={(e) => setNomeBarbearia(e.target.value)}
+                    placeholder="Nome da barbearia"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="nome">Nome Completo</Label>
                   <Input
                     id="nome"
