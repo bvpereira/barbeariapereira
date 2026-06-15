@@ -42,6 +42,7 @@ function SuperAdmin() {
       const { data, error } = await supabase
         .from("barbearias")
         .select("id, nome, slug")
+        .is("deleted_at", null)
         .order("nome");
       if (error) throw error;
       return data;
