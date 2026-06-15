@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AtSign, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Users } from "lucide-react";
+import { AtSign, ChevronDown, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
@@ -163,6 +163,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmSenha, setConfirmSenha] = useState("");
+  const [expanded, setExpanded] = useState(false);
   const siteUrl = `${SITE_ORIGIN}/${barbearia.slug}`;
   const isModelo = barbearia.id === MODELO_BARBEARIA_ID;
 
@@ -248,13 +249,16 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
 
   return (
     <Card className={`overflow-hidden border-primary/20 bg-card/80 ${!barbearia.ativa ? "opacity-70" : ""}`}>
-      <CardHeader className="border-b border-primary/10 bg-primary/5 flex flex-row items-center justify-between gap-3">
+      <CardHeader
+        className="border-b border-primary/10 bg-primary/5 flex flex-row items-center justify-between gap-3 cursor-pointer select-none"
+        onClick={() => setExpanded((v) => !v)}
+      >
         <CardTitle className="flex items-center gap-3 font-josefin text-2xl uppercase tracking-wide text-primary">
           <Scissors className="h-6 w-6" />
           {barbearia.nome}
           {!barbearia.ativa ? <span className="ml-2 text-xs font-normal text-destructive">(desativada)</span> : null}
         </CardTitle>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <Power className={`h-4 w-4 ${barbearia.ativa ? "text-primary" : "text-muted-foreground"}`} />
           <Switch
             checked={barbearia.ativa}
@@ -275,8 +279,18 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setExpanded((v) => !v)}
+            aria-label={expanded ? "Recolher" : "Expandir"}
+            title={expanded ? "Recolher" : "Expandir"}
+          >
+            <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </Button>
         </div>
       </CardHeader>
+      {expanded && (
       <CardContent className="space-y-8 pt-6">
         <section className="grid gap-5 md:grid-cols-2">
           <ReadOnlyField label="Site" value={siteUrl} href={siteUrl} icon="link" />
@@ -348,6 +362,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           </div>
         </section>
       </CardContent>
+      )}
 
       <Dialog
         open={deleteOpen}
