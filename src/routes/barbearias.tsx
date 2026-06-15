@@ -362,6 +362,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           </div>
         </section>
       </CardContent>
+      )}
 
       <Dialog
         open={deleteOpen}
