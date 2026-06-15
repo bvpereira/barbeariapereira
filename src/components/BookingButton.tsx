@@ -539,6 +539,7 @@ export function BookingButton({
     setValorFinal("0");
     setCouponCode("");
     setCouponResult(null);
+    setClubePreview(null);
     setColabServicosIds([]);
   };
 
