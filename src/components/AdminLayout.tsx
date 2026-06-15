@@ -91,7 +91,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block">
+      <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <img src={logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
@@ -99,7 +99,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </h2>
         </div>
         <NavLinks />
-        <div className="absolute bottom-8 px-4 w-full">
+        <div className="px-4 mt-2 pb-8">
           <Button
             variant="ghost"
             className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
