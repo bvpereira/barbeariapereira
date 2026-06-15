@@ -37,6 +37,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { applyCoupon, previewCoupon, removeCoupon } from "@/lib/coupons.functions";
+import { applyClubeToAppointment } from "@/lib/clube.functions";
 
 interface Cliente {
   id: string;
@@ -124,6 +125,7 @@ export function BookingButton({
   const applyCouponFn = useServerFn(applyCoupon);
   const previewCouponFn = useServerFn(previewCoupon);
   const removeCouponFn = useServerFn(removeCoupon);
+  const applyClubeFn = useServerFn(applyClubeToAppointment);
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
@@ -410,6 +412,18 @@ export function BookingButton({
         await removeCouponFn({ data: { atendimento_id: atendimentoId, barbearia_id: tenant.id,
           cliente_id: selectedCliente.id, actor_id: user.id, password: user.senha } });
       }
+
+      // Aplicar desconto do clube de assinatura (se o cliente tiver clube ativo)
+      try {
+        const clubeResult = await applyClubeFn({ data: {
+          atendimento_id: atendimentoId, barbearia_id: tenant.id, cliente_id: selectedCliente.id,
+        } });
+        if (clubeResult?.aplicado && clubeResult.valor_final != null) {
+          setValorFinal(String(clubeResult.valor_final));
+          toast.success(`Clube de assinatura aplicado: -R$ ${Number(clubeResult.desconto ?? 0).toFixed(2)}`);
+        }
+      } catch (err) { console.warn("Clube nao aplicado:", err); }
+
 
       // Trigger Webhook
       const colab = colaboradores.find(c => c.id === selectedColaborador);
