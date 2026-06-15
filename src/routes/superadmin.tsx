@@ -126,10 +126,11 @@ function SuperAdmin() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
+              className="relative"
             >
               <Link
                 to={`/${barb.slug}`}
-                className="group flex items-center justify-between p-6 bg-card border border-primary/10 rounded-2xl hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="group flex items-center justify-between p-6 pr-16 bg-card border border-primary/10 rounded-2xl hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -143,7 +144,23 @@ function SuperAdmin() {
                   →
                 </div>
               </Link>
+              {barb.id !== MODELO_BARBEARIA_ID && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDeleteTarget({ id: barb.id, nome: barb.nome });
+                    setConfirmSenha("");
+                  }}
+                  aria-label={`Excluir ${barb.nome}`}
+                  className="absolute top-1/2 -translate-y-1/2 right-14 w-9 h-9 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive flex items-center justify-center transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             </motion.div>
+
           ))}
         </div>
       )}
