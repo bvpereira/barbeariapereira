@@ -763,6 +763,7 @@ function ClientesPage() {
                     <TableRow>
                       <TableHead>Nome</TableHead>
                       <TableHead>Telefone</TableHead>
+                      <TableHead>Plano</TableHead>
                       <TableHead>Observação</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
