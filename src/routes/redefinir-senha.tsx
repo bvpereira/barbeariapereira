@@ -151,20 +151,26 @@ function RedefinirSenha() {
           description: "Sua senha foi redefinida com sucesso. Faça login agora.",
         });
 
-        // Buscar slug da barbearia do usuário para redirecionar ao login do tenant
+        // Buscar slug da barbearia do usuário (validar existência + ativa + não deletada)
         let tenantSlug: string | null = null;
         if (usuario.barbearia_id) {
           const { data: barbearia } = await supabase
             .from("barbearias")
-            .select("slug")
+            .select("slug, ativa, deleted_at")
             .eq("id", usuario.barbearia_id)
+            .is("deleted_at", null)
             .maybeSingle();
-          tenantSlug = barbearia?.slug ?? null;
+          if (barbearia && barbearia.ativa !== false && barbearia.slug) {
+            tenantSlug = barbearia.slug;
+          }
         }
 
         if (tenantSlug) {
           window.location.href = `/login?tenant=${encodeURIComponent(tenantSlug)}`;
         } else {
+          toast.warning("Barbearia não encontrada", {
+            description: "Redirecionando para o login padrão.",
+          });
           navigate({ to: "/login" });
         }
       }
