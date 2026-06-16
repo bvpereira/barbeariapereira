@@ -304,7 +304,6 @@ function ServicesPage() {
                       step="0.01" 
                       value={price} 
                       onChange={(e) => setPrice(e.target.value)} 
-                      placeholder="0.00" 
                       required 
                     />
                   </div>
@@ -315,7 +314,6 @@ function ServicesPage() {
                       type="number" 
                       value={duration} 
                       onChange={(e) => setDuration(e.target.value)} 
-                      placeholder="30" 
                       required 
                     />
                   </div>
@@ -392,7 +390,7 @@ function ServicesPage() {
             <p className="text-muted-foreground">Carregando serviços...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
             {services.map((service) => (
               <Card key={service.id} className="overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-colors">
                 <CardHeader className="p-0">
@@ -441,11 +439,11 @@ function ServicesPage() {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="flex-1 gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    className="flex-1 gap-2 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => handleDelete(service.id)}
                   >
                     <Trash2 className="w-4 h-4" />
-                    Remover
+                    Excluir
                   </Button>
                 </CardFooter>
               </Card>
