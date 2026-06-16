@@ -44,6 +44,7 @@ type BarbeariaData = {
   agenteId: string | null;
   instanciaEvo: string;
   instanciaApi: string;
+  instanciaPropria: "sim" | "nao";
   limiteImagens: number | null;
   clientes: number;
   colaboradoresUltimos30Dias: number;
