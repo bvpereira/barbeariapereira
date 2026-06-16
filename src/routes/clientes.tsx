@@ -89,7 +89,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, MessageCircle, Crown } from "lucide-react";
 import { ClienteClubeSection } from "@/components/ClienteClubeSection";
-import { listClubesPublicos } from "@/lib/clube.functions";
+import { listClubesPublicos, listClientesClubeAtivo } from "@/lib/clube.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/clientes")({
