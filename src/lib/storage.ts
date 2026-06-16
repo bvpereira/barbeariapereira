@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage, type CompressPreset } from "@/lib/image-compression";
 
 /**
  * Deleta um arquivo do storage a partir da sua URL pública.
@@ -6,8 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 export const deleteByPublicUrl = async (bucket: string, url: string | null) => {
   if (!url) return;
   try {
-    // Extrai o caminho do arquivo da URL pública do Supabase
-    // Formato esperado: .../storage/v1/object/public/bucket-name/path/to/file.ext
     const urlParts = url.split(`/public/${bucket}/`);
     if (urlParts.length > 1) {
       const filePath = urlParts[1];
@@ -21,24 +20,41 @@ export const deleteByPublicUrl = async (bucket: string, url: string | null) => {
   }
 };
 
+// Preset padrão por bucket quando o caller não especificar
+function presetForBucket(bucket: string, slot?: string): CompressPreset {
+  if (slot === "imagem_logo" || slot === "foto_perfil") return "logo";
+  if (bucket === "collaborator-images") return "avatar";
+  if (bucket === "service-images") return "gallery";
+  if (bucket === "informacoes_imagens") return "banner";
+  if (bucket === "promocoes" || bucket === "blog_midia") return "gallery";
+  return "default";
+}
+
 /**
  * Realiza o upload de uma imagem seguindo a nova estrutura de pastas.
  * {barbearia_id}/{parent_id}/{slot}-{uuid}.{ext}
+ * A imagem é comprimida automaticamente (WebP) antes do upload.
  */
 export const uploadImage = async (
   bucket: string,
   barbeariaId: string,
   parentId: string,
   slot: string,
-  file: File
+  file: File,
+  preset?: CompressPreset,
 ) => {
-  const fileExt = file.name.split(".").pop();
+  const finalFile = await compressImage(file, preset ?? presetForBucket(bucket, slot));
+
+  const fileExt = finalFile.name.split(".").pop();
   const uuid = Math.random().toString(36).substring(2, 10);
   const filePath = `${barbeariaId}/${parentId}/${slot}-${uuid}.${fileExt}`;
 
   const { error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(filePath, file);
+    .upload(filePath, finalFile, {
+      contentType: finalFile.type || undefined,
+      cacheControl: "31536000",
+    });
 
   if (uploadError) throw uploadError;
 
