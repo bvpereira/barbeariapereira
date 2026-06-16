@@ -445,10 +445,10 @@ function Login() {
           </Dialog>
 
           <button 
-            onClick={() => window.history.back()} 
+            onClick={() => navigate({ to: "/$slug", params: { slug: tenant?.slug || "" } })} 
             className="text-muted-foreground hover:text-primary transition-colors"
           >
-            Voltar para página anterior
+            Voltar para página inicial
           </button>
         </div>
       </div>
