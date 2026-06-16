@@ -1410,6 +1410,19 @@ export type Database = {
         }
         Returns: Json
       }
+      assinar_clube_admin: {
+        Args: {
+          p_admin_id: string
+          p_admin_password: string
+          p_barbearia_id: string
+          p_cliente_id: string
+          p_clube_id: string
+          p_data_fim: string
+          p_data_inicio: string
+          p_valor: number
+        }
+        Returns: undefined
+      }
       clone_barbearia: {
         Args: {
           p_admin_id: string
