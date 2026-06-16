@@ -108,7 +108,7 @@ export const migrateInformacoesBucketFn = createServerFn({ method: "POST" })
         for (const [k, v] of Object.entries(updates)) normalized[k] = v === "" ? null : v;
         const { error: updErr } = await supabaseAdmin
           .from("informacoes")
-          .update(normalized)
+          .update(normalized as any)
           .eq("id", informacoesId);
         if (updErr) report.errors.push(`update ${informacoesId}: ${updErr.message}`);
       }
