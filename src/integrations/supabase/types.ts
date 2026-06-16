@@ -977,6 +977,7 @@ export type Database = {
           msg_wpp_cliente_finalizado_07: string | null
           msg_wpp_cliente_lembrete_11: string | null
           msg_wpp_cliente_naocompareceu_08: string | null
+          msg_wpp_cliente_registro_50: string | null
           msg_wpp_colab_avisofinal_09: string | null
           msg_wpp_colab_eve_alterado_02: string | null
           msg_wpp_colab_eve_cancelado_03: string | null
@@ -994,6 +995,7 @@ export type Database = {
           msg_wpp_cliente_finalizado_07?: string | null
           msg_wpp_cliente_lembrete_11?: string | null
           msg_wpp_cliente_naocompareceu_08?: string | null
+          msg_wpp_cliente_registro_50?: string | null
           msg_wpp_colab_avisofinal_09?: string | null
           msg_wpp_colab_eve_alterado_02?: string | null
           msg_wpp_colab_eve_cancelado_03?: string | null
@@ -1011,6 +1013,7 @@ export type Database = {
           msg_wpp_cliente_finalizado_07?: string | null
           msg_wpp_cliente_lembrete_11?: string | null
           msg_wpp_cliente_naocompareceu_08?: string | null
+          msg_wpp_cliente_registro_50?: string | null
           msg_wpp_colab_avisofinal_09?: string | null
           msg_wpp_colab_eve_alterado_02?: string | null
           msg_wpp_colab_eve_cancelado_03?: string | null
