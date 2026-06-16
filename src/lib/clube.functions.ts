@@ -183,3 +183,24 @@ export const applyClubeToAppointment = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return row as { aplicado: boolean; desconto?: number; valor_original?: number; valor_final?: number; motivo?: string };
   });
+
+export const listClientesClubeAtivo = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({ barbearia_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { createClubeDbClient } = await import("@/lib/clube-db.server");
+    const db = createClubeDbClient();
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: rows, error } = await db
+      .from("clube_usuarios")
+      .select("usuario_id, clube_id, data_fim, status, clube_assinatura(nome)")
+      .eq("barbearia_id", data.barbearia_id)
+      .eq("status", "ativa")
+      .gte("data_fim", today);
+    if (error) throw new Error(error.message);
+    return (rows ?? []).map((r: any) => ({
+      usuario_id: r.usuario_id as string,
+      clube_id: r.clube_id as string,
+      data_fim: r.data_fim as string,
+      clube_nome: (r.clube_assinatura?.nome ?? null) as string | null,
+    }));
+  });
