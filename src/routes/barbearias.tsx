@@ -484,10 +484,14 @@ function BarbeariasPage() {
   return (
     <SuperAdminLayout>
       <div className="w-full max-w-7xl space-y-8">
-        <header>
-          <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
-          <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
+            <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+          </div>
+          <MigrarBucketButton />
         </header>
+
 
         {isLoading ? <p className="animate-pulse text-primary">Carregando barbearias...</p> : null}
         {error ? <p className="text-destructive">Não foi possível carregar as barbearias.</p> : null}
