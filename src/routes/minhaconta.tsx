@@ -267,18 +267,25 @@ function MinhaContaPage() {
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.8));
       if (!blob) throw new Error("Erro ao processar imagem");
 
-      // 2. Upload para Supabase Storage
-      const fileName = `${user.id}/${Date.now()}.jpg`;
-      const { data, error: uploadError } = await supabase.storage
+      // 2. Garantir registro de informacoes (necessário para a pasta)
+      const parentId = await ensureInfoId();
+      if (!parentId) throw new Error("Não foi possível criar registro de informações");
+
+      // 3. Upload para Supabase Storage organizado por barbearia
+      const uuid = Math.random().toString(36).substring(2, 10);
+      const fileName = `${user.barbearia_id}/${parentId}/imagem_${emptySlotIndex + 1}-${uuid}.jpg`;
+      const { error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
-        .upload(fileName, blob);
+        .upload(fileName, blob, { cacheControl: "31536000", contentType: "image/jpeg" });
 
       if (uploadError) throw uploadError;
 
-      // 3. Obter URL pública
+      // 4. Obter URL pública
       const { data: { publicUrl } } = supabase.storage
         .from("informacoes_imagens")
         .getPublicUrl(fileName);
+
+
 
       // 4. Atualizar estado e banco de dados
       const newImagens = [...imagens];
