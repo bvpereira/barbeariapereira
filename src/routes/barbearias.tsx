@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { updateBarbeariaSlugFn, setBarbeariaAtivaFn, hardDeleteBarbeariaFn } from "@/lib/barbearias-admin.functions";
+import { migrateInformacoesBucketFn } from "@/lib/migrate-informacoes-bucket.functions";
+
 
 const MODELO_BARBEARIA_ID = "01879baf-8f8b-4c3d-810f-7740b6432cd9";
 
@@ -441,7 +443,37 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   );
 }
 
+function MigrarBucketButton() {
+  const migrateFn = useServerFn(migrateInformacoesBucketFn);
+  const adminAuth = () => {
+    const session = JSON.parse(localStorage.getItem("superadmin_session") || "{}");
+    return { adminId: session.id, adminLogin: session.login, adminSenha: session.senha };
+  };
+  const mutation = useMutation({
+    mutationFn: async () => migrateFn({ data: adminAuth() }),
+    onSuccess: (r) => {
+      const rep = r as { moved: number; skipped: number; missing: number; errors: string[] };
+      toast.success(`Migração concluída: ${rep.moved} movidos, ${rep.skipped} já ok, ${rep.missing} ausentes${rep.errors.length ? `, ${rep.errors.length} erros` : ""}.`);
+      if (rep.errors.length) console.error("Erros de migração:", rep.errors);
+    },
+    onError: (e: Error) => toast.error(`Falha: ${e.message}`),
+  });
+  return (
+    <Button
+      variant="outline"
+      disabled={mutation.isPending}
+      onClick={() => {
+        if (!confirm("Confirma migrar arquivos legados do bucket informacoes_imagens para pastas por barbearia? A operação é segura (move interno, sem egress).")) return;
+        mutation.mutate();
+      }}
+    >
+      {mutation.isPending ? "Migrando..." : "Migrar bucket informacoes_imagens"}
+    </Button>
+  );
+}
+
 function BarbeariasPage() {
+
   const navigate = useNavigate();
   const [authorized, setAuthorized] = useState(false);
 
@@ -482,10 +514,14 @@ function BarbeariasPage() {
   return (
     <SuperAdminLayout>
       <div className="w-full max-w-7xl space-y-8">
-        <header>
-          <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
-          <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="font-josefin text-3xl font-bold uppercase tracking-widest text-primary md:text-5xl">Barbearias</h1>
+            <p className="mt-2 text-muted-foreground">Visualize dados, indicadores e configurações de todas as unidades.</p>
+          </div>
+          <MigrarBucketButton />
         </header>
+
 
         {isLoading ? <p className="animate-pulse text-primary">Carregando barbearias...</p> : null}
         {error ? <p className="text-destructive">Não foi possível carregar as barbearias.</p> : null}

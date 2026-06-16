@@ -212,7 +212,7 @@ function IAImagemPage() {
             if (error) console.error("Erro ao limpar imagem de referência:", error);
           });
         // Também remove o arquivo do storage
-        const filePath = `referencia/${tenantId}/imagem_referencia.jpg`;
+        const filePath = `${tenantId}/referencia/imagem_referencia.jpg`;
         supabase.storage.from("informacoes_imagens").remove([filePath]).then(({ error }) => {
           if (error) console.error("Erro ao remover arquivo de referência do storage:", error);
         });
@@ -522,7 +522,7 @@ function IAImagemPage() {
     setUploadingRef(true);
     try {
       // Nome único por barbearia
-      const fileName = `referencia/${tenant.id}/imagem_referencia.jpg`;
+      const fileName = `${tenant.id}/referencia/imagem_referencia.jpg`;
       
       // Upload para Supabase Storage
       const { error: uploadError } = await supabase.storage
@@ -600,13 +600,14 @@ function IAImagemPage() {
     setUploadingEdit(true);
     try {
       const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const filePath = `edicao/${tenant.id}/imagem-original.${extension}`;
+      const filePath = `${tenant.id}/edicao/imagem-original.${extension}`;
       const { data: previousFiles, error: listError } = await supabase.storage
         .from("informacoes_imagens")
-        .list(`edicao/${tenant.id}`);
+        .list(`${tenant.id}/edicao`);
       if (listError) throw listError;
 
-      const previousPaths = (previousFiles ?? []).map((storedFile) => `edicao/${tenant.id}/${storedFile.name}`);
+      const previousPaths = (previousFiles ?? []).map((storedFile) => `${tenant.id}/edicao/${storedFile.name}`);
+
       if (previousPaths.length > 0) {
         const { error: removeError } = await supabase.storage.from("informacoes_imagens").remove(previousPaths);
         if (removeError) throw removeError;

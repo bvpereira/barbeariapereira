@@ -229,7 +229,32 @@ function MinhaContaPage() {
     }
   };
 
+  // Garante que existe uma linha em `informacoes` para a barbearia atual
+  // e devolve o id — usado como pasta-pai dos uploads.
+  const ensureInfoId = async (): Promise<string | null> => {
+    if (infoId) return infoId;
+    if (!user) return null;
+    const { data: existing } = await (supabase
+      .from("informacoes" as any)
+      .select("id")
+      .eq("barbearia_id", user.barbearia_id)
+      .maybeSingle());
+    if (existing) {
+      setInfoId((existing as any).id);
+      return (existing as any).id;
+    }
+    const { data: created, error } = await (supabase
+      .from("informacoes") as any)
+      .insert({ barbearia_id: user.barbearia_id, usuario_id: user.id, user_id: user.id, userrr: "admin" } as any)
+      .select("id")
+      .single();
+    if (error || !created) return null;
+    setInfoId((created as any).id);
+    return (created as any).id;
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
@@ -267,18 +292,25 @@ function MinhaContaPage() {
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.8));
       if (!blob) throw new Error("Erro ao processar imagem");
 
-      // 2. Upload para Supabase Storage
-      const fileName = `${user.id}/${Date.now()}.jpg`;
-      const { data, error: uploadError } = await supabase.storage
+      // 2. Garantir registro de informacoes (necessário para a pasta)
+      const parentId = await ensureInfoId();
+      if (!parentId) throw new Error("Não foi possível criar registro de informações");
+
+      // 3. Upload para Supabase Storage organizado por barbearia
+      const uuid = Math.random().toString(36).substring(2, 10);
+      const fileName = `${user.barbearia_id}/${parentId}/imagem_${emptySlotIndex + 1}-${uuid}.jpg`;
+      const { error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
-        .upload(fileName, blob);
+        .upload(fileName, blob, { cacheControl: "31536000", contentType: "image/jpeg" });
 
       if (uploadError) throw uploadError;
 
-      // 3. Obter URL pública
+      // 4. Obter URL pública
       const { data: { publicUrl } } = supabase.storage
         .from("informacoes_imagens")
         .getPublicUrl(fileName);
+
+
 
       // 4. Atualizar estado e banco de dados
       const newImagens = [...imagens];
@@ -358,16 +390,21 @@ function MinhaContaPage() {
     setUploadingVideo(true);
 
     try {
+      // Garantir registro de informacoes (necessário para a pasta)
+      const parentId = await ensureInfoId();
+      if (!parentId) throw new Error("Não foi possível criar registro de informações");
+
       // Remove special characters and spaces from filename to avoid Supabase Storage errors
       const safeFileName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.]/g, "_");
-      const fileName = `${user.id}/video_${Date.now()}_${safeFileName}`;
+      const fileName = `${user.barbearia_id}/${parentId}/video_local-${Date.now()}_${safeFileName}`;
       
       // Se já houver um vídeo, vamos deletá-lo após o upload bem-sucedido
       const oldVideoUrl = videoUrl;
 
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
-        .upload(fileName, file);
+        .upload(fileName, file, { cacheControl: "31536000" });
+
 
       if (uploadError) throw uploadError;
 
@@ -443,14 +480,19 @@ function MinhaContaPage() {
     setUploadingLogo(true);
 
     try {
-      const fileName = `logos/${user.id}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const parentId = await ensureInfoId();
+      if (!parentId) throw new Error("Não foi possível criar registro de informações");
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+      const fileName = `${user.barbearia_id}/${parentId}/imagem_logo-${Date.now()}_${safeName}`;
       const oldLogoUrl = imagemLogo;
 
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
-        .upload(fileName, file);
+        .upload(fileName, file, { cacheControl: "31536000" });
 
       if (uploadError) throw uploadError;
+
 
       const { data: { publicUrl } } = supabase.storage
         .from("informacoes_imagens")
@@ -523,14 +565,19 @@ function MinhaContaPage() {
     setUploadingFotoPerfil(true);
 
     try {
-      const fileName = `foto_perfil/${user.id}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const parentId = await ensureInfoId();
+      if (!parentId) throw new Error("Não foi possível criar registro de informações");
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+      const fileName = `${user.barbearia_id}/${parentId}/foto_perfil-${Date.now()}_${safeName}`;
       const oldFotoUrl = fotoPerfil;
 
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
-        .upload(fileName, file);
+        .upload(fileName, file, { cacheControl: "31536000" });
 
       if (uploadError) throw uploadError;
+
 
       const { data: { publicUrl } } = supabase.storage
         .from("informacoes_imagens")
