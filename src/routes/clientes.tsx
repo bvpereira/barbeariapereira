@@ -89,7 +89,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, MessageCircle, Crown } from "lucide-react";
 import { ClienteClubeSection } from "@/components/ClienteClubeSection";
-import { listClubesPublicos } from "@/lib/clube.functions";
+import { listClubesPublicos, listClientesClubeAtivo } from "@/lib/clube.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/clientes")({
@@ -106,6 +106,7 @@ interface Cliente {
   hasAtendimentos?: boolean;
   clube_id?: string | null;
   clube_data_fim?: string | null;
+  clube_nome?: string | null;
 }
 
 interface Colaborador {
@@ -137,6 +138,7 @@ function ClientesPage() {
   const [totalAssinantes, setTotalAssinantes] = useState(0);
   const [clubesMap, setClubesMap] = useState<Record<string, string>>({});
   const listClubesPublicosFn = useServerFn(listClubesPublicos);
+  const listClientesClubeAtivoFn = useServerFn(listClientesClubeAtivo);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(20);
@@ -240,14 +242,11 @@ function ClientesPage() {
       setTotalClientes(count || 0);
     }
 
-    const today = format(new Date(), "yyyy-MM-dd");
-    const { data: assinantesRows } = await supabase
-      .from("clube_usuarios")
-      .select("usuario_id")
-      .eq("barbearia_id", tenant.id)
-      .gte("data_fim", today);
-    const uniqueAssinantes = new Set((assinantesRows || []).map((r: any) => r.usuario_id));
-    setTotalAssinantes(uniqueAssinantes.size);
+    try {
+      const ativos = await listClientesClubeAtivoFn({ data: { barbearia_id: tenant.id } });
+      const uniqueAssinantes = new Set(ativos.map((r) => r.usuario_id));
+      setTotalAssinantes(uniqueAssinantes.size);
+    } catch (e) { console.error(e); setTotalAssinantes(0); }
 
 
     try {
@@ -289,26 +288,25 @@ function ClientesPage() {
     } else {
       const ids = (finalData || []).map((c: any) => c.id);
       const today = format(new Date(), "yyyy-MM-dd");
-      let subsMap: Record<string, { clube_id: string; data_fim: string }> = {};
+      let subsMap: Record<string, { clube_id: string; data_fim: string; clube_nome: string | null }> = {};
       if (ids.length > 0) {
-        const { data: subs } = await supabase
-          .from("clube_usuarios")
-          .select("usuario_id, clube_id, data_fim")
-          .eq("barbearia_id", tenant.id)
-          .in("usuario_id", ids)
-          .gte("data_fim", today);
-        (subs || []).forEach((s: any) => {
-          const cur = subsMap[s.usuario_id];
-          if (!cur || s.data_fim > cur.data_fim) {
-            subsMap[s.usuario_id] = { clube_id: s.clube_id, data_fim: s.data_fim };
-          }
-        });
+        try {
+          const subs = await listClientesClubeAtivoFn({ data: { barbearia_id: tenant.id } });
+          subs.forEach((s) => {
+            if (!ids.includes(s.usuario_id)) return;
+            const cur = subsMap[s.usuario_id];
+            if (!cur || s.data_fim > cur.data_fim) {
+              subsMap[s.usuario_id] = { clube_id: s.clube_id, data_fim: s.data_fim, clube_nome: s.clube_nome };
+            }
+          });
+        } catch (e) { console.error(e); }
       }
       const clientesComFlag = (finalData || []).map((cliente: any) => ({
         ...cliente,
         hasAtendimentos: cliente.atendimentos && cliente.atendimentos.length > 0,
         clube_id: subsMap[cliente.id]?.clube_id ?? null,
         clube_data_fim: subsMap[cliente.id]?.data_fim ?? null,
+        clube_nome: subsMap[cliente.id]?.clube_nome ?? null,
       }));
       setClientes(clientesComFlag);
       setHasMore((filteredCount || 0) > limit);
@@ -820,7 +818,7 @@ function ClientesPage() {
                           <TableCell>{formatPhone(cliente.login)}</TableCell>
                           <TableCell>
                             {cliente.clube_id && cliente.clube_data_fim && cliente.clube_data_fim >= format(new Date(), "yyyy-MM-dd") ? (
-                              <Badge className="gap-1"><Crown className="w-3 h-3" />{clubesMap[cliente.clube_id] ?? "Plano ativo"}</Badge>
+                              <Badge className="gap-1"><Crown className="w-3 h-3" />{cliente.clube_nome ?? clubesMap[cliente.clube_id] ?? "Plano ativo"}</Badge>
                             ) : (
                               <span className="text-xs text-muted-foreground/40">—</span>
                             )}
