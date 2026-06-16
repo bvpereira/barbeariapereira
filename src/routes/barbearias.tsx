@@ -27,6 +27,7 @@ type EditableValues = {
   instanciaEvo: string;
   instanciaApi: string;
   limiteImagens: string;
+  instanciaPropria: "sim" | "nao";
 };
 
 type BarbeariaData = {
