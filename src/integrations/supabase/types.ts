@@ -1471,6 +1471,15 @@ export type Database = {
           titulo: string
         }[]
       }
+      list_clientes_clube_ativo: {
+        Args: { p_barbearia_id: string }
+        Returns: {
+          clube_id: string
+          clube_nome: string
+          data_fim: string
+          usuario_id: string
+        }[]
+      }
       list_clube_expirando: {
         Args: {
           p_admin_id: string
