@@ -304,7 +304,6 @@ function ServicesPage() {
                       step="0.01" 
                       value={price} 
                       onChange={(e) => setPrice(e.target.value)} 
-                      placeholder="0.00" 
                       required 
                     />
                   </div>
@@ -315,7 +314,6 @@ function ServicesPage() {
                       type="number" 
                       value={duration} 
                       onChange={(e) => setDuration(e.target.value)} 
-                      placeholder="30" 
                       required 
                     />
                   </div>
