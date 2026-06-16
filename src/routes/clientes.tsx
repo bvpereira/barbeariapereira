@@ -818,7 +818,7 @@ function ClientesPage() {
                           <TableCell>{formatPhone(cliente.login)}</TableCell>
                           <TableCell>
                             {cliente.clube_id && cliente.clube_data_fim && cliente.clube_data_fim >= format(new Date(), "yyyy-MM-dd") ? (
-                              <Badge className="gap-1"><Crown className="w-3 h-3" />{clubesMap[cliente.clube_id] ?? "Plano ativo"}</Badge>
+                              <Badge className="gap-1"><Crown className="w-3 h-3" />{cliente.clube_nome ?? clubesMap[cliente.clube_id] ?? "Plano ativo"}</Badge>
                             ) : (
                               <span className="text-xs text-muted-foreground/40">—</span>
                             )}
