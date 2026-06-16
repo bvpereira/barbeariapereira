@@ -27,6 +27,7 @@ type EditableValues = {
   instanciaEvo: string;
   instanciaApi: string;
   limiteImagens: string;
+  instanciaPropria: "sim" | "nao";
 };
 
 type BarbeariaData = {
@@ -43,6 +44,7 @@ type BarbeariaData = {
   agenteId: string | null;
   instanciaEvo: string;
   instanciaApi: string;
+  instanciaPropria: "sim" | "nao";
   limiteImagens: number | null;
   clientes: number;
   colaboradoresUltimos30Dias: number;
@@ -113,7 +115,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult] = await Promise.all([
-        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api").eq("barbearia_id", barbearia.id).maybeSingle(),
+        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
         supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).eq("nivel", 3),
@@ -140,6 +142,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         agenteId: agenteResult.data?.id ?? null,
         instanciaEvo: infoResult.data?.instancia_evo || "",
         instanciaApi: infoResult.data?.instancia_api || "",
+        instanciaPropria: (infoResult.data?.instancia_propria === "sim" ? "sim" : "nao"),
         limiteImagens: agenteResult.data?.num_limite_imagens ?? null,
         clientes: clientesResult.count ?? 0,
         colaboradoresUltimos30Dias: recentesResult.count ?? 0,
@@ -158,6 +161,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     instanciaEvo: barbearia.instanciaEvo,
     instanciaApi: barbearia.instanciaApi,
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
+    instanciaPropria: barbearia.instanciaPropria,
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
@@ -177,7 +181,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (!Number.isInteger(limite) || limite < 0) throw new Error("Informe um limite mensal válido.");
 
       const [infoResult, agenteResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim() }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
       ]);
       if (infoResult.error) throw infoResult.error;
@@ -338,6 +342,31 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
               <Input id={`limite-${barbearia.id}`} type="number" min="0" step="1" value={values.limiteImagens} onChange={(event) => setValues((current) => ({ ...current, limiteImagens: event.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Instância própria?</Label>
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-propria-${barbearia.id}`}
+                    checked={values.instanciaPropria === "sim"}
+                    onChange={() => setValues((current) => ({ ...current, instanciaPropria: "sim" }))}
+                    className="accent-primary"
+                  />
+                  Sim
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-propria-${barbearia.id}`}
+                    checked={values.instanciaPropria === "nao"}
+                    onChange={() => setValues((current) => ({ ...current, instanciaPropria: "nao" }))}
+                    className="accent-primary"
+                  />
+                  Não
+                </label>
+              </div>
             </div>
           </div>
           <div className="flex justify-end">
