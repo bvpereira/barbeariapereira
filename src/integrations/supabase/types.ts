@@ -849,6 +849,7 @@ export type Database = {
           instancia_evo: string | null
           instancia_propria: string | null
           nome_barbearia: string | null
+          site: string | null
           tel_contato: string | null
           tempo_excluir: number | null
           tempo_marcar: number | null
@@ -880,6 +881,7 @@ export type Database = {
           instancia_evo?: string | null
           instancia_propria?: string | null
           nome_barbearia?: string | null
+          site?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null
           tempo_marcar?: number | null
@@ -911,6 +913,7 @@ export type Database = {
           instancia_evo?: string | null
           instancia_propria?: string | null
           nome_barbearia?: string | null
+          site?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null
           tempo_marcar?: number | null
