@@ -389,7 +389,7 @@ function BlogPage() {
             <div className="flex flex-col md:flex-row">
               {post.imagem_url && (
                 <div className="w-full md:w-1/3 h-64 md:h-auto overflow-hidden relative">
-                  <img src={post.imagem_url} alt={post.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={post.imagem_url} alt={post.titulo} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
               )}
               <div className="flex-1 p-6 space-y-4">

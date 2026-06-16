@@ -641,7 +641,7 @@ function CollaboratorsPage() {
                 <CardHeader className="flex flex-row items-center gap-3 p-3 md:gap-4 md:p-4">
                   <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden bg-muted flex-shrink-0">
                     {colab.foto_url ? (
-                      <img src={colab.foto_url} alt={colab.nome} className="w-full h-full object-cover" />
+                      <img src={colab.foto_url} alt={colab.nome} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
                         <User className="w-6 h-6 md:w-8 md:h-8" />
