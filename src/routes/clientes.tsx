@@ -271,8 +271,6 @@ function ClientesPage() {
         senha, 
         observacao,
         registro,
-        clube_id,
-        clube_data_fim,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
       .eq("barbearia_id", tenant.id)
@@ -289,15 +287,35 @@ function ClientesPage() {
       toast.error("Erro ao carregar clientes");
       console.error(finalError);
     } else {
+      const ids = (finalData || []).map((c: any) => c.id);
+      const today = format(new Date(), "yyyy-MM-dd");
+      let subsMap: Record<string, { clube_id: string; data_fim: string }> = {};
+      if (ids.length > 0) {
+        const { data: subs } = await supabase
+          .from("clube_usuarios")
+          .select("usuario_id, clube_id, data_fim")
+          .eq("barbearia_id", tenant.id)
+          .in("usuario_id", ids)
+          .gte("data_fim", today);
+        (subs || []).forEach((s: any) => {
+          const cur = subsMap[s.usuario_id];
+          if (!cur || s.data_fim > cur.data_fim) {
+            subsMap[s.usuario_id] = { clube_id: s.clube_id, data_fim: s.data_fim };
+          }
+        });
+      }
       const clientesComFlag = (finalData || []).map((cliente: any) => ({
         ...cliente,
-        hasAtendimentos: cliente.atendimentos && cliente.atendimentos.length > 0
+        hasAtendimentos: cliente.atendimentos && cliente.atendimentos.length > 0,
+        clube_id: subsMap[cliente.id]?.clube_id ?? null,
+        clube_data_fim: subsMap[cliente.id]?.data_fim ?? null,
       }));
       setClientes(clientesComFlag);
       setHasMore((filteredCount || 0) > limit);
     }
     setLoading(false);
   };
+
 
   const fetchHistorico = async (cliente: Cliente) => {
     setSelectedCliente(cliente);
