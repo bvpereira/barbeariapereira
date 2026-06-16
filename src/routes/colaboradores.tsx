@@ -696,8 +696,8 @@ function CollaboratorsPage() {
                   <Button variant="outline" size="sm" className="flex-1 gap-1 h-8 md:h-9" onClick={() => handleEdit(colab)}>
                     <Pencil className="w-3 h-3" /> Editar
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1 gap-1 h-8 md:h-9 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(colab)}>
-                    <Trash2 className="w-3 h-3" /> Remover
+                  <Button variant="ghost" size="sm" className="flex-1 gap-1 h-8 md:h-9 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(colab)}>
+                    <Trash2 className="w-3 h-3" /> Excluir
                   </Button>
                 </CardFooter>
               </Card>
