@@ -1324,11 +1324,6 @@ export type Database = {
       usuarios: {
         Row: {
           barbearia_id: string | null
-          clube_data_fim: string | null
-          clube_data_inicio: string | null
-          clube_historico: Json
-          clube_id: string | null
-          clube_valor_pago: number | null
           created_at: string
           id: string
           login: string
@@ -1343,11 +1338,6 @@ export type Database = {
         }
         Insert: {
           barbearia_id?: string | null
-          clube_data_fim?: string | null
-          clube_data_inicio?: string | null
-          clube_historico?: Json
-          clube_id?: string | null
-          clube_valor_pago?: number | null
           created_at?: string
           id?: string
           login: string
@@ -1362,11 +1352,6 @@ export type Database = {
         }
         Update: {
           barbearia_id?: string | null
-          clube_data_fim?: string | null
-          clube_data_inicio?: string | null
-          clube_historico?: Json
-          clube_id?: string | null
-          clube_valor_pago?: number | null
           created_at?: string
           id?: string
           login?: string
@@ -1385,13 +1370,6 @@ export type Database = {
             columns: ["barbearia_id"]
             isOneToOne: false
             referencedRelation: "barbearias"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "usuarios_clube_id_fkey"
-            columns: ["clube_id"]
-            isOneToOne: false
-            referencedRelation: "clube_assinatura"
             referencedColumns: ["id"]
           },
         ]
