@@ -241,14 +241,14 @@ function ClientesPage() {
     }
 
     const today = format(new Date(), "yyyy-MM-dd");
-    const { count: assinantesCount } = await supabase
-      .from("usuarios")
-      .select("*", { count: "exact", head: true })
+    const { data: assinantesRows } = await supabase
+      .from("clube_usuarios")
+      .select("usuario_id")
       .eq("barbearia_id", tenant.id)
-      .eq("nivel", 3)
-      .not("clube_id", "is", null)
-      .gte("clube_data_fim", today);
-    setTotalAssinantes(assinantesCount || 0);
+      .gte("data_fim", today);
+    const uniqueAssinantes = new Set((assinantesRows || []).map((r: any) => r.usuario_id));
+    setTotalAssinantes(uniqueAssinantes.size);
+
 
     try {
       const list = await listClubesPublicosFn({ data: { barbearia_id: tenant.id } });
