@@ -565,14 +565,19 @@ function MinhaContaPage() {
     setUploadingFotoPerfil(true);
 
     try {
-      const fileName = `foto_perfil/${user.id}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+      const parentId = await ensureInfoId();
+      if (!parentId) throw new Error("Não foi possível criar registro de informações");
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "_");
+      const fileName = `${user.barbearia_id}/${parentId}/foto_perfil-${Date.now()}_${safeName}`;
       const oldFotoUrl = fotoPerfil;
 
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
-        .upload(fileName, file);
+        .upload(fileName, file, { cacheControl: "31536000" });
 
       if (uploadError) throw uploadError;
+
 
       const { data: { publicUrl } } = supabase.storage
         .from("informacoes_imagens")
