@@ -287,26 +287,25 @@ function ClientesPage() {
     } else {
       const ids = (finalData || []).map((c: any) => c.id);
       const today = format(new Date(), "yyyy-MM-dd");
-      let subsMap: Record<string, { clube_id: string; data_fim: string }> = {};
+      let subsMap: Record<string, { clube_id: string; data_fim: string; clube_nome: string | null }> = {};
       if (ids.length > 0) {
-        const { data: subs } = await supabase
-          .from("clube_usuarios")
-          .select("usuario_id, clube_id, data_fim")
-          .eq("barbearia_id", tenant.id)
-          .in("usuario_id", ids)
-          .gte("data_fim", today);
-        (subs || []).forEach((s: any) => {
-          const cur = subsMap[s.usuario_id];
-          if (!cur || s.data_fim > cur.data_fim) {
-            subsMap[s.usuario_id] = { clube_id: s.clube_id, data_fim: s.data_fim };
-          }
-        });
+        try {
+          const subs = await listClientesClubeAtivoFn({ data: { barbearia_id: tenant.id } });
+          subs.forEach((s) => {
+            if (!ids.includes(s.usuario_id)) return;
+            const cur = subsMap[s.usuario_id];
+            if (!cur || s.data_fim > cur.data_fim) {
+              subsMap[s.usuario_id] = { clube_id: s.clube_id, data_fim: s.data_fim, clube_nome: s.clube_nome };
+            }
+          });
+        } catch (e) { console.error(e); }
       }
       const clientesComFlag = (finalData || []).map((cliente: any) => ({
         ...cliente,
         hasAtendimentos: cliente.atendimentos && cliente.atendimentos.length > 0,
         clube_id: subsMap[cliente.id]?.clube_id ?? null,
         clube_data_fim: subsMap[cliente.id]?.data_fim ?? null,
+        clube_nome: subsMap[cliente.id]?.clube_nome ?? null,
       }));
       setClientes(clientesComFlag);
       setHasMore((filteredCount || 0) > limit);
