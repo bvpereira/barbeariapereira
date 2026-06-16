@@ -183,7 +183,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (!Number.isInteger(limite) || limite < 0) throw new Error("Informe um limite mensal válido.");
 
       const [infoResult, agenteResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
       ]);
       if (infoResult.error) throw infoResult.error;
