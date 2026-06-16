@@ -189,31 +189,16 @@ export const listClientesClubeAtivo = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { createClubeDbClient } = await import("@/lib/clube-db.server");
     const db = createClubeDbClient();
-    const today = new Date().toISOString().slice(0, 10);
-    const { data: rows, error } = await db
-      .from("clube_usuarios")
-      .select("usuario_id, clube_id, data_fim, status")
-      .eq("barbearia_id", data.barbearia_id)
-      .eq("status", "ativa")
-      .gte("data_fim", today);
+    const { data: rows, error } = await db.rpc("list_clientes_clube_ativo", {
+      p_barbearia_id: data.barbearia_id,
+    } as never);
     if (error) throw new Error(error.message);
-    const clubeIds = Array.from(new Set((rows ?? []).map((r: any) => r.clube_id)));
-    const nameMap: Record<string, string> = {};
-    if (clubeIds.length > 0) {
-      const { data: clubes, error: cErr } = await db
-        .from("clube_assinatura")
-        .select("id, nome")
-        .in("id", clubeIds);
-      if (cErr) throw new Error(cErr.message);
-      for (const c of (clubes ?? []) as Array<{ id: string; nome: string }>) {
-        nameMap[c.id] = c.nome;
-      }
-    }
-    return (rows ?? []).map((r: any) => ({
-      usuario_id: r.usuario_id as string,
-      clube_id: r.clube_id as string,
-      data_fim: r.data_fim as string,
-      clube_nome: nameMap[r.clube_id] ?? null,
+    return ((rows ?? []) as Array<{ usuario_id: string; clube_id: string; data_fim: string; clube_nome: string | null }>).map((r) => ({
+      usuario_id: r.usuario_id,
+      clube_id: r.clube_id,
+      data_fim: r.data_fim,
+      clube_nome: r.clube_nome ?? null,
     }));
   });
+
 
