@@ -208,7 +208,11 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     mutationFn: async () => {
       const next = slugDraft.trim().toLowerCase();
       if (next === barbearia.slug) throw new Error("Informe um slug diferente do atual.");
-      return updateSlugFn({ data: { ...adminAuth(), id: barbearia.id, newSlug: next } });
+      const result = await updateSlugFn({ data: { ...adminAuth(), id: barbearia.id, newSlug: next } });
+      if (barbearia.informacoesId) {
+        await supabase.from("informacoes").update({ site: `${SITE_ORIGIN}/${next}` }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id);
+      }
+      return result;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
