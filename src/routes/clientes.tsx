@@ -106,6 +106,7 @@ interface Cliente {
   hasAtendimentos?: boolean;
   clube_id?: string | null;
   clube_data_fim?: string | null;
+  clube_nome?: string | null;
 }
 
 interface Colaborador {
