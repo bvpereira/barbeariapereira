@@ -443,7 +443,37 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   );
 }
 
+function MigrarBucketButton() {
+  const migrateFn = useServerFn(migrateInformacoesBucketFn);
+  const adminAuth = () => {
+    const session = JSON.parse(localStorage.getItem("superadmin_session") || "{}");
+    return { adminId: session.id, adminLogin: session.login, adminSenha: session.senha };
+  };
+  const mutation = useMutation({
+    mutationFn: async () => migrateFn({ data: adminAuth() }),
+    onSuccess: (r) => {
+      const rep = r as { moved: number; skipped: number; missing: number; errors: string[] };
+      toast.success(`Migração concluída: ${rep.moved} movidos, ${rep.skipped} já ok, ${rep.missing} ausentes${rep.errors.length ? `, ${rep.errors.length} erros` : ""}.`);
+      if (rep.errors.length) console.error("Erros de migração:", rep.errors);
+    },
+    onError: (e: Error) => toast.error(`Falha: ${e.message}`),
+  });
+  return (
+    <Button
+      variant="outline"
+      disabled={mutation.isPending}
+      onClick={() => {
+        if (!confirm("Confirma migrar arquivos legados do bucket informacoes_imagens para pastas por barbearia? A operação é segura (move interno, sem egress).")) return;
+        mutation.mutate();
+      }}
+    >
+      {mutation.isPending ? "Migrando..." : "Migrar bucket informacoes_imagens"}
+    </Button>
+  );
+}
+
 function BarbeariasPage() {
+
   const navigate = useNavigate();
   const [authorized, setAuthorized] = useState(false);
 
