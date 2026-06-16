@@ -161,6 +161,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     instanciaEvo: barbearia.instanciaEvo,
     instanciaApi: barbearia.instanciaApi,
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
+    instanciaPropria: barbearia.instanciaPropria,
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
