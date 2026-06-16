@@ -980,6 +980,7 @@ export type Database = {
           msg_wpp_cliente_finalizado_07: string | null
           msg_wpp_cliente_lembrete_11: string | null
           msg_wpp_cliente_naocompareceu_08: string | null
+          msg_wpp_cliente_redefinirsenha_12: string | null
           msg_wpp_cliente_registro_50: string | null
           msg_wpp_cliente_variada_51: string | null
           msg_wpp_colab_avisofinal_09: string | null
@@ -999,6 +1000,7 @@ export type Database = {
           msg_wpp_cliente_finalizado_07?: string | null
           msg_wpp_cliente_lembrete_11?: string | null
           msg_wpp_cliente_naocompareceu_08?: string | null
+          msg_wpp_cliente_redefinirsenha_12?: string | null
           msg_wpp_cliente_registro_50?: string | null
           msg_wpp_cliente_variada_51?: string | null
           msg_wpp_colab_avisofinal_09?: string | null
@@ -1018,6 +1020,7 @@ export type Database = {
           msg_wpp_cliente_finalizado_07?: string | null
           msg_wpp_cliente_lembrete_11?: string | null
           msg_wpp_cliente_naocompareceu_08?: string | null
+          msg_wpp_cliente_redefinirsenha_12?: string | null
           msg_wpp_cliente_registro_50?: string | null
           msg_wpp_cliente_variada_51?: string | null
           msg_wpp_colab_avisofinal_09?: string | null
