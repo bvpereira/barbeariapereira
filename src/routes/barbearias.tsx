@@ -343,6 +343,31 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
               <Input id={`limite-${barbearia.id}`} type="number" min="0" step="1" value={values.limiteImagens} onChange={(event) => setValues((current) => ({ ...current, limiteImagens: event.target.value }))} />
             </div>
+            <div className="space-y-2">
+              <Label>Instância própria?</Label>
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-propria-${barbearia.id}`}
+                    checked={values.instanciaPropria === "sim"}
+                    onChange={() => setValues((current) => ({ ...current, instanciaPropria: "sim" }))}
+                    className="accent-primary"
+                  />
+                  Sim
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-propria-${barbearia.id}`}
+                    checked={values.instanciaPropria === "nao"}
+                    onChange={() => setValues((current) => ({ ...current, instanciaPropria: "nao" }))}
+                    className="accent-primary"
+                  />
+                  Não
+                </label>
+              </div>
+            </div>
           </div>
           <div className="flex justify-end">
             <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
