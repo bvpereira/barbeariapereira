@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { updateBarbeariaSlugFn, setBarbeariaAtivaFn, hardDeleteBarbeariaFn } from "@/lib/barbearias-admin.functions";
-import { migrateInformacoesBucketFn } from "@/lib/migrate-informacoes-bucket.functions";
+
 
 
 const MODELO_BARBEARIA_ID = "01879baf-8f8b-4c3d-810f-7740b6432cd9";
