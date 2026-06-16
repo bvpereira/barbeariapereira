@@ -121,7 +121,7 @@ function RedefinirSenha() {
       // 1. Verificar se o token é válido e encontrar o usuário
       const { data: usuario, error: fetchError } = await supabase
         .from("usuarios")
-        .select("id, login")
+        .select("id, login, barbearia_id")
         .eq("recovery_token", token)
         .maybeSingle();
 
@@ -150,7 +150,23 @@ function RedefinirSenha() {
         toast.success("Sucesso!", {
           description: "Sua senha foi redefinida com sucesso. Faça login agora.",
         });
-        navigate({ to: "/login" });
+
+        // Buscar slug da barbearia do usuário para redirecionar ao login do tenant
+        let tenantSlug: string | null = null;
+        if (usuario.barbearia_id) {
+          const { data: barbearia } = await supabase
+            .from("barbearias")
+            .select("slug")
+            .eq("id", usuario.barbearia_id)
+            .maybeSingle();
+          tenantSlug = barbearia?.slug ?? null;
+        }
+
+        if (tenantSlug) {
+          window.location.href = `/login?tenant=${encodeURIComponent(tenantSlug)}`;
+        } else {
+          navigate({ to: "/login" });
+        }
       }
     } catch (err) {
       console.error(err);
