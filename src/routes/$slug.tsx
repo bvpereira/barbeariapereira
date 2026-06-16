@@ -311,6 +311,8 @@ function SobreNos({ tenantId, tenantName }: { tenantId?: string; tenantName?: st
                     <img 
                       src={src} 
                       alt={`Galeria ${index + 1}`} 
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" 
                     />
                   </motion.div>
@@ -488,7 +490,7 @@ function Servicos({ tenantId }: { tenantId?: string }) {
               className="group bg-card p-6 rounded-3xl border border-primary/10 hover:border-primary/40 transition-all hover:-translate-y-2 flex flex-col items-center text-center"
             >
               <div className="relative w-full aspect-[4/5] mb-6 overflow-hidden rounded-2xl">
-                <img src={s.img} alt={s.nome} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                <img src={s.img} alt={s.nome} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
               </div>
               <h3 className="text-xl font-bold mb-3">{s.nome}</h3>
               <p className="text-muted-foreground text-sm">{s.desc}</p>
@@ -574,7 +576,7 @@ function Colaboradores({ tenantId }: { tenantId?: string }) {
               <div className="relative w-48 h-48 mb-8">
                 <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary animate-[spin_20s_linear_infinite]" />
                 <div className="absolute inset-2 rounded-full overflow-hidden border-4 border-card shadow-xl">
-                  <img src={c.img} alt={c.nome} className="w-full h-full object-cover" />
+                  <img src={c.img} alt={c.nome} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-4 text-primary">{c.nome}</h3>
@@ -717,7 +719,7 @@ function Footer({ tenantName, slug, logoUrl }: { tenantName?: string; slug: stri
     <footer className="px-4 border-t border-primary/10 bg-black py-[45px]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
         <div className="space-y-4">
-          <img src={logoUrl} alt="Logo" className="w-32 opacity-80 text-left" />
+          <img src={logoUrl} alt="Logo" loading="lazy" decoding="async" className="w-32 opacity-80 text-left" />
           <p className="text-muted-foreground text-sm uppercase tracking-tighter">{tenantName || 'Barbearia'}</p>
           <div className="text-xs text-muted-foreground/60 space-y-1">
             <p>CNPJ: 19.411.344/0001-11</p>

@@ -52,7 +52,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             if (parsedUser.barbearia_id) {
               const { data: barbearia } = await supabase
                 .from("barbearias")
-                .select("*")
+                .select("id,nome,slug,config,ativa,deleted_at")
                 .eq("id", parsedUser.barbearia_id)
                 .maybeSingle();
               if (barbearia) {
@@ -72,7 +72,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       const { data } = await supabase
         .from("barbearias")
-        .select("*")
+        .select("id,nome,slug,config,ativa,deleted_at")
         .eq("slug", targetSlug)
         .is("deleted_at", null)
         .maybeSingle();
@@ -85,7 +85,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       } else if (targetSlug !== "barb0") {
          const { data: defaultData } = await supabase
           .from("barbearias")
-          .select("*")
+          .select("id,nome,slug,config,ativa,deleted_at")
           .eq("slug", "barb0")
           .is("deleted_at", null)
           .maybeSingle();
