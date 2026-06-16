@@ -163,7 +163,7 @@ function RedefinirSenha() {
         }
 
         if (tenantSlug) {
-          window.location.href = `/${tenantSlug}/login`;
+          window.location.href = `/login?tenant=${encodeURIComponent(tenantSlug)}`;
         } else {
           navigate({ to: "/login" });
         }
