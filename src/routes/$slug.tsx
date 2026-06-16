@@ -51,7 +51,8 @@ export const Route = createFileRoute("/$slug")({
 function BarbeariaLanding() {
   const { slug } = useParams({ from: "/$slug" });
   const { tenant, loading: tenantLoading, refreshTenant } = useTenant();
-  const [logoUrl, setLogoUrl] = useState<string>("/logo.png");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoLoading, setLogoLoading] = useState(true);
 
   useEffect(() => {
     if (slug && (!tenant || tenant.slug !== slug)) {
@@ -61,17 +62,20 @@ function BarbeariaLanding() {
 
   useEffect(() => {
     if (!tenant) return;
+    let cancelled = false;
+    setLogoLoading(true);
     const fetchLogo = async () => {
       const { data } = await supabase
         .from("informacoes" as any)
         .select("imagem_logo")
         .eq("barbearia_id", tenant.id)
         .maybeSingle();
-      if (data && (data as any).imagem_logo) {
-        setLogoUrl((data as any).imagem_logo);
-      }
+      if (cancelled) return;
+      setLogoUrl((data as any)?.imagem_logo || "/logo.png");
+      setLogoLoading(false);
     };
     fetchLogo();
+    return () => { cancelled = true; };
   }, [tenant]);
   const navigate = useNavigate();
 
@@ -117,7 +121,7 @@ function BarbeariaLanding() {
 
 
 
-  if (tenantLoading || (slug && (!tenant || tenant.slug !== slug))) {
+  if (tenantLoading || logoLoading || !logoUrl || (slug && (!tenant || tenant.slug !== slug))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <div className="animate-pulse text-primary font-josefin">Carregando barbearia...</div>
