@@ -241,14 +241,11 @@ function ClientesPage() {
       setTotalClientes(count || 0);
     }
 
-    const today = format(new Date(), "yyyy-MM-dd");
-    const { data: assinantesRows } = await supabase
-      .from("clube_usuarios")
-      .select("usuario_id")
-      .eq("barbearia_id", tenant.id)
-      .gte("data_fim", today);
-    const uniqueAssinantes = new Set((assinantesRows || []).map((r: any) => r.usuario_id));
-    setTotalAssinantes(uniqueAssinantes.size);
+    try {
+      const ativos = await listClientesClubeAtivoFn({ data: { barbearia_id: tenant.id } });
+      const uniqueAssinantes = new Set(ativos.map((r) => r.usuario_id));
+      setTotalAssinantes(uniqueAssinantes.size);
+    } catch (e) { console.error(e); setTotalAssinantes(0); }
 
 
     try {
