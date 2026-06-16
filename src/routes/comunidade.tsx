@@ -393,7 +393,7 @@ function ComunidadePage() {
                     <CheckCircle className="h-3 w-3" /> Aprovado
                   </Badge>
                 )}
-                {(user?.nivel === 0 || (post.autor_id === user?.id && post.status === 'pendente')) && (
+                {(user?.nivel === 0 || post.autor_id === user?.id) && (
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(post.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
