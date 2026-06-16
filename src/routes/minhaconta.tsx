@@ -390,16 +390,21 @@ function MinhaContaPage() {
     setUploadingVideo(true);
 
     try {
+      // Garantir registro de informacoes (necessário para a pasta)
+      const parentId = await ensureInfoId();
+      if (!parentId) throw new Error("Não foi possível criar registro de informações");
+
       // Remove special characters and spaces from filename to avoid Supabase Storage errors
       const safeFileName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.]/g, "_");
-      const fileName = `${user.id}/video_${Date.now()}_${safeFileName}`;
+      const fileName = `${user.barbearia_id}/${parentId}/video_local-${Date.now()}_${safeFileName}`;
       
       // Se já houver um vídeo, vamos deletá-lo após o upload bem-sucedido
       const oldVideoUrl = videoUrl;
 
       const { data, error: uploadError } = await supabase.storage
         .from("informacoes_imagens")
-        .upload(fileName, file);
+        .upload(fileName, file, { cacheControl: "31536000" });
+
 
       if (uploadError) throw uploadError;
 
