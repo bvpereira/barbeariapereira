@@ -454,6 +454,76 @@ export type Database = {
         }
         Relationships: []
       }
+      clube_usuarios: {
+        Row: {
+          barbearia_id: string
+          cancelada_em: string | null
+          clube_id: string
+          created_at: string
+          criada_por: string | null
+          data_fim: string
+          data_inicio: string
+          id: string
+          motivo_cancelamento: string | null
+          status: string
+          updated_at: string
+          usuario_id: string
+          valor_pago: number
+        }
+        Insert: {
+          barbearia_id: string
+          cancelada_em?: string | null
+          clube_id: string
+          created_at?: string
+          criada_por?: string | null
+          data_fim: string
+          data_inicio: string
+          id?: string
+          motivo_cancelamento?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id: string
+          valor_pago?: number
+        }
+        Update: {
+          barbearia_id?: string
+          cancelada_em?: string | null
+          clube_id?: string
+          created_at?: string
+          criada_por?: string | null
+          data_fim?: string
+          data_inicio?: string
+          id?: string
+          motivo_cancelamento?: string | null
+          status?: string
+          updated_at?: string
+          usuario_id?: string
+          valor_pago?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clube_usuarios_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: false
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clube_usuarios_clube_id_fkey"
+            columns: ["clube_id"]
+            isOneToOne: false
+            referencedRelation: "clube_assinatura"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clube_usuarios_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       colaborador_servicos: {
         Row: {
           barbearia_id: string
