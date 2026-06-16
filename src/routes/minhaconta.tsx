@@ -229,7 +229,32 @@ function MinhaContaPage() {
     }
   };
 
+  // Garante que existe uma linha em `informacoes` para a barbearia atual
+  // e devolve o id — usado como pasta-pai dos uploads.
+  const ensureInfoId = async (): Promise<string | null> => {
+    if (infoId) return infoId;
+    if (!user) return null;
+    const { data: existing } = await (supabase
+      .from("informacoes" as any)
+      .select("id")
+      .eq("barbearia_id", user.barbearia_id)
+      .maybeSingle());
+    if (existing) {
+      setInfoId((existing as any).id);
+      return (existing as any).id;
+    }
+    const { data: created, error } = await (supabase
+      .from("informacoes") as any)
+      .insert({ barbearia_id: user.barbearia_id, usuario_id: user.id, user_id: user.id, userrr: "admin" } as any)
+      .select("id")
+      .single();
+    if (error || !created) return null;
+    setInfoId((created as any).id);
+    return (created as any).id;
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
