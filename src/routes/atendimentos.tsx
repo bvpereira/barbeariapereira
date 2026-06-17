@@ -527,17 +527,20 @@ function AtendimentosPage() {
           })
         });
       } else {
-        triggerWebhook("Agendamento", {
-          tipo: "Agendamento",
-          barbearia_id: tenant.id,
-          cliente: selectedCliente.nome,
-          login_cliente: selectedCliente.login,
-          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
-          tel_colaborador: formattedTel,
-          data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
-          horario: selectedTimePart || format(new Date(), "HH:mm"),
-          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
-        });
+        // Only trigger webhook for new manual atendimentos when the date is today
+        if (isToday(parseISO(selectedDatePart))) {
+          triggerWebhook("Agendamento", {
+            tipo: "Agendamento",
+            barbearia_id: tenant.id,
+            cliente: selectedCliente.nome,
+            login_cliente: selectedCliente.login,
+            colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+            tel_colaborador: formattedTel,
+            data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
+            horario: selectedTimePart || format(new Date(), "HH:mm"),
+            servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
+          });
+        }
       }
 
       toast.success("Salvo com sucesso");
