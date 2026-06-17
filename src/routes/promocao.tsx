@@ -527,7 +527,7 @@ function PromocaoPage() {
             texto_promo: textoParaHistorico,
             imagem_promo: incluiImagem ? imagemParaLimpar : null,
             tipo_promo: promoAtual.tipo_promo || null,
-            promo_para_quem: computeParaQuem(),
+            promo_para_quem: computeParaQuem() || promoAtual.promo_para_quem || null,
             data_promo: new Date().toISOString()
           });
 
