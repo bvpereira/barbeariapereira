@@ -726,18 +726,21 @@ function PromocaoPage() {
                 
                 <Button 
                   className="gap-2" 
-                  onClick={() => {
+                  onClick={async () => {
                     if (promoAtual.testada !== "sim") {
                       toast.error("Você precisa enviar um teste antes de enviar a promoção real.");
                       return;
                     }
+                    const validos = validarCamposEnvio();
+                    if (!validos) return;
                     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
                       toast.error("O texto ultrapassa o limite de 920 caracteres.");
                       return;
                     }
+                    await persistirTipoEParaQuem(validos.tipo, validos.paraQuem);
                     setIsConfirmOpen(true);
                   }}
-                  disabled={sendingPromo || !promoAtual.texto_promo}
+                  disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem()}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   Enviar Promoção
