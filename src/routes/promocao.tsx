@@ -473,9 +473,39 @@ function PromocaoPage() {
 
     const success = await triggerWebhook("teste_promo");
     if (success) {
-      toast.success("Teste enviado com sucesso!");
+      setIsTestInfoOpen(true);
     }
     setSendingTest(false);
+  };
+
+  const refreshIaTextos = async () => {
+    if (!tenant) return;
+    setRefreshingIa(true);
+    try {
+      const { data, error } = await supabase
+        .from("promocao")
+        .select("texto_promo, texto_promo_ia_2, texto_promo_ia_3")
+        .eq("numero_promo", 0)
+        .eq("barbearia_id", tenant.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) {
+        setPromoAtual((prev: any) => ({ ...prev, ...data }));
+      }
+    } catch (err: any) {
+      toast.error("Erro ao atualizar textos: " + (err.message || ""));
+    } finally {
+      setRefreshingIa(false);
+    }
+  };
+
+  const handleCopyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Texto copiado!");
+    } catch {
+      toast.error("Não foi possível copiar o texto.");
+    }
   };
 
   const handleApagarTexto = async () => {
