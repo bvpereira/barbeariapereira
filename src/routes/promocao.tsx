@@ -533,7 +533,14 @@ function PromocaoPage() {
 
         if (histError) throw histError;
 
-        // 2. Backup text to auxiliar column and clear text and image from Row 0 in database.
+        // 2. Atualizar contador mensal de promoções enviadas (reset no início de cada mês).
+        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+        const prevCount = promoAtual.last_reset_month === currentMonth
+          ? (promoAtual.num_promo_criadas || 0)
+          : 0;
+        const newCount = prevCount + 1;
+
+        // 3. Backup text to auxiliar column and clear text and image from Row 0 in database.
         // The image file stays in storage because it now belongs to the history row.
         const { error: clearError } = await supabase
           .from("promocao")
@@ -541,12 +548,20 @@ function PromocaoPage() {
             texto_promo: "",
             texto_promo_auxiliar: textoParaHistorico,
             imagem_promo: null,
-            testada: "nao"
+            testada: "nao",
+            num_promo_criadas: newCount,
+            last_reset_month: currentMonth,
           })
           .eq("numero_promo", 0)
           .eq("barbearia_id", tenant.id);
 
         if (clearError) throw clearError;
+
+        setPromoAtual((prev: any) => ({
+          ...prev,
+          num_promo_criadas: newCount,
+          last_reset_month: currentMonth,
+        }));
 
         // 3. If the promo was Text-only but had a leftover image, remove it from storage.
         if (!incluiImagem && imagemParaLimpar) {
@@ -636,6 +651,38 @@ function PromocaoPage() {
             </Badge>
           </div>
         </div>
+
+        {/* Cards de uso mensal de promoções */}
+        {(() => {
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          const enviadas = promoAtual.last_reset_month === currentMonth
+            ? (promoAtual.num_promo_criadas || 0)
+            : 0;
+          const limite = promoAtual.num_limite_promo;
+          const disponiveis = typeof limite === "number" ? Math.max(0, limite - enviadas) : null;
+          return (
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardDescription>Promoções enviadas neste mês</CardDescription>
+                  <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardDescription>Promoções disponíveis neste mês</CardDescription>
+                  <CardTitle className="text-3xl text-primary">
+                    {disponiveis === null ? "—" : disponiveis}
+                    {typeof limite === "number" && (
+                      <span className="text-base text-muted-foreground font-normal"> / {limite}</span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
+          );
+        })()}
+
 
         {/* Upload de Banner para a página de clientes */}
         <Card className="border-primary/20 bg-primary/5">

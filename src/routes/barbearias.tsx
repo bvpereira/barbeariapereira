@@ -29,6 +29,7 @@ type EditableValues = {
   instanciaEvo: string;
   instanciaApi: string;
   limiteImagens: string;
+  limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
 };
 
@@ -48,6 +49,7 @@ type BarbeariaData = {
   instanciaApi: string;
   instanciaPropria: "sim" | "nao";
   limiteImagens: number | null;
+  limitePromocoes: number | null;
   clientes: number;
   colaboradoresUltimos30Dias: number;
   colaboradoresAtivos: number;
@@ -116,7 +118,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult] = await Promise.all([
+      const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
         supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
@@ -124,9 +126,10 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         supabase.from("colaboradores").select("ativo").eq("barbearia_id", barbearia.id),
         supabase.from("colaboradores").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).gte("created_at", thirtyDaysAgo.toISOString()),
         supabase.from("servicos").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id),
+        supabase.from("promocao").select("num_limite_promo").eq("barbearia_id", barbearia.id).eq("numero_promo", 0).maybeSingle(),
       ]);
 
-      const queryError = [infoResult.error, agenteResult.error, responsavelResult.error, clientesResult.error, colaboradoresResult.error, recentesResult.error, servicosResult.error].find(Boolean);
+      const queryError = [infoResult.error, agenteResult.error, responsavelResult.error, clientesResult.error, colaboradoresResult.error, recentesResult.error, servicosResult.error, promoResult.error].find(Boolean);
       if (queryError) throw queryError;
 
       const colaboradores = colaboradoresResult.data ?? [];
@@ -146,6 +149,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         instanciaApi: infoResult.data?.instancia_api || "",
         instanciaPropria: (infoResult.data?.instancia_propria === "sim" ? "sim" : "nao"),
         limiteImagens: agenteResult.data?.num_limite_imagens ?? null,
+        limitePromocoes: promoResult.data?.num_limite_promo ?? null,
         clientes: clientesResult.count ?? 0,
         colaboradoresUltimos30Dias: recentesResult.count ?? 0,
         colaboradoresAtivos: colaboradores.filter((item) => item.ativo).length,
@@ -163,6 +167,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     instanciaEvo: barbearia.instanciaEvo,
     instanciaApi: barbearia.instanciaApi,
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
+    limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
@@ -179,15 +184,19 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   const saveMutation = useMutation({
     mutationFn: async () => {
       const limite = Number(values.limiteImagens);
+      const limitePromo = Number(values.limitePromocoes);
       if (!barbearia.informacoesId || !barbearia.agenteId) throw new Error("Cadastro de configurações incompleto para esta barbearia.");
-      if (!Number.isInteger(limite) || limite < 0) throw new Error("Informe um limite mensal válido.");
+      if (!Number.isInteger(limite) || limite < 0) throw new Error("Informe um limite mensal válido para imagens.");
+      if (!Number.isInteger(limitePromo) || limitePromo < 0) throw new Error("Informe um limite mensal válido para promoções.");
 
-      const [infoResult, agenteResult] = await Promise.all([
+      const [infoResult, agenteResult, promoResult] = await Promise.all([
         supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
+        supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
       if (infoResult.error) throw infoResult.error;
       if (agenteResult.error) throw agenteResult.error;
+      if (promoResult.error) throw promoResult.error;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
@@ -348,6 +357,10 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
               <Input id={`limite-${barbearia.id}`} type="number" min="0" step="1" value={values.limiteImagens} onChange={(event) => setValues((current) => ({ ...current, limiteImagens: event.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`limite-promo-${barbearia.id}`}>Limite mensal de envio de promoções/notificações</Label>
+              <Input id={`limite-promo-${barbearia.id}`} type="number" min="0" step="1" value={values.limitePromocoes} onChange={(event) => setValues((current) => ({ ...current, limitePromocoes: event.target.value }))} />
             </div>
             <div className="space-y-2">
               <Label>Instância própria?</Label>
