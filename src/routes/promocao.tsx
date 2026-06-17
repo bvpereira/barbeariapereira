@@ -330,6 +330,38 @@ function PromocaoPage() {
     }
   };
 
+  const computeParaQuem = (): string | null => {
+    if (paraQuemMode === "todos" || paraQuemMode === "nunca_cortaram") return paraQuemMode;
+    if (paraQuemMode === "dias") {
+      if (!/^\d+$/.test(paraQuemDias)) return null;
+      return paraQuemDias;
+    }
+    return null;
+  };
+
+  const validarCamposEnvio = (): { tipo: string; paraQuem: string } | null => {
+    if (!promoAtual.tipo_promo) {
+      toast.error('Selecione o "Tipo de envio".');
+      return null;
+    }
+    const paraQuem = computeParaQuem();
+    if (!paraQuem) {
+      toast.error('Preencha o campo "Enviar para quem".');
+      return null;
+    }
+    return { tipo: promoAtual.tipo_promo, paraQuem };
+  };
+
+  const persistirTipoEParaQuem = async (tipo: string, paraQuem: string) => {
+    if (!tenant) return;
+    await supabase
+      .from("promocao")
+      .update({ tipo_promo: tipo, promo_para_quem: paraQuem })
+      .eq("numero_promo", 0)
+      .eq("barbearia_id", tenant.id);
+  };
+
+
   const handleEnviarTeste = async () => {
     if (!tenant) return;
     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
