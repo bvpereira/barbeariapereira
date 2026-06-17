@@ -347,21 +347,30 @@ function AtendimentosPage() {
     return ids;
   };
 
-  const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[]) => {
+  const fetchAvailableTimes = useCallback(async (date: string, colabId: string, servs: string[], manualMode: boolean = false) => {
     if (!tenant?.id || !date || !colabId || servs.length === 0) {
       setAvailableTimes([]);
       return;
     }
     setLoadingTimes(true);
     try {
+      const today = format(new Date(), "yyyy-MM-dd");
+      const isPastOrToday = date <= today;
+      // In manual mode (creating finalized atendimento) for past/today, use global defaults if there's no entry
       const { data: workingHours } = await supabase.from('horarios_colaboradores').select('*').eq('barbearia_id', tenant.id).eq('colaborador_id', colabId).eq('data', date).eq('ativo', true).maybeSingle();
-      if (!workingHours) { 
-        setAvailableTimes([]); 
+
+      let hours = workingHours as any;
+      if (!hours && manualMode && isPastOrToday) {
+        hours = { manha_inicio: "08:00", manha_fim: "12:00", tarde_inicio: "13:00", tarde_fim: "18:00" };
+      }
+      if (!hours) {
+        setAvailableTimes([]);
         setLoadingTimes(false);
-        return; 
+        return;
       }
 
-      const { data: appts } = await supabase.from('atendimentos').select('data, status, atendimento_servicos(servicos(duration))').eq('barbearia_id', tenant.id).eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`);
+      const skipChecks = manualMode && isPastOrToday;
+      const appts = skipChecks ? [] : (await supabase.from('atendimentos').select('data, status, atendimento_servicos(servicos(duration))').eq('barbearia_id', tenant.id).eq('colaborador_id', colabId).eq('status', 'Agendado').gte('data', `${date}T00:00:00`).lte('data', `${date}T23:59:59`)).data;
 
       const requestedDuration = servs.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.duration || 0), 0);
       const possibleTimes: string[] = [];
@@ -383,23 +392,28 @@ function AtendimentosPage() {
         let curr = parseISO(`${date}T${s}`);
         const end = parseISO(`${date}T${e}`);
         while (addMinutes(curr, requestedDuration) <= end) {
-          if (isAfter(curr, minAllowed) && !checkOverlap(curr, requestedDuration)) {
-            possibleTimes.push(format(curr, "HH:mm"));
+          let include: boolean;
+          if (skipChecks) {
+            // For past dates: include all. For today: only times already passed.
+            include = date < today ? true : curr <= now;
+          } else {
+            include = isAfter(curr, minAllowed) && !checkOverlap(curr, requestedDuration);
           }
+          if (include) possibleTimes.push(format(curr, "HH:mm"));
           curr = addMinutes(curr, 30);
         }
       };
 
-      if (workingHours.manha_inicio && workingHours.manha_fim) generateSlots(workingHours.manha_inicio, workingHours.manha_fim);
-      if (workingHours.tarde_inicio && workingHours.tarde_fim) generateSlots(workingHours.tarde_inicio, workingHours.tarde_fim);
+      if (hours.manha_inicio && hours.manha_fim) generateSlots(hours.manha_inicio, hours.manha_fim);
+      if (hours.tarde_inicio && hours.tarde_fim) generateSlots(hours.tarde_inicio, hours.tarde_fim);
       setAvailableTimes(possibleTimes);
     } catch (e) { console.error(e); }
     setLoadingTimes(false);
-  }, [allServicos, tempoMarcar]);
+  }, [allServicos, tempoMarcar, tenant]);
 
   useEffect(() => {
-    fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos);
-  }, [selectedDatePart, selectedColaborador, selectedServicos, fetchAvailableTimes]);
+    fetchAvailableTimes(selectedDatePart, selectedColaborador, selectedServicos, !editingAtendimento);
+  }, [selectedDatePart, selectedColaborador, selectedServicos, fetchAvailableTimes, editingAtendimento]);
 
   const resetForm = () => {
     setEditingAtendimento(null);
