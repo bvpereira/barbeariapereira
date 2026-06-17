@@ -625,6 +625,59 @@ function PromocaoPage() {
               <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Tipo de envio */}
+              <div className="space-y-2">
+                <Label>Tipo de envio</Label>
+                <RadioGroup
+                  value={promoAtual.tipo_promo || ""}
+                  onValueChange={(v) => setPromoAtual({ ...promoAtual, tipo_promo: v })}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="texto" id="tipo-texto" />
+                    <Label htmlFor="tipo-texto" className="font-normal cursor-pointer">Texto</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="imagem_legenda" id="tipo-imagem" />
+                    <Label htmlFor="tipo-imagem" className="font-normal cursor-pointer">Imagem com legenda</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Enviar para quem */}
+              <div className="space-y-2">
+                <Label>Enviar para quem</Label>
+                <RadioGroup
+                  value={paraQuemMode || ""}
+                  onValueChange={(v) => setParaQuemMode(v as any)}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="todos" id="pq-todos" />
+                    <Label htmlFor="pq-todos" className="font-normal cursor-pointer">Todos</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="nunca_cortaram" id="pq-nunca" />
+                    <Label htmlFor="pq-nunca" className="font-normal cursor-pointer">Nunca cortaram</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="dias" id="pq-dias" />
+                    <Label htmlFor="pq-dias" className="font-normal cursor-pointer">Dias sem atendimento</Label>
+                  </div>
+                </RadioGroup>
+                {paraQuemMode === "dias" && (
+                  <Input
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    placeholder="Ex: 30"
+                    value={paraQuemDias}
+                    onChange={(e) => setParaQuemDias(e.target.value.replace(/\D/g, ""))}
+                    className="max-w-[180px]"
+                  />
+                )}
+              </div>
+
               {/* Imagem */}
               <div className="space-y-2">
                 <Label>Imagem da Promoção</Label>
