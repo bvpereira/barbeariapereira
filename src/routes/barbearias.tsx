@@ -184,15 +184,19 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   const saveMutation = useMutation({
     mutationFn: async () => {
       const limite = Number(values.limiteImagens);
+      const limitePromo = Number(values.limitePromocoes);
       if (!barbearia.informacoesId || !barbearia.agenteId) throw new Error("Cadastro de configurações incompleto para esta barbearia.");
-      if (!Number.isInteger(limite) || limite < 0) throw new Error("Informe um limite mensal válido.");
+      if (!Number.isInteger(limite) || limite < 0) throw new Error("Informe um limite mensal válido para imagens.");
+      if (!Number.isInteger(limitePromo) || limitePromo < 0) throw new Error("Informe um limite mensal válido para promoções.");
 
-      const [infoResult, agenteResult] = await Promise.all([
+      const [infoResult, agenteResult, promoResult] = await Promise.all([
         supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
+        supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
       if (infoResult.error) throw infoResult.error;
       if (agenteResult.error) throw agenteResult.error;
+      if (promoResult.error) throw promoResult.error;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
