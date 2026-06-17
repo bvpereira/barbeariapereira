@@ -118,7 +118,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult] = await Promise.all([
+      const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
         supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
@@ -126,9 +126,10 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         supabase.from("colaboradores").select("ativo").eq("barbearia_id", barbearia.id),
         supabase.from("colaboradores").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).gte("created_at", thirtyDaysAgo.toISOString()),
         supabase.from("servicos").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id),
+        supabase.from("promocao").select("num_limite_promo").eq("barbearia_id", barbearia.id).eq("numero_promo", 0).maybeSingle(),
       ]);
 
-      const queryError = [infoResult.error, agenteResult.error, responsavelResult.error, clientesResult.error, colaboradoresResult.error, recentesResult.error, servicosResult.error].find(Boolean);
+      const queryError = [infoResult.error, agenteResult.error, responsavelResult.error, clientesResult.error, colaboradoresResult.error, recentesResult.error, servicosResult.error, promoResult.error].find(Boolean);
       if (queryError) throw queryError;
 
       const colaboradores = colaboradoresResult.data ?? [];
