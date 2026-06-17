@@ -68,6 +68,7 @@ interface Atendimento {
   valor: number;
   comissao: number;
   status: 'Agendado' | 'Finalizado' | 'Não compareceu';
+  manual?: boolean;
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
