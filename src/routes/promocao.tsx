@@ -206,33 +206,33 @@ function PromocaoPage() {
 
     setUploading(true);
     try {
-      const bucket = isBanner ? "promocoes" : "promocoes"; // Using the same bucket for simplicity or you can use "banners" if exists
+      const bucket = "promocoes";
       const existingUrl = isBanner ? promoAtual.imagem_banner : promoAtual.imagem_promo;
 
       // Deletar imagem anterior se existir
       if (existingUrl) {
-        try {
-          const urlParts = existingUrl.split("/");
-          const fileName = urlParts[urlParts.length - 1];
-          await supabase.storage
-            .from(bucket)
-            .remove([fileName]);
-          console.log("Imagem anterior removida com sucesso");
-        } catch (err) {
-          console.error("Erro ao remover imagem anterior:", err);
+        const oldPath = extractStoragePath(existingUrl, bucket);
+        if (oldPath) {
+          try {
+            await supabase.storage.from(bucket).remove([oldPath]);
+          } catch (err) {
+            console.error("Erro ao remover imagem anterior:", err);
+          }
         }
       }
 
-      const fileName = `${isBanner ? 'banner' : 'promo'}_${Date.now()}.jpg`;
-      const { data, error: uploadError } = await supabase.storage
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const slot = isBanner ? "banner" : "promo";
+      const filePath = `${tenant.id}/${slot}_${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file);
+        .upload(filePath, file, { contentType: file.type || undefined, upsert: true });
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(fileName);
+        .getPublicUrl(filePath);
 
       // Update Database
       const updateData: any = {};
@@ -266,19 +266,40 @@ function PromocaoPage() {
     }
   };
 
-  const handleDeleteBanner = async () => {
-    if (!tenant || !promoAtual.imagem_banner) return;
-    
+  const handleDeletePromoImage = async () => {
+    if (!tenant || !promoAtual.imagem_promo) return;
     setUploading(true);
     try {
-      // 1. Delete from storage
-      const urlParts = promoAtual.imagem_banner.split("/");
-      const fileName = urlParts[urlParts.length - 1];
-      await supabase.storage
-        .from("promocoes")
-        .remove([fileName]);
+      const path = extractStoragePath(promoAtual.imagem_promo, "promocoes");
+      if (path) {
+        await supabase.storage.from("promocoes").remove([path]);
+      }
+      const { error } = await supabase
+        .from("promocao")
+        .update({ imagem_promo: null, testada: "nao" })
+        .eq("numero_promo", 0)
+        .eq("barbearia_id", tenant.id);
+      if (error) throw error;
+      setPromoAtual({ ...promoAtual, imagem_promo: null, testada: "nao" });
+      toast.success("Imagem removida com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao remover imagem:", error);
+      toast.error("Erro ao remover imagem: " + (error.message || ""));
+    } finally {
+      setUploading(false);
+    }
+  };
 
-      // 2. Update database
+  const handleDeleteBanner = async () => {
+    if (!tenant || !promoAtual.imagem_banner) return;
+
+    setUploading(true);
+    try {
+      const path = extractStoragePath(promoAtual.imagem_banner, "promocoes");
+      if (path) {
+        await supabase.storage.from("promocoes").remove([path]);
+      }
+
       const { error } = await supabase
         .from("promocao")
         .update({ imagem_banner: null })
