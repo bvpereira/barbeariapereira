@@ -1047,6 +1047,7 @@ export type Database = {
           created_at: string
           id: string
           msg_wpp_cliente_avisofinal_10: string | null
+          msg_wpp_cliente_avisopromo_13: string | null
           msg_wpp_cliente_eve_alterado_05: string | null
           msg_wpp_cliente_eve_cancelado_06: string | null
           msg_wpp_cliente_eve_criado_04: string | null
@@ -1067,6 +1068,7 @@ export type Database = {
           created_at?: string
           id?: string
           msg_wpp_cliente_avisofinal_10?: string | null
+          msg_wpp_cliente_avisopromo_13?: string | null
           msg_wpp_cliente_eve_alterado_05?: string | null
           msg_wpp_cliente_eve_cancelado_06?: string | null
           msg_wpp_cliente_eve_criado_04?: string | null
@@ -1087,6 +1089,7 @@ export type Database = {
           created_at?: string
           id?: string
           msg_wpp_cliente_avisofinal_10?: string | null
+          msg_wpp_cliente_avisopromo_13?: string | null
           msg_wpp_cliente_eve_alterado_05?: string | null
           msg_wpp_cliente_eve_cancelado_06?: string | null
           msg_wpp_cliente_eve_criado_04?: string | null
