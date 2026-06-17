@@ -533,7 +533,14 @@ function PromocaoPage() {
 
         if (histError) throw histError;
 
-        // 2. Backup text to auxiliar column and clear text and image from Row 0 in database.
+        // 2. Atualizar contador mensal de promoções enviadas (reset no início de cada mês).
+        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+        const prevCount = promoAtual.last_reset_month === currentMonth
+          ? (promoAtual.num_promo_criadas || 0)
+          : 0;
+        const newCount = prevCount + 1;
+
+        // 3. Backup text to auxiliar column and clear text and image from Row 0 in database.
         // The image file stays in storage because it now belongs to the history row.
         const { error: clearError } = await supabase
           .from("promocao")
@@ -541,12 +548,20 @@ function PromocaoPage() {
             texto_promo: "",
             texto_promo_auxiliar: textoParaHistorico,
             imagem_promo: null,
-            testada: "nao"
+            testada: "nao",
+            num_promo_criadas: newCount,
+            last_reset_month: currentMonth,
           })
           .eq("numero_promo", 0)
           .eq("barbearia_id", tenant.id);
 
         if (clearError) throw clearError;
+
+        setPromoAtual((prev: any) => ({
+          ...prev,
+          num_promo_criadas: newCount,
+          last_reset_month: currentMonth,
+        }));
 
         // 3. If the promo was Text-only but had a leftover image, remove it from storage.
         if (!incluiImagem && imagemParaLimpar) {
