@@ -1175,8 +1175,8 @@ export type Database = {
           data_promo: string | null
           id: string
           imagem_banner: string | null
-          imagem_ia: string | null
           imagem_promo: string | null
+          imagem_upada: string | null
           last_reset_month: string | null
           num_limite_promo: number | null
           num_promo_criadas: number
@@ -1195,8 +1195,8 @@ export type Database = {
           data_promo?: string | null
           id?: string
           imagem_banner?: string | null
-          imagem_ia?: string | null
           imagem_promo?: string | null
+          imagem_upada?: string | null
           last_reset_month?: string | null
           num_limite_promo?: number | null
           num_promo_criadas?: number
@@ -1215,8 +1215,8 @@ export type Database = {
           data_promo?: string | null
           id?: string
           imagem_banner?: string | null
-          imagem_ia?: string | null
           imagem_promo?: string | null
+          imagem_upada?: string | null
           last_reset_month?: string | null
           num_limite_promo?: number | null
           num_promo_criadas?: number
