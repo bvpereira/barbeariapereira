@@ -1,0 +1,1 @@
+ALTER TABLE public.atendimentos ADD COLUMN IF NOT EXISTS manual boolean NOT NULL DEFAULT false;

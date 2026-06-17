@@ -251,6 +251,7 @@ export type Database = {
           cupom_status: string | null
           data: string
           id: string
+          manual: boolean
           pedido_exclusao: boolean | null
           servicos_atendimento: string | null
           status: string
@@ -276,6 +277,7 @@ export type Database = {
           cupom_status?: string | null
           data: string
           id?: string
+          manual?: boolean
           pedido_exclusao?: boolean | null
           servicos_atendimento?: string | null
           status: string
@@ -301,6 +303,7 @@ export type Database = {
           cupom_status?: string | null
           data?: string
           id?: string
+          manual?: boolean
           pedido_exclusao?: boolean | null
           servicos_atendimento?: string | null
           status?: string

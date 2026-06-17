@@ -68,6 +68,7 @@ interface Atendimento {
   valor: number;
   comissao: number;
   status: 'Agendado' | 'Finalizado' | 'Não compareceu';
+  manual?: boolean;
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
@@ -469,7 +470,8 @@ function AtendimentosPage() {
 
     setIsSubmitting(true);
     try {
-      const payload = {
+      const isManualNew = !editingAtendimento;
+      const payload: any = {
         barbearia_id: tenant.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
@@ -477,7 +479,8 @@ function AtendimentosPage() {
         valor: parseFloat(valorFinal),
         valor_original: parseFloat(valorFinal),
         comissao: parseFloat(comissaoFinal),
-        status: isScheduling ? 'Agendado' : status
+        status: isManualNew ? 'Finalizado' : (isScheduling ? 'Agendado' : status),
+        ...(isManualNew ? { manual: true } : {})
       };
       
       let atendimentoId: string;
@@ -524,17 +527,20 @@ function AtendimentosPage() {
           })
         });
       } else {
-        triggerWebhook("Agendamento", {
-          tipo: "Agendamento",
-          barbearia_id: tenant.id,
-          cliente: selectedCliente.nome,
-          login_cliente: selectedCliente.login,
-          colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
-          tel_colaborador: formattedTel,
-          data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
-          horario: selectedTimePart || format(new Date(), "HH:mm"),
-          servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
-        });
+        // Only trigger webhook for new manual atendimentos when the date is today
+        if (isToday(parseISO(selectedDatePart))) {
+          triggerWebhook("Agendamento", {
+            tipo: "Agendamento",
+            barbearia_id: tenant.id,
+            cliente: selectedCliente.nome,
+            login_cliente: selectedCliente.login,
+            colaborador: colaboradores.find(c => c.id === selectedColaborador)?.nome || "",
+            tel_colaborador: formattedTel,
+            data: format(parseISO(selectedDatePart), "dd/MM/yyyy"),
+            horario: selectedTimePart || format(new Date(), "HH:mm"),
+            servicos: selectedServicos.map(sId => allServicos.find(s => s.id === sId)?.name || "")
+          });
+        }
       }
 
       toast.success("Salvo com sucesso");
@@ -731,7 +737,10 @@ function AtendimentosPage() {
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" /><span className="font-bold">{item.cliente.nome}</span></div>
-          {getStatusBadge(item.status)}
+          <div className="flex items-center gap-2">
+            {item.manual && <Badge variant="outline" className="border-blue-500 text-blue-600">Manual</Badge>}
+            {getStatusBadge(item.status)}
+          </div>
         </div>
         <div className="space-y-1 text-sm text-muted-foreground">
           <div className="flex items-center gap-2"><CalendarIcon className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
