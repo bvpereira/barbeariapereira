@@ -77,12 +77,61 @@ function PromocaoPage() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Track the current draft image + tenant id so the unmount cleanup
+  // doesn't read stale state.
+  const draftImageRef = useRef<{ url: string | null; barbeariaId: string | null }>({
+    url: null,
+    barbeariaId: null,
+  });
+
+  // Extract the storage object path from a public URL for a given bucket.
+  const extractStoragePath = (url: string | null | undefined, bucket: string): string | null => {
+    if (!url) return null;
+    const marker = `/object/public/${bucket}/`;
+    const idx = url.indexOf(marker);
+    if (idx === -1) return null;
+    return url.substring(idx + marker.length);
+  };
 
   useEffect(() => {
     if (!tenantLoading && tenant) {
       fetchData();
     }
   }, [tenant, tenantLoading]);
+
+  // Keep the draft ref in sync with current state.
+  useEffect(() => {
+    draftImageRef.current = {
+      url: promoAtual.imagem_promo ?? null,
+      barbeariaId: tenant?.id ?? null,
+    };
+  }, [promoAtual.imagem_promo, tenant?.id]);
+
+  // On unmount: if there's a draft image still attached to row 0,
+  // remove it from storage and clear it from the DB. Images that were
+  // already sent are handled by handleEnviarConfirmado and persisted
+  // on the history row.
+  useEffect(() => {
+    return () => {
+      const { url, barbeariaId } = draftImageRef.current;
+      if (!url || !barbeariaId) return;
+      const path = extractStoragePath(url, "promocoes");
+      (async () => {
+        try {
+          if (path) {
+            await supabase.storage.from("promocoes").remove([path]);
+          }
+          await supabase
+            .from("promocao")
+            .update({ imagem_promo: null })
+            .eq("numero_promo", 0)
+            .eq("barbearia_id", barbeariaId);
+        } catch (err) {
+          console.error("Erro na limpeza da imagem ao sair da página:", err);
+        }
+      })();
+    };
+  }, []);
 
   const fetchData = async () => {
     if (!tenant) return;
