@@ -414,6 +414,10 @@ function PromocaoPage() {
       toast.error('Selecione o "Tipo de envio".');
       return null;
     }
+    if (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo) {
+      toast.error('Faça o upload de uma imagem para enviar como "Imagem com legenda".');
+      return null;
+    }
     const paraQuem = computeParaQuem();
     if (!paraQuem) {
       toast.error('Preencha o campo "Enviar para quem".');
