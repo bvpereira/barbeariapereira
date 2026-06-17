@@ -23,6 +23,7 @@ import {
   ClipboardPaste,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,7 +60,13 @@ function PromocaoPage() {
     imagem_promo: null,
     imagem_banner: null,
     testada: "nao",
+    tipo_promo: "",
+    promo_para_quem: "",
   });
+
+  // UI-only state for "Enviar para quem"
+  const [paraQuemMode, setParaQuemMode] = useState<"todos" | "nunca_cortaram" | "dias" | "">("");
+  const [paraQuemDias, setParaQuemDias] = useState<string>("");
   
   const [webhookUrl, setWebhookUrl] = useState("");
   const [telContato, setTelContato] = useState("");
