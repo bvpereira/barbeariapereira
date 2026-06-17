@@ -579,15 +579,27 @@ function PromocaoPage() {
 
   const handleDeletePromo = async () => {
     if (!promoToDelete) return;
-    
+
     try {
+      // Remove image from storage if this history row had one
+      if (promoToDelete.imagem_promo) {
+        const path = extractStoragePath(promoToDelete.imagem_promo, "promocoes");
+        if (path) {
+          try {
+            await supabase.storage.from("promocoes").remove([path]);
+          } catch (err) {
+            console.error("Erro ao remover imagem do histórico:", err);
+          }
+        }
+      }
+
       const { error } = await supabase
         .from("promocao")
         .delete()
         .eq("id", promoToDelete.id);
-      
+
       if (error) throw error;
-      
+
       toast.success("Registro de promoção excluído!");
       setHistorico(historico.filter(h => h.id !== promoToDelete.id));
     } catch (error: any) {
