@@ -786,18 +786,18 @@ function PromocaoPage() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-
-          {/* Cadastro de Promoção */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Megaphone className="h-5 w-5 text-primary" />
-                Promoção Atual
-              </CardTitle>
-              <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+        {/* Cadastro de Promoção (largura total) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Megaphone className="h-5 w-5 text-primary" />
+              Promoção Atual
+            </CardTitle>
+            <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-6">
               {/* Tipo de envio */}
               <div className="space-y-2">
                 <Label>Tipo de envio</Label>
