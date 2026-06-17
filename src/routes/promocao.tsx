@@ -508,10 +508,12 @@ function PromocaoPage() {
     
     if (success) {
       try {
-        // 1. Save to history
-        const nextNumero = historico.length > 0 
-          ? Math.max(...historico.map(h => h.numero_promo)) + 1 
+        // 1. Save to history (keeps the image URL so it shows in history)
+        const nextNumero = historico.length > 0
+          ? Math.max(...historico.map(h => h.numero_promo)) + 1
           : 1;
+
+        const incluiImagem = promoAtual.tipo_promo === "imagem_legenda" && !!imagemParaLimpar;
 
         const { error: histError } = await supabase
           .from("promocao")
@@ -519,15 +521,17 @@ function PromocaoPage() {
             barbearia_id: tenant.id,
             numero_promo: nextNumero,
             texto_promo: textoParaHistorico,
+            imagem_promo: incluiImagem ? imagemParaLimpar : null,
             data_promo: new Date().toISOString()
           });
 
         if (histError) throw histError;
 
-        // 2. Backup text to auxiliar column and clear text and image from Row 0 in database
+        // 2. Backup text to auxiliar column and clear text and image from Row 0 in database.
+        // The image file stays in storage because it now belongs to the history row.
         const { error: clearError } = await supabase
           .from("promocao")
-          .update({ 
+          .update({
             texto_promo: "",
             texto_promo_auxiliar: textoParaHistorico,
             imagem_promo: null,
@@ -538,16 +542,15 @@ function PromocaoPage() {
 
         if (clearError) throw clearError;
 
-        // 3. Delete image from storage if it exists
-        if (imagemParaLimpar) {
-          try {
-            const urlParts = imagemParaLimpar.split("/");
-            const fileName = urlParts[urlParts.length - 1];
-            await supabase.storage
-              .from("promocoes")
-              .remove([fileName]);
-          } catch (err) {
-            console.error("Erro ao remover imagem do storage:", err);
+        // 3. If the promo was Text-only but had a leftover image, remove it from storage.
+        if (!incluiImagem && imagemParaLimpar) {
+          const path = extractStoragePath(imagemParaLimpar, "promocoes");
+          if (path) {
+            try {
+              await supabase.storage.from("promocoes").remove([path]);
+            } catch (err) {
+              console.error("Erro ao remover imagem do storage:", err);
+            }
           }
         }
 
