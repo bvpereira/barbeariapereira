@@ -1143,6 +1143,23 @@ function PromocaoPage() {
         </div>
       </div>
 
+      {/* Popup informativo após Enviar Teste */}
+      <AlertDialog open={isTestInfoOpen} onOpenChange={setIsTestInfoOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Teste enviado!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Em poucos instantes você receberá o resultado do teste no WhatsApp.
+              Você também pode clicar em "Atualizar" na área "Textos da notificação/promoção"
+              para ver os textos gerados pela IA assim que estiverem prontos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setIsTestInfoOpen(false)}>Entendi</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Popup de Confirmação */}
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogContent>
