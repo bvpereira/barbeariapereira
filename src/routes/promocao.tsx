@@ -881,7 +881,7 @@ function PromocaoPage() {
                     await persistirTipoEParaQuem(validos.tipo, validos.paraQuem);
                     setIsConfirmOpen(true);
                   }}
-                  disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem()}
+                  disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem() || (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo)}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   Enviar Promoção
