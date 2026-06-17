@@ -786,15 +786,26 @@ function PromocaoPage() {
                   </div>
 
                   {promoAtual.imagem_promo && (
-                    <Button 
-                      variant="outline" 
-                      className="w-full gap-2" 
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                    >
-                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
-                      Alterar Imagem
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                      >
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                        Alterar Imagem
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="w-full gap-2"
+                        onClick={handleDeletePromoImage}
+                        disabled={uploading}
+                      >
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        Excluir Imagem
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
