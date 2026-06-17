@@ -359,6 +359,10 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Input id={`limite-${barbearia.id}`} type="number" min="0" step="1" value={values.limiteImagens} onChange={(event) => setValues((current) => ({ ...current, limiteImagens: event.target.value }))} />
             </div>
             <div className="space-y-2">
+              <Label htmlFor={`limite-promo-${barbearia.id}`}>Limite mensal de envio de promoções/notificações</Label>
+              <Input id={`limite-promo-${barbearia.id}`} type="number" min="0" step="1" value={values.limitePromocoes} onChange={(event) => setValues((current) => ({ ...current, limitePromocoes: event.target.value }))} />
+            </div>
+            <div className="space-y-2">
               <Label>Instância própria?</Label>
               <div className="flex items-center gap-4 pt-1">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
