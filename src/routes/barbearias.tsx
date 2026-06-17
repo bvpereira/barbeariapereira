@@ -49,6 +49,7 @@ type BarbeariaData = {
   instanciaApi: string;
   instanciaPropria: "sim" | "nao";
   limiteImagens: number | null;
+  limitePromocoes: number | null;
   clientes: number;
   colaboradoresUltimos30Dias: number;
   colaboradoresAtivos: number;
