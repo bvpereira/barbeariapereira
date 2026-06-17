@@ -526,6 +526,8 @@ function PromocaoPage() {
             numero_promo: nextNumero,
             texto_promo: textoParaHistorico,
             imagem_promo: incluiImagem ? imagemParaLimpar : null,
+            tipo_promo: promoAtual.tipo_promo || null,
+            promo_para_quem: computeParaQuem(),
             data_promo: new Date().toISOString()
           });
 
@@ -920,13 +922,35 @@ function PromocaoPage() {
                   </div>
                 ) : (
                   <div className="divide-y">
-                    {historico.map((item) => (
+                    {historico.map((item) => {
+                      const paraQuemLabel =
+                        item.promo_para_quem === "todos"
+                          ? "Todos"
+                          : item.promo_para_quem === "nunca_cortaram"
+                          ? "Nunca cortaram"
+                          : /^\d+$/.test(item.promo_para_quem || "")
+                          ? `${item.promo_para_quem} dias sem atendimento`
+                          : null;
+                      return (
                       <div key={item.id} className="p-4 hover:bg-muted/50 transition-colors flex items-center gap-4">
+                        {item.imagem_promo ? (
+                          <img
+                            src={item.imagem_promo}
+                            alt="Imagem da promoção"
+                            className="h-12 w-12 rounded object-cover flex-shrink-0 border"
+                          />
+                        ) : null}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{item.texto_promo || "Sem texto"}</p>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 flex-wrap">
                             <Calendar className="h-3 w-3" />
-                            {format(new Date(item.data_promo), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            <span>{format(new Date(item.data_promo), "dd/MM/yyyy HH:mm", { locale: ptBR })}</span>
+                            {paraQuemLabel && (
+                              <>
+                                <span>•</span>
+                                <span>Enviado para: {paraQuemLabel}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
@@ -946,7 +970,8 @@ function PromocaoPage() {
                           </Button>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
