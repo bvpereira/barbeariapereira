@@ -859,7 +859,7 @@ function PromocaoPage() {
                   variant="secondary" 
                   className="gap-2" 
                   onClick={handleEnviarTeste}
-                  disabled={sendingTest || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem()}
+                  disabled={sendingTest || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem() || (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo)}
                 >
                   {sendingTest ? <Loader2 className="h-4 w-4 animate-spin" /> : <TestTube className="h-4 w-4" />}
                   Enviar Teste
