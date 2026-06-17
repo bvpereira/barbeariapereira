@@ -470,7 +470,8 @@ function AtendimentosPage() {
 
     setIsSubmitting(true);
     try {
-      const payload = {
+      const isManualNew = !editingAtendimento;
+      const payload: any = {
         barbearia_id: tenant.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
@@ -478,7 +479,8 @@ function AtendimentosPage() {
         valor: parseFloat(valorFinal),
         valor_original: parseFloat(valorFinal),
         comissao: parseFloat(comissaoFinal),
-        status: isScheduling ? 'Agendado' : status
+        status: isManualNew ? 'Finalizado' : (isScheduling ? 'Agendado' : status),
+        ...(isManualNew ? { manual: true } : {})
       };
       
       let atendimentoId: string;
