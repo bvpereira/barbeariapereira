@@ -1172,11 +1172,13 @@ export type Database = {
           imagem_ia: string | null
           imagem_promo: string | null
           numero_promo: number
+          promo_para_quem: string | null
           testada: string | null
           texto_promo: string | null
           texto_promo_auxiliar: string | null
           texto_promo_ia_2: string | null
           texto_promo_ia_3: string | null
+          tipo_promo: string | null
         }
         Insert: {
           barbearia_id: string
@@ -1187,11 +1189,13 @@ export type Database = {
           imagem_ia?: string | null
           imagem_promo?: string | null
           numero_promo: number
+          promo_para_quem?: string | null
           testada?: string | null
           texto_promo?: string | null
           texto_promo_auxiliar?: string | null
           texto_promo_ia_2?: string | null
           texto_promo_ia_3?: string | null
+          tipo_promo?: string | null
         }
         Update: {
           barbearia_id?: string
@@ -1202,11 +1206,13 @@ export type Database = {
           imagem_ia?: string | null
           imagem_promo?: string | null
           numero_promo?: number
+          promo_para_quem?: string | null
           testada?: string | null
           texto_promo?: string | null
           texto_promo_auxiliar?: string | null
           texto_promo_ia_2?: string | null
           texto_promo_ia_3?: string | null
+          tipo_promo?: string | null
         }
         Relationships: [
           {
@@ -1325,6 +1331,7 @@ export type Database = {
         Row: {
           barbearia_id: string | null
           created_at: string
+          dias_inativo: string | null
           id: string
           login: string
           nivel: number
@@ -1339,6 +1346,7 @@ export type Database = {
         Insert: {
           barbearia_id?: string | null
           created_at?: string
+          dias_inativo?: string | null
           id?: string
           login: string
           nivel: number
@@ -1353,6 +1361,7 @@ export type Database = {
         Update: {
           barbearia_id?: string | null
           created_at?: string
+          dias_inativo?: string | null
           id?: string
           login?: string
           nivel?: number
@@ -1561,6 +1570,7 @@ export type Database = {
         }
         Returns: Json
       }
+      refresh_dias_inativo: { Args: never; Returns: undefined }
       remove_cliente_clube: {
         Args: {
           p_admin_id: string
@@ -1721,6 +1731,10 @@ export type Database = {
           p_new_slug: string
         }
         Returns: boolean
+      }
+      update_dias_inativo_for_cliente: {
+        Args: { p_cliente_id: string }
+        Returns: undefined
       }
     }
     Enums: {

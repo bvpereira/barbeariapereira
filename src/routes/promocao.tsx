@@ -23,6 +23,7 @@ import {
   ClipboardPaste,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,7 +60,13 @@ function PromocaoPage() {
     imagem_promo: null,
     imagem_banner: null,
     testada: "nao",
+    tipo_promo: "",
+    promo_para_quem: "",
   });
+
+  // UI-only state for "Enviar para quem"
+  const [paraQuemMode, setParaQuemMode] = useState<"todos" | "nunca_cortaram" | "dias" | "">("");
+  const [paraQuemDias, setParaQuemDias] = useState<string>("");
   
   const [webhookUrl, setWebhookUrl] = useState("");
   const [telContato, setTelContato] = useState("");
@@ -94,6 +101,14 @@ function PromocaoPage() {
         console.error("Erro ao buscar promoção atual:", promoError);
       } else if (currentPromo) {
         setPromoAtual(currentPromo);
+        const pq = currentPromo.promo_para_quem;
+        if (pq === "todos" || pq === "nunca_cortaram") {
+          setParaQuemMode(pq);
+          setParaQuemDias("");
+        } else if (pq && /^\d+$/.test(pq)) {
+          setParaQuemMode("dias");
+          setParaQuemDias(pq);
+        }
       }
 
       // 2. Fetch webhook URL for promotion
@@ -315,12 +330,47 @@ function PromocaoPage() {
     }
   };
 
+  const computeParaQuem = (): string | null => {
+    if (paraQuemMode === "todos" || paraQuemMode === "nunca_cortaram") return paraQuemMode;
+    if (paraQuemMode === "dias") {
+      if (!/^\d+$/.test(paraQuemDias)) return null;
+      return paraQuemDias;
+    }
+    return null;
+  };
+
+  const validarCamposEnvio = (): { tipo: string; paraQuem: string } | null => {
+    if (!promoAtual.tipo_promo) {
+      toast.error('Selecione o "Tipo de envio".');
+      return null;
+    }
+    const paraQuem = computeParaQuem();
+    if (!paraQuem) {
+      toast.error('Preencha o campo "Enviar para quem".');
+      return null;
+    }
+    return { tipo: promoAtual.tipo_promo, paraQuem };
+  };
+
+  const persistirTipoEParaQuem = async (tipo: string, paraQuem: string) => {
+    if (!tenant) return;
+    await supabase
+      .from("promocao")
+      .update({ tipo_promo: tipo, promo_para_quem: paraQuem })
+      .eq("numero_promo", 0)
+      .eq("barbearia_id", tenant.id);
+  };
+
+
   const handleEnviarTeste = async () => {
     if (!tenant) return;
+    const validos = validarCamposEnvio();
+    if (!validos) return;
     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
       toast.error("O texto ultrapassa o limite de 920 caracteres.");
       return;
     }
+    await persistirTipoEParaQuem(validos.tipo, validos.paraQuem);
     
     // Salvar texto automaticamente antes de enviar o teste
     setSendingTest(true);
@@ -575,6 +625,59 @@ function PromocaoPage() {
               <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Tipo de envio */}
+              <div className="space-y-2">
+                <Label>Tipo de envio</Label>
+                <RadioGroup
+                  value={promoAtual.tipo_promo || ""}
+                  onValueChange={(v) => setPromoAtual({ ...promoAtual, tipo_promo: v })}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="texto" id="tipo-texto" />
+                    <Label htmlFor="tipo-texto" className="font-normal cursor-pointer">Texto</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="imagem_legenda" id="tipo-imagem" />
+                    <Label htmlFor="tipo-imagem" className="font-normal cursor-pointer">Imagem com legenda</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Enviar para quem */}
+              <div className="space-y-2">
+                <Label>Enviar para quem</Label>
+                <RadioGroup
+                  value={paraQuemMode || ""}
+                  onValueChange={(v) => setParaQuemMode(v as any)}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="todos" id="pq-todos" />
+                    <Label htmlFor="pq-todos" className="font-normal cursor-pointer">Todos</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="nunca_cortaram" id="pq-nunca" />
+                    <Label htmlFor="pq-nunca" className="font-normal cursor-pointer">Nunca cortaram</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="dias" id="pq-dias" />
+                    <Label htmlFor="pq-dias" className="font-normal cursor-pointer">Dias sem atendimento</Label>
+                  </div>
+                </RadioGroup>
+                {paraQuemMode === "dias" && (
+                  <Input
+                    type="number"
+                    min={0}
+                    inputMode="numeric"
+                    placeholder="Ex: 30"
+                    value={paraQuemDias}
+                    onChange={(e) => setParaQuemDias(e.target.value.replace(/\D/g, ""))}
+                    className="max-w-[180px]"
+                  />
+                )}
+              </div>
+
               {/* Imagem */}
               <div className="space-y-2">
                 <Label>Imagem da Promoção</Label>
@@ -668,7 +771,7 @@ function PromocaoPage() {
                   variant="secondary" 
                   className="gap-2" 
                   onClick={handleEnviarTeste}
-                  disabled={sendingTest || !promoAtual.texto_promo}
+                  disabled={sendingTest || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem()}
                 >
                   {sendingTest ? <Loader2 className="h-4 w-4 animate-spin" /> : <TestTube className="h-4 w-4" />}
                   Enviar Teste
@@ -676,18 +779,21 @@ function PromocaoPage() {
                 
                 <Button 
                   className="gap-2" 
-                  onClick={() => {
+                  onClick={async () => {
                     if (promoAtual.testada !== "sim") {
                       toast.error("Você precisa enviar um teste antes de enviar a promoção real.");
                       return;
                     }
+                    const validos = validarCamposEnvio();
+                    if (!validos) return;
                     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
                       toast.error("O texto ultrapassa o limite de 920 caracteres.");
                       return;
                     }
+                    await persistirTipoEParaQuem(validos.tipo, validos.paraQuem);
                     setIsConfirmOpen(true);
                   }}
-                  disabled={sendingPromo || !promoAtual.texto_promo}
+                  disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem()}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   Enviar Promoção
