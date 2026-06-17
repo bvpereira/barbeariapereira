@@ -101,6 +101,14 @@ function PromocaoPage() {
         console.error("Erro ao buscar promoção atual:", promoError);
       } else if (currentPromo) {
         setPromoAtual(currentPromo);
+        const pq = currentPromo.promo_para_quem;
+        if (pq === "todos" || pq === "nunca_cortaram") {
+          setParaQuemMode(pq);
+          setParaQuemDias("");
+        } else if (pq && /^\d+$/.test(pq)) {
+          setParaQuemMode("dias");
+          setParaQuemDias(pq);
+        }
       }
 
       // 2. Fetch webhook URL for promotion
