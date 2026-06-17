@@ -245,6 +245,7 @@ function PromocaoPage() {
         updateData.imagem_banner = publicUrl;
       } else {
         updateData.imagem_promo = publicUrl;
+        updateData.imagem_upada = publicUrl;
         updateData.testada = "nao";
       }
 
