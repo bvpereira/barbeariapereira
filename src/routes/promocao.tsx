@@ -986,9 +986,12 @@ function PromocaoPage() {
                   Enviar Promoção
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
+        <div className="grid gap-6 md:grid-cols-2">
           {/* Textos da notificação/promoção */}
           <Card>
             <CardHeader>
