@@ -77,12 +77,61 @@ function PromocaoPage() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Track the current draft image + tenant id so the unmount cleanup
+  // doesn't read stale state.
+  const draftImageRef = useRef<{ url: string | null; barbeariaId: string | null }>({
+    url: null,
+    barbeariaId: null,
+  });
+
+  // Extract the storage object path from a public URL for a given bucket.
+  const extractStoragePath = (url: string | null | undefined, bucket: string): string | null => {
+    if (!url) return null;
+    const marker = `/object/public/${bucket}/`;
+    const idx = url.indexOf(marker);
+    if (idx === -1) return null;
+    return url.substring(idx + marker.length);
+  };
 
   useEffect(() => {
     if (!tenantLoading && tenant) {
       fetchData();
     }
   }, [tenant, tenantLoading]);
+
+  // Keep the draft ref in sync with current state.
+  useEffect(() => {
+    draftImageRef.current = {
+      url: promoAtual.imagem_promo ?? null,
+      barbeariaId: tenant?.id ?? null,
+    };
+  }, [promoAtual.imagem_promo, tenant?.id]);
+
+  // On unmount: if there's a draft image still attached to row 0,
+  // remove it from storage and clear it from the DB. Images that were
+  // already sent are handled by handleEnviarConfirmado and persisted
+  // on the history row.
+  useEffect(() => {
+    return () => {
+      const { url, barbeariaId } = draftImageRef.current;
+      if (!url || !barbeariaId) return;
+      const path = extractStoragePath(url, "promocoes");
+      (async () => {
+        try {
+          if (path) {
+            await supabase.storage.from("promocoes").remove([path]);
+          }
+          await supabase
+            .from("promocao")
+            .update({ imagem_promo: null })
+            .eq("numero_promo", 0)
+            .eq("barbearia_id", barbeariaId);
+        } catch (err) {
+          console.error("Erro na limpeza da imagem ao sair da página:", err);
+        }
+      })();
+    };
+  }, []);
 
   const fetchData = async () => {
     if (!tenant) return;
@@ -157,33 +206,33 @@ function PromocaoPage() {
 
     setUploading(true);
     try {
-      const bucket = isBanner ? "promocoes" : "promocoes"; // Using the same bucket for simplicity or you can use "banners" if exists
+      const bucket = "promocoes";
       const existingUrl = isBanner ? promoAtual.imagem_banner : promoAtual.imagem_promo;
 
       // Deletar imagem anterior se existir
       if (existingUrl) {
-        try {
-          const urlParts = existingUrl.split("/");
-          const fileName = urlParts[urlParts.length - 1];
-          await supabase.storage
-            .from(bucket)
-            .remove([fileName]);
-          console.log("Imagem anterior removida com sucesso");
-        } catch (err) {
-          console.error("Erro ao remover imagem anterior:", err);
+        const oldPath = extractStoragePath(existingUrl, bucket);
+        if (oldPath) {
+          try {
+            await supabase.storage.from(bucket).remove([oldPath]);
+          } catch (err) {
+            console.error("Erro ao remover imagem anterior:", err);
+          }
         }
       }
 
-      const fileName = `${isBanner ? 'banner' : 'promo'}_${Date.now()}.jpg`;
-      const { data, error: uploadError } = await supabase.storage
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const slot = isBanner ? "banner" : "promo";
+      const filePath = `${tenant.id}/${slot}_${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file);
+        .upload(filePath, file, { contentType: file.type || undefined, upsert: true });
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(fileName);
+        .getPublicUrl(filePath);
 
       // Update Database
       const updateData: any = {};
@@ -217,19 +266,40 @@ function PromocaoPage() {
     }
   };
 
-  const handleDeleteBanner = async () => {
-    if (!tenant || !promoAtual.imagem_banner) return;
-    
+  const handleDeletePromoImage = async () => {
+    if (!tenant || !promoAtual.imagem_promo) return;
     setUploading(true);
     try {
-      // 1. Delete from storage
-      const urlParts = promoAtual.imagem_banner.split("/");
-      const fileName = urlParts[urlParts.length - 1];
-      await supabase.storage
-        .from("promocoes")
-        .remove([fileName]);
+      const path = extractStoragePath(promoAtual.imagem_promo, "promocoes");
+      if (path) {
+        await supabase.storage.from("promocoes").remove([path]);
+      }
+      const { error } = await supabase
+        .from("promocao")
+        .update({ imagem_promo: null, testada: "nao" })
+        .eq("numero_promo", 0)
+        .eq("barbearia_id", tenant.id);
+      if (error) throw error;
+      setPromoAtual({ ...promoAtual, imagem_promo: null, testada: "nao" });
+      toast.success("Imagem removida com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao remover imagem:", error);
+      toast.error("Erro ao remover imagem: " + (error.message || ""));
+    } finally {
+      setUploading(false);
+    }
+  };
 
-      // 2. Update database
+  const handleDeleteBanner = async () => {
+    if (!tenant || !promoAtual.imagem_banner) return;
+
+    setUploading(true);
+    try {
+      const path = extractStoragePath(promoAtual.imagem_banner, "promocoes");
+      if (path) {
+        await supabase.storage.from("promocoes").remove([path]);
+      }
+
       const { error } = await supabase
         .from("promocao")
         .update({ imagem_banner: null })
@@ -344,6 +414,10 @@ function PromocaoPage() {
       toast.error('Selecione o "Tipo de envio".');
       return null;
     }
+    if (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo) {
+      toast.error('Faça o upload de uma imagem para enviar como "Imagem com legenda".');
+      return null;
+    }
     const paraQuem = computeParaQuem();
     if (!paraQuem) {
       toast.error('Preencha o campo "Enviar para quem".');
@@ -438,10 +512,12 @@ function PromocaoPage() {
     
     if (success) {
       try {
-        // 1. Save to history
-        const nextNumero = historico.length > 0 
-          ? Math.max(...historico.map(h => h.numero_promo)) + 1 
+        // 1. Save to history (keeps the image URL so it shows in history)
+        const nextNumero = historico.length > 0
+          ? Math.max(...historico.map(h => h.numero_promo)) + 1
           : 1;
+
+        const incluiImagem = promoAtual.tipo_promo === "imagem_legenda" && !!imagemParaLimpar;
 
         const { error: histError } = await supabase
           .from("promocao")
@@ -449,15 +525,17 @@ function PromocaoPage() {
             barbearia_id: tenant.id,
             numero_promo: nextNumero,
             texto_promo: textoParaHistorico,
+            imagem_promo: incluiImagem ? imagemParaLimpar : null,
             data_promo: new Date().toISOString()
           });
 
         if (histError) throw histError;
 
-        // 2. Backup text to auxiliar column and clear text and image from Row 0 in database
+        // 2. Backup text to auxiliar column and clear text and image from Row 0 in database.
+        // The image file stays in storage because it now belongs to the history row.
         const { error: clearError } = await supabase
           .from("promocao")
-          .update({ 
+          .update({
             texto_promo: "",
             texto_promo_auxiliar: textoParaHistorico,
             imagem_promo: null,
@@ -468,16 +546,15 @@ function PromocaoPage() {
 
         if (clearError) throw clearError;
 
-        // 3. Delete image from storage if it exists
-        if (imagemParaLimpar) {
-          try {
-            const urlParts = imagemParaLimpar.split("/");
-            const fileName = urlParts[urlParts.length - 1];
-            await supabase.storage
-              .from("promocoes")
-              .remove([fileName]);
-          } catch (err) {
-            console.error("Erro ao remover imagem do storage:", err);
+        // 3. If the promo was Text-only but had a leftover image, remove it from storage.
+        if (!incluiImagem && imagemParaLimpar) {
+          const path = extractStoragePath(imagemParaLimpar, "promocoes");
+          if (path) {
+            try {
+              await supabase.storage.from("promocoes").remove([path]);
+            } catch (err) {
+              console.error("Erro ao remover imagem do storage:", err);
+            }
           }
         }
 
@@ -502,15 +579,27 @@ function PromocaoPage() {
 
   const handleDeletePromo = async () => {
     if (!promoToDelete) return;
-    
+
     try {
+      // Remove image from storage if this history row had one
+      if (promoToDelete.imagem_promo) {
+        const path = extractStoragePath(promoToDelete.imagem_promo, "promocoes");
+        if (path) {
+          try {
+            await supabase.storage.from("promocoes").remove([path]);
+          } catch (err) {
+            console.error("Erro ao remover imagem do histórico:", err);
+          }
+        }
+      }
+
       const { error } = await supabase
         .from("promocao")
         .delete()
         .eq("id", promoToDelete.id);
-      
+
       if (error) throw error;
-      
+
       toast.success("Registro de promoção excluído!");
       setHistorico(historico.filter(h => h.id !== promoToDelete.id));
     } catch (error: any) {
@@ -709,15 +798,26 @@ function PromocaoPage() {
                   </div>
 
                   {promoAtual.imagem_promo && (
-                    <Button 
-                      variant="outline" 
-                      className="w-full gap-2" 
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                    >
-                      {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
-                      Alterar Imagem
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading}
+                      >
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                        Alterar Imagem
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="w-full gap-2"
+                        onClick={handleDeletePromoImage}
+                        disabled={uploading}
+                      >
+                        {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        Excluir Imagem
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -771,7 +871,7 @@ function PromocaoPage() {
                   variant="secondary" 
                   className="gap-2" 
                   onClick={handleEnviarTeste}
-                  disabled={sendingTest || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem()}
+                  disabled={sendingTest || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem() || (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo)}
                 >
                   {sendingTest ? <Loader2 className="h-4 w-4 animate-spin" /> : <TestTube className="h-4 w-4" />}
                   Enviar Teste
@@ -793,7 +893,7 @@ function PromocaoPage() {
                     await persistirTipoEParaQuem(validos.tipo, validos.paraQuem);
                     setIsConfirmOpen(true);
                   }}
-                  disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem()}
+                  disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem() || (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo)}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   Enviar Promoção
@@ -907,6 +1007,16 @@ function PromocaoPage() {
                   {format(new Date(selectedPromo.data_promo), "EEEE, d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
                 </p>
               </div>
+              {selectedPromo.imagem_promo && (
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Imagem Enviada</Label>
+                  <img
+                    src={selectedPromo.imagem_promo}
+                    alt="Imagem da promoção"
+                    className="w-full max-h-80 object-contain rounded-lg border bg-muted"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label className="text-muted-foreground">Texto Enviado</Label>
                 <div className="p-4 rounded-lg bg-muted text-sm whitespace-pre-wrap">
