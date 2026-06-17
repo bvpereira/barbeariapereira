@@ -1074,53 +1074,73 @@ function AtendimentosPage() {
                   {selectedServicos.length > 0 && (
                     <div className="space-y-2">
                       <Label>Data do Atendimento</Label>
-                      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-                        {colabActiveDates
-                          .filter(dateStr => {
-                            const date = parseISO(dateStr);
-                            const today = startOfToday();
-                            return date >= today && (!maxDate || dateStr <= maxDate);
-                          })
-                          .sort()
-                          .map((dateStr) => {
-                            const date = parseISO(dateStr);
-                            const isSelected = selectedDatePart === dateStr;
-                            return (
-                              <button
-                                key={dateStr}
-                                type="button"
-                                onClick={() => setSelectedDatePart(dateStr)}
-                                className={cn(
-                                  "flex flex-col items-center justify-center min-w-[65px] h-[85px] rounded-xl border-2 transition-all",
-                                  isSelected 
-                                    ? "border-primary bg-primary text-primary-foreground shadow-lg scale-105" 
-                                    : "border-muted bg-card hover:border-primary/50 text-muted-foreground"
-                                )}
-                              >
-                                <span className={cn(
-                                  "text-[10px] uppercase font-bold tracking-wider",
-                                  isSelected ? "text-primary-foreground/80" : "text-muted-foreground/60"
-                                )}>
-                                  {format(date, "EEE", { locale: ptBR })}
-                                </span>
-                                <span className="text-xl font-black mt-1">
-                                  {format(date, "dd")}
-                                </span>
-                                <span className={cn(
-                                  "text-[10px] font-medium capitalize",
-                                  isSelected ? "text-primary-foreground/80" : "text-muted-foreground/60"
-                                )}>
-                                  {format(date, "MMM", { locale: ptBR })}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        {colabActiveDates.length === 0 && (
-                          <p className="text-xs text-muted-foreground italic p-2">
-                            Nenhuma data disponível para este colaborador.
-                          </p>
-                        )}
-                      </div>
+                      {!editingAtendimento ? (
+                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !selectedDatePart && "text-muted-foreground")}>
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {selectedDatePart ? format(parseISO(selectedDatePart), "dd/MM/yyyy", { locale: ptBR }) : "Selecione a data"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedDatePart ? parseISO(selectedDatePart) : undefined}
+                              onSelect={(d) => {
+                                if (d) {
+                                  setSelectedDatePart(format(d, "yyyy-MM-dd"));
+                                  setSelectedTimePart("");
+                                  setIsCalendarOpen(false);
+                                }
+                              }}
+                              disabled={(d) => d > new Date()}
+                              initialFocus
+                              locale={ptBR}
+                              className={cn("p-3 pointer-events-auto")}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      ) : (
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                          {colabActiveDates
+                            .filter(dateStr => {
+                              const date = parseISO(dateStr);
+                              const today = startOfToday();
+                              return date >= today && (!maxDate || dateStr <= maxDate);
+                            })
+                            .sort()
+                            .map((dateStr) => {
+                              const date = parseISO(dateStr);
+                              const isSelected = selectedDatePart === dateStr;
+                              return (
+                                <button
+                                  key={dateStr}
+                                  type="button"
+                                  onClick={() => setSelectedDatePart(dateStr)}
+                                  className={cn(
+                                    "flex flex-col items-center justify-center min-w-[65px] h-[85px] rounded-xl border-2 transition-all",
+                                    isSelected 
+                                      ? "border-primary bg-primary text-primary-foreground shadow-lg scale-105" 
+                                      : "border-muted bg-card hover:border-primary/50 text-muted-foreground"
+                                  )}
+                                >
+                                  <span className={cn("text-[10px] uppercase font-bold tracking-wider", isSelected ? "text-primary-foreground/80" : "text-muted-foreground/60")}>
+                                    {format(date, "EEE", { locale: ptBR })}
+                                  </span>
+                                  <span className="text-xl font-black mt-1">{format(date, "dd")}</span>
+                                  <span className={cn("text-[10px] font-medium capitalize", isSelected ? "text-primary-foreground/80" : "text-muted-foreground/60")}>
+                                    {format(date, "MMM", { locale: ptBR })}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          {colabActiveDates.length === 0 && (
+                            <p className="text-xs text-muted-foreground italic p-2">
+                              Nenhuma data disponível para este colaborador.
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
 
