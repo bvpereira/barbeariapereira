@@ -1007,6 +1007,16 @@ function PromocaoPage() {
                   {format(new Date(selectedPromo.data_promo), "EEEE, d 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}
                 </p>
               </div>
+              {selectedPromo.imagem_promo && (
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Imagem Enviada</Label>
+                  <img
+                    src={selectedPromo.imagem_promo}
+                    alt="Imagem da promoção"
+                    className="w-full max-h-80 object-contain rounded-lg border bg-muted"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label className="text-muted-foreground">Texto Enviado</Label>
                 <div className="p-4 rounded-lg bg-muted text-sm whitespace-pre-wrap">
