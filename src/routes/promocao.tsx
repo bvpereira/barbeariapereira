@@ -652,6 +652,38 @@ function PromocaoPage() {
           </div>
         </div>
 
+        {/* Cards de uso mensal de promoções */}
+        {(() => {
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          const enviadas = promoAtual.last_reset_month === currentMonth
+            ? (promoAtual.num_promo_criadas || 0)
+            : 0;
+          const limite = promoAtual.num_limite_promo;
+          const disponiveis = typeof limite === "number" ? Math.max(0, limite - enviadas) : null;
+          return (
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card className="border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardDescription>Promoções enviadas neste mês</CardDescription>
+                  <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardDescription>Promoções disponíveis neste mês</CardDescription>
+                  <CardTitle className="text-3xl text-primary">
+                    {disponiveis === null ? "—" : disponiveis}
+                    {typeof limite === "number" && (
+                      <span className="text-base text-muted-foreground font-normal"> / {limite}</span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
+          );
+        })()}
+
+
         {/* Upload de Banner para a página de clientes */}
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader>
