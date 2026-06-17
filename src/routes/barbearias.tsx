@@ -149,6 +149,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         instanciaApi: infoResult.data?.instancia_api || "",
         instanciaPropria: (infoResult.data?.instancia_propria === "sim" ? "sim" : "nao"),
         limiteImagens: agenteResult.data?.num_limite_imagens ?? null,
+        limitePromocoes: promoResult.data?.num_limite_promo ?? null,
         clientes: clientesResult.count ?? 0,
         colaboradoresUltimos30Dias: recentesResult.count ?? 0,
         colaboradoresAtivos: colaboradores.filter((item) => item.ativo).length,
