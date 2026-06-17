@@ -78,6 +78,8 @@ function PromocaoPage() {
   const [promoToDelete, setPromoToDelete] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isTestInfoOpen, setIsTestInfoOpen] = useState(false);
+  const [refreshingIa, setRefreshingIa] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Track the current draft image + tenant id so the unmount cleanup
