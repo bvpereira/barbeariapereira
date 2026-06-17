@@ -364,10 +364,13 @@ function PromocaoPage() {
 
   const handleEnviarTeste = async () => {
     if (!tenant) return;
+    const validos = validarCamposEnvio();
+    if (!validos) return;
     if (promoAtual.texto_promo && promoAtual.texto_promo.length > 920) {
       toast.error("O texto ultrapassa o limite de 920 caracteres.");
       return;
     }
+    await persistirTipoEParaQuem(validos.tipo, validos.paraQuem);
     
     // Salvar texto automaticamente antes de enviar o teste
     setSendingTest(true);
