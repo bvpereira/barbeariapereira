@@ -737,7 +737,10 @@ function AtendimentosPage() {
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" /><span className="font-bold">{item.cliente.nome}</span></div>
-          {getStatusBadge(item.status)}
+          <div className="flex items-center gap-2">
+            {item.manual && <Badge variant="outline" className="border-blue-500 text-blue-600">Manual</Badge>}
+            {getStatusBadge(item.status)}
+          </div>
         </div>
         <div className="space-y-1 text-sm text-muted-foreground">
           <div className="flex items-center gap-2"><CalendarIcon className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
