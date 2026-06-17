@@ -21,6 +21,9 @@ import {
   Eye,
   Save,
   ClipboardPaste,
+  Copy,
+  RefreshCw,
+  MessageSquareText,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -75,6 +78,8 @@ function PromocaoPage() {
   const [promoToDelete, setPromoToDelete] = useState<any>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isTestInfoOpen, setIsTestInfoOpen] = useState(false);
+  const [refreshingIa, setRefreshingIa] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Track the current draft image + tenant id so the unmount cleanup
@@ -468,9 +473,39 @@ function PromocaoPage() {
 
     const success = await triggerWebhook("teste_promo");
     if (success) {
-      toast.success("Teste enviado com sucesso!");
+      setIsTestInfoOpen(true);
     }
     setSendingTest(false);
+  };
+
+  const refreshIaTextos = async () => {
+    if (!tenant) return;
+    setRefreshingIa(true);
+    try {
+      const { data, error } = await supabase
+        .from("promocao")
+        .select("texto_promo, texto_promo_ia_2, texto_promo_ia_3")
+        .eq("numero_promo", 0)
+        .eq("barbearia_id", tenant.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) {
+        setPromoAtual((prev: any) => ({ ...prev, ...data }));
+      }
+    } catch (err: any) {
+      toast.error("Erro ao atualizar textos: " + (err.message || ""));
+    } finally {
+      setRefreshingIa(false);
+    }
+  };
+
+  const handleCopyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Texto copiado!");
+    } catch {
+      toast.error("Não foi possível copiar o texto.");
+    }
   };
 
   const handleApagarTexto = async () => {
@@ -751,7 +786,7 @@ function PromocaoPage() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
           {/* Cadastro de Promoção */}
           <Card>
@@ -951,6 +986,87 @@ function PromocaoPage() {
             </CardContent>
           </Card>
 
+          {/* Textos da notificação/promoção */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquareText className="h-5 w-5 text-primary" />
+                    Textos da notificação/promoção
+                  </CardTitle>
+                  <CardDescription>Texto do teste e textos geradas pela IA</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={refreshIaTextos}
+                  disabled={refreshingIa}
+                >
+                  {refreshingIa ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  Atualizar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {promoAtual.texto_promo ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>Texto do teste</Label>
+                    <Textarea
+                      readOnly
+                      value={promoAtual.texto_promo || ""}
+                      className="min-h-[100px] bg-muted/40"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Texto 1 criado pela IA</Label>
+                    <Textarea
+                      readOnly
+                      value={promoAtual.texto_promo_ia_2 || ""}
+                      className="min-h-[100px] bg-muted/40"
+                      placeholder="Aguardando geração pela IA..."
+                    />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => handleCopyText(promoAtual.texto_promo_ia_2 || "")}
+                      disabled={!promoAtual.texto_promo_ia_2}
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copiar texto
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Texto 2 criado pela IA</Label>
+                    <Textarea
+                      readOnly
+                      value={promoAtual.texto_promo_ia_3 || ""}
+                      className="min-h-[100px] bg-muted/40"
+                      placeholder="Aguardando geração pela IA..."
+                    />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => handleCopyText(promoAtual.texto_promo_ia_3 || "")}
+                      disabled={!promoAtual.texto_promo_ia_3}
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copiar texto
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Nenhum texto disponível ainda. Envie um teste e clique em "Atualizar" para ver os textos gerados.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
 
           {/* Histórico */}
           <Card className="flex-1 overflow-hidden">
@@ -1026,6 +1142,23 @@ function PromocaoPage() {
           </Card>
         </div>
       </div>
+
+      {/* Popup informativo após Enviar Teste */}
+      <AlertDialog open={isTestInfoOpen} onOpenChange={setIsTestInfoOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Teste enviado!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Em poucos instantes você receberá o resultado do teste no WhatsApp.
+              Você também pode clicar em "Atualizar" na área "Textos da notificação/promoção"
+              para ver os textos gerados pela IA assim que estiverem prontos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setIsTestInfoOpen(false)}>Entendi</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Popup de Confirmação */}
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
