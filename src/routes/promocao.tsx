@@ -526,6 +526,8 @@ function PromocaoPage() {
             numero_promo: nextNumero,
             texto_promo: textoParaHistorico,
             imagem_promo: incluiImagem ? imagemParaLimpar : null,
+            tipo_promo: promoAtual.tipo_promo || null,
+            promo_para_quem: computeParaQuem(),
             data_promo: new Date().toISOString()
           });
 
