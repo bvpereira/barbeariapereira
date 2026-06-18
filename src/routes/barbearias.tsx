@@ -60,6 +60,8 @@ type BarbeariaData = {
   instanciaEvo: string;
   instanciaApi: string;
   instanciaPropria: "sim" | "nao";
+  modoTeste: boolean;
+  instanciaFuncionando: boolean;
   limiteImagens: number | null;
   limitePromocoes: number | null;
   clientes: number;
