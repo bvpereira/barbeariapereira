@@ -170,6 +170,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
     limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
+    googleAvaliacao: barbearia.googleAvaliacao,
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
