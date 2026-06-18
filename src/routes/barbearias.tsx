@@ -33,6 +33,8 @@ type EditableValues = {
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
   googleAvaliacao: string;
+  modoTeste: "sim" | "nao";
+  instanciaFuncionando: "sim" | "nao";
 };
 
 function formatInstanciaNumero(value: string) {
@@ -58,6 +60,8 @@ type BarbeariaData = {
   instanciaEvo: string;
   instanciaApi: string;
   instanciaPropria: "sim" | "nao";
+  modoTeste: boolean;
+  instanciaFuncionando: boolean;
   limiteImagens: number | null;
   limitePromocoes: number | null;
   clientes: number;
@@ -129,7 +133,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
+        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_propria, modo_teste, instancia_funcionando").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
         supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).eq("nivel", 3),
@@ -159,6 +163,8 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         instanciaApi: infoResult.data?.instancia_api || "",
         instanciaNumero: (infoResult.data as any)?.instancia_numero || "",
         instanciaPropria: (infoResult.data?.instancia_propria === "sim" ? "sim" : "nao"),
+        modoTeste: (infoResult.data as any)?.modo_teste === true,
+        instanciaFuncionando: (infoResult.data as any)?.instancia_funcionando !== false,
         limiteImagens: agenteResult.data?.num_limite_imagens ?? null,
         limitePromocoes: promoResult.data?.num_limite_promo ?? null,
         clientes: clientesResult.count ?? 0,
@@ -182,6 +188,8 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
     googleAvaliacao: barbearia.googleAvaliacao,
+    modoTeste: barbearia.modoTeste ? "sim" : "nao",
+    instanciaFuncionando: barbearia.instanciaFuncionando ? "sim" : "nao",
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
@@ -206,7 +214,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 11) throw new Error("O número de telefone da instância deve ter exatamente 11 dígitos.");
 
       const [infoResult, agenteResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl, modo_teste: values.modoTeste === "sim", instancia_funcionando: values.instanciaFuncionando === "sim" } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
         supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
@@ -415,7 +423,57 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
                   />
                   Não
                 </label>
+            </div>
+            <div className="space-y-2">
+              <Label>Modo teste?</Label>
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`modo-teste-${barbearia.id}`}
+                    checked={values.modoTeste === "sim"}
+                    onChange={() => setValues((current) => ({ ...current, modoTeste: "sim" }))}
+                    className="accent-primary"
+                  />
+                  Sim
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`modo-teste-${barbearia.id}`}
+                    checked={values.modoTeste === "nao"}
+                    onChange={() => setValues((current) => ({ ...current, modoTeste: "nao" }))}
+                    className="accent-primary"
+                  />
+                  Não
+                </label>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Instância funcionando?</Label>
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-funcionando-${barbearia.id}`}
+                    checked={values.instanciaFuncionando === "sim"}
+                    onChange={() => setValues((current) => ({ ...current, instanciaFuncionando: "sim" }))}
+                    className="accent-primary"
+                  />
+                  Sim
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-funcionando-${barbearia.id}`}
+                    checked={values.instanciaFuncionando === "sim" ? false : true}
+                    onChange={() => setValues((current) => ({ ...current, instanciaFuncionando: "nao" }))}
+                    className="accent-primary"
+                  />
+                  Não
+                </label>
+              </div>
+            </div>
             </div>
           </div>
           <div className="flex justify-end">
