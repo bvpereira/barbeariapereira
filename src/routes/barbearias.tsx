@@ -364,6 +364,10 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Input id={`limite-promo-${barbearia.id}`} type="number" min="0" step="1" value={values.limitePromocoes} onChange={(event) => setValues((current) => ({ ...current, limitePromocoes: event.target.value }))} />
             </div>
             <div className="space-y-2">
+              <Label htmlFor={`google-${barbearia.id}`}>Site de avaliação do Google</Label>
+              <Input id={`google-${barbearia.id}`} value={values.googleAvaliacao} onChange={(event) => setValues((current) => ({ ...current, googleAvaliacao: event.target.value }))} placeholder="https://..." />
+            </div>
+            <div className="space-y-2">
               <Label>Instância própria?</Label>
               <div className="flex items-center gap-4 pt-1">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
