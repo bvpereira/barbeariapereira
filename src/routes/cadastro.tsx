@@ -23,6 +23,7 @@ const formatPhone = (value: string) => {
 function Cadastro() {
   const { tenant } = useTenant();
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -30,6 +31,8 @@ function Cadastro() {
   const [displayedPassword, setDisplayedPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, "");
