@@ -36,10 +36,10 @@ type EditableValues = {
 };
 
 function formatInstanciaNumero(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 9);
-  if (digits.length <= 1) return digits;
-  if (digits.length <= 5) return `${digits.slice(0, 1)} ${digits.slice(1)}`;
-  return `${digits.slice(0, 1)} ${digits.slice(1, 5)}-${digits.slice(5)}`;
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits.length ? `(${digits}` : "";
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 
 type BarbeariaData = {
@@ -203,7 +203,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (!Number.isInteger(limitePromo) || limitePromo < 0) throw new Error("Informe um limite mensal válido para promoções.");
 
       const instanciaNumeroDigits = values.instanciaNumero.replace(/\D/g, "");
-      if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 9) throw new Error("O número de telefone da instância deve ter exatamente 9 dígitos.");
+      if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 11) throw new Error("O número de telefone da instância deve ter exatamente 11 dígitos.");
 
       const [infoResult, agenteResult, promoResult] = await Promise.all([
         supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
@@ -374,11 +374,11 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Input
                 id={`instancia-numero-${barbearia.id}`}
                 inputMode="numeric"
-                placeholder="9 9999-9999"
+                placeholder="(XX) XXXXX-XXXX"
                 value={values.instanciaNumero}
                 onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
               />
-              <p className="text-xs text-muted-foreground">Deve conter exatamente 9 dígitos.</p>
+              <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
