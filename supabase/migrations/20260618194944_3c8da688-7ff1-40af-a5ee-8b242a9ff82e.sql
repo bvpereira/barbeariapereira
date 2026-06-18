@@ -1,0 +1,1 @@
+ALTER TABLE public.informacoes ADD COLUMN IF NOT EXISTS modo_teste BOOLEAN DEFAULT false, ADD COLUMN IF NOT EXISTS instancia_funcionando BOOLEAN DEFAULT true;

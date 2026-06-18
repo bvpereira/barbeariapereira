@@ -920,8 +920,10 @@ export type Database = {
           instagram: string | null
           instancia_api: string | null
           instancia_evo: string | null
+          instancia_funcionando: boolean | null
           instancia_numero: string | null
           instancia_propria: string | null
+          modo_teste: boolean | null
           nome_barbearia: string | null
           site: string | null
           tel_contato: string | null
@@ -953,8 +955,10 @@ export type Database = {
           instagram?: string | null
           instancia_api?: string | null
           instancia_evo?: string | null
+          instancia_funcionando?: boolean | null
           instancia_numero?: string | null
           instancia_propria?: string | null
+          modo_teste?: boolean | null
           nome_barbearia?: string | null
           site?: string | null
           tel_contato?: string | null
@@ -986,8 +990,10 @@ export type Database = {
           instagram?: string | null
           instancia_api?: string | null
           instancia_evo?: string | null
+          instancia_funcionando?: boolean | null
           instancia_numero?: string | null
           instancia_propria?: string | null
+          modo_teste?: boolean | null
           nome_barbearia?: string | null
           site?: string | null
           tel_contato?: string | null
