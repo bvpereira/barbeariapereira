@@ -71,6 +71,14 @@ function Cadastro() {
     setIsLoading(true);
     const cleanLogin = login.replace(/[^\d]/g, "");
 
+    if (!isValidEmail(email)) {
+      toast.error("Erro no cadastro", {
+        description: "Informe um e-mail válido.",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     if (cleanLogin.length !== 11) {
       toast.error("Erro no cadastro", {
         description: "O telefone deve ter exatamente 11 dígitos.",
