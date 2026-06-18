@@ -111,6 +111,7 @@ function Cadastro() {
           {
             barbearia_id: tenant.id,
             nome,
+            email_usuario: email.trim(),
             login: cleanLogin,
             senha,
             nivel: 3, // Cliente
