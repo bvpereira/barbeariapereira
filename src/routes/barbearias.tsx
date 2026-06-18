@@ -192,7 +192,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (!Number.isInteger(limitePromo) || limitePromo < 0) throw new Error("Informe um limite mensal válido para promoções.");
 
       const [infoResult, agenteResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
         supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
