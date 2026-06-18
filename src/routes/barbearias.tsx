@@ -50,6 +50,7 @@ type BarbeariaData = {
   telefone: string;
   email: string;
   googleAvaliacao: string;
+  instanciaNumero: string;
   instagram: string;
   responsavel: string;
   informacoesId: string | null;
