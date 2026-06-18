@@ -318,7 +318,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           <ReadOnlyField label="Nome do Responsável" value={barbearia.responsavel} />
           <ReadOnlyField label="Telefone de contato" value={barbearia.telefone} href={whatsappUrl(barbearia.telefone)} icon="whatsapp" />
           <ReadOnlyField label="E-mail" value={barbearia.email} />
-          <ReadOnlyField label="Site de avaliação do Google" value={barbearia.googleAvaliacao} href={normalizeUrl(barbearia.googleAvaliacao)} icon="link" />
+          <ReadOnlyField label="Instagram" value={barbearia.instagram} href={instagramUrl(barbearia.instagram)} icon="instagram" />
           <ReadOnlyField label="Instagram" value={barbearia.instagram} href={instagramUrl(barbearia.instagram)} icon="instagram" />
         </section>
 
