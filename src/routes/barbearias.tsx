@@ -319,7 +319,6 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           <ReadOnlyField label="Telefone de contato" value={barbearia.telefone} href={whatsappUrl(barbearia.telefone)} icon="whatsapp" />
           <ReadOnlyField label="E-mail" value={barbearia.email} />
           <ReadOnlyField label="Instagram" value={barbearia.instagram} href={instagramUrl(barbearia.instagram)} icon="instagram" />
-          <ReadOnlyField label="Instagram" value={barbearia.instagram} href={instagramUrl(barbearia.instagram)} icon="instagram" />
         </section>
 
         <section className="space-y-3 rounded-lg border border-primary/10 bg-background/30 p-4">
