@@ -31,6 +31,7 @@ type EditableValues = {
   limiteImagens: string;
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
+  googleAvaliacao: string;
 };
 
 type BarbeariaData = {
