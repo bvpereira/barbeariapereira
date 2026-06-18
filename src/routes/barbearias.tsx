@@ -423,7 +423,57 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
                   />
                   Não
                 </label>
+            </div>
+            <div className="space-y-2">
+              <Label>Modo teste?</Label>
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`modo-teste-${barbearia.id}`}
+                    checked={values.modoTeste === "sim"}
+                    onChange={() => setValues((current) => ({ ...current, modoTeste: "sim" }))}
+                    className="accent-primary"
+                  />
+                  Sim
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`modo-teste-${barbearia.id}`}
+                    checked={values.modoTeste === "nao"}
+                    onChange={() => setValues((current) => ({ ...current, modoTeste: "nao" }))}
+                    className="accent-primary"
+                  />
+                  Não
+                </label>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Instância funcionando?</Label>
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-funcionando-${barbearia.id}`}
+                    checked={values.instanciaFuncionando === "sim"}
+                    onChange={() => setValues((current) => ({ ...current, instanciaFuncionando: "sim" }))}
+                    className="accent-primary"
+                  />
+                  Sim
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="radio"
+                    name={`instancia-funcionando-${barbearia.id}`}
+                    checked={values.instanciaFuncionando === "sim" ? false : true}
+                    onChange={() => setValues((current) => ({ ...current, instanciaFuncionando: "nao" }))}
+                    className="accent-primary"
+                  />
+                  Não
+                </label>
+              </div>
+            </div>
             </div>
           </div>
           <div className="flex justify-end">
