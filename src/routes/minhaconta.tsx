@@ -1126,32 +1126,6 @@ function MinhaContaPage() {
             </CardContent>
           </Card>
 
-          {/* Google Avaliação */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5 text-primary" />
-                Google Avaliação
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUpdateGoogleAvaliacao} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="googleAvaliacao">Link ou texto do Google Avaliação</Label>
-                  <Input
-                    id="googleAvaliacao"
-                    value={googleAvaliacao}
-                    onChange={(e) => setGoogleAvaliacao(e.target.value)}
-                    placeholder="Cole o link ou texto da sua avaliação do Google"
-                  />
-                </div>
-                <Button type="submit" disabled={loading} className="gap-2">
-                  <Save className="h-4 w-4" />
-                  Salvar Google Avaliação
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
 
           {/* Segurança */}
           <Card>
