@@ -214,7 +214,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 11) throw new Error("O número de telefone da instância deve ter exatamente 11 dígitos.");
 
       const [infoResult, agenteResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl, modo_teste: values.modoTeste === "sim", instancia_funcionando: values.instanciaFuncionando === "sim" } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
         supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
