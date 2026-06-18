@@ -374,11 +374,11 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Input
                 id={`instancia-numero-${barbearia.id}`}
                 inputMode="numeric"
-                placeholder="9 9999-9999"
+                placeholder="(XX) XXXXX-XXXX"
                 value={values.instanciaNumero}
                 onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
               />
-              <p className="text-xs text-muted-foreground">Deve conter exatamente 9 dígitos.</p>
+              <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
