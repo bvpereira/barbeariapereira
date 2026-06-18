@@ -33,6 +33,8 @@ type EditableValues = {
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
   googleAvaliacao: string;
+  modoTeste: "sim" | "nao";
+  instanciaFuncionando: "sim" | "nao";
 };
 
 function formatInstanciaNumero(value: string) {
