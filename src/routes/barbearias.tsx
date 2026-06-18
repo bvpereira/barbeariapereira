@@ -129,7 +129,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
+        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
         supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).eq("nivel", 3),
