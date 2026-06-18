@@ -920,6 +920,7 @@ export type Database = {
           instagram: string | null
           instancia_api: string | null
           instancia_evo: string | null
+          instancia_numero: string | null
           instancia_propria: string | null
           nome_barbearia: string | null
           site: string | null
@@ -952,6 +953,7 @@ export type Database = {
           instagram?: string | null
           instancia_api?: string | null
           instancia_evo?: string | null
+          instancia_numero?: string | null
           instancia_propria?: string | null
           nome_barbearia?: string | null
           site?: string | null
@@ -984,6 +986,7 @@ export type Database = {
           instagram?: string | null
           instancia_api?: string | null
           instancia_evo?: string | null
+          instancia_numero?: string | null
           instancia_propria?: string | null
           nome_barbearia?: string | null
           site?: string | null

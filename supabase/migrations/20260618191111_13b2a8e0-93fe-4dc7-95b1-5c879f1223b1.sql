@@ -1,0 +1,1 @@
+ALTER TABLE public.informacoes ADD COLUMN IF NOT EXISTS instancia_numero TEXT;
