@@ -188,6 +188,8 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
     googleAvaliacao: barbearia.googleAvaliacao,
+    modoTeste: barbearia.modoTeste ? "sim" : "nao",
+    instanciaFuncionando: barbearia.instanciaFuncionando ? "sim" : "nao",
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
