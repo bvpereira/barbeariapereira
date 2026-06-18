@@ -28,11 +28,19 @@ export const Route = createFileRoute("/barbearias")({
 type EditableValues = {
   instanciaEvo: string;
   instanciaApi: string;
+  instanciaNumero: string;
   limiteImagens: string;
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
   googleAvaliacao: string;
 };
+
+function formatInstanciaNumero(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 9);
+  if (digits.length <= 1) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 1)} ${digits.slice(1)}`;
+  return `${digits.slice(0, 1)} ${digits.slice(1, 5)}-${digits.slice(5)}`;
+}
 
 type BarbeariaData = {
   id: string;
@@ -42,6 +50,7 @@ type BarbeariaData = {
   telefone: string;
   email: string;
   googleAvaliacao: string;
+  instanciaNumero: string;
   instagram: string;
   responsavel: string;
   informacoesId: string | null;
@@ -120,7 +129,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
+        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_propria").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
         supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).eq("nivel", 3),
@@ -148,6 +157,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         agenteId: agenteResult.data?.id ?? null,
         instanciaEvo: infoResult.data?.instancia_evo || "",
         instanciaApi: infoResult.data?.instancia_api || "",
+        instanciaNumero: (infoResult.data as any)?.instancia_numero || "",
         instanciaPropria: (infoResult.data?.instancia_propria === "sim" ? "sim" : "nao"),
         limiteImagens: agenteResult.data?.num_limite_imagens ?? null,
         limitePromocoes: promoResult.data?.num_limite_promo ?? null,
@@ -167,6 +177,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   const initialValues = useMemo<EditableValues>(() => ({
     instanciaEvo: barbearia.instanciaEvo,
     instanciaApi: barbearia.instanciaApi,
+    instanciaNumero: formatInstanciaNumero(barbearia.instanciaNumero),
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
     limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
@@ -191,8 +202,11 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (!Number.isInteger(limite) || limite < 0) throw new Error("Informe um limite mensal válido para imagens.");
       if (!Number.isInteger(limitePromo) || limitePromo < 0) throw new Error("Informe um limite mensal válido para promoções.");
 
+      const instanciaNumeroDigits = values.instanciaNumero.replace(/\D/g, "");
+      if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 9) throw new Error("O número de telefone da instância deve ter exatamente 9 dígitos.");
+
       const [infoResult, agenteResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
         supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
@@ -354,6 +368,17 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             <div className="space-y-2">
               <Label htmlFor={`api-${barbearia.id}`}>API key da instância</Label>
               <Input id={`api-${barbearia.id}`} value={values.instanciaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaApi: event.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`instancia-numero-${barbearia.id}`}>Número de telefone da instância</Label>
+              <Input
+                id={`instancia-numero-${barbearia.id}`}
+                inputMode="numeric"
+                placeholder="9 9999-9999"
+                value={values.instanciaNumero}
+                onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
+              />
+              <p className="text-xs text-muted-foreground">Deve conter exatamente 9 dígitos.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
