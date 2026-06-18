@@ -1350,6 +1350,7 @@ export type Database = {
           barbearia_id: string | null
           created_at: string
           dias_inativo: string | null
+          email_usuario: string | null
           id: string
           login: string
           nivel: number
@@ -1365,6 +1366,7 @@ export type Database = {
           barbearia_id?: string | null
           created_at?: string
           dias_inativo?: string | null
+          email_usuario?: string | null
           id?: string
           login: string
           nivel: number
@@ -1380,6 +1382,7 @@ export type Database = {
           barbearia_id?: string | null
           created_at?: string
           dias_inativo?: string | null
+          email_usuario?: string | null
           id?: string
           login?: string
           nivel?: number

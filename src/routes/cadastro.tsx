@@ -23,6 +23,7 @@ const formatPhone = (value: string) => {
 function Cadastro() {
   const { tenant } = useTenant();
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -30,6 +31,8 @@ function Cadastro() {
   const [displayedPassword, setDisplayedPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, "");
@@ -68,6 +71,14 @@ function Cadastro() {
     setIsLoading(true);
     const cleanLogin = login.replace(/[^\d]/g, "");
 
+    if (!isValidEmail(email)) {
+      toast.error("Erro no cadastro", {
+        description: "Informe um e-mail válido.",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     if (cleanLogin.length !== 11) {
       toast.error("Erro no cadastro", {
         description: "O telefone deve ter exatamente 11 dígitos.",
@@ -100,6 +111,7 @@ function Cadastro() {
           {
             barbearia_id: tenant.id,
             nome,
+            email_usuario: email.trim(),
             login: cleanLogin,
             senha,
             nivel: 3, // Cliente
@@ -146,30 +158,50 @@ function Cadastro() {
         </div>
 
         <form onSubmit={handleSignUp} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="nome">Nome</Label>
-            <Input
-              id="nome"
-              placeholder="Seu nome completo"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              className="bg-background"
-            />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Seus dados</h3>
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome</Label>
+              <Input
+                id="nome"
+                placeholder="Seu nome completo"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                required
+                className="bg-background"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Seu melhor e-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="seuemail@exemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="bg-background"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="login">Telefone (Login)</Label>
-            <Input
-              id="login"
-              type="text"
-              placeholder="(xx) xxxxx-xxxx"
-              value={login}
-              onChange={handlePhoneChange}
-              required
-              className="bg-background"
-            />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Dados de acesso</h3>
+            <div className="space-y-2">
+              <Label htmlFor="login">Login - Seu WhatsApp</Label>
+              <Input
+                id="login"
+                type="text"
+                placeholder="(xx) xxxxx-xxxx"
+                value={login}
+                onChange={handlePhoneChange}
+                required
+                className="bg-background"
+              />
+            </div>
           </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="senha">Senha</Label>
@@ -216,7 +248,7 @@ function Cadastro() {
           </div>
 
           <p className="text-xs text-muted-foreground text-center italic">
-            "Utilizamos seu número de telefone como login pois através dele enviaremos confirmações de agendamento, lembretes e promoções."
+            "Utilizamos seu número de telefone como login pois através dele enviaremos confirmações de agendamento, lembretes e promoções. Seu e-mail é utilizado caso a forma de envio pelo WhatsApp esteja inoperante."
           </p>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
