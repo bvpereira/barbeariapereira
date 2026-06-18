@@ -28,11 +28,19 @@ export const Route = createFileRoute("/barbearias")({
 type EditableValues = {
   instanciaEvo: string;
   instanciaApi: string;
+  instanciaNumero: string;
   limiteImagens: string;
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
   googleAvaliacao: string;
 };
+
+function formatInstanciaNumero(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 9);
+  if (digits.length <= 1) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 1)} ${digits.slice(1)}`;
+  return `${digits.slice(0, 1)} ${digits.slice(1, 5)}-${digits.slice(5)}`;
+}
 
 type BarbeariaData = {
   id: string;
