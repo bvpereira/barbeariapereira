@@ -203,7 +203,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (!Number.isInteger(limitePromo) || limitePromo < 0) throw new Error("Informe um limite mensal válido para promoções.");
 
       const instanciaNumeroDigits = values.instanciaNumero.replace(/\D/g, "");
-      if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 9) throw new Error("O número de telefone da instância deve ter exatamente 9 dígitos.");
+      if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 11) throw new Error("O número de telefone da instância deve ter exatamente 11 dígitos.");
 
       const [infoResult, agenteResult, promoResult] = await Promise.all([
         supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
