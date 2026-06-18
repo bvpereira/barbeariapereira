@@ -177,6 +177,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
   const initialValues = useMemo<EditableValues>(() => ({
     instanciaEvo: barbearia.instanciaEvo,
     instanciaApi: barbearia.instanciaApi,
+    instanciaNumero: formatInstanciaNumero(barbearia.instanciaNumero),
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
     limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
