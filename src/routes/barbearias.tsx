@@ -31,6 +31,7 @@ type EditableValues = {
   limiteImagens: string;
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
+  googleAvaliacao: string;
 };
 
 type BarbeariaData = {
@@ -169,6 +170,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
     limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
+    googleAvaliacao: barbearia.googleAvaliacao,
   }), [barbearia]);
   const [values, setValues] = useState(initialValues);
   const [slugDraft, setSlugDraft] = useState(barbearia.slug);
@@ -190,7 +192,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
       if (!Number.isInteger(limitePromo) || limitePromo < 0) throw new Error("Informe um limite mensal válido para promoções.");
 
       const [infoResult, agenteResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl }).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
         supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
@@ -316,7 +318,6 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           <ReadOnlyField label="Nome do Responsável" value={barbearia.responsavel} />
           <ReadOnlyField label="Telefone de contato" value={barbearia.telefone} href={whatsappUrl(barbearia.telefone)} icon="whatsapp" />
           <ReadOnlyField label="E-mail" value={barbearia.email} />
-          <ReadOnlyField label="Site de avaliação do Google" value={barbearia.googleAvaliacao} href={normalizeUrl(barbearia.googleAvaliacao)} icon="link" />
           <ReadOnlyField label="Instagram" value={barbearia.instagram} href={instagramUrl(barbearia.instagram)} icon="instagram" />
         </section>
 
@@ -361,6 +362,10 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             <div className="space-y-2">
               <Label htmlFor={`limite-promo-${barbearia.id}`}>Limite mensal de envio de promoções/notificações</Label>
               <Input id={`limite-promo-${barbearia.id}`} type="number" min="0" step="1" value={values.limitePromocoes} onChange={(event) => setValues((current) => ({ ...current, limitePromocoes: event.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`google-${barbearia.id}`}>Site de avaliação do Google</Label>
+              <Input id={`google-${barbearia.id}`} value={values.googleAvaliacao} onChange={(event) => setValues((current) => ({ ...current, googleAvaliacao: event.target.value }))} placeholder="https://..." />
             </div>
             <div className="space-y-2">
               <Label>Instância própria?</Label>

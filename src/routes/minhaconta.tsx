@@ -1107,11 +1107,15 @@ function MinhaContaPage() {
                     <Input
                       id="tempoExcluir"
                       type="number"
+                      max={90}
                       value={tempoExcluir}
-                      onChange={(e) => setTempoExcluir(Number(e.target.value))}
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        setTempoExcluir(v > 90 ? 90 : v);
+                      }}
                       placeholder="Ex: 60"
                     />
-                    <p className="text-xs text-muted-foreground">Antecedência mínima para excluir ou reagendar.</p>
+                    <p className="text-xs text-muted-foreground">Antecedência mínima para excluir ou reagendar. Valor máximo permitido: 90.</p>
                   </div>
                 </div>
                 <Button type="submit" disabled={loading} className="gap-2">
@@ -1122,32 +1126,6 @@ function MinhaContaPage() {
             </CardContent>
           </Card>
 
-          {/* Google Avaliação */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5 text-primary" />
-                Google Avaliação
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUpdateGoogleAvaliacao} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="googleAvaliacao">Link ou texto do Google Avaliação</Label>
-                  <Input
-                    id="googleAvaliacao"
-                    value={googleAvaliacao}
-                    onChange={(e) => setGoogleAvaliacao(e.target.value)}
-                    placeholder="Cole o link ou texto da sua avaliação do Google"
-                  />
-                </div>
-                <Button type="submit" disabled={loading} className="gap-2">
-                  <Save className="h-4 w-4" />
-                  Salvar Google Avaliação
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
 
           {/* Segurança */}
           <Card>
