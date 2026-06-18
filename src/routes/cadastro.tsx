@@ -158,30 +158,50 @@ function Cadastro() {
         </div>
 
         <form onSubmit={handleSignUp} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="nome">Nome</Label>
-            <Input
-              id="nome"
-              placeholder="Seu nome completo"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              className="bg-background"
-            />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Seus dados</h3>
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome</Label>
+              <Input
+                id="nome"
+                placeholder="Seu nome completo"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                required
+                className="bg-background"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Seu melhor e-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="seuemail@exemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="bg-background"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="login">Telefone (Login)</Label>
-            <Input
-              id="login"
-              type="text"
-              placeholder="(xx) xxxxx-xxxx"
-              value={login}
-              onChange={handlePhoneChange}
-              required
-              className="bg-background"
-            />
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Dados de acesso</h3>
+            <div className="space-y-2">
+              <Label htmlFor="login">Login - Seu WhatsApp</Label>
+              <Input
+                id="login"
+                type="text"
+                placeholder="(xx) xxxxx-xxxx"
+                value={login}
+                onChange={handlePhoneChange}
+                required
+                className="bg-background"
+              />
+            </div>
           </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="senha">Senha</Label>
