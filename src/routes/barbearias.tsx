@@ -370,6 +370,17 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
               <Input id={`api-${barbearia.id}`} value={values.instanciaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaApi: event.target.value }))} />
             </div>
             <div className="space-y-2">
+              <Label htmlFor={`instancia-numero-${barbearia.id}`}>Número de telefone da instância</Label>
+              <Input
+                id={`instancia-numero-${barbearia.id}`}
+                inputMode="numeric"
+                placeholder="9 9999-9999"
+                value={values.instanciaNumero}
+                onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
+              />
+              <p className="text-xs text-muted-foreground">Deve conter exatamente 9 dígitos.</p>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
               <Input id={`limite-${barbearia.id}`} type="number" min="0" step="1" value={values.limiteImagens} onChange={(event) => setValues((current) => ({ ...current, limiteImagens: event.target.value }))} />
             </div>
