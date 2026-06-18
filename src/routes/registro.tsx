@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 
@@ -12,6 +13,7 @@ function Registro() {
   const [adminPhone, setAdminPhone] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { tenant } = useTenant();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -20,7 +22,6 @@ function Registro() {
       return;
     }
 
-    // Se já estiver registrado, manda pro dashboard
     if (user.registro === "sim") {
       navigate({ to: "/cliente" });
       return;
@@ -30,19 +31,18 @@ function Registro() {
       try {
         const { data, error } = await supabase
           .from("informacoes" as any)
-          .select("tel_contato")
+          .select("instancia_numero")
           .eq("userrr", "admin")
           .eq("barbearia_id", user.barbearia_id)
           .maybeSingle();
 
         if (error) throw error;
         if (data) {
-          const rawPhone = (data as any).tel_contato || "";
-          // Remove todos os caracteres não numéricos para o link do wa.me
+          const rawPhone = (data as any).instancia_numero || "";
           setAdminPhone(rawPhone.replace(/\D/g, ""));
         }
       } catch (err) {
-        console.error("Erro ao buscar telefone do admin:", err);
+        console.error("Erro ao buscar telefone da instância:", err);
       } finally {
         setIsLoading(false);
       }
@@ -53,8 +53,17 @@ function Registro() {
 
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent("Olá, acabei de me cadastrar e gostaria de confirmar meu registro");
-    const phone = adminPhone || "5522998770113"; // Fallback para o número fixo se não encontrar na tabela
+    const phone = adminPhone || "5522998770113";
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  };
+
+  const handleBackToHome = () => {
+    const slug = tenant?.slug;
+    if (slug) {
+      window.location.href = `/${slug}`;
+    } else {
+      navigate({ to: "/" });
+    }
   };
 
   if (isLoading) {
@@ -94,12 +103,18 @@ function Registro() {
           CONFIRMAR VIA WHATSAPP
         </Button>
 
+        <div className="bg-muted/50 border border-border rounded-lg p-4 text-xs text-muted-foreground leading-relaxed text-left">
+          <p>
+            <strong className="text-foreground">Atenção:</strong> Se você enviou a mensagem pelo WhatsApp e não recebeu uma confirmação, ou se já solicitou a confirmação e não obteve resposta, entre em contato através dos contatos disponíveis na página inicial informando que tentou realizar o cadastro mas não obteve resposta.
+          </p>
+        </div>
+
         <div className="pt-4">
           <button 
-            onClick={() => navigate({ to: "/login" })}
+            onClick={handleBackToHome}
             className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
-            Voltar para o login
+            Voltar para página inicial
           </button>
         </div>
       </div>
