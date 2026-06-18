@@ -248,7 +248,7 @@ function Cadastro() {
           </div>
 
           <p className="text-xs text-muted-foreground text-center italic">
-            "Utilizamos seu número de telefone como login pois através dele enviaremos confirmações de agendamento, lembretes e promoções."
+            "Utilizamos seu número de telefone como login pois através dele enviaremos confirmações de agendamento, lembretes e promoções. Seu e-mail é utilizado caso a forma de envio pelo WhatsApp esteja inoperante."
           </p>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
