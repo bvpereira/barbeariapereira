@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { WebhookSettings } from "@/components/WebhookSettings";
 import { EvolutionSettings } from "@/components/EvolutionSettings";
+import { SuperAdminInstanceSettings } from "@/components/SuperAdminInstanceSettings";
 import { useTenant } from "@/contexts/TenantContext";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
@@ -78,6 +79,16 @@ function SuperAdmin() {
         </div>
         <div className="max-w-2xl mx-auto">
           <EvolutionSettings />
+        </div>
+
+        <div className="text-center mb-8 mt-12">
+          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
+            Instância Super Admin
+          </h2>
+          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
+        </div>
+        <div className="max-w-2xl mx-auto">
+          <SuperAdminInstanceSettings />
         </div>
       </motion.div>
     </SuperAdminLayout>
