@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { toLocalISOString } from "@/lib/utils";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -564,7 +565,7 @@ function PromocaoPage() {
             imagem_promo: incluiImagem ? imagemParaLimpar : null,
             tipo_promo: promoAtual.tipo_promo || null,
             promo_para_quem: computeParaQuem() || promoAtual.promo_para_quem || null,
-            data_promo: new Date().toISOString()
+            data_promo: toLocalISOString()
           });
 
         if (histError) throw histError;

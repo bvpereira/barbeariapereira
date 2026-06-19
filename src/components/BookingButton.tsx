@@ -419,7 +419,7 @@ export function BookingButton({
         barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
-        data: `${selectedDatePart}T${selectedTimePart}:00-03:00`,
+        data: `${selectedDatePart}T${selectedTimePart}:00`,
         valor: originalTotal,
         valor_original: originalTotal,
         comissao: totalComissao,

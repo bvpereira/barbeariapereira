@@ -475,7 +475,7 @@ function AtendimentosPage() {
         barbearia_id: tenant.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
-        data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00-03:00`,
+        data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00`,
         valor: parseFloat(valorFinal),
         valor_original: parseFloat(valorFinal),
         comissao: parseFloat(comissaoFinal),
