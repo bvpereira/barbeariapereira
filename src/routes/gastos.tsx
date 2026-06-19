@@ -203,7 +203,7 @@ function GastosPage() {
         barbearia_id: tenant!.id,
         nome,
         valor: parseFloat(valor),
-        data: new Date(year, month - 1, day, 12, 0, 0).toISOString(),
+        data: `${dataGasto}T12:00:00`,
       };
 
       if (editingGasto) {
