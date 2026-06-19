@@ -1304,6 +1304,33 @@ export type Database = {
           },
         ]
       }
+      superadmin: {
+        Row: {
+          created_at: string
+          id: string
+          instancia_principal_api: string | null
+          instancia_principal_evo: string | null
+          instancia_principal_numero: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instancia_principal_api?: string | null
+          instancia_principal_evo?: string | null
+          instancia_principal_numero?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instancia_principal_api?: string | null
+          instancia_principal_evo?: string | null
+          instancia_principal_numero?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transacoes_financeiras: {
         Row: {
           barbearia_id: string
