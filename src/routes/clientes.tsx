@@ -854,6 +854,12 @@ function ClientesPage() {
                                   Histórico
                                 </Badge>
                               )}
+                              {cliente.bloqueado && (
+                                <Badge variant="destructive" className="text-[10px] py-0 px-1.5">
+                                  <Ban className="w-3 h-3 mr-1" />
+                                  Bloqueado
+                                </Badge>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>{formatPhone(cliente.login)}</TableCell>
@@ -893,6 +899,15 @@ function ClientesPage() {
                                 onClick={() => openEditDialog(cliente)}
                               >
                                 <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cliente.bloqueado ? "text-green-600 hover:text-green-700 hover:bg-green-50" : "text-orange-600 hover:text-orange-700 hover:bg-orange-50"}
+                                onClick={() => confirmToggleBloqueio(cliente)}
+                                title={cliente.bloqueado ? "Desbloquear cliente" : "Bloquear cliente"}
+                              >
+                                {cliente.bloqueado ? <ShieldCheck className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                               </Button>
                               <Button
                                 variant="ghost"
