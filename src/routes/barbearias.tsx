@@ -126,6 +126,30 @@ function ReadOnlyField({ label, value, href, icon }: { label: string; value: str
   );
 }
 
+function EnvioViaField({ value }: { value: string }) {
+  const isWhats = value === "Whatsapp";
+  const isEmail = value === "E-mail";
+  const invalid = !isWhats && !isEmail;
+  const colorClass = isWhats
+    ? "text-green-500 border-green-500/40 bg-green-500/10"
+    : isEmail
+    ? "text-yellow-500 border-yellow-500/40 bg-yellow-500/10"
+    : "text-muted-foreground border-primary/15 bg-background/40";
+  return (
+    <div className="space-y-2">
+      <Label className="text-muted-foreground">Envio de notificações via:</Label>
+      <div className={`flex min-h-10 items-center rounded-md border px-3 py-2 text-sm font-semibold ${colorClass}`}>
+        {value || "Não definido"}
+      </div>
+      {invalid && (
+        <p className="text-xs text-destructive">
+          Valor inválido. Pode haver algo escrito errado na tabela "informacoes" do Supabase. Use "Whatsapp" ou "E-mail".
+        </p>
+      )}
+    </div>
+  );
+}
+
 async function fetchBarbearias(): Promise<BarbeariaData[]> {
   const { data: barbearias, error } = await supabase
     .from("barbearias")
