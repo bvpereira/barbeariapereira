@@ -1311,6 +1311,9 @@ export type Database = {
           instancia_principal_api: string | null
           instancia_principal_evo: string | null
           instancia_principal_numero: string | null
+          instancia_reserva_api: string | null
+          instancia_reserva_evo: string | null
+          instancia_reserva_numero: string | null
           updated_at: string
         }
         Insert: {
@@ -1319,6 +1322,9 @@ export type Database = {
           instancia_principal_api?: string | null
           instancia_principal_evo?: string | null
           instancia_principal_numero?: string | null
+          instancia_reserva_api?: string | null
+          instancia_reserva_evo?: string | null
+          instancia_reserva_numero?: string | null
           updated_at?: string
         }
         Update: {
@@ -1327,6 +1333,9 @@ export type Database = {
           instancia_principal_api?: string | null
           instancia_principal_evo?: string | null
           instancia_principal_numero?: string | null
+          instancia_reserva_api?: string | null
+          instancia_reserva_evo?: string | null
+          instancia_reserva_numero?: string | null
           updated_at?: string
         }
         Relationships: []
