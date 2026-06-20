@@ -64,6 +64,7 @@ function ClientePage() {
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
   const [imagemBanner, setImagemBanner] = useState<string | null>(null);
+  const [isBloqueado, setIsBloqueado] = useState(false);
 
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
@@ -133,12 +134,13 @@ function ClientePage() {
   const fetchUserPromocao = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from('usuarios')
-      .select('promocao')
+      .select('promocao, bloqueado')
       .eq('id', userId)
       .maybeSingle();
     
     if (!error && data) {
       setIsPromocaoEnabled(data.promocao === 'sim');
+      setIsBloqueado(!!data.bloqueado);
     }
   }, []);
 
