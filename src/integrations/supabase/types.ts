@@ -1381,6 +1381,7 @@ export type Database = {
       usuarios: {
         Row: {
           barbearia_id: string | null
+          bloqueado: boolean
           created_at: string
           dias_inativo: string | null
           email_usuario: string | null
@@ -1397,6 +1398,7 @@ export type Database = {
         }
         Insert: {
           barbearia_id?: string | null
+          bloqueado?: boolean
           created_at?: string
           dias_inativo?: string | null
           email_usuario?: string | null
@@ -1413,6 +1415,7 @@ export type Database = {
         }
         Update: {
           barbearia_id?: string | null
+          bloqueado?: boolean
           created_at?: string
           dias_inativo?: string | null
           email_usuario?: string | null

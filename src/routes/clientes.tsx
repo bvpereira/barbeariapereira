@@ -20,7 +20,9 @@ import {
   XCircle,
   Clock,
   User,
-  Scissors
+  Scissors,
+  Ban,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -103,6 +105,7 @@ interface Cliente {
   senha?: string;
   observacao: string | null;
   registro?: string;
+  bloqueado?: boolean;
   hasAtendimentos?: boolean;
   clube_id?: string | null;
   clube_data_fim?: string | null;
@@ -177,6 +180,7 @@ function ClientesPage() {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
+  const [clienteToToggleBloqueio, setClienteToToggleBloqueio] = useState<Cliente | null>(null);
   const [formData, setFormData] = useState({
     nome: "",
     login: "",
@@ -270,6 +274,7 @@ function ClientesPage() {
         senha, 
         observacao,
         registro,
+        bloqueado,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
       .eq("barbearia_id", tenant.id)
@@ -616,6 +621,27 @@ function ClientesPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  const confirmToggleBloqueio = (cliente: Cliente) => {
+    setClienteToToggleBloqueio(cliente);
+  };
+
+  const handleToggleBloqueio = async () => {
+    if (!clienteToToggleBloqueio) return;
+    const novo = !clienteToToggleBloqueio.bloqueado;
+    const { error } = await supabase
+      .from("usuarios")
+      .update({ bloqueado: novo })
+      .eq("id", clienteToToggleBloqueio.id);
+    if (error) {
+      toast.error("Erro ao atualizar cliente");
+      console.error(error);
+    } else {
+      toast.success(novo ? "Cliente bloqueado" : "Cliente desbloqueado");
+      setClientes((prev) => prev.map((c) => c.id === clienteToToggleBloqueio.id ? { ...c, bloqueado: novo } : c));
+    }
+    setClienteToToggleBloqueio(null);
+  };
+
   const openAddDialog = () => {
     setIsEditing(false);
     setSelectedCliente(null);
@@ -725,6 +751,12 @@ function ClientesPage() {
                                   Histórico
                                 </Badge>
                               )}
+                              {cliente.bloqueado && (
+                                <Badge variant="destructive" className="text-[10px] py-0 px-1.5">
+                                  <Ban className="w-3 h-3 mr-1" />
+                                  Bloqueado
+                                </Badge>
+                              )}
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground mb-2">
                               <Phone className="w-4 h-4" />
@@ -756,6 +788,15 @@ function ClientesPage() {
                               onClick={() => openEditDialog(cliente)}
                             >
                               <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className={cliente.bloqueado ? "text-green-600 border-green-200 hover:bg-green-50" : "text-orange-600 border-orange-200 hover:bg-orange-50"}
+                              onClick={() => confirmToggleBloqueio(cliente)}
+                              title={cliente.bloqueado ? "Desbloquear cliente" : "Bloquear cliente"}
+                            >
+                              {cliente.bloqueado ? <ShieldCheck className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                             </Button>
                             <Button
                               variant="outline"
@@ -813,6 +854,12 @@ function ClientesPage() {
                                   Histórico
                                 </Badge>
                               )}
+                              {cliente.bloqueado && (
+                                <Badge variant="destructive" className="text-[10px] py-0 px-1.5">
+                                  <Ban className="w-3 h-3 mr-1" />
+                                  Bloqueado
+                                </Badge>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>{formatPhone(cliente.login)}</TableCell>
@@ -852,6 +899,15 @@ function ClientesPage() {
                                 onClick={() => openEditDialog(cliente)}
                               >
                                 <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cliente.bloqueado ? "text-green-600 hover:text-green-700 hover:bg-green-50" : "text-orange-600 hover:text-orange-700 hover:bg-orange-50"}
+                                onClick={() => confirmToggleBloqueio(cliente)}
+                                title={cliente.bloqueado ? "Desbloquear cliente" : "Bloquear cliente"}
+                              >
+                                {cliente.bloqueado ? <ShieldCheck className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                               </Button>
                               <Button
                                 variant="ghost"
@@ -1006,6 +1062,29 @@ function ClientesPage() {
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Excluir Cliente
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog open={!!clienteToToggleBloqueio} onOpenChange={(o) => !o && setClienteToToggleBloqueio(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {clienteToToggleBloqueio?.bloqueado ? "Desbloquear cliente?" : "Bloquear cliente?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {clienteToToggleBloqueio?.bloqueado
+                  ? `Ao desbloquear, ${clienteToToggleBloqueio?.nome ?? "o cliente"} poderá voltar a realizar agendamentos pelo site normalmente.`
+                  : `Ao bloquear, ${clienteToToggleBloqueio?.nome ?? "o cliente"} não poderá mais realizar agendamentos pelo site. Os colaboradores (nível 1 e 2) ainda podem criar agendamentos para este cliente.`}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleToggleBloqueio}
+                className={clienteToToggleBloqueio?.bloqueado ? "" : "bg-destructive text-destructive-foreground hover:bg-destructive/90"}
+              >
+                {clienteToToggleBloqueio?.bloqueado ? "Desbloquear" : "Bloquear"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
