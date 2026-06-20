@@ -146,7 +146,7 @@ function ClientePage() {
     const { data } = await supabase
       .from('informacoes')
       .select('tempo_excluir')
-      .eq('userrr', 'admin')
+      .limit(1)
       .maybeSingle();
     
     if (data) {
