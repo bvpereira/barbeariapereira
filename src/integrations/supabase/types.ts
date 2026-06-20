@@ -924,6 +924,7 @@ export type Database = {
           instancia_numero: string | null
           instancia_propria: string | null
           modo_teste: boolean | null
+          nome_admin: string | null
           nome_barbearia: string | null
           site: string | null
           tel_contato: string | null
@@ -931,7 +932,6 @@ export type Database = {
           tempo_marcar: number | null
           updated_at: string
           user_id: string | null
-          userrr: string | null
           usuario_id: string | null
           video_local: string | null
         }
@@ -959,6 +959,7 @@ export type Database = {
           instancia_numero?: string | null
           instancia_propria?: string | null
           modo_teste?: boolean | null
+          nome_admin?: string | null
           nome_barbearia?: string | null
           site?: string | null
           tel_contato?: string | null
@@ -966,7 +967,6 @@ export type Database = {
           tempo_marcar?: number | null
           updated_at?: string
           user_id?: string | null
-          userrr?: string | null
           usuario_id?: string | null
           video_local?: string | null
         }
@@ -994,6 +994,7 @@ export type Database = {
           instancia_numero?: string | null
           instancia_propria?: string | null
           modo_teste?: boolean | null
+          nome_admin?: string | null
           nome_barbearia?: string | null
           site?: string | null
           tel_contato?: string | null
@@ -1001,7 +1002,6 @@ export type Database = {
           tempo_marcar?: number | null
           updated_at?: string
           user_id?: string | null
-          userrr?: string | null
           usuario_id?: string | null
           video_local?: string | null
         }
