@@ -905,6 +905,7 @@ export type Database = {
           created_at: string
           email: string | null
           endereco: string | null
+          envio_via: string | null
           foto_perfil: string | null
           google_avaliacao: string | null
           id: string
@@ -943,6 +944,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           endereco?: string | null
+          envio_via?: string | null
           foto_perfil?: string | null
           google_avaliacao?: string | null
           id?: string
@@ -981,6 +983,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           endereco?: string | null
+          envio_via?: string | null
           foto_perfil?: string | null
           google_avaliacao?: string | null
           id?: string
@@ -1316,6 +1319,7 @@ export type Database = {
       superadmin: {
         Row: {
           created_at: string
+          envio_via: string | null
           id: string
           instancia_principal_api: string | null
           instancia_principal_evo: string | null
@@ -1327,6 +1331,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          envio_via?: string | null
           id?: string
           instancia_principal_api?: string | null
           instancia_principal_evo?: string | null
@@ -1338,6 +1343,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          envio_via?: string | null
           id?: string
           instancia_principal_api?: string | null
           instancia_principal_evo?: string | null

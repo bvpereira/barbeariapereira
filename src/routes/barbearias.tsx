@@ -57,6 +57,7 @@ type BarbeariaData = {
   googleAvaliacao: string;
   instanciaNumero: string;
   instagram: string;
+  envioVia: string;
   responsavel: string;
   informacoesId: string | null;
   agenteId: string | null;
@@ -125,6 +126,30 @@ function ReadOnlyField({ label, value, href, icon }: { label: string; value: str
   );
 }
 
+function EnvioViaField({ value }: { value: string }) {
+  const isWhats = value === "Whatsapp";
+  const isEmail = value === "E-mail";
+  const invalid = !isWhats && !isEmail;
+  const colorClass = isWhats
+    ? "text-green-500 border-green-500/40 bg-green-500/10"
+    : isEmail
+    ? "text-yellow-500 border-yellow-500/40 bg-yellow-500/10"
+    : "text-muted-foreground border-primary/15 bg-background/40";
+  return (
+    <div className="space-y-2">
+      <Label className="text-muted-foreground">Envio de notificações via:</Label>
+      <div className={`flex min-h-10 items-center rounded-md border px-3 py-2 text-sm font-semibold ${colorClass}`}>
+        {value || "Não definido"}
+      </div>
+      {invalid && (
+        <p className="text-xs text-destructive">
+          Valor inválido. Pode haver algo escrito errado na tabela "informacoes" do Supabase. Use "Whatsapp" ou "E-mail".
+        </p>
+      )}
+    </div>
+  );
+}
+
 async function fetchBarbearias(): Promise<BarbeariaData[]> {
   const { data: barbearias, error } = await supabase
     .from("barbearias")
@@ -139,7 +164,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_reserva_evo, instancia_reserva_api, instancia_reserva_numero, instancia_propria, modo_teste, instancia_funcionando").eq("barbearia_id", barbearia.id).maybeSingle(),
+        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_reserva_evo, instancia_reserva_api, instancia_reserva_numero, instancia_propria, modo_teste, instancia_funcionando, envio_via").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
         supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).eq("nivel", 3),
@@ -162,6 +187,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         email: infoResult.data?.email || "",
         googleAvaliacao: infoResult.data?.google_avaliacao || "",
         instagram: infoResult.data?.instagram || "",
+        envioVia: (infoResult.data as any)?.envio_via || "",
         responsavel: responsavelResult.data?.nome || "",
         informacoesId: infoResult.data?.id ?? null,
         agenteId: agenteResult.data?.id ?? null,
@@ -355,6 +381,7 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           <ReadOnlyField label="Telefone de contato" value={barbearia.telefone} href={whatsappUrl(barbearia.telefone)} icon="whatsapp" />
           <ReadOnlyField label="E-mail" value={barbearia.email} />
           <ReadOnlyField label="Instagram" value={barbearia.instagram} href={instagramUrl(barbearia.instagram)} icon="instagram" />
+          <EnvioViaField value={barbearia.envioVia} />
         </section>
 
         <section className="space-y-3 rounded-lg border border-primary/10 bg-background/30 p-4">
