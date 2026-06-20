@@ -382,26 +382,55 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             <h3 className="font-josefin text-lg font-bold uppercase tracking-wide text-foreground">Configurações editáveis</h3>
             <p className="text-sm text-muted-foreground">Altere os dados abaixo e salve para substituir os valores atuais.</p>
           </div>
+          <div className="space-y-3">
+            <h4 className="font-josefin text-sm font-bold uppercase tracking-wide text-primary">Instância Principal</h4>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor={`evo-${barbearia.id}`}>Instância conectada Evolution API</Label>
+                <Input id={`evo-${barbearia.id}`} value={values.instanciaEvo} onChange={(event) => setValues((current) => ({ ...current, instanciaEvo: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`api-${barbearia.id}`}>API key da instância</Label>
+                <Input id={`api-${barbearia.id}`} value={values.instanciaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaApi: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`instancia-numero-${barbearia.id}`}>Número de telefone da instância</Label>
+                <Input
+                  id={`instancia-numero-${barbearia.id}`}
+                  inputMode="numeric"
+                  placeholder="(XX) XXXXX-XXXX"
+                  value={values.instanciaNumero}
+                  onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
+                />
+                <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h4 className="font-josefin text-sm font-bold uppercase tracking-wide text-primary">Instância Reserva</h4>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor={`evo-reserva-${barbearia.id}`}>Instância conectada Evolution API</Label>
+                <Input id={`evo-reserva-${barbearia.id}`} value={values.instanciaReservaEvo} onChange={(event) => setValues((current) => ({ ...current, instanciaReservaEvo: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`api-reserva-${barbearia.id}`}>API key da instância</Label>
+                <Input id={`api-reserva-${barbearia.id}`} value={values.instanciaReservaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaReservaApi: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`instancia-reserva-numero-${barbearia.id}`}>Número de telefone da instância</Label>
+                <Input
+                  id={`instancia-reserva-numero-${barbearia.id}`}
+                  inputMode="numeric"
+                  placeholder="(XX) XXXXX-XXXX"
+                  value={values.instanciaReservaNumero}
+                  onChange={(event) => setValues((current) => ({ ...current, instanciaReservaNumero: formatInstanciaNumero(event.target.value) }))}
+                />
+                <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
+              </div>
+            </div>
+          </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor={`evo-${barbearia.id}`}>Instância conectada Evolution API</Label>
-              <Input id={`evo-${barbearia.id}`} value={values.instanciaEvo} onChange={(event) => setValues((current) => ({ ...current, instanciaEvo: event.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`api-${barbearia.id}`}>API key da instância</Label>
-              <Input id={`api-${barbearia.id}`} value={values.instanciaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaApi: event.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`instancia-numero-${barbearia.id}`}>Número de telefone da instância</Label>
-              <Input
-                id={`instancia-numero-${barbearia.id}`}
-                inputMode="numeric"
-                placeholder="(XX) XXXXX-XXXX"
-                value={values.instanciaNumero}
-                onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
-              />
-              <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
-            </div>
             <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
               <Input id={`limite-${barbearia.id}`} type="number" min="0" step="1" value={values.limiteImagens} onChange={(event) => setValues((current) => ({ ...current, limiteImagens: event.target.value }))} />
