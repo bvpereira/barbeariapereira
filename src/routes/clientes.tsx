@@ -20,7 +20,7 @@ import {
   XCircle,
   Clock,
   User,
-  Scissors
+  Scissors,
   Ban,
   ShieldCheck,
 } from "lucide-react";
