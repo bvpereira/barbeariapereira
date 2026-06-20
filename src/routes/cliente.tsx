@@ -396,27 +396,52 @@ function ClientePage() {
             </div>
           )}
 
-          {/* Section 1: Novo Agendamento */}
-          <Card className="md:col-span-2 bg-primary/5 border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                Novo Agendamento
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4 text-muted-foreground">Agende seu próximo horário com facilidade.</p>
-              <BookingButton 
-                fixedClientId={user.id} 
-                onSuccess={() => {
-                  fetchAgendamentos(user.id);
-                  fetchHistorico(user.id);
-                }}
-                className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
-                variant="default"
-              />
-            </CardContent>
-          </Card>
+          {/* Section 1: Novo Agendamento ou Aviso de Bloqueio */}
+          {isBloqueado ? (
+            <Card className="md:col-span-2 bg-destructive/5 border-destructive/30">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <Lock className="w-5 h-5" />
+                  Sua conta está bloqueada
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm">
+                  Sua conta está bloqueada e, por isso, você não consegue realizar agendamentos através do site no momento.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Se quiser saber o motivo ou achar que o bloqueio foi um engano, entre em contato com os responsáveis da barbearia através dos canais de contato disponíveis na página inicial.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate({ to: "/$slug", params: { slug: tenant?.slug ?? "" } })}
+                >
+                  Ir para a página inicial da barbearia
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="md:col-span-2 bg-primary/5 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  Novo Agendamento
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4 text-muted-foreground">Agende seu próximo horário com facilidade.</p>
+                <BookingButton 
+                  fixedClientId={user.id} 
+                  onSuccess={() => {
+                    fetchAgendamentos(user.id);
+                    fetchHistorico(user.id);
+                  }}
+                  className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
+                  variant="default"
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {tenant?.id && (
             <ClienteClubeView barbeariaId={tenant.id} clienteId={user.id} />
