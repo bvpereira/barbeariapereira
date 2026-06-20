@@ -91,6 +91,16 @@ function SuperAdmin() {
         <div className="max-w-2xl mx-auto">
           <SuperAdminInstanceSettings />
         </div>
+
+        <div className="text-center mb-8 mt-12">
+          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
+            Instância Reserva
+          </h2>
+          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
+        </div>
+        <div className="max-w-2xl mx-auto">
+          <SuperAdminReserveSettings />
+        </div>
       </motion.div>
     </SuperAdminLayout>
   );
