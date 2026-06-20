@@ -29,6 +29,9 @@ type EditableValues = {
   instanciaEvo: string;
   instanciaApi: string;
   instanciaNumero: string;
+  instanciaReservaEvo: string;
+  instanciaReservaApi: string;
+  instanciaReservaNumero: string;
   limiteImagens: string;
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
