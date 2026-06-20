@@ -1066,6 +1066,29 @@ function ClientesPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <AlertDialog open={!!clienteToToggleBloqueio} onOpenChange={(o) => !o && setClienteToToggleBloqueio(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {clienteToToggleBloqueio?.bloqueado ? "Desbloquear cliente?" : "Bloquear cliente?"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {clienteToToggleBloqueio?.bloqueado
+                  ? `Ao desbloquear, ${clienteToToggleBloqueio?.nome ?? "o cliente"} poderá voltar a realizar agendamentos pelo site normalmente.`
+                  : `Ao bloquear, ${clienteToToggleBloqueio?.nome ?? "o cliente"} não poderá mais realizar agendamentos pelo site. Os colaboradores (nível 1 e 2) ainda podem criar agendamentos para este cliente.`}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleToggleBloqueio}
+                className={clienteToToggleBloqueio?.bloqueado ? "" : "bg-destructive text-destructive-foreground hover:bg-destructive/90"}
+              >
+                {clienteToToggleBloqueio?.bloqueado ? "Desbloquear" : "Bloquear"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         {/* Dialog Novo/Editar Atendimento (Histórico) */}
         <Dialog open={isEditAtendimentoOpen} onOpenChange={setIsEditAtendimentoOpen}>
           <DialogContent className="sm:max-w-[500px]">
