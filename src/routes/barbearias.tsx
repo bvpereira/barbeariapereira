@@ -29,6 +29,9 @@ type EditableValues = {
   instanciaEvo: string;
   instanciaApi: string;
   instanciaNumero: string;
+  instanciaReservaEvo: string;
+  instanciaReservaApi: string;
+  instanciaReservaNumero: string;
   limiteImagens: string;
   limitePromocoes: string;
   instanciaPropria: "sim" | "nao";
@@ -59,6 +62,9 @@ type BarbeariaData = {
   agenteId: string | null;
   instanciaEvo: string;
   instanciaApi: string;
+  instanciaReservaEvo: string;
+  instanciaReservaApi: string;
+  instanciaReservaNumero: string;
   instanciaPropria: "sim" | "nao";
   modoTeste: boolean;
   instanciaFuncionando: boolean;
@@ -133,7 +139,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_propria, modo_teste, instancia_funcionando").eq("barbearia_id", barbearia.id).maybeSingle(),
+        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_reserva_evo, instancia_reserva_api, instancia_reserva_numero, instancia_propria, modo_teste, instancia_funcionando").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
         supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).eq("nivel", 3),
@@ -162,6 +168,9 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         instanciaEvo: infoResult.data?.instancia_evo || "",
         instanciaApi: infoResult.data?.instancia_api || "",
         instanciaNumero: (infoResult.data as any)?.instancia_numero || "",
+        instanciaReservaEvo: (infoResult.data as any)?.instancia_reserva_evo || "",
+        instanciaReservaApi: (infoResult.data as any)?.instancia_reserva_api || "",
+        instanciaReservaNumero: (infoResult.data as any)?.instancia_reserva_numero || "",
         instanciaPropria: (infoResult.data?.instancia_propria === "sim" ? "sim" : "nao"),
         modoTeste: (infoResult.data as any)?.modo_teste === true,
         instanciaFuncionando: (infoResult.data as any)?.instancia_funcionando !== false,
@@ -184,6 +193,9 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     instanciaEvo: barbearia.instanciaEvo,
     instanciaApi: barbearia.instanciaApi,
     instanciaNumero: formatInstanciaNumero(barbearia.instanciaNumero),
+    instanciaReservaEvo: barbearia.instanciaReservaEvo,
+    instanciaReservaApi: barbearia.instanciaReservaApi,
+    instanciaReservaNumero: formatInstanciaNumero(barbearia.instanciaReservaNumero),
     limiteImagens: barbearia.limiteImagens?.toString() ?? "",
     limitePromocoes: barbearia.limitePromocoes?.toString() ?? "",
     instanciaPropria: barbearia.instanciaPropria,
@@ -212,9 +224,11 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
 
       const instanciaNumeroDigits = values.instanciaNumero.replace(/\D/g, "");
       if (instanciaNumeroDigits && instanciaNumeroDigits.length !== 11) throw new Error("O número de telefone da instância deve ter exatamente 11 dígitos.");
+      const instanciaReservaNumeroDigits = values.instanciaReservaNumero.replace(/\D/g, "");
+      if (instanciaReservaNumeroDigits && instanciaReservaNumeroDigits.length !== 11) throw new Error("O número de telefone da instância reserva deve ter exatamente 11 dígitos.");
 
       const [infoResult, agenteResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl, modo_teste: values.modoTeste === "sim", instancia_funcionando: values.instanciaFuncionando === "sim" } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
+        supabase.from("informacoes").update({ instancia_evo: values.instanciaEvo.trim(), instancia_api: values.instanciaApi.trim(), instancia_numero: instanciaNumeroDigits, instancia_reserva_evo: values.instanciaReservaEvo.trim(), instancia_reserva_api: values.instanciaReservaApi.trim(), instancia_reserva_numero: instanciaReservaNumeroDigits, instancia_propria: values.instanciaPropria, google_avaliacao: values.googleAvaliacao.trim(), site: siteUrl, modo_teste: values.modoTeste === "sim", instancia_funcionando: values.instanciaFuncionando === "sim" } as any).eq("id", barbearia.informacoesId).eq("barbearia_id", barbearia.id),
         supabase.from("agentes_ia").update({ num_limite_imagens: limite }).eq("id", barbearia.agenteId).eq("barbearia_id", barbearia.id),
         supabase.from("promocao").update({ num_limite_promo: limitePromo }).eq("barbearia_id", barbearia.id).eq("numero_promo", 0),
       ]);
@@ -368,26 +382,55 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             <h3 className="font-josefin text-lg font-bold uppercase tracking-wide text-foreground">Configurações editáveis</h3>
             <p className="text-sm text-muted-foreground">Altere os dados abaixo e salve para substituir os valores atuais.</p>
           </div>
+          <div className="space-y-3">
+            <h4 className="font-josefin text-sm font-bold uppercase tracking-wide text-primary">Instância Principal</h4>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor={`evo-${barbearia.id}`}>Instância conectada Evolution API</Label>
+                <Input id={`evo-${barbearia.id}`} value={values.instanciaEvo} onChange={(event) => setValues((current) => ({ ...current, instanciaEvo: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`api-${barbearia.id}`}>API key da instância</Label>
+                <Input id={`api-${barbearia.id}`} value={values.instanciaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaApi: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`instancia-numero-${barbearia.id}`}>Número de telefone da instância</Label>
+                <Input
+                  id={`instancia-numero-${barbearia.id}`}
+                  inputMode="numeric"
+                  placeholder="(XX) XXXXX-XXXX"
+                  value={values.instanciaNumero}
+                  onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
+                />
+                <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h4 className="font-josefin text-sm font-bold uppercase tracking-wide text-primary">Instância Reserva</h4>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor={`evo-reserva-${barbearia.id}`}>Instância conectada Evolution API</Label>
+                <Input id={`evo-reserva-${barbearia.id}`} value={values.instanciaReservaEvo} onChange={(event) => setValues((current) => ({ ...current, instanciaReservaEvo: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`api-reserva-${barbearia.id}`}>API key da instância</Label>
+                <Input id={`api-reserva-${barbearia.id}`} value={values.instanciaReservaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaReservaApi: event.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`instancia-reserva-numero-${barbearia.id}`}>Número de telefone da instância</Label>
+                <Input
+                  id={`instancia-reserva-numero-${barbearia.id}`}
+                  inputMode="numeric"
+                  placeholder="(XX) XXXXX-XXXX"
+                  value={values.instanciaReservaNumero}
+                  onChange={(event) => setValues((current) => ({ ...current, instanciaReservaNumero: formatInstanciaNumero(event.target.value) }))}
+                />
+                <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
+              </div>
+            </div>
+          </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor={`evo-${barbearia.id}`}>Instância conectada Evolution API</Label>
-              <Input id={`evo-${barbearia.id}`} value={values.instanciaEvo} onChange={(event) => setValues((current) => ({ ...current, instanciaEvo: event.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`api-${barbearia.id}`}>API key da instância</Label>
-              <Input id={`api-${barbearia.id}`} value={values.instanciaApi} onChange={(event) => setValues((current) => ({ ...current, instanciaApi: event.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`instancia-numero-${barbearia.id}`}>Número de telefone da instância</Label>
-              <Input
-                id={`instancia-numero-${barbearia.id}`}
-                inputMode="numeric"
-                placeholder="(XX) XXXXX-XXXX"
-                value={values.instanciaNumero}
-                onChange={(event) => setValues((current) => ({ ...current, instanciaNumero: formatInstanciaNumero(event.target.value) }))}
-              />
-              <p className="text-xs text-muted-foreground">Deve conter exatamente 11 dígitos.</p>
-            </div>
             <div className="space-y-2">
               <Label htmlFor={`limite-${barbearia.id}`}>Limite mensal de criação/edição de imagens</Label>
               <Input id={`limite-${barbearia.id}`} type="number" min="0" step="1" value={values.limiteImagens} onChange={(event) => setValues((current) => ({ ...current, limiteImagens: event.target.value }))} />
