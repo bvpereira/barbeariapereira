@@ -923,6 +923,9 @@ export type Database = {
           instancia_funcionando: boolean | null
           instancia_numero: string | null
           instancia_propria: string | null
+          instancia_reserva_api: string | null
+          instancia_reserva_evo: string | null
+          instancia_reserva_numero: string | null
           modo_teste: boolean | null
           nome_admin: string | null
           nome_barbearia: string | null
@@ -958,6 +961,9 @@ export type Database = {
           instancia_funcionando?: boolean | null
           instancia_numero?: string | null
           instancia_propria?: string | null
+          instancia_reserva_api?: string | null
+          instancia_reserva_evo?: string | null
+          instancia_reserva_numero?: string | null
           modo_teste?: boolean | null
           nome_admin?: string | null
           nome_barbearia?: string | null
@@ -993,6 +999,9 @@ export type Database = {
           instancia_funcionando?: boolean | null
           instancia_numero?: string | null
           instancia_propria?: string | null
+          instancia_reserva_api?: string | null
+          instancia_reserva_evo?: string | null
+          instancia_reserva_numero?: string | null
           modo_teste?: boolean | null
           nome_admin?: string | null
           nome_barbearia?: string | null
