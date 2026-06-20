@@ -62,6 +62,9 @@ type BarbeariaData = {
   agenteId: string | null;
   instanciaEvo: string;
   instanciaApi: string;
+  instanciaReservaEvo: string;
+  instanciaReservaApi: string;
+  instanciaReservaNumero: string;
   instanciaPropria: "sim" | "nao";
   modoTeste: boolean;
   instanciaFuncionando: boolean;
