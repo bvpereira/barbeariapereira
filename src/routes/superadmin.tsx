@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { WebhookSettings } from "@/components/WebhookSettings";
-import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { SuperAdminInstanceSettings } from "@/components/SuperAdminInstanceSettings";
 import { SuperAdminReserveSettings } from "@/components/SuperAdminReserveSettings";
+import { EnvioViaCard } from "@/components/EnvioViaCard";
 import { useTenant } from "@/contexts/TenantContext";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
@@ -72,15 +72,10 @@ function SuperAdmin() {
           <WebhookSettings />
         </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
-            Configurações do Evolution
-          </h2>
-          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
+        <div className="max-w-2xl mx-auto mb-8">
+          <EnvioViaCard />
         </div>
-        <div className="max-w-2xl mx-auto">
-          <EvolutionSettings />
-        </div>
+
 
         <div className="text-center mb-8 mt-12">
           <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
