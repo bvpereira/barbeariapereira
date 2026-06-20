@@ -180,6 +180,7 @@ function ClientesPage() {
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [clienteToDelete, setClienteToDelete] = useState<string | null>(null);
+  const [clienteToToggleBloqueio, setClienteToToggleBloqueio] = useState<Cliente | null>(null);
   const [formData, setFormData] = useState({
     nome: "",
     login: "",
@@ -618,6 +619,27 @@ function ClientesPage() {
   const confirmDelete = (id: string) => {
     setClienteToDelete(id);
     setIsDeleteDialogOpen(true);
+  };
+
+  const confirmToggleBloqueio = (cliente: Cliente) => {
+    setClienteToToggleBloqueio(cliente);
+  };
+
+  const handleToggleBloqueio = async () => {
+    if (!clienteToToggleBloqueio) return;
+    const novo = !clienteToToggleBloqueio.bloqueado;
+    const { error } = await supabase
+      .from("usuarios")
+      .update({ bloqueado: novo })
+      .eq("id", clienteToToggleBloqueio.id);
+    if (error) {
+      toast.error("Erro ao atualizar cliente");
+      console.error(error);
+    } else {
+      toast.success(novo ? "Cliente bloqueado" : "Cliente desbloqueado");
+      setClientes((prev) => prev.map((c) => c.id === clienteToToggleBloqueio.id ? { ...c, bloqueado: novo } : c));
+    }
+    setClienteToToggleBloqueio(null);
   };
 
   const openAddDialog = () => {
