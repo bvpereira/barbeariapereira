@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { WebhookSettings } from "@/components/WebhookSettings";
 import { EvolutionSettings } from "@/components/EvolutionSettings";
 import { SuperAdminInstanceSettings } from "@/components/SuperAdminInstanceSettings";
+import { SuperAdminReserveSettings } from "@/components/SuperAdminReserveSettings";
 import { useTenant } from "@/contexts/TenantContext";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
