@@ -21,6 +21,8 @@ import {
   Clock,
   User,
   Scissors
+  Ban,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -103,6 +105,7 @@ interface Cliente {
   senha?: string;
   observacao: string | null;
   registro?: string;
+  bloqueado?: boolean;
   hasAtendimentos?: boolean;
   clube_id?: string | null;
   clube_data_fim?: string | null;
@@ -270,6 +273,7 @@ function ClientesPage() {
         senha, 
         observacao,
         registro,
+        bloqueado,
         atendimentos:atendimentos(id)
       `, { count: "exact" })
       .eq("barbearia_id", tenant.id)
