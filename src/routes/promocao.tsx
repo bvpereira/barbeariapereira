@@ -181,7 +181,6 @@ function PromocaoPage() {
       const { data: info, error: infoError } = await supabase
         .from("informacoes")
         .select("tel_contato")
-        .eq("userrr", "admin")
         .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
