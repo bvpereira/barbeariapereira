@@ -60,11 +60,46 @@ function ServicesPage() {
   const [extraImages, setExtraImages] = useState<(File | null)[]>([null, null, null, null]);
   const [extraPreviews, setExtraPreviews] = useState<(string | null)[]>([null, null, null, null]);
 
+  // Cashback
+  const [cashbackEnabled, setCashbackEnabled] = useState(false);
+  const [cashbackToggling, setCashbackToggling] = useState(false);
+  const [cashbackAtivo, setCashbackAtivo] = useState(false);
+  const [cashbackPercentual, setCashbackPercentual] = useState("");
+
   useEffect(() => {
     if (!tenantLoading && tenant) {
       fetchServices();
+      fetchCashbackFlag();
     }
   }, [tenant, tenantLoading]);
+
+  const fetchCashbackFlag = async () => {
+    if (!tenant?.id) return;
+    const { data } = await supabase
+      .from("informacoes")
+      .select("cashback")
+      .eq("barbearia_id", tenant.id)
+      .maybeSingle();
+    setCashbackEnabled(!!(data as any)?.cashback);
+  };
+
+  const toggleCashbackGlobal = async (value: boolean) => {
+    if (!tenant?.id) return;
+    setCashbackToggling(true);
+    try {
+      const { error } = await supabase
+        .from("informacoes")
+        .update({ cashback: value } as any)
+        .eq("barbearia_id", tenant.id);
+      if (error) throw error;
+      setCashbackEnabled(value);
+      toast.success(value ? "Cashback ativado" : "Cashback desativado");
+    } catch (e: any) {
+      toast.error("Erro: " + e.message);
+    } finally {
+      setCashbackToggling(false);
+    }
+  };
 
   const fetchServices = async () => {
     if (!tenant?.id) return;
