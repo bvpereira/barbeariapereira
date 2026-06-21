@@ -128,6 +128,8 @@ function ServicesPage() {
     setImagePreview(null);
     setExtraImages([null, null, null, null]);
     setExtraPreviews([null, null, null, null]);
+    setCashbackAtivo(false);
+    setCashbackPercentual("");
     setEditingService(null);
   };
 
@@ -144,6 +146,8 @@ function ServicesPage() {
       service.image_url_4,
       service.image_url_5,
     ]);
+    setCashbackAtivo(!!service.cashback_ativo);
+    setCashbackPercentual(service.cashback_percentual != null ? String(service.cashback_percentual) : "");
     setIsDialogOpen(true);
   };
 
