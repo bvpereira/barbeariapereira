@@ -322,6 +322,7 @@ export function BookingButton({
   useEffect(() => {
     if (!isOpen || !tenant || !selectedCliente || selectedServicos.length === 0 || !selectedDatePart) {
       setClubePreview(null);
+      setCashbackClubeCobertos(new Set());
       return;
     }
     let cancelled = false;
@@ -329,12 +330,13 @@ export function BookingButton({
       try {
         const status: any = await getClubeStatusFn({ data: { barbearia_id: tenant.id, cliente_id: selectedCliente.id } });
         if (cancelled) return;
-        if (!status?.ativo || !Array.isArray(status.servicos)) { setClubePreview(null); return; }
+        if (!status?.ativo || !Array.isArray(status.servicos)) { setClubePreview(null); setCashbackClubeCobertos(new Set()); return; }
         const dow = parseISO(selectedDatePart).getDay();
         const remaining: Record<string, number> = {};
         status.servicos.forEach((s: any) => { remaining[s.servico_id] = Number(s.restantes) || 0; });
         let desconto = 0;
         const itens: Array<{ nome: string; desconto: number }> = [];
+        const cobertos = new Set<string>();
         for (const sId of selectedServicos) {
           const rule = status.servicos.find((x: any) => x.servico_id === sId);
           if (!rule) continue;
@@ -342,6 +344,7 @@ export function BookingButton({
           if ((remaining[sId] ?? 0) <= 0) continue;
           const serv = allServicos.find(a => a.id === sId);
           if (!serv) continue;
+          cobertos.add(sId);
           const d = rule.tipo_desconto === "percentual"
             ? (Number(serv.price) * Number(rule.valor_desconto)) / 100
             : Math.min(Number(rule.valor_desconto), Number(serv.price));
@@ -350,13 +353,29 @@ export function BookingButton({
           itens.push({ nome: serv.name, desconto: d });
           remaining[sId] -= 1;
         }
+        setCashbackClubeCobertos(cobertos);
         if (desconto <= 0) { setClubePreview(null); return; }
         const baseTotal = selectedServicos.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
         setClubePreview({ desconto, valor_final: Math.max(0, baseTotal - desconto), valor_original: baseTotal, itens });
-      } catch { if (!cancelled) setClubePreview(null); }
+      } catch { if (!cancelled) { setClubePreview(null); setCashbackClubeCobertos(new Set()); } }
     })();
     return () => { cancelled = true; };
   }, [isOpen, tenant, selectedCliente, selectedServicos, selectedDatePart, allServicos, getClubeStatusFn]);
+
+  // Carregar saldo de cashback do cliente
+  useEffect(() => {
+    if (!isOpen || !cashbackEnabled || !tenant || !selectedCliente) { setCashbackSaldo(0); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.rpc("fn_cashback_saldo", {
+        p_barbearia_id: tenant.id, p_cliente_id: selectedCliente.id,
+      });
+      if (cancelled) return;
+      setCashbackSaldo(Number((data as any)?.disponivel || 0));
+    })();
+    return () => { cancelled = true; };
+  }, [isOpen, cashbackEnabled, tenant, selectedCliente]);
+
 
   // Atualiza o valor final exibido com o desconto do clube quando não há cupom aplicado
   useEffect(() => {
