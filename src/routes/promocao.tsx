@@ -882,7 +882,7 @@ function PromocaoPage() {
 
               {/* Imagem */}
               <div className="space-y-2">
-                <Label>Imagem da Promoção</Label>
+                <Label>Imagem da Notificação/Promoção</Label>
                 <div className="flex flex-col gap-4">
                   <div className="relative aspect-video rounded-lg border-2 border-dashed bg-muted flex flex-col items-center justify-center overflow-hidden">
                     {promoAtual.imagem_promo ? (
