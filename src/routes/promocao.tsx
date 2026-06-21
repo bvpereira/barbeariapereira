@@ -997,7 +997,7 @@ function PromocaoPage() {
                   className="gap-2" 
                   onClick={async () => {
                     if (promoAtual.testada !== "sim") {
-                      toast.error("Você precisa enviar um teste antes de enviar a promoção real.");
+                      toast.error("Você precisa enviar um teste antes do envio real.");
                       return;
                     }
                     const validos = validarCamposEnvio();
@@ -1012,7 +1012,7 @@ function PromocaoPage() {
                   disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem() || (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo)}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  Enviar Promoção
+                  Enviar Notificação/Promoção
                 </Button>
               </div>
               </div>
