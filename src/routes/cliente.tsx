@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookingButton } from "@/components/BookingButton";
 import { ClienteClubeView } from "@/components/ClienteClubeView";
