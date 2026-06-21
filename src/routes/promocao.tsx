@@ -1216,9 +1216,9 @@ function PromocaoPage() {
       <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir registro de promoção?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir registro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação removerá permanentemente o registro desta promoção do histórico.
+              Esta ação removerá permanentemente este registro do histórico.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
