@@ -682,8 +682,8 @@ function PromocaoPage() {
       <div className="space-y-6 pb-10">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Promoções</h1>
-            <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de promoções da barbearia.</p>
+            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Notificações e Promoções</h1>
+            <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de notificações e promoções da barbearia.</p>
             <div className="mt-3">
               <Badge variant="outline" className="px-3 py-1 bg-primary/5 text-primary border-primary/20">
                 Banner Clientes: {promoAtual.imagem_banner ? "Ativo" : "Não configurado"}
