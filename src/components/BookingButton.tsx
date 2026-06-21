@@ -830,6 +830,60 @@ export function BookingButton({
                 disabled={currentUser?.nivel === 3 || currentUser?.nivel === "3"}
               />
             </div>
+            {cashbackEnabled && selectedServicos.length > 0 && (() => {
+              // Cashback que o cliente vai receber neste agendamento
+              const couponMap: Record<string, { orig: number; final: number }> = {};
+              if (couponResult && Array.isArray((couponResult as any).servicos)) {
+                (couponResult as any).servicos.forEach((s: any) => {
+                  couponMap[s.servico_id] = { orig: Number(s.valor_original), final: Number(s.valor_final) };
+                });
+              }
+              let cashbackAReceber = 0;
+              selectedServicos.forEach((sId) => {
+                const perc = cashbackServicos[sId];
+                if (!perc) return;
+                if (cashbackClubeCobertos.has(sId)) return;
+                const serv = allServicos.find((a) => a.id === sId);
+                if (!serv) return;
+                const orig = Number(serv.price);
+                const finalAfterCoupon = couponMap[sId]?.final ?? orig;
+                const fator = orig > 0 ? Math.max(0, finalAfterCoupon) / orig : 0;
+                cashbackAReceber += (orig * perc / 100) * fator;
+              });
+              const maxUso = Math.min(cashbackSaldo, parseFloat(valorFinal || "0"));
+              return (
+                <div className="space-y-2 rounded-lg border p-3 bg-primary/5">
+                  {cashbackAReceber > 0 && (
+                    <p className="text-sm font-medium text-primary">
+                      Você vai receber R$ {cashbackAReceber.toFixed(2).replace(".", ",")} de cashback
+                    </p>
+                  )}
+                  {cashbackSaldo > 0 && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Checkbox id="cb-usar" checked={usarCashback}
+                          onCheckedChange={(c) => {
+                            const v = !!c; setUsarCashback(v);
+                            if (v) setCashbackUsoStr(String(maxUso.toFixed(2)));
+                            else setCashbackUsoStr("0");
+                          }} />
+                        <Label htmlFor="cb-usar" className="text-sm">
+                          Usar saldo de cashback (R$ {cashbackSaldo.toFixed(2).replace(".", ",")} disponível)
+                        </Label>
+                      </div>
+                      {usarCashback && (
+                        <Input type="number" min="0" max={maxUso} step="0.01"
+                          value={cashbackUsoStr}
+                          onChange={(e) => {
+                            const v = Math.max(0, Math.min(maxUso, parseFloat(e.target.value || "0")));
+                            setCashbackUsoStr(String(v));
+                          }} />
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })()}
             {selectedDatePart && selectedServicos.length > 0 && (
               <div className="space-y-2 rounded-lg border p-3">
                 <Label htmlFor="coupon-code">Cupom de desconto</Label>
