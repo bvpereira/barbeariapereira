@@ -1199,9 +1199,9 @@ function PromocaoPage() {
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar envio de promoção?</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar envio?</AlertDialogTitle>
             <AlertDialogDescription>
-              Deseja realmente enviar a promoção para todos os usuários? Esta ação não pode ser desfeita e será registrada no histórico.
+              Deseja realmente enviar a notificação/promoção para todos os usuários selecionados? Esta ação não pode ser desfeita e será registrada no histórico.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
