@@ -823,7 +823,7 @@ function IAImagemPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="w-full flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
             <ImageIcon className="h-6 w-6 text-blue-600" />
@@ -931,7 +931,7 @@ function IAImagemPage() {
                 {/* Segunda sub-área */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Visual e Referência</h3>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Estilo Visual */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">Estilo visual</label>
@@ -1148,7 +1148,7 @@ function IAImagemPage() {
                 {/* Terceira sub-área: Estilo de Texto e Emojis */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Configurações de Texto</h3>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Estilo de Texto */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">Estilo de Texto</label>
