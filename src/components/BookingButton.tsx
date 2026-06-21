@@ -139,7 +139,7 @@ export function BookingButton({
 
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant!.id).order('name');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url, cashback_ativo, cashback_percentual').eq('barbearia_id', tenant!.id).order('name');
     const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id').eq('barbearia_id', tenant!.id);
     
     const formattedColabs = colabs?.map(c => ({
@@ -151,7 +151,12 @@ export function BookingButton({
     })) || [];
 
     setColaboradores(formattedColabs as Colaborador[]);
-    setAllServicos(servs || []);
+    setAllServicos((servs || []) as any);
+    const cbMap: Record<string, number> = {};
+    (servs || []).forEach((s: any) => {
+      if (s.cashback_ativo && s.cashback_percentual != null) cbMap[s.id] = Number(s.cashback_percentual);
+    });
+    setCashbackServicos(cbMap);
   };
 
   const fetchBookingSettings = async () => {
