@@ -546,21 +546,23 @@ function ServicesPage() {
                         </div>
                       </div>
                       {service.detalhes && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">{service.detalhes}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2 pr-2 pb-8">{service.detalhes}</p>
                       )}
-                      <div className="flex gap-1.5 pt-1">
-                        <Button variant="outline" size="sm" className="h-6 px-2 gap-1 text-[11px]" onClick={() => handleEdit(service)}>
-                          <Pencil className="w-3 h-3" /> Editar
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 px-2 gap-1 text-[11px] border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
-                          onClick={() => handleDelete(service.id)}
-                        >
-                          <Trash2 className="w-3 h-3" /> Excluir
-                        </Button>
-                      </div>
+                    </div>
+                    <div className="absolute bottom-2 right-2 flex gap-1.5">
+                      <Button variant="outline" size="sm" className="h-6 px-2 gap-1 text-[11px]" onClick={() => handleEdit(service)}>
+                        <Pencil className="w-3 h-3" /> Editar
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 gap-1 text-[11px] border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => handleDelete(service.id)}
+                      >
+                        <Trash2 className="w-3 h-3" /> Excluir
+                      </Button>
+                    </div>
+
                     </div>
                   </div>
 
