@@ -74,6 +74,7 @@ function PromocaoPage() {
   
   const [webhookUrl, setWebhookUrl] = useState("");
   const [telContato, setTelContato] = useState("");
+  const [envioVia, setEnvioVia] = useState("");
   const [historico, setHistorico] = useState<any[]>([]);
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
   const [promoToDelete, setPromoToDelete] = useState<any>(null);
@@ -177,14 +178,17 @@ function PromocaoPage() {
       
       if (integration) setWebhookUrl(integration.webhook_url || "");
 
-      // 3. Fetch tel_contato
+      // 3. Fetch tel_contato + envio_via
       const { data: info, error: infoError } = await supabase
         .from("informacoes")
-        .select("tel_contato")
+        .select("tel_contato, envio_via")
         .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
-      if (info) setTelContato(info.tel_contato || "");
+      if (info) {
+        setTelContato(info.tel_contato || "");
+        setEnvioVia(((info as any).envio_via as string) || "");
+      }
 
       // 4. Fetch history (numero_promo > 0)
       const { data: history, error: histError } = await supabase
@@ -676,16 +680,40 @@ function PromocaoPage() {
   return (
     <AdminLayout>
       <div className="space-y-6 pb-10">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Gerenciar Promoções</h1>
             <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de promoções da barbearia.</p>
+            <div className="mt-3">
+              <Badge variant="outline" className="px-3 py-1 bg-primary/5 text-primary border-primary/20">
+                Banner Clientes: {promoAtual.imagem_banner ? "Ativo" : "Não configurado"}
+              </Badge>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="px-3 py-1 bg-primary/5 text-primary border-primary/20">
-              Banner Clientes: {promoAtual.imagem_banner ? "Ativo" : "Não configurado"}
-            </Badge>
-          </div>
+          {(() => {
+            const isWhats = envioVia === "Whatsapp";
+            const isEmail = envioVia === "E-mail";
+            const color = isWhats
+              ? "text-green-500 border-green-500/40 bg-green-500/10"
+              : isEmail
+              ? "text-yellow-500 border-yellow-500/40 bg-yellow-500/10"
+              : "text-muted-foreground border-primary/15 bg-background/40";
+            return (
+              <Card className="border-primary/20 w-full md:w-72">
+                <CardHeader className="pb-2">
+                  <CardDescription>Atualmente o envio está sendo via</CardDescription>
+                  <div className={`mt-1 rounded-md border px-3 py-2 text-center text-lg font-semibold ${color}`}>
+                    {envioVia || "Não definido"}
+                  </div>
+                  {isEmail && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Estamos trabalhando para que o envio via Whatsapp seja restabelecido em breve.
+                    </p>
+                  )}
+                </CardHeader>
+              </Card>
+            );
+          })()}
         </div>
 
         {/* Cards de uso mensal de promoções */}

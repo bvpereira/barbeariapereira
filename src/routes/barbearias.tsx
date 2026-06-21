@@ -339,6 +339,21 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
         <CardTitle className="flex items-center gap-3 font-josefin text-2xl uppercase tracking-wide text-primary">
           <Scissors className="h-6 w-6" />
           {barbearia.nome}
+          {(() => {
+            const reserva = (barbearia.instanciaReservaEvo || "").trim();
+            const principal = (barbearia.instanciaEvo || "").trim();
+            const diff = reserva !== principal;
+            if (diff) {
+              return <span className="ml-2 rounded-full border border-green-500/40 bg-green-500/10 px-2 py-0.5 text-xs font-semibold text-green-500 normal-case tracking-normal">Instância Principal</span>;
+            }
+            if (barbearia.envioVia === "Whatsapp") {
+              return <span className="ml-2 rounded-full border border-yellow-500/40 bg-yellow-500/10 px-2 py-0.5 text-xs font-semibold text-yellow-500 normal-case tracking-normal">Instância Reserva</span>;
+            }
+            if (barbearia.envioVia === "E-mail") {
+              return <span className="ml-2 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive normal-case tracking-normal">E-mail</span>;
+            }
+            return null;
+          })()}
           {!barbearia.ativa ? <span className="ml-2 text-xs font-normal text-destructive">(desativada)</span> : null}
         </CardTitle>
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
