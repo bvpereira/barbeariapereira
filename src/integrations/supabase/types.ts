@@ -1313,6 +1313,7 @@ export type Database = {
           created_at: string
           detalhes: string | null
           duration: number
+          extra: boolean
           id: string
           image_url: string | null
           image_url_2: string | null
@@ -1330,6 +1331,7 @@ export type Database = {
           created_at?: string
           detalhes?: string | null
           duration: number
+          extra?: boolean
           id?: string
           image_url?: string | null
           image_url_2?: string | null
@@ -1347,6 +1349,7 @@ export type Database = {
           created_at?: string
           detalhes?: string | null
           duration?: number
+          extra?: boolean
           id?: string
           image_url?: string | null
           image_url_2?: string | null
