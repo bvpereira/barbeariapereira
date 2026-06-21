@@ -129,9 +129,17 @@ export function BookingButton({
   const getClubeStatusFn = useServerFn(getClienteClubeStatus);
   const [clubePreview, setClubePreview] = useState<{ desconto: number; valor_final: number; valor_original: number; itens: Array<{ nome: string; desconto: number }> } | null>(null);
 
+  // Cashback
+  const [cashbackEnabled, setCashbackEnabled] = useState(false);
+  const [cashbackSaldo, setCashbackSaldo] = useState(0);
+  const [cashbackServicos, setCashbackServicos] = useState<Record<string, number>>({}); // servico_id -> percentual
+  const [cashbackClubeCobertos, setCashbackClubeCobertos] = useState<Set<string>>(new Set());
+  const [usarCashback, setUsarCashback] = useState(false);
+  const [cashbackUsoStr, setCashbackUsoStr] = useState("0");
+
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant!.id).order('name');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url, cashback_ativo, cashback_percentual').eq('barbearia_id', tenant!.id).order('name');
     const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id').eq('barbearia_id', tenant!.id);
     
     const formattedColabs = colabs?.map(c => ({
@@ -143,17 +151,23 @@ export function BookingButton({
     })) || [];
 
     setColaboradores(formattedColabs as Colaborador[]);
-    setAllServicos(servs || []);
+    setAllServicos((servs || []) as any);
+    const cbMap: Record<string, number> = {};
+    (servs || []).forEach((s: any) => {
+      if (s.cashback_ativo && s.cashback_percentual != null) cbMap[s.id] = Number(s.cashback_percentual);
+    });
+    setCashbackServicos(cbMap);
   };
 
   const fetchBookingSettings = async () => {
     const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant!.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, tempo_excluir').eq('barbearia_id', tenant!.id).maybeSingle();
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, tempo_excluir, cashback').eq('barbearia_id', tenant!.id).maybeSingle();
     if (infoData) {
       setTempoMarcar(infoData.tempo_marcar ?? 60);
       setTempoExcluir(infoData.tempo_excluir ?? 60);
+      setCashbackEnabled(!!(infoData as any).cashback);
     }
   };
 
@@ -308,6 +322,7 @@ export function BookingButton({
   useEffect(() => {
     if (!isOpen || !tenant || !selectedCliente || selectedServicos.length === 0 || !selectedDatePart) {
       setClubePreview(null);
+      setCashbackClubeCobertos(new Set());
       return;
     }
     let cancelled = false;
@@ -315,12 +330,13 @@ export function BookingButton({
       try {
         const status: any = await getClubeStatusFn({ data: { barbearia_id: tenant.id, cliente_id: selectedCliente.id } });
         if (cancelled) return;
-        if (!status?.ativo || !Array.isArray(status.servicos)) { setClubePreview(null); return; }
+        if (!status?.ativo || !Array.isArray(status.servicos)) { setClubePreview(null); setCashbackClubeCobertos(new Set()); return; }
         const dow = parseISO(selectedDatePart).getDay();
         const remaining: Record<string, number> = {};
         status.servicos.forEach((s: any) => { remaining[s.servico_id] = Number(s.restantes) || 0; });
         let desconto = 0;
         const itens: Array<{ nome: string; desconto: number }> = [];
+        const cobertos = new Set<string>();
         for (const sId of selectedServicos) {
           const rule = status.servicos.find((x: any) => x.servico_id === sId);
           if (!rule) continue;
@@ -328,6 +344,7 @@ export function BookingButton({
           if ((remaining[sId] ?? 0) <= 0) continue;
           const serv = allServicos.find(a => a.id === sId);
           if (!serv) continue;
+          cobertos.add(sId);
           const d = rule.tipo_desconto === "percentual"
             ? (Number(serv.price) * Number(rule.valor_desconto)) / 100
             : Math.min(Number(rule.valor_desconto), Number(serv.price));
@@ -336,13 +353,29 @@ export function BookingButton({
           itens.push({ nome: serv.name, desconto: d });
           remaining[sId] -= 1;
         }
+        setCashbackClubeCobertos(cobertos);
         if (desconto <= 0) { setClubePreview(null); return; }
         const baseTotal = selectedServicos.reduce((acc, id) => acc + (allServicos.find(s => s.id === id)?.price || 0), 0);
         setClubePreview({ desconto, valor_final: Math.max(0, baseTotal - desconto), valor_original: baseTotal, itens });
-      } catch { if (!cancelled) setClubePreview(null); }
+      } catch { if (!cancelled) { setClubePreview(null); setCashbackClubeCobertos(new Set()); } }
     })();
     return () => { cancelled = true; };
   }, [isOpen, tenant, selectedCliente, selectedServicos, selectedDatePart, allServicos, getClubeStatusFn]);
+
+  // Carregar saldo de cashback do cliente
+  useEffect(() => {
+    if (!isOpen || !cashbackEnabled || !tenant || !selectedCliente) { setCashbackSaldo(0); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.rpc("fn_cashback_saldo", {
+        p_barbearia_id: tenant.id, p_cliente_id: selectedCliente.id,
+      });
+      if (cancelled) return;
+      setCashbackSaldo(Number((data as any)?.disponivel || 0));
+    })();
+    return () => { cancelled = true; };
+  }, [isOpen, cashbackEnabled, tenant, selectedCliente]);
+
 
   // Atualiza o valor final exibido com o desconto do clube quando não há cupom aplicado
   useEffect(() => {
@@ -473,6 +506,26 @@ export function BookingButton({
         }
       } catch (err) { console.warn("Clube nao aplicado:", err); }
 
+      // Aplicar uso de cashback (debita saldo e diminui valor do atendimento)
+      if (cashbackEnabled && usarCashback) {
+        const usoNum = Math.max(0, parseFloat(cashbackUsoStr || "0"));
+        if (usoNum > 0) {
+          const { data: atRow } = await supabase.from('atendimentos')
+            .select('valor').eq('id', atendimentoId).maybeSingle();
+          const currentValor = Number((atRow as any)?.valor || 0);
+          const usoFinal = Math.min(usoNum, currentValor, cashbackSaldo);
+          if (usoFinal > 0) {
+            const { error: cbErr } = await supabase.from('atendimentos').update({
+              cashback_usado: usoFinal,
+              valor: Math.max(0, currentValor - usoFinal),
+            } as any).eq('id', atendimentoId);
+            if (cbErr) throw new Error("Cashback: " + cbErr.message);
+            setValorFinal(String(Math.max(0, currentValor - usoFinal)));
+          }
+        }
+      }
+
+
 
       // Trigger Webhook
       const colab = colaboradores.find(c => c.id === selectedColaborador);
@@ -541,6 +594,9 @@ export function BookingButton({
     setCouponResult(null);
     setClubePreview(null);
     setColabServicosIds([]);
+    setUsarCashback(false);
+    setCashbackUsoStr("0");
+    setCashbackClubeCobertos(new Set());
   };
 
   return (
@@ -797,6 +853,60 @@ export function BookingButton({
                 disabled={currentUser?.nivel === 3 || currentUser?.nivel === "3"}
               />
             </div>
+            {cashbackEnabled && selectedServicos.length > 0 && (() => {
+              // Cashback que o cliente vai receber neste agendamento
+              const couponMap: Record<string, { orig: number; final: number }> = {};
+              if (couponResult && Array.isArray((couponResult as any).servicos)) {
+                (couponResult as any).servicos.forEach((s: any) => {
+                  couponMap[s.servico_id] = { orig: Number(s.valor_original), final: Number(s.valor_final) };
+                });
+              }
+              let cashbackAReceber = 0;
+              selectedServicos.forEach((sId) => {
+                const perc = cashbackServicos[sId];
+                if (!perc) return;
+                if (cashbackClubeCobertos.has(sId)) return;
+                const serv = allServicos.find((a) => a.id === sId);
+                if (!serv) return;
+                const orig = Number(serv.price);
+                const finalAfterCoupon = couponMap[sId]?.final ?? orig;
+                const fator = orig > 0 ? Math.max(0, finalAfterCoupon) / orig : 0;
+                cashbackAReceber += (orig * perc / 100) * fator;
+              });
+              const maxUso = Math.min(cashbackSaldo, parseFloat(valorFinal || "0"));
+              return (
+                <div className="space-y-2 rounded-lg border p-3 bg-primary/5">
+                  {cashbackAReceber > 0 && (
+                    <p className="text-sm font-medium text-primary">
+                      Você vai receber R$ {cashbackAReceber.toFixed(2).replace(".", ",")} de cashback
+                    </p>
+                  )}
+                  {cashbackSaldo > 0 && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Checkbox id="cb-usar" checked={usarCashback}
+                          onCheckedChange={(c) => {
+                            const v = !!c; setUsarCashback(v);
+                            if (v) setCashbackUsoStr(String(maxUso.toFixed(2)));
+                            else setCashbackUsoStr("0");
+                          }} />
+                        <Label htmlFor="cb-usar" className="text-sm">
+                          Usar saldo de cashback (R$ {cashbackSaldo.toFixed(2).replace(".", ",")} disponível)
+                        </Label>
+                      </div>
+                      {usarCashback && (
+                        <Input type="number" min="0" max={maxUso} step="0.01"
+                          value={cashbackUsoStr}
+                          onChange={(e) => {
+                            const v = Math.max(0, Math.min(maxUso, parseFloat(e.target.value || "0")));
+                            setCashbackUsoStr(String(v));
+                          }} />
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })()}
             {selectedDatePart && selectedServicos.length > 0 && (
               <div className="space-y-2 rounded-lg border p-3">
                 <Label htmlFor="coupon-code">Cupom de desconto</Label>

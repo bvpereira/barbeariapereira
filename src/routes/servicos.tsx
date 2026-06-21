@@ -17,6 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { CouponsSection } from "@/components/CouponsSection";
 
 export const Route = createFileRoute("/servicos")({
@@ -34,6 +36,8 @@ interface Service {
   image_url_4: string | null;
   image_url_5: string | null;
   detalhes: string | null;
+  cashback_ativo?: boolean | null;
+  cashback_percentual?: number | null;
 }
 
 function ServicesPage() {
@@ -56,11 +60,46 @@ function ServicesPage() {
   const [extraImages, setExtraImages] = useState<(File | null)[]>([null, null, null, null]);
   const [extraPreviews, setExtraPreviews] = useState<(string | null)[]>([null, null, null, null]);
 
+  // Cashback
+  const [cashbackEnabled, setCashbackEnabled] = useState(false);
+  const [cashbackToggling, setCashbackToggling] = useState(false);
+  const [cashbackAtivo, setCashbackAtivo] = useState(false);
+  const [cashbackPercentual, setCashbackPercentual] = useState("");
+
   useEffect(() => {
     if (!tenantLoading && tenant) {
       fetchServices();
+      fetchCashbackFlag();
     }
   }, [tenant, tenantLoading]);
+
+  const fetchCashbackFlag = async () => {
+    if (!tenant?.id) return;
+    const { data } = await supabase
+      .from("informacoes")
+      .select("cashback")
+      .eq("barbearia_id", tenant.id)
+      .maybeSingle();
+    setCashbackEnabled(!!(data as any)?.cashback);
+  };
+
+  const toggleCashbackGlobal = async (value: boolean) => {
+    if (!tenant?.id) return;
+    setCashbackToggling(true);
+    try {
+      const { error } = await supabase
+        .from("informacoes")
+        .update({ cashback: value } as any)
+        .eq("barbearia_id", tenant.id);
+      if (error) throw error;
+      setCashbackEnabled(value);
+      toast.success(value ? "Cashback ativado" : "Cashback desativado");
+    } catch (e: any) {
+      toast.error("Erro: " + e.message);
+    } finally {
+      setCashbackToggling(false);
+    }
+  };
 
   const fetchServices = async () => {
     if (!tenant?.id) return;
@@ -89,6 +128,8 @@ function ServicesPage() {
     setImagePreview(null);
     setExtraImages([null, null, null, null]);
     setExtraPreviews([null, null, null, null]);
+    setCashbackAtivo(false);
+    setCashbackPercentual("");
     setEditingService(null);
   };
 
@@ -105,6 +146,8 @@ function ServicesPage() {
       service.image_url_4,
       service.image_url_5,
     ]);
+    setCashbackAtivo(!!service.cashback_ativo);
+    setCashbackPercentual(service.cashback_percentual != null ? String(service.cashback_percentual) : "");
     setIsDialogOpen(true);
   };
 
@@ -208,7 +251,12 @@ function ServicesPage() {
         }
       }
 
-      const serviceData = {
+      const cbPerc = cashbackEnabled && cashbackAtivo ? parseFloat(cashbackPercentual || "0") : 0;
+      if (cashbackEnabled && cashbackAtivo && (isNaN(cbPerc) || cbPerc < 0 || cbPerc > 100)) {
+        throw new Error("Percentual de cashback deve estar entre 0 e 100.");
+      }
+
+      const serviceData: any = {
         name,
         price: parseFloat(price),
         duration: parseInt(duration),
@@ -218,6 +266,8 @@ function ServicesPage() {
         image_url_3: extraUrls[1],
         image_url_4: extraUrls[2],
         image_url_5: extraUrls[3],
+        cashback_ativo: cashbackEnabled && cashbackAtivo,
+        cashback_percentual: cashbackEnabled && cashbackAtivo ? cbPerc : null,
       };
 
       const { error: updateError } = await supabase
@@ -268,8 +318,13 @@ function ServicesPage() {
   return (
     <AdminLayout>
       <div className="flex flex-col gap-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <h1 className="text-3xl font-bold">Serviços</h1>
+          <div className="flex items-center gap-3 px-3 py-2 rounded-md border bg-card">
+            <Label htmlFor="cb-global" className="text-sm">Cashback</Label>
+            <Switch id="cb-global" checked={cashbackEnabled} disabled={cashbackToggling}
+              onCheckedChange={toggleCashbackGlobal} />
+          </div>
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) resetForm();
@@ -376,6 +431,24 @@ function ServicesPage() {
                   </div>
                 </div>
 
+                {cashbackEnabled && (
+                  <div className="space-y-2 rounded-md border p-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="cb-service">Habilitar cashback neste serviço</Label>
+                      <Switch id="cb-service" checked={cashbackAtivo} onCheckedChange={setCashbackAtivo} />
+                    </div>
+                    {cashbackAtivo && (
+                      <div className="space-y-2">
+                        <Label htmlFor="cb-perc">Percentual de cashback (%)</Label>
+                        <Input id="cb-perc" type="number" min="0" max="100" step="0.01"
+                          value={cashbackPercentual}
+                          onChange={(e) => setCashbackPercentual(e.target.value)}
+                          required />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Salvando..." : (editingService ? "Atualizar" : "Salvar")}
                 </Button>
@@ -411,7 +484,14 @@ function ServicesPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 space-y-2">
-                  <h3 className="font-bold text-lg leading-none">{service.name}</h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-bold text-lg leading-none">{service.name}</h3>
+                    {cashbackEnabled && service.cashback_ativo && service.cashback_percentual != null && (
+                      <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">
+                        Cashback {Number(service.cashback_percentual)}%
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4 text-primary" />

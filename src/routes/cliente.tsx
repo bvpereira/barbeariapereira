@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookingButton } from "@/components/BookingButton";
 import { ClienteClubeView } from "@/components/ClienteClubeView";
+import { CashbackCard } from "@/components/CashbackCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,6 +66,24 @@ function ClientePage() {
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
   const [imagemBanner, setImagemBanner] = useState<string | null>(null);
   const [isBloqueado, setIsBloqueado] = useState(false);
+  const [cashbackEconomizado, setCashbackEconomizado] = useState<number | null>(null);
+
+
+  useEffect(() => {
+    if (!tenant?.id || !user?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data: info } = await supabase.from("informacoes")
+        .select("cashback").eq("barbearia_id", tenant.id).maybeSingle();
+      if (cancelled || !(info as any)?.cashback) return;
+      const { data } = await supabase.rpc("fn_cashback_saldo", {
+        p_barbearia_id: tenant.id, p_cliente_id: user.id,
+      });
+      if (cancelled) return;
+      setCashbackEconomizado(Number((data as any)?.total_economizado || 0));
+    })();
+    return () => { cancelled = true; };
+  }, [tenant?.id, user?.id]);
 
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
@@ -447,6 +466,10 @@ function ClientePage() {
             <ClienteClubeView barbeariaId={tenant.id} clienteId={user.id} />
           )}
 
+          {tenant?.id && (
+            <CashbackCard barbeariaId={tenant.id} clienteId={user.id} />
+          )}
+
 
 
           {/* Section 2: Meus Próximos Horários */}
@@ -742,6 +765,11 @@ function ClientePage() {
                 <Clock className="w-5 h-5 text-primary" />
                 Histórico
               </CardTitle>
+              {cashbackEconomizado != null && cashbackEconomizado > 0 && (
+                <p className="text-sm text-primary mt-1">
+                  Você já economizou R$ {cashbackEconomizado.toFixed(2).replace(".", ",")} usando cashback
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               {loadingHistorico ? (
