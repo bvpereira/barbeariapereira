@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +26,7 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "Clientes", icon: UserCircle, href: "/clientes" },
       { title: "Clube de Assinatura", icon: Crown, href: "/clube" },
-      { title: "Notificações/Promoções", icon: Megaphone, href: "/promocao" },
+      { title: "Notificações/Promoções", icon: Bell, href: "/promocao" },
     ],
   },
   {
@@ -83,7 +83,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
               className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
             >
               <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.title}</span>
+              <span className="font-medium whitespace-nowrap">{item.title}</span>
             </Link>
           ))}
         </div>
@@ -124,7 +124,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
+      <aside className="w-72 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <img src={logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
@@ -179,7 +179,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8">
+      <main className="flex-1 md:ml-72 p-4 md:p-8 pt-20 md:pt-8">
         {children || <Outlet />}
       </main>
     </div>
