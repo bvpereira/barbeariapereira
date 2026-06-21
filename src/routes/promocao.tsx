@@ -728,13 +728,13 @@ function PromocaoPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card className="border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardDescription>Promoções enviadas neste mês</CardDescription>
+                  <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
                   <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
                 </CardHeader>
               </Card>
               <Card className="border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardDescription>Promoções disponíveis neste mês</CardDescription>
+                  <CardDescription>Notificações/Promoções disponíveis neste mês</CardDescription>
                   <CardTitle className="text-3xl text-primary">
                     {disponiveis === null ? "—" : disponiveis}
                     {typeof limite === "number" && (
