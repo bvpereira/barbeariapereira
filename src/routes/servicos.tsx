@@ -38,6 +38,7 @@ interface Service {
   detalhes: string | null;
   cashback_ativo?: boolean | null;
   cashback_percentual?: number | null;
+  extra?: boolean | null;
 }
 
 function ServicesPage() {
