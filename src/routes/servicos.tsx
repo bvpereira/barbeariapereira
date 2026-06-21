@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Clock, DollarSign, X, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, DollarSign, X, Upload, Sparkles, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
