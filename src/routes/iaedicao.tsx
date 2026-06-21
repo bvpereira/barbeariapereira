@@ -294,7 +294,7 @@ function IAEdicaoPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="w-full flex flex-col gap-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
             <ImageIcon className="h-6 w-6 text-blue-600" />
@@ -314,57 +314,68 @@ function IAEdicaoPage() {
             <CardDescription>Envie uma imagem e defina como a inteligência artificial deve editá-la.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Imagem original</h3>
-              <div className="rounded-xl border-2 border-dashed border-blue-100 bg-blue-50/30 p-5">
-                {editUploadedImage ? (
-                  <div className="flex flex-col md:flex-row items-center gap-5">
-                    <img src={editUploadedImage} alt="Imagem enviada para edição" className="h-44 w-full md:w-64 rounded-lg object-contain bg-white border" />
-                    <div className="space-y-2 text-center md:text-left">
-                      <p className="text-sm text-gray-600">Imagem salva para esta barbearia.</p>
-                      <Button type="button" variant="outline" onClick={() => editFileInputRef.current?.click()} disabled={uploadingEdit}>Trocar imagem</Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center py-7 text-center">
-                    <Upload className="h-10 w-10 text-blue-400 mb-3" />
-                    <p className="text-sm text-gray-600 mb-4">Envie uma imagem de até 10 MB.</p>
-                    <Button type="button" variant="outline" onClick={() => editFileInputRef.current?.click()} disabled={uploadingEdit}>
-                      {uploadingEdit ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</> : "Escolher imagem"}
-                    </Button>
-                  </div>
-                )}
-                <input ref={editFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleEditImageUpload} />
-              </div>
-            </div>
-
-            {EDIT_SECTIONS.map((section) => (
-              <section key={section.title} className="space-y-4">
-                <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">{section.title}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {section.fields.map((field) => {
-                    const disabled = field.onlyInfinite && editSelections.edit_tipo_fundo !== "Fundo infinito";
-                    return (
-                      <div key={field.key} className="space-y-2">
-                        <label className="text-sm font-medium text-gray-800">{field.label}</label>
-                        <Select
-                          value={editSelections[field.key]}
-                          disabled={disabled}
-                          onValueChange={(value) => setEditSelections((previous) => ({
-                            ...previous,
-                            [field.key]: value,
-                            ...(field.key === "edit_tipo_fundo" && value !== "Fundo infinito" ? { edit_cor_fundo: "" } : {}),
-                          }))}
-                        >
-                          <SelectTrigger className="w-full bg-white text-gray-900"><SelectValue placeholder={disabled ? "Disponível apenas para Fundo infinito" : "Selecione uma opção"} /></SelectTrigger>
-                          <SelectContent>{field.options.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
-                        </Select>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+              {/* Coluna 1: Imagem original */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Imagem original</h3>
+                <div className="rounded-xl border-2 border-dashed border-blue-100 bg-blue-50/30 p-5">
+                  {editUploadedImage ? (
+                    <div className="flex flex-col items-center gap-5">
+                      <img src={editUploadedImage} alt="Imagem enviada para edição" className="h-44 w-full rounded-lg object-contain bg-white border" />
+                      <div className="space-y-2 text-center">
+                        <p className="text-sm text-gray-600">Imagem salva para esta barbearia.</p>
+                        <Button type="button" variant="outline" onClick={() => editFileInputRef.current?.click()} disabled={uploadingEdit}>Trocar imagem</Button>
                       </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center py-7 text-center">
+                      <Upload className="h-10 w-10 text-blue-400 mb-3" />
+                      <p className="text-sm text-gray-600 mb-4">Envie uma imagem de até 10 MB.</p>
+                      <Button type="button" variant="outline" onClick={() => editFileInputRef.current?.click()} disabled={uploadingEdit}>
+                        {uploadingEdit ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</> : "Escolher imagem"}
+                      </Button>
+                    </div>
+                  )}
+                  <input ref={editFileInputRef} type="file" accept="image/*" className="hidden" onChange={handleEditImageUpload} />
+                </div>
+              </div>
+
+              {/* Colunas 2 e 3: pares de sessões */}
+              {[[0, 1], [2, 3]].map((pair) => (
+                <div key={pair.join("-")} className="space-y-8">
+                  {pair.map((idx) => {
+                    const section = EDIT_SECTIONS[idx];
+                    return (
+                      <section key={section.title} className="space-y-4">
+                        <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">{section.title}</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                          {section.fields.map((field) => {
+                            const disabled = field.onlyInfinite && editSelections.edit_tipo_fundo !== "Fundo infinito";
+                            return (
+                              <div key={field.key} className="space-y-2">
+                                <label className="text-sm font-medium text-gray-800">{field.label}</label>
+                                <Select
+                                  value={editSelections[field.key]}
+                                  disabled={disabled}
+                                  onValueChange={(value) => setEditSelections((previous) => ({
+                                    ...previous,
+                                    [field.key]: value,
+                                    ...(field.key === "edit_tipo_fundo" && value !== "Fundo infinito" ? { edit_cor_fundo: "" } : {}),
+                                  }))}
+                                >
+                                  <SelectTrigger className="w-full bg-white text-gray-900"><SelectValue placeholder={disabled ? "Disponível apenas para Fundo infinito" : "Selecione uma opção"} /></SelectTrigger>
+                                  <SelectContent>{field.options.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
+                                </Select>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </section>
                     );
                   })}
                 </div>
-              </section>
-            ))}
+              ))}
+            </div>
 
             <div className="flex justify-end pt-3 border-t border-blue-100">
               <Button onClick={requestEditConfirmation} disabled={savingEdit || uploadingEdit} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
