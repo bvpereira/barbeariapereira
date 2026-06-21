@@ -1237,7 +1237,7 @@ function PromocaoPage() {
       <Dialog open={!!selectedPromo} onOpenChange={(open) => !open && setSelectedPromo(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Detalhes da Promoção</DialogTitle>
+            <DialogTitle>Detalhes do Envio</DialogTitle>
           </DialogHeader>
           {selectedPromo && (
             <div className="space-y-4">
