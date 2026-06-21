@@ -820,7 +820,7 @@ function PromocaoPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Megaphone className="h-5 w-5 text-primary" />
-              Promoção Atual
+              Notificação/Promoção Atual
             </CardTitle>
             <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
           </CardHeader>
