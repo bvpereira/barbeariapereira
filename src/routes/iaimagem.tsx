@@ -834,7 +834,7 @@ function IAImagemPage() {
           </div>
         </div>
 
-        <Card className="border-blue-100 shadow-sm">
+        <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div className="space-y-1">
               <CardTitle>Parâmetros de Geração</CardTitle>
@@ -859,12 +859,12 @@ function IAImagemPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+              <div className="space-y-4">
                 {/* Primeira sub-área: Dados para criação */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Dados para criação</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-4">
                     {/* Informações Adicionais (Full width) */}
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-sm font-medium text-white">Informações Adicionais</label>
@@ -932,7 +932,7 @@ function IAImagemPage() {
                 {/* Segunda sub-área */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Visual e Referência</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-4">
                     {/* Estilo Visual */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">Estilo visual</label>
@@ -1149,7 +1149,7 @@ function IAImagemPage() {
                 {/* Terceira sub-área: Estilo de Texto e Emojis */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Configurações de Texto</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-4">
                     {/* Estilo de Texto */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">Estilo de Texto</label>
