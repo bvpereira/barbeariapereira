@@ -503,8 +503,8 @@ function ServicesPage() {
               const extras = services.filter((s) => s.extra);
               const renderCard = (service: Service) => (
                 <Card key={service.id} className="overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-colors">
-                  <CardHeader className="p-0">
-                    <div className="aspect-square w-full overflow-hidden bg-muted">
+                  <div className="flex">
+                    <div className="w-24 sm:w-28 shrink-0 aspect-square overflow-hidden bg-muted">
                       {service.image_url ? (
                         <img
                           src={service.image_url}
@@ -514,55 +514,55 @@ function ServicesPage() {
                           className="w-full h-full object-cover transition-transform hover:scale-105"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground italic text-xs">
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground italic text-[10px] text-center px-1">
                           Sem imagem
                         </div>
                       )}
                     </div>
-                  </CardHeader>
-                  <CardContent className="p-4 space-y-2">
-                    <div className="flex items-start justify-between gap-2 flex-wrap">
-                      <h3 className="font-bold text-lg leading-none">{service.name}</h3>
-                      <div className="flex gap-1 flex-wrap">
-                        {service.extra && (
-                          <Badge variant="outline" className="border-amber-500/40 text-amber-500 text-[10px] gap-1">
-                            <Sparkles className="w-3 h-3" /> Extra
-                          </Badge>
-                        )}
-                        {cashbackEnabled && service.cashback_ativo && service.cashback_percentual != null && (
-                          <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">
-                            Cashback {Number(service.cashback_percentual)}%
-                          </Badge>
-                        )}
+                    <div className="flex-1 min-w-0 p-3 space-y-1.5">
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <h3 className="font-bold text-sm leading-tight truncate">{service.name}</h3>
+                        <div className="flex gap-1 flex-wrap">
+                          {service.extra && (
+                            <Badge variant="outline" className="border-amber-500/40 text-amber-500 text-[10px] gap-1">
+                              <Sparkles className="w-3 h-3" /> Extra
+                            </Badge>
+                          )}
+                          {cashbackEnabled && service.cashback_ativo && service.cashback_percentual != null && (
+                            <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">
+                              Cashback {Number(service.cashback_percentual)}%
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4 text-primary" />
-                        <span>R$ {Number(service.price).toFixed(2).replace(".", ",")}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <span>{service.duration} min</span>
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="w-3 h-3 text-primary" />
+                          <span>R$ {Number(service.price).toFixed(2).replace(".", ",")}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-primary" />
+                          <span>{service.duration} min</span>
+                        </div>
                       </div>
                       {service.detalhes && (
-                        <p className="mt-2 text-xs line-clamp-2">{service.detalhes}</p>
+                        <p className="text-[11px] text-muted-foreground line-clamp-1">{service.detalhes}</p>
                       )}
+                      <div className="flex gap-1.5 pt-1">
+                        <Button variant="outline" size="sm" className="flex-1 h-7 px-2 gap-1 text-xs" onClick={() => handleEdit(service)}>
+                          <Pencil className="w-3 h-3" /> Editar
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex-1 h-7 px-2 gap-1 text-xs border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => handleDelete(service.id)}
+                        >
+                          <Trash2 className="w-3 h-3" /> Excluir
+                        </Button>
+                      </div>
                     </div>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0 flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => handleEdit(service)}>
-                      <Pencil className="w-4 h-4" /> Editar
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1 gap-2 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => handleDelete(service.id)}
-                    >
-                      <Trash2 className="w-4 h-4" /> Excluir
-                    </Button>
-                  </CardFooter>
+                  </div>
                 </Card>
               );
               return (
