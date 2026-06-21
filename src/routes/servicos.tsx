@@ -484,7 +484,14 @@ function ServicesPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 space-y-2">
-                  <h3 className="font-bold text-lg leading-none">{service.name}</h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-bold text-lg leading-none">{service.name}</h3>
+                    {cashbackEnabled && service.cashback_ativo && service.cashback_percentual != null && (
+                      <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">
+                        Cashback {Number(service.cashback_percentual)}%
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4 text-primary" />
