@@ -68,6 +68,31 @@ function ClientePage() {
   const [isBloqueado, setIsBloqueado] = useState(false);
   const [cashbackEconomizado, setCashbackEconomizado] = useState<number | null>(null);
 
+  const conflitos = useMemo(() => {
+    const items = agendamentos.map((a) => {
+      const start = parseISO(a.data).getTime();
+      const dur = (a.atendimento_servicos || []).reduce(
+        (sum: number, s: any) => sum + (Number(s.servicos?.duration) || 0),
+        0
+      );
+      return { id: a.id, colab: a.colaborador_id, start, end: start + dur * 60000 };
+    });
+    const conflicting = new Set<string>();
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const a = items[i], b = items[j];
+        if (a.colab === b.colab) continue;
+        if (a.start < b.end && b.start < a.end) {
+          conflicting.add(a.id);
+          conflicting.add(b.id);
+        }
+      }
+    }
+    return conflicting;
+  }, [agendamentos]);
+
+
+
 
   useEffect(() => {
     if (!tenant?.id || !user?.id) return;
