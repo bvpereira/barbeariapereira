@@ -497,72 +497,112 @@ function ServicesPage() {
             <p className="text-muted-foreground">Carregando serviços...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {services.map((service) => (
-              <Card key={service.id} className="overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-colors">
-                <CardHeader className="p-0">
-                  <div className="aspect-square w-full overflow-hidden bg-muted">
-                    {service.image_url ? (
-                      <img 
-                        src={service.image_url} 
-                        alt={service.name} 
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover transition-transform hover:scale-105"
-                      />
+          <>
+            {(() => {
+              const comuns = services.filter((s) => !s.extra);
+              const extras = services.filter((s) => s.extra);
+              const renderCard = (service: Service) => (
+                <Card key={service.id} className="overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-colors">
+                  <CardHeader className="p-0">
+                    <div className="aspect-square w-full overflow-hidden bg-muted">
+                      {service.image_url ? (
+                        <img
+                          src={service.image_url}
+                          alt={service.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover transition-transform hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground italic text-xs">
+                          Sem imagem
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2 flex-wrap">
+                      <h3 className="font-bold text-lg leading-none">{service.name}</h3>
+                      <div className="flex gap-1 flex-wrap">
+                        {service.extra && (
+                          <Badge variant="outline" className="border-amber-500/40 text-amber-500 text-[10px] gap-1">
+                            <Sparkles className="w-3 h-3" /> Extra
+                          </Badge>
+                        )}
+                        {cashbackEnabled && service.cashback_ativo && service.cashback_percentual != null && (
+                          <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">
+                            Cashback {Number(service.cashback_percentual)}%
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="w-4 h-4 text-primary" />
+                        <span>R$ {Number(service.price).toFixed(2).replace(".", ",")}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4 text-primary" />
+                        <span>{service.duration} min</span>
+                      </div>
+                      {service.detalhes && (
+                        <p className="mt-2 text-xs line-clamp-2">{service.detalhes}</p>
+                      )}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-4 pt-0 flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => handleEdit(service)}>
+                      <Pencil className="w-4 h-4" /> Editar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 gap-2 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => handleDelete(service.id)}
+                    >
+                      <Trash2 className="w-4 h-4" /> Excluir
+                    </Button>
+                  </CardFooter>
+                </Card>
+              );
+              return (
+                <div className="flex flex-col gap-8">
+                  <section className="space-y-3">
+                    <h2 className="text-xl font-semibold">Serviços ({comuns.length})</h2>
+                    {comuns.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Nenhum serviço cadastrado.</p>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground italic text-xs">
-                        Sem imagem
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        {comuns.map(renderCard)}
                       </div>
                     )}
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-bold text-lg leading-none">{service.name}</h3>
-                    {cashbackEnabled && service.cashback_ativo && service.cashback_percentual != null && (
-                      <Badge variant="outline" className="border-primary/40 text-primary text-[10px]">
-                        Cashback {Number(service.cashback_percentual)}%
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4 text-primary" />
-                      <span>R$ {Number(service.price).toFixed(2).replace(".", ",")}</span>
+                  </section>
+
+                  <section className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-amber-500" />
+                      <h2 className="text-xl font-semibold">Serviços Extras ({extras.length})</h2>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4 text-primary" />
-                      <span>{service.duration} min</span>
+                    <div className="flex gap-2 items-start rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-muted-foreground">
+                      <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                      <p>
+                        Os serviços desta área <strong>não aparecem na página inicial</strong> da barbearia.
+                        Use para criar combos, adicionais ou itens oferecidos apenas em contextos específicos
+                        (ex: agendamento manual feito pelo barbeiro).
+                      </p>
                     </div>
-                    {service.detalhes && (
-                      <p className="mt-2 text-xs line-clamp-2">{service.detalhes}</p>
+                    {extras.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Nenhum serviço extra cadastrado.</p>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        {extras.map(renderCard)}
+                      </div>
                     )}
-                  </div>
-                </CardContent>
-                <CardFooter className="p-4 pt-0 flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1 gap-2"
-                    onClick={() => handleEdit(service)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                    Editar
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="flex-1 gap-2 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => handleDelete(service.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Excluir
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                  </section>
+                </div>
+              );
+            })()}
+          </>
         )}
         {!isLoading && tenant?.id && <CouponsSection tenantId={tenant.id} services={services} />}
       </div>
