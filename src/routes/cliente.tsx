@@ -448,6 +448,10 @@ function ClientePage() {
             <ClienteClubeView barbeariaId={tenant.id} clienteId={user.id} />
           )}
 
+          {tenant?.id && (
+            <CashbackCard barbeariaId={tenant.id} clienteId={user.id} />
+          )}
+
 
 
           {/* Section 2: Meus Próximos Horários */}
