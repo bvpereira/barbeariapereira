@@ -1017,78 +1017,6 @@ function IAImagemPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    {/* Imagem de Referência */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Imagem de Referência</label>
-                      <div className="space-y-3">
-                        <Select
-                          value={selections.imagem_imareferencia?.startsWith("http") ? "Upar imagem de referência" : selections.imagem_imareferencia}
-                          onValueChange={(val) => {
-                            setSelections(prev => ({ ...prev, imagem_imareferencia: val }));
-                          }}
-                        >
-                          <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
-                            <SelectValue placeholder="Selecione imagem de referência..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Sem imagem de referência">Sem imagem de referência</SelectItem>
-                            <SelectItem value="Upar imagem de referência">Upar imagem de referência</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        {(selections.imagem_imareferencia?.startsWith("http") || selections.imagem_imareferencia === "Upar imagem de referência") && (
-                          <div className="p-4 border-2 border-dashed border-blue-100 rounded-lg bg-blue-50/30 space-y-3">
-                            {selections.imagem_imareferencia?.startsWith("http") ? (
-                              <div className="relative w-full aspect-video rounded-md overflow-hidden bg-gray-100 border border-blue-100">
-                                <img 
-                                  src={selections.imagem_imareferencia} 
-                                  alt="Referência" 
-                                  className="w-full h-full object-contain"
-                                />
-                                <Button
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute top-2 right-2 h-8 w-8"
-                                  onClick={() => setSelections(prev => ({ ...prev, imagem_imareferencia: "" }))}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col items-center justify-center py-4 text-center">
-                                <Upload className="h-8 w-8 text-blue-400 mb-2" />
-                                <p className="text-sm text-gray-600 mb-2">Selecione uma imagem de referência</p>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => fileInputRef.current?.click()}
-                                  disabled={uploadingRef}
-                                  className="border-blue-200 text-blue-600 hover:bg-blue-50"
-                                >
-                                  {uploadingRef ? (
-                                    <>
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      Enviando...
-                                    </>
-                                  ) : (
-                                    "Escolher Arquivo"
-                                  )}
-                                </Button>
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  ref={fileInputRef}
-                                  onChange={handleReferenceImageUpload}
-                                  accept="image/*"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
                     {/* Com endereço? (Imagem) */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white">Com endereço?</label>
@@ -1141,6 +1069,78 @@ function IAImagemPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    {/* Imagem de Referência (largura total da coluna) */}
+                    <div className="space-y-2 sm:col-span-2">
+                      <label className="text-sm font-medium text-white">Imagem de Referência</label>
+                      <div className="space-y-3">
+                        <Select
+                          value={selections.imagem_imareferencia?.startsWith("http") ? "Upar imagem de referência" : selections.imagem_imareferencia}
+                          onValueChange={(val) => {
+                            setSelections(prev => ({ ...prev, imagem_imareferencia: val }));
+                          }}
+                        >
+                          <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                            <SelectValue placeholder="Selecione imagem de referência..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Sem imagem de referência">Sem imagem de referência</SelectItem>
+                            <SelectItem value="Upar imagem de referência">Upar imagem de referência</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        {(selections.imagem_imareferencia?.startsWith("http") || selections.imagem_imareferencia === "Upar imagem de referência") && (
+                          <div className="p-4 border-2 border-dashed border-blue-100 rounded-lg bg-blue-50/30 space-y-3">
+                            {selections.imagem_imareferencia?.startsWith("http") ? (
+                              <div className="relative w-full aspect-video rounded-md overflow-hidden bg-gray-100 border border-blue-100">
+                                <img
+                                  src={selections.imagem_imareferencia}
+                                  alt="Referência"
+                                  className="w-full h-full object-contain"
+                                />
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2 h-8 w-8"
+                                  onClick={() => setSelections(prev => ({ ...prev, imagem_imareferencia: "" }))}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center py-4 text-center">
+                                <Upload className="h-8 w-8 text-blue-400 mb-2" />
+                                <p className="text-sm text-gray-600 mb-2">Selecione uma imagem de referência</p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => fileInputRef.current?.click()}
+                                  disabled={uploadingRef}
+                                  className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                                >
+                                  {uploadingRef ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Enviando...
+                                    </>
+                                  ) : (
+                                    "Escolher Arquivo"
+                                  )}
+                                </Button>
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  ref={fileInputRef}
+                                  onChange={handleReferenceImageUpload}
+                                  accept="image/*"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
