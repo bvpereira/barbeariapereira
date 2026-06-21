@@ -318,8 +318,13 @@ function ServicesPage() {
   return (
     <AdminLayout>
       <div className="flex flex-col gap-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <h1 className="text-3xl font-bold">Serviços</h1>
+          <div className="flex items-center gap-3 px-3 py-2 rounded-md border bg-card">
+            <Label htmlFor="cb-global" className="text-sm">Cashback</Label>
+            <Switch id="cb-global" checked={cashbackEnabled} disabled={cashbackToggling}
+              onCheckedChange={toggleCashbackGlobal} />
+          </div>
           <Dialog open={isDialogOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) resetForm();
