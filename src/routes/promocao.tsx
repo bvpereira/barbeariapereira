@@ -940,10 +940,10 @@ function PromocaoPage() {
               {/* Texto */}
               <div className="space-y-2">
 
-                <Label htmlFor="texto-promo">Texto da Promoção (cole aqui um texto escrito no WhatsApp)</Label>
+                <Label htmlFor="texto-promo">Texto da Notificação/Promoção (cole aqui um texto escrito no WhatsApp)</Label>
                 <Textarea
                   id="texto-promo"
-                  placeholder="Ex: Corte + Barba com 20% de desconto nesta quarta!"
+                  placeholder="Ex: Aviso importante ou Corte + Barba com 20% de desconto nesta quarta!"
                   className={`min-h-[120px] ${promoAtual.texto_promo?.length > 920 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   value={promoAtual.texto_promo || ""}
                   onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
