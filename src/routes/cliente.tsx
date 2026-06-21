@@ -513,10 +513,26 @@ function ClientePage() {
                   Você não tem agendamentos pendentes.
                 </p>
               ) : (
+                <>
+                  {conflitos.size > 0 && (
+                    <div className="mb-4 flex items-start gap-2 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
+                      <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span>
+                        Atenção: você tem agendamentos com profissionais diferentes em horários que se sobrepõem. Verifique os itens destacados abaixo.
+                      </span>
+                    </div>
+                  )}
                 <div className="grid gap-4 sm:grid-cols-2">
                   {agendamentos.map((item) => (
-                    <Card key={item.id} className="bg-card hover:bg-accent/5 transition-colors border-border">
+                    <Card key={item.id} className={`bg-card hover:bg-accent/5 transition-colors ${conflitos.has(item.id) ? "border-yellow-500/60" : "border-border"}`}>
                       <CardContent className="p-4">
+                        {conflitos.has(item.id) && (
+                          <div className="mb-3 flex items-center gap-2 rounded-md bg-yellow-500/10 px-2 py-1 text-xs text-yellow-700 dark:text-yellow-400">
+                            <AlertTriangle className="w-3 h-3" />
+                            Conflito de horário com outro agendamento
+                          </div>
+                        )}
+
                         <div className="flex justify-between items-start mb-3">
                           <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">
                             Agendado
