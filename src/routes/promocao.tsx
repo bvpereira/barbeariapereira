@@ -1116,7 +1116,7 @@ function PromocaoPage() {
               <div className="max-h-[400px] overflow-y-auto">
                 {historico.length === 0 ? (
                   <div className="p-8 text-center text-muted-foreground">
-                    Nenhuma promoção enviada ainda.
+                    Nenhuma notificação/promoção enviada ainda.
                   </div>
                 ) : (
                   <div className="divide-y">
