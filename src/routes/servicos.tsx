@@ -502,7 +502,7 @@ function ServicesPage() {
               const comuns = services.filter((s) => !s.extra);
               const extras = services.filter((s) => s.extra);
               const renderCard = (service: Service) => (
-                <Card key={service.id} className="overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-colors">
+                <Card key={service.id} className="relative overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-colors">
                   <div className="flex">
                     <div className="w-36 sm:w-44 shrink-0 aspect-square overflow-hidden bg-muted">
                       {service.image_url ? (
