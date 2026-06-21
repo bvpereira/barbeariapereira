@@ -134,6 +134,7 @@ function ServicesPage() {
     setExtraPreviews([null, null, null, null]);
     setCashbackAtivo(false);
     setCashbackPercentual("");
+    setIsExtra(false);
     setEditingService(null);
   };
 
