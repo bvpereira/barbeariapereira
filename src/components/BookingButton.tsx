@@ -129,6 +129,14 @@ export function BookingButton({
   const getClubeStatusFn = useServerFn(getClienteClubeStatus);
   const [clubePreview, setClubePreview] = useState<{ desconto: number; valor_final: number; valor_original: number; itens: Array<{ nome: string; desconto: number }> } | null>(null);
 
+  // Cashback
+  const [cashbackEnabled, setCashbackEnabled] = useState(false);
+  const [cashbackSaldo, setCashbackSaldo] = useState(0);
+  const [cashbackServicos, setCashbackServicos] = useState<Record<string, number>>({}); // servico_id -> percentual
+  const [cashbackClubeCobertos, setCashbackClubeCobertos] = useState<Set<string>>(new Set());
+  const [usarCashback, setUsarCashback] = useState(false);
+  const [cashbackUsoStr, setCashbackUsoStr] = useState("0");
+
   const fetchFormData = async () => {
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant!.id).order('nome');
     const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant!.id).order('name');
