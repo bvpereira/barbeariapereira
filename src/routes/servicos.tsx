@@ -390,6 +390,32 @@ function ServicesPage() {
                     placeholder="Descrição breve do serviço" 
                   />
                 </div>
+                <div className="space-y-2 rounded-md border p-3">
+                  <Label>Tipo de serviço</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={!isExtra ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setIsExtra(false)}
+                    >
+                      Comum
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={isExtra ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1 gap-1"
+                      onClick={() => setIsExtra(true)}
+                    >
+                      <Sparkles className="w-3 h-3" /> Extra
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Serviços <strong>extras</strong> não aparecem na página inicial da barbearia. Use para combos ou adicionais.
+                  </p>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="image">Imagem</Label>
                   <Input 
