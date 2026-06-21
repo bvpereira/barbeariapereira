@@ -228,7 +228,8 @@ function ServicesPage() {
             price: parseFloat(price),
             duration: parseInt(duration),
             detalhes,
-          }])
+            extra: isExtra,
+          } as any])
           .select()
           .single();
         
