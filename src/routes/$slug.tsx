@@ -454,6 +454,7 @@ function Servicos({ tenantId }: { tenantId?: string }) {
           .from("servicos")
           .select("name, image_url, detalhes")
           .eq("barbearia_id", tenantId)
+          .eq("extra", false)
           .order("created_at", { ascending: true });
         if (error) throw error;
         if (data) {
