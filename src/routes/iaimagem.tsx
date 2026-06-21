@@ -860,7 +860,6 @@ function IAImagemPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              <div className="space-y-4">
                 {/* Primeira sub-área: Dados para criação */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Dados para criação</h3>
@@ -1239,7 +1238,6 @@ function IAImagemPage() {
                       </Select>
                     </div>
                   </div>
-                </div>
               </div>
               </div>
             )}
