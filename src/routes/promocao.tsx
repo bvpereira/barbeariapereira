@@ -682,8 +682,8 @@ function PromocaoPage() {
       <div className="space-y-6 pb-10">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Promoções</h1>
-            <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de promoções da barbearia.</p>
+            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Notificações e Promoções</h1>
+            <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de notificações e promoções da barbearia.</p>
             <div className="mt-3">
               <Badge variant="outline" className="px-3 py-1 bg-primary/5 text-primary border-primary/20">
                 Banner Clientes: {promoAtual.imagem_banner ? "Ativo" : "Não configurado"}
@@ -728,13 +728,13 @@ function PromocaoPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card className="border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardDescription>Promoções enviadas neste mês</CardDescription>
+                  <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
                   <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
                 </CardHeader>
               </Card>
               <Card className="border-primary/20">
                 <CardHeader className="pb-2">
-                  <CardDescription>Promoções disponíveis neste mês</CardDescription>
+                  <CardDescription>Notificações/Promoções disponíveis neste mês</CardDescription>
                   <CardTitle className="text-3xl text-primary">
                     {disponiveis === null ? "—" : disponiveis}
                     {typeof limite === "number" && (
@@ -820,7 +820,7 @@ function PromocaoPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Megaphone className="h-5 w-5 text-primary" />
-              Promoção Atual
+              Notificação/Promoção Atual
             </CardTitle>
             <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
           </CardHeader>
@@ -882,7 +882,7 @@ function PromocaoPage() {
 
               {/* Imagem */}
               <div className="space-y-2">
-                <Label>Imagem da Promoção</Label>
+                <Label>Imagem da Notificação/Promoção</Label>
                 <div className="flex flex-col gap-4">
                   <div className="relative aspect-video rounded-lg border-2 border-dashed bg-muted flex flex-col items-center justify-center overflow-hidden">
                     {promoAtual.imagem_promo ? (
@@ -940,10 +940,10 @@ function PromocaoPage() {
               {/* Texto */}
               <div className="space-y-2">
 
-                <Label htmlFor="texto-promo">Texto da Promoção (cole aqui um texto escrito no WhatsApp)</Label>
+                <Label htmlFor="texto-promo">Texto da Notificação/Promoção (cole aqui um texto escrito no WhatsApp)</Label>
                 <Textarea
                   id="texto-promo"
-                  placeholder="Ex: Corte + Barba com 20% de desconto nesta quarta!"
+                  placeholder="Ex: Aviso importante ou Corte + Barba com 20% de desconto nesta quarta!"
                   className={`min-h-[120px] ${promoAtual.texto_promo?.length > 920 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   value={promoAtual.texto_promo || ""}
                   onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
@@ -997,7 +997,7 @@ function PromocaoPage() {
                   className="gap-2" 
                   onClick={async () => {
                     if (promoAtual.testada !== "sim") {
-                      toast.error("Você precisa enviar um teste antes de enviar a promoção real.");
+                      toast.error("Você precisa enviar um teste antes do envio real.");
                       return;
                     }
                     const validos = validarCamposEnvio();
@@ -1012,7 +1012,7 @@ function PromocaoPage() {
                   disabled={sendingPromo || !promoAtual.texto_promo || !promoAtual.tipo_promo || !computeParaQuem() || (promoAtual.tipo_promo === "imagem_legenda" && !promoAtual.imagem_promo)}
                 >
                   {sendingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  Enviar Promoção
+                  Enviar Notificação/Promoção
                 </Button>
               </div>
               </div>
@@ -1116,7 +1116,7 @@ function PromocaoPage() {
               <div className="max-h-[400px] overflow-y-auto">
                 {historico.length === 0 ? (
                   <div className="p-8 text-center text-muted-foreground">
-                    Nenhuma promoção enviada ainda.
+                    Nenhuma notificação/promoção enviada ainda.
                   </div>
                 ) : (
                   <div className="divide-y">
@@ -1199,9 +1199,9 @@ function PromocaoPage() {
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar envio de promoção?</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar envio?</AlertDialogTitle>
             <AlertDialogDescription>
-              Deseja realmente enviar a promoção para todos os usuários? Esta ação não pode ser desfeita e será registrada no histórico.
+              Deseja realmente enviar a notificação/promoção para todos os usuários selecionados? Esta ação não pode ser desfeita e será registrada no histórico.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1216,9 +1216,9 @@ function PromocaoPage() {
       <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir registro de promoção?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir registro?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação removerá permanentemente o registro desta promoção do histórico.
+              Esta ação removerá permanentemente este registro do histórico.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1237,7 +1237,7 @@ function PromocaoPage() {
       <Dialog open={!!selectedPromo} onOpenChange={(open) => !open && setSelectedPromo(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Detalhes da Promoção</DialogTitle>
+            <DialogTitle>Detalhes do Envio</DialogTitle>
           </DialogHeader>
           {selectedPromo && (
             <div className="space-y-4">

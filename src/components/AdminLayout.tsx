@@ -26,7 +26,7 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "Clientes", icon: UserCircle, href: "/clientes" },
       { title: "Clube de Assinatura", icon: Crown, href: "/clube" },
-      { title: "Promoções", icon: Megaphone, href: "/promocao" },
+      { title: "Notificações/Promoções", icon: Megaphone, href: "/promocao" },
     ],
   },
   {
