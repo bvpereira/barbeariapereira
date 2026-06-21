@@ -602,6 +602,7 @@ function ClientePage() {
                     </Card>
                   ))}
                 </div>
+                </>
               )}
             </CardContent>
           </Card>
