@@ -36,6 +36,8 @@ interface Service {
   image_url_4: string | null;
   image_url_5: string | null;
   detalhes: string | null;
+  cashback_ativo?: boolean | null;
+  cashback_percentual?: number | null;
 }
 
 function ServicesPage() {
