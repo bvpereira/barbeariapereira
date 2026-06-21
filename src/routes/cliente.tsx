@@ -66,6 +66,24 @@ function ClientePage() {
   const [tempoExcluir, setTempoExcluir] = useState<number>(60);
   const [imagemBanner, setImagemBanner] = useState<string | null>(null);
   const [isBloqueado, setIsBloqueado] = useState(false);
+  const [cashbackEconomizado, setCashbackEconomizado] = useState<number | null>(null);
+
+
+  useEffect(() => {
+    if (!tenant?.id || !user?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data: info } = await supabase.from("informacoes")
+        .select("cashback").eq("barbearia_id", tenant.id).maybeSingle();
+      if (cancelled || !(info as any)?.cashback) return;
+      const { data } = await supabase.rpc("fn_cashback_saldo", {
+        p_barbearia_id: tenant.id, p_cliente_id: user.id,
+      });
+      if (cancelled) return;
+      setCashbackEconomizado(Number((data as any)?.total_economizado || 0));
+    })();
+    return () => { cancelled = true; };
+  }, [tenant?.id, user?.id]);
 
 
   const fetchAgendamentos = useCallback(async (userId: string) => {
