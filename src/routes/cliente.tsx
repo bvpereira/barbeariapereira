@@ -93,7 +93,7 @@ function ClientePage() {
       .select(`
         *,
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servicos(id, name))
+        atendimento_servicos(servicos(id, name, duration))
       `)
       .eq('cliente_id', userId)
       .eq('status', 'Agendado')
