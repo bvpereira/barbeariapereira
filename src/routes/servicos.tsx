@@ -275,6 +275,7 @@ function ServicesPage() {
         image_url_5: extraUrls[3],
         cashback_ativo: cashbackEnabled && cashbackAtivo,
         cashback_percentual: cashbackEnabled && cashbackAtivo ? cbPerc : null,
+        extra: isExtra,
       };
 
       const { error: updateError } = await supabase
