@@ -506,6 +506,26 @@ export function BookingButton({
         }
       } catch (err) { console.warn("Clube nao aplicado:", err); }
 
+      // Aplicar uso de cashback (debita saldo e diminui valor do atendimento)
+      if (cashbackEnabled && usarCashback) {
+        const usoNum = Math.max(0, parseFloat(cashbackUsoStr || "0"));
+        if (usoNum > 0) {
+          const { data: atRow } = await supabase.from('atendimentos')
+            .select('valor').eq('id', atendimentoId).maybeSingle();
+          const currentValor = Number((atRow as any)?.valor || 0);
+          const usoFinal = Math.min(usoNum, currentValor, cashbackSaldo);
+          if (usoFinal > 0) {
+            const { error: cbErr } = await supabase.from('atendimentos').update({
+              cashback_usado: usoFinal,
+              valor: Math.max(0, currentValor - usoFinal),
+            } as any).eq('id', atendimentoId);
+            if (cbErr) throw new Error("Cashback: " + cbErr.message);
+            setValorFinal(String(Math.max(0, currentValor - usoFinal)));
+          }
+        }
+      }
+
+
 
       // Trigger Webhook
       const colab = colaboradores.find(c => c.id === selectedColaborador);
