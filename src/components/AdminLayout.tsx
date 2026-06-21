@@ -124,7 +124,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
+      <aside className="w-72 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
         <div className="p-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <img src={logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
