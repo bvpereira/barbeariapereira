@@ -572,7 +572,7 @@ function ServicesPage() {
                     {comuns.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Nenhum serviço cadastrado.</p>
                     ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {comuns.map(renderCard)}
                       </div>
                     )}
@@ -594,7 +594,7 @@ function ServicesPage() {
                     {extras.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Nenhum serviço extra cadastrado.</p>
                     ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {extras.map(renderCard)}
                       </div>
                     )}
