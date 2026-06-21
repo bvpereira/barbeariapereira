@@ -41,6 +41,7 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "IA – CDC", icon: Scale, href: "/iacodconsumi" },
       { title: "IA – Imagem", icon: ImageIcon, href: "/iaimagem" },
+      { title: "IA – Edição", icon: ImageIcon, href: "/iaedicao" },
     ],
   },
   {
