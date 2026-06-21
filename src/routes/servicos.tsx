@@ -562,11 +562,9 @@ function ServicesPage() {
                         <Trash2 className="w-3 h-3" /> Excluir
                       </Button>
                     </div>
-
-                    </div>
                   </div>
-
                 </Card>
+
               );
               return (
                 <div className="flex flex-col gap-8">
