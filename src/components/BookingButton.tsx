@@ -594,6 +594,9 @@ export function BookingButton({
     setCouponResult(null);
     setClubePreview(null);
     setColabServicosIds([]);
+    setUsarCashback(false);
+    setCashbackUsoStr("0");
+    setCashbackClubeCobertos(new Set());
   };
 
   return (
