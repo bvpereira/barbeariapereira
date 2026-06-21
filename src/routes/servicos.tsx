@@ -251,7 +251,12 @@ function ServicesPage() {
         }
       }
 
-      const serviceData = {
+      const cbPerc = cashbackEnabled && cashbackAtivo ? parseFloat(cashbackPercentual || "0") : 0;
+      if (cashbackEnabled && cashbackAtivo && (isNaN(cbPerc) || cbPerc < 0 || cbPerc > 100)) {
+        throw new Error("Percentual de cashback deve estar entre 0 e 100.");
+      }
+
+      const serviceData: any = {
         name,
         price: parseFloat(price),
         duration: parseInt(duration),
@@ -261,6 +266,8 @@ function ServicesPage() {
         image_url_3: extraUrls[1],
         image_url_4: extraUrls[2],
         image_url_5: extraUrls[3],
+        cashback_ativo: cashbackEnabled && cashbackAtivo,
+        cashback_percentual: cashbackEnabled && cashbackAtivo ? cbPerc : null,
       };
 
       const { error: updateError } = await supabase
