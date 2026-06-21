@@ -83,7 +83,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
               className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
             >
               <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.title}</span>
+              <span className="font-medium whitespace-nowrap">{item.title}</span>
             </Link>
           ))}
         </div>
