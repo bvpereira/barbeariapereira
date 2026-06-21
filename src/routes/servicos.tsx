@@ -431,6 +431,24 @@ function ServicesPage() {
                   </div>
                 </div>
 
+                {cashbackEnabled && (
+                  <div className="space-y-2 rounded-md border p-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="cb-service">Habilitar cashback neste serviço</Label>
+                      <Switch id="cb-service" checked={cashbackAtivo} onCheckedChange={setCashbackAtivo} />
+                    </div>
+                    {cashbackAtivo && (
+                      <div className="space-y-2">
+                        <Label htmlFor="cb-perc">Percentual de cashback (%)</Label>
+                        <Input id="cb-perc" type="number" min="0" max="100" step="0.01"
+                          value={cashbackPercentual}
+                          onChange={(e) => setCashbackPercentual(e.target.value)}
+                          required />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? "Salvando..." : (editingService ? "Atualizar" : "Salvar")}
                 </Button>
