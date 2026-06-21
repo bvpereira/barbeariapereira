@@ -5,36 +5,58 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 
-const menuItems = [
-  { title: "Dashboard Inicial", icon: Home, href: "/admin" },
-  { title: "Atendimentos", icon: Calendar, href: "/atendimentos" },
-  { title: "Serviços", icon: Scissors, href: "/servicos" },
-  { title: "Colaboradores", icon: Users, href: "/colaboradores" },
-  { title: "Clientes", icon: UserCircle, href: "/clientes" },
-  { title: "Clube de Assinatura", icon: Crown, href: "/clube" },
-  { title: "Horários", icon: Clock, href: "/horarios" },
-  { title: "Gastos", icon: Wallet, href: "/gastos" },
-  { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
-  { title: "Promoções", icon: Megaphone, href: "/promocao" },
-  { title: "Comunidade", icon: MessageSquare, href: "/comunidade" },
-  { title: "Blog", icon: LayoutDashboard, href: "/blog" },
-  
-  { title: "IA – CDC", icon: Scale, href: "/iacodconsumi" },
-  { title: "IA – Imagem", icon: ImageIcon, href: "/iaimagem" },
-  { title: "Minha Conta", icon: UserCircle, href: "/minhaconta" },
+type MenuItem = { title: string; icon: any; href: string };
+type MenuSection = { title?: string; items: MenuItem[] };
+
+const menuSections: MenuSection[] = [
+  {
+    items: [{ title: "Dashboard Inicial", icon: Home, href: "/admin" }],
+  },
+  {
+    title: "OPERAÇÃO",
+    items: [
+      { title: "Atendimentos", icon: Calendar, href: "/atendimentos" },
+      { title: "Serviços", icon: Scissors, href: "/servicos" },
+      { title: "Horários", icon: Clock, href: "/horarios" },
+      { title: "Colaboradores", icon: Users, href: "/colaboradores" },
+    ],
+  },
+  {
+    title: "CLIENTES",
+    items: [
+      { title: "Clientes", icon: UserCircle, href: "/clientes" },
+      { title: "Clube de Assinatura", icon: Crown, href: "/clube" },
+      { title: "Promoções", icon: Megaphone, href: "/promocao" },
+    ],
+  },
+  {
+    title: "FINANCEIRO",
+    items: [
+      { title: "Gastos", icon: Wallet, href: "/gastos" },
+      { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
+    ],
+  },
+  {
+    title: "INTELIGÊNCIA ARTIFICIAL",
+    items: [
+      { title: "IA – CDC", icon: Scale, href: "/iacodconsumi" },
+      { title: "IA – Imagem", icon: ImageIcon, href: "/iaimagem" },
+    ],
+  },
+  {
+    title: "CONTEÚDO",
+    items: [
+      { title: "Blog de Notícias", icon: LayoutDashboard, href: "/blog" },
+      { title: "Comunidade", icon: MessageSquare, href: "/comunidade" },
+    ],
+  },
+  {
+    title: "CONTA",
+    items: [{ title: "Minha Conta", icon: UserCircle, href: "/minhaconta" }],
+  },
 ];
 
 function handleLogout() {
-  const userData = localStorage.getItem("user");
-  let tenantSlug = "";
-  if (userData) {
-    try {
-      const user = JSON.parse(userData);
-      // We could fetch the slug here, but let's see if we can just redirect to /
-      // Actually, if we want to preserve the unit, we need the slug.
-    } catch (e) {}
-  }
-  
   localStorage.removeItem("user");
   document.cookie = "user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   window.location.href = "/login";
@@ -42,23 +64,33 @@ function handleLogout() {
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <nav className="px-4 space-y-2">
-      {menuItems.map((item) => (
-        <Link
-          key={item.href}
-          to={item.href}
-          onClick={onNavigate}
-          activeProps={{ className: "bg-primary text-primary-foreground" }}
-          inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
-        >
-          <item.icon className="w-5 h-5" />
-          <span className="font-medium">{item.title}</span>
-        </Link>
+    <nav className="px-4 space-y-4">
+      {menuSections.map((section, idx) => (
+        <div key={idx} className="space-y-1">
+          {section.title && (
+            <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+              {section.title}
+            </h3>
+          )}
+          {section.items.map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              onClick={onNavigate}
+              activeProps={{ className: "bg-primary text-primary-foreground" }}
+              inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="font-medium">{item.title}</span>
+            </Link>
+          ))}
+        </div>
       ))}
     </nav>
   );
 }
+
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
