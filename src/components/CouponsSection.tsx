@@ -107,7 +107,7 @@ export function CouponsSection({ tenantId, services }: { tenantId: string; servi
       <Button onClick={() => { reset(); setOpen(true); }}><Plus /> Novo cupom</Button>
     </div>
     {coupons.length === 0 ? <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">Nenhum cupom criado.</div> :
-      <div className="grid gap-4 lg:grid-cols-2">{coupons.map((coupon) => {
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{coupons.map((coupon) => {
         const today = startOfDay(new Date()); const start = parseISO(coupon.data_inicio); const end = parseISO(coupon.data_fim);
         const status = today < start ? "Futuro" : today > end ? "Expirado" : "Ativo";
         return <Card key={coupon.id}><CardHeader className="pb-3"><div className="flex items-start justify-between gap-3"><div><CardTitle className="flex items-center gap-2"><Tag className="text-primary" />{coupon.nome}</CardTitle><p className="mt-1 font-mono text-sm text-primary">{coupon.codigo}</p></div><Badge variant={status === "Ativo" ? "default" : "secondary"}>{status}</Badge></div></CardHeader>
