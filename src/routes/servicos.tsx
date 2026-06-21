@@ -67,6 +67,9 @@ function ServicesPage() {
   const [cashbackAtivo, setCashbackAtivo] = useState(false);
   const [cashbackPercentual, setCashbackPercentual] = useState("");
 
+  // Extra
+  const [isExtra, setIsExtra] = useState(false);
+
   useEffect(() => {
     if (!tenantLoading && tenant) {
       fetchServices();
