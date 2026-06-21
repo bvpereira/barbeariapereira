@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookingButton } from "@/components/BookingButton";
 import { ClienteClubeView } from "@/components/ClienteClubeView";
@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
-import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save, Image as ImageIcon } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save, Image as ImageIcon, AlertTriangle } from "lucide-react";
 import { format, parseISO, addMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,31 @@ function ClientePage() {
   const [isBloqueado, setIsBloqueado] = useState(false);
   const [cashbackEconomizado, setCashbackEconomizado] = useState<number | null>(null);
 
+  const conflitos = useMemo(() => {
+    const items = agendamentos.map((a) => {
+      const start = parseISO(a.data).getTime();
+      const dur = (a.atendimento_servicos || []).reduce(
+        (sum: number, s: any) => sum + (Number(s.servicos?.duration) || 0),
+        0
+      );
+      return { id: a.id, colab: a.colaborador_id, start, end: start + dur * 60000 };
+    });
+    const conflicting = new Set<string>();
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const a = items[i], b = items[j];
+        if (a.colab === b.colab) continue;
+        if (a.start < b.end && b.start < a.end) {
+          conflicting.add(a.id);
+          conflicting.add(b.id);
+        }
+      }
+    }
+    return conflicting;
+  }, [agendamentos]);
+
+
+
 
   useEffect(() => {
     if (!tenant?.id || !user?.id) return;
@@ -93,7 +118,7 @@ function ClientePage() {
       .select(`
         *,
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servicos(id, name))
+        atendimento_servicos(servicos(id, name, duration))
       `)
       .eq('cliente_id', userId)
       .eq('status', 'Agendado')
@@ -488,10 +513,26 @@ function ClientePage() {
                   Você não tem agendamentos pendentes.
                 </p>
               ) : (
+                <>
+                  {conflitos.size > 0 && (
+                    <div className="mb-4 flex items-start gap-2 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm text-yellow-700 dark:text-yellow-400">
+                      <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                      <span>
+                        Atenção: você tem agendamentos com profissionais diferentes em horários que se sobrepõem. Verifique os itens destacados abaixo.
+                      </span>
+                    </div>
+                  )}
                 <div className="grid gap-4 sm:grid-cols-2">
                   {agendamentos.map((item) => (
-                    <Card key={item.id} className="bg-card hover:bg-accent/5 transition-colors border-border">
+                    <Card key={item.id} className={`bg-card hover:bg-accent/5 transition-colors ${conflitos.has(item.id) ? "border-yellow-500/60" : "border-border"}`}>
                       <CardContent className="p-4">
+                        {conflitos.has(item.id) && (
+                          <div className="mb-3 flex items-center gap-2 rounded-md bg-yellow-500/10 px-2 py-1 text-xs text-yellow-700 dark:text-yellow-400">
+                            <AlertTriangle className="w-3 h-3" />
+                            Conflito de horário com outro agendamento
+                          </div>
+                        )}
+
                         <div className="flex justify-between items-start mb-3">
                           <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">
                             Agendado
@@ -561,6 +602,7 @@ function ClientePage() {
                     </Card>
                   ))}
                 </div>
+                </>
               )}
             </CardContent>
           </Card>
