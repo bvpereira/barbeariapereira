@@ -153,6 +153,7 @@ function ServicesPage() {
     ]);
     setCashbackAtivo(!!service.cashback_ativo);
     setCashbackPercentual(service.cashback_percentual != null ? String(service.cashback_percentual) : "");
+    setIsExtra(!!service.extra);
     setIsDialogOpen(true);
   };
 
