@@ -765,6 +765,11 @@ function ClientePage() {
                 <Clock className="w-5 h-5 text-primary" />
                 Histórico
               </CardTitle>
+              {cashbackEconomizado != null && cashbackEconomizado > 0 && (
+                <p className="text-sm text-primary mt-1">
+                  Você já economizou R$ {cashbackEconomizado.toFixed(2).replace(".", ",")} usando cashback
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               {loadingHistorico ? (
