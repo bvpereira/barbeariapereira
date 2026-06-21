@@ -74,6 +74,7 @@ function PromocaoPage() {
   
   const [webhookUrl, setWebhookUrl] = useState("");
   const [telContato, setTelContato] = useState("");
+  const [envioVia, setEnvioVia] = useState("");
   const [historico, setHistorico] = useState<any[]>([]);
   const [selectedPromo, setSelectedPromo] = useState<any>(null);
   const [promoToDelete, setPromoToDelete] = useState<any>(null);
