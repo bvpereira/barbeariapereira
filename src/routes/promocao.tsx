@@ -177,14 +177,17 @@ function PromocaoPage() {
       
       if (integration) setWebhookUrl(integration.webhook_url || "");
 
-      // 3. Fetch tel_contato
+      // 3. Fetch tel_contato + envio_via
       const { data: info, error: infoError } = await supabase
         .from("informacoes")
-        .select("tel_contato")
+        .select("tel_contato, envio_via")
         .eq("barbearia_id", tenant.id)
         .maybeSingle();
       
-      if (info) setTelContato(info.tel_contato || "");
+      if (info) {
+        setTelContato(info.tel_contato || "");
+        setEnvioVia(((info as any).envio_via as string) || "");
+      }
 
       // 4. Fetch history (numero_promo > 0)
       const { data: history, error: histError } = await supabase
