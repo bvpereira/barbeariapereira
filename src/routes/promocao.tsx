@@ -373,7 +373,7 @@ function PromocaoPage() {
 
 
 
-  const triggerWebhook = async (tipo: "teste_promo" | "envio_promo") => {
+  const triggerWebhook = async (tipo: "teste_promo" | "envio_promo" | "gerar_textos") => {
     if (!webhookUrl) {
       toast.error("Configure a URL do webhook primeiro");
       return false;
@@ -391,7 +391,6 @@ function PromocaoPage() {
     };
 
     try {
-      // Use edge function proxy to avoid CORS issues
       const { data, error } = await supabase.functions.invoke('proxy-webhook', {
         body: {
           url: webhookUrl,
@@ -409,6 +408,32 @@ function PromocaoPage() {
       return false;
     }
   };
+
+  const [generatingTextos, setGeneratingTextos] = useState(false);
+  const handleGerarTextos = async () => {
+    if (!promoAtual.texto_promo || !promoAtual.texto_promo.trim()) {
+      toast.error("Escreva ou cole um texto antes de gerar os 3 textos.");
+      return;
+    }
+    setGeneratingTextos(true);
+    try {
+      // salvar o texto base antes de disparar a IA
+      if (tenant) {
+        await supabase
+          .from("promocao")
+          .update({ texto_promo: promoAtual.texto_promo })
+          .eq("numero_promo", 0)
+          .eq("barbearia_id", tenant.id);
+      }
+      const success = await triggerWebhook("gerar_textos");
+      if (success) {
+        toast.success("Solicitação enviada! Em instantes os 3 textos serão gerados. Clique em Atualizar para visualizá-los.");
+      }
+    } finally {
+      setGeneratingTextos(false);
+    }
+  };
+
 
   const computeParaQuem = (): string | null => {
     if (paraQuemMode === "todos" || paraQuemMode === "nunca_cortaram") return paraQuemMode;
