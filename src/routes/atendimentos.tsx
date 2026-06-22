@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
+import { applyClubeToAppointment } from "@/lib/clube.functions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
@@ -118,6 +119,7 @@ function AtendimentosPage() {
   const [hasMoreConcluidos, setHasMoreConcluidos] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
   const invalidateCouponFn = useServerFn(invalidateAppointmentCoupon);
+  const applyClubeFn = useServerFn(applyClubeToAppointment);
 
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -500,13 +502,23 @@ function AtendimentosPage() {
         atendimentoId = data.id;
       }
 
-      await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
+      const { error: servErr } = await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
         barbearia_id: tenant.id,
         atendimento_id: atendimentoId,
         servico_id: sId,
         valor_servico: allServicos.find(s => s.id === sId)?.price || 0,
         valor_original: allServicos.find(s => s.id === sId)?.price || 0
       })));
+      if (servErr) throw new Error("Serviços: " + servErr.message);
+
+      // Aplicar desconto do clube de assinatura (se o cliente tiver clube ativo)
+      try {
+        await applyClubeFn({ data: {
+          atendimento_id: atendimentoId,
+          barbearia_id: tenant.id,
+          cliente_id: selectedCliente.id,
+        } });
+      } catch (err) { console.warn("Clube nao aplicado:", err); }
 
       // Trigger Webhook
       const { data: colabData } = await supabase.from('colaboradores').select('login').eq('barbearia_id', tenant.id).eq('id', selectedColaborador).maybeSingle();
