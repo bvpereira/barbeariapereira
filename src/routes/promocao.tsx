@@ -823,7 +823,8 @@ function PromocaoPage() {
             <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-3">
+
               <div className="space-y-6">
               {/* Tipo de envio */}
               <div className="space-y-2">
