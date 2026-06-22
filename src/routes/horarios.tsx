@@ -316,7 +316,7 @@ function HorariosPage() {
       return;
     }
 
-    const config = globalConfig[date];
+    const config = globalConfig;
     const newHorarios = [...horariosColaboradores];
     
     const updates = selected.map(colabId => {
