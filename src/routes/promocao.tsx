@@ -796,37 +796,40 @@ function PromocaoPage() {
             const limite = promoAtual.num_limite_promo;
             const disponiveis = typeof limite === "number" ? Math.max(0, limite - enviadas) : null;
             return (
-              <div className="flex flex-col gap-4">
-                <Card className="border-primary/20">
-                  <CardHeader className="pb-2">
-                    <CardDescription>Atualmente o envio está sendo via</CardDescription>
-                    <div className={`mt-1 rounded-md border px-3 py-2 text-center text-lg font-semibold ${color}`}>
-                      {envioVia || "Não definido"}
-                    </div>
-                    {isEmail && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Estamos trabalhando para que o envio via Whatsapp seja restabelecido em breve.
-                      </p>
-                    )}
-                  </CardHeader>
-                </Card>
-                <Card className="border-primary/20">
-                  <CardHeader className="pb-2">
-                    <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
-                    <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
-                  </CardHeader>
-                </Card>
-                <Card className="border-primary/20">
-                  <CardHeader className="pb-2">
-                    <CardDescription>Notificações/Promoções disponíveis neste mês</CardDescription>
-                    <CardTitle className="text-3xl text-primary">
-                      {disponiveis === null ? "—" : disponiveis}
-                      {typeof limite === "number" && (
-                        <span className="text-base text-muted-foreground font-normal"> / {limite}</span>
+              <div className="grid grid-cols-2 gap-4">
+                <div />
+                <div className="flex flex-col gap-4">
+                  <Card className="border-primary/20">
+                    <CardHeader className="pb-2">
+                      <CardDescription>Atualmente o envio está sendo via</CardDescription>
+                      <div className={`mt-1 rounded-md border px-3 py-2 text-center text-lg font-semibold ${color}`}>
+                        {envioVia || "Não definido"}
+                      </div>
+                      {isEmail && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Estamos trabalhando para que o envio via Whatsapp seja restabelecido em breve.
+                        </p>
                       )}
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-primary/20">
+                    <CardHeader className="pb-2">
+                      <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
+                      <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
+                    </CardHeader>
+                  </Card>
+                  <Card className="border-primary/20">
+                    <CardHeader className="pb-2">
+                      <CardDescription>Notificações/Promoções disponíveis neste mês</CardDescription>
+                      <CardTitle className="text-3xl text-primary">
+                        {disponiveis === null ? "—" : disponiveis}
+                        {typeof limite === "number" && (
+                          <span className="text-base text-muted-foreground font-normal"> / {limite}</span>
+                        )}
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                </div>
               </div>
             );
           })()}
