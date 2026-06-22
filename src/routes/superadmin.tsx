@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { WebhookSettings } from "@/components/WebhookSettings";
 import { SuperAdminInstanceSettings } from "@/components/SuperAdminInstanceSettings";
 import { SuperAdminReserveSettings } from "@/components/SuperAdminReserveSettings";
 import { EnvioViaCard } from "@/components/EnvioViaCard";
@@ -62,20 +61,9 @@ function SuperAdmin() {
         transition={{ delay: 0.5 }}
         className="mt-20 w-full max-w-4xl"
       >
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
-            Configurações de Webhooks
-          </h2>
-          <div className="w-16 h-0.5 bg-primary/30 mx-auto" />
-        </div>
-        <div className="bg-card/50 backdrop-blur-sm border border-primary/10 rounded-3xl p-8 mb-8 overflow-x-auto">
-          <WebhookSettings />
-        </div>
-
         <div className="max-w-2xl mx-auto mb-8">
           <EnvioViaCard />
         </div>
-
 
         <div className="text-center mb-8 mt-12">
           <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
