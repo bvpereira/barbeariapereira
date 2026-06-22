@@ -974,7 +974,7 @@ function PromocaoPage() {
           <CardContent>
             <div className="grid gap-6 grid-cols-1">
 
-              <div className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
               {/* Tipo de envio */}
               <div className="space-y-2">
                 <Label>Tipo de envio</Label>
