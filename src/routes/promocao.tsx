@@ -1193,87 +1193,8 @@ function PromocaoPage() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Textos da notificação/promoção */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquareText className="h-5 w-5 text-primary" />
-                    Textos da notificação/promoção
-                  </CardTitle>
-                  <CardDescription>Texto do teste e textos geradas pela IA</CardDescription>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={refreshIaTextos}
-                  disabled={refreshingIa}
-                >
-                  {refreshingIa ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                  Atualizar
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {promoAtual.texto_promo ? (
-                <>
-                  <div className="space-y-2">
-                    <Label>Texto do teste</Label>
-                    <Textarea
-                      readOnly
-                      value={promoAtual.texto_promo || ""}
-                      className="min-h-[100px] bg-muted/40"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Texto 1 criado pela IA</Label>
-                    <Textarea
-                      readOnly
-                      value={promoAtual.texto_promo_ia_2 || ""}
-                      className="min-h-[100px] bg-muted/40"
-                      placeholder="Aguardando geração pela IA..."
-                    />
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="gap-2"
-                      onClick={() => handleCopyText(promoAtual.texto_promo_ia_2 || "")}
-                      disabled={!promoAtual.texto_promo_ia_2}
-                    >
-                      <Copy className="h-4 w-4" />
-                      Copiar texto
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Texto 2 criado pela IA</Label>
-                    <Textarea
-                      readOnly
-                      value={promoAtual.texto_promo_ia_3 || ""}
-                      className="min-h-[100px] bg-muted/40"
-                      placeholder="Aguardando geração pela IA..."
-                    />
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="gap-2"
-                      onClick={() => handleCopyText(promoAtual.texto_promo_ia_3 || "")}
-                      disabled={!promoAtual.texto_promo_ia_3}
-                    >
-                      <Copy className="h-4 w-4" />
-                      Copiar texto
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Nenhum texto disponível ainda. Envie um teste e clique em "Atualizar" para ver os textos gerados.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+        <div>
+
 
 
           {/* Histórico */}
