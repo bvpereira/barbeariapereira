@@ -119,6 +119,7 @@ function AtendimentosPage() {
   const [hasMoreConcluidos, setHasMoreConcluidos] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
   const invalidateCouponFn = useServerFn(invalidateAppointmentCoupon);
+  const applyClubeFn = useServerFn(applyClubeToAppointment);
 
   // Form states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
