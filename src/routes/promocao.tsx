@@ -956,11 +956,17 @@ function PromocaoPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
 
 
 
         {/* Cadastro de Promoção (largura total) */}
+        <div className="space-y-3">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold">
+          <Megaphone className="h-5 w-5 text-primary" />
+          Notificação/Promoção Atual
+        </h2>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
