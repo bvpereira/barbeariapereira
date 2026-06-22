@@ -714,12 +714,13 @@ function PromocaoPage() {
         {/* Banner + Cards de uso mensal lado a lado */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Upload de Banner para a página de clientes */}
+          <div className="space-y-3">
+          <h2 className="flex items-center gap-2 text-2xl font-semibold">
+            <ImageIcon className="h-5 w-5 text-primary" />
+            Banner para Clientes
+          </h2>
           <Card className="border-primary/20 bg-primary/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-primary" />
-                Banner para Clientes
-              </CardTitle>
               <CardDescription>Esta imagem aparecerá no topo da página do cliente (Barber Web).</CardDescription>
             </CardHeader>
             <CardContent>
@@ -779,6 +780,8 @@ function PromocaoPage() {
               </div>
             </CardContent>
           </Card>
+          </div>
+
 
           {/* Coluna direita: envio atual + cards de uso mensal (3 cards empilhados) */}
           {(() => {
@@ -838,12 +841,13 @@ function PromocaoPage() {
 
         <div className="grid gap-6 lg:grid-cols-3 items-start">
         {/* Criação de Textos com IA */}
+        <div className="space-y-3">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold">
+          <MessageSquareText className="h-5 w-5 text-primary" />
+          Criação de Textos pela IA
+        </h2>
         <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquareText className="h-5 w-5 text-primary" />
-              Criação de Textos pela IA
-            </CardTitle>
             <CardDescription>
               A partir de 1 texto digitado abaixo, a inteligência artificial gera outros 3 textos
               que podem ser utilizados para a notificação ou promoção. São necessários 3 textos
@@ -952,23 +956,25 @@ function PromocaoPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
 
 
 
         {/* Cadastro de Promoção (largura total) */}
+        <div className="space-y-3">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold">
+          <Megaphone className="h-5 w-5 text-primary" />
+          Notificação/Promoção Atual
+        </h2>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Megaphone className="h-5 w-5 text-primary" />
-              Notificação/Promoção Atual
-            </CardTitle>
             <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 grid-cols-1">
 
-              <div className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
               {/* Tipo de envio */}
               <div className="space-y-2">
                 <Label>Tipo de envio</Label>
@@ -1196,18 +1202,19 @@ function PromocaoPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
-        <div>
+        <div className="space-y-3">
 
 
 
           {/* Histórico */}
+          <h2 className="flex items-center gap-2 text-2xl font-semibold">
+            <History className="h-5 w-5 text-primary" />
+            Histórico de Envios
+          </h2>
           <Card className="flex-1 overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5 text-primary" />
-                Histórico de Envios
-              </CardTitle>
               <CardDescription>Últimas campanhas disparadas.</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
