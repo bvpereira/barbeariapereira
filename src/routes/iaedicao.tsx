@@ -362,7 +362,7 @@ function IAEdicaoPage() {
                             const disabled = field.onlyInfinite && editSelections.edit_tipo_fundo !== "Fundo infinito";
                             return (
                               <div key={field.key} className="space-y-2">
-                                <label className="text-sm font-medium text-gray-800">{field.label}</label>
+                                <label className="text-sm font-medium text-white">{field.label}</label>
                                 <Select
                                   value={editSelections[field.key]}
                                   disabled={disabled}
