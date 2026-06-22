@@ -44,7 +44,7 @@ function WebhooksPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="w-full max-w-4xl"
+        className="w-full"
       >
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold font-josefin uppercase tracking-widest text-primary mb-2">
