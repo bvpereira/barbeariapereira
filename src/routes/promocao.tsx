@@ -960,49 +960,81 @@ function PromocaoPage() {
               </div>
 
               <div className="space-y-6">
-              {/* Texto */}
-              <div className="space-y-2">
-
-                <Label htmlFor="texto-promo">Texto da Notificação/Promoção (cole aqui um texto escrito no WhatsApp)</Label>
-                <Textarea
-                  id="texto-promo"
-                  placeholder="Ex: Aviso importante ou Corte + Barba com 20% de desconto nesta quarta!"
-                  className={`min-h-[120px] ${promoAtual.texto_promo?.length > 920 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                  value={promoAtual.texto_promo || ""}
-                  onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
-                  disabled={promoAtual.testada === "sim"}
-                />
-                <div className="flex justify-between text-xs">
-                  <span className={promoAtual.texto_promo?.length > 920 ? "text-red-500 font-medium" : "text-muted-foreground"}>
-                    {promoAtual.texto_promo?.length || 0}/920 caracteres
-                  </span>
-                  {promoAtual.texto_promo?.length > 920 && (
-                    <span className="text-red-500 font-medium italic">Limite excedido</span>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="secondary" 
-                    size="sm" 
-                    className="w-full gap-2 bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100" 
-                    onClick={handlePasteTexto}
-                    disabled={promoAtual.testada === "sim"}
-                  >
-                    <ClipboardPaste className="h-4 w-4" />
-                    Colar Texto
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm" 
-                    className="w-full gap-2 bg-red-600 hover:bg-red-700 text-white border-none" 
-                    onClick={handleApagarTexto}
-                    disabled={saving}
-                  >
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                    Apagar Texto
-                  </Button>
-                </div>
+              {/* Textos a enviar */}
+              <div className="space-y-4">
+                <Label>Textos que serão enviados</Label>
+                {([1, 2, 3] as const).map((n) => {
+                  const col = `texto_enviar_${n}` as const;
+                  const val = promoAtual[col] || "";
+                  const pasteThis = async () => {
+                    if (!tenant) return;
+                    try {
+                      const text = await navigator.clipboard.readText();
+                      if (!text) {
+                        toast.error("Nenhum texto na área de transferência.");
+                        return;
+                      }
+                      const { error } = await supabase
+                        .from("promocao")
+                        .update({ [col]: text })
+                        .eq("numero_promo", 0)
+                        .eq("barbearia_id", tenant.id);
+                      if (error) throw error;
+                      setPromoAtual({ ...promoAtual, [col]: text });
+                      toast.success(`Texto ${n} colado!`);
+                    } catch (err: any) {
+                      toast.error("Erro ao colar: " + (err.message || ""));
+                    }
+                  };
+                  const clearThis = async () => {
+                    if (!tenant) return;
+                    try {
+                      const { error } = await supabase
+                        .from("promocao")
+                        .update({ [col]: "" })
+                        .eq("numero_promo", 0)
+                        .eq("barbearia_id", tenant.id);
+                      if (error) throw error;
+                      setPromoAtual({ ...promoAtual, [col]: "" });
+                      toast.success(`Texto ${n} apagado!`);
+                    } catch (err: any) {
+                      toast.error("Erro ao apagar: " + (err.message || ""));
+                    }
+                  };
+                  return (
+                    <div key={n} className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Texto {n}</Label>
+                      <Textarea
+                        value={val}
+                        onChange={(e) => setPromoAtual({ ...promoAtual, [col]: e.target.value })}
+                        className="min-h-[80px]"
+                        placeholder={`Texto ${n} para envio...`}
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="gap-2 bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100"
+                          onClick={pasteThis}
+                        >
+                          <ClipboardPaste className="h-4 w-4" />
+                          Colar Texto
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="gap-2 bg-red-600 hover:bg-red-700 text-white border-none"
+                          onClick={clearThis}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Apagar Texto
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+
 
               {/* Botões de Envio */}
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
