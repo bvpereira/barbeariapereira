@@ -309,44 +309,47 @@ function AdminPage() {
           </div>
         </div>
 
-        {/* Banner Preview para Página de Clientes */}
-        <Card className="border-primary/20">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-primary" />
-              Imagem Banner (Página de Clientes)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.imagemBanner ? (
-              <div className="relative w-full md:w-1/2 overflow-hidden border rounded-lg">
-                <img 
-                  src={data.imagemBanner} 
-                  alt="Banner Atual" 
-                  className="w-full h-auto block" 
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-8 bg-muted/30 rounded-lg border border-dashed text-center">
-                <ImageIcon className="h-10 w-10 text-muted-foreground mb-3 opacity-20" />
-                <p className="text-sm font-medium">Nenhuma imagem de banner configurada</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Vá em "Promoções" para fazer o upload de uma imagem.
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-4"
-                  onClick={() => navigate({ to: "/promocao" } as any)}
-                >
-                  Configurar Banner
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 items-start">
+          {/* Banner Preview para Página de Clientes */}
+          <Card className="border-primary/20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" />
+                Imagem Banner (Página de Clientes)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.imagemBanner ? (
+                <div className="relative w-full overflow-hidden border rounded-lg">
+                  <img
+                    src={data.imagemBanner}
+                    alt="Banner Atual"
+                    className="w-full h-auto block"
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center p-8 bg-muted/30 rounded-lg border border-dashed text-center">
+                  <ImageIcon className="h-10 w-10 text-muted-foreground mb-3 opacity-20" />
+                  <p className="text-sm font-medium">Nenhuma imagem de banner configurada</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Vá em "Promoções" para fazer o upload de uma imagem.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => navigate({ to: "/promocao" } as any)}
+                  >
+                    Configurar Banner
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        <NotificationsPanel />
+          <NotificationsPanel />
+        </div>
+
 
         {/* Cards de Resumo Hoje */}
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
