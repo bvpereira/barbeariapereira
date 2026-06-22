@@ -138,17 +138,22 @@ function HorariosPage() {
       if (horariosError) throw horariosError;
       setHorariosColaboradores((horariosData as any) || []);
 
-      // Initialize global config defaults
-      const initialGlobal: any = {};
-      diasData?.forEach(dia => {
-        initialGlobal[dia.data] = {
-          manha_inicio: "08:00",
-          manha_fim: "12:00",
-          tarde_inicio: "13:00",
-          tarde_fim: "18:00"
-        };
-      });
-      setGlobalConfig(initialGlobal);
+      // Load global config from informacoes
+      const { data: infoData } = await supabase
+        .from("informacoes")
+        .select("manha_inicio, manha_fim, tarde_inicio, tarde_fim")
+        .eq("barbearia_id", tenant.id)
+        .maybeSingle();
+
+      if (infoData) {
+        setGlobalConfig({
+          manha_inicio: (infoData as any).manha_inicio?.substring(0, 5) || "08:00",
+          manha_fim: (infoData as any).manha_fim?.substring(0, 5) || "12:00",
+          tarde_inicio: (infoData as any).tarde_inicio?.substring(0, 5) || "13:00",
+          tarde_fim: (infoData as any).tarde_fim?.substring(0, 5) || "18:00",
+        });
+      }
+
 
     } catch (error: any) {
       toast.error("Erro ao carregar dados: " + error.message);
