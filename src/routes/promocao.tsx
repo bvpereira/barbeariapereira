@@ -851,7 +851,7 @@ function PromocaoPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 grid-cols-1">
               {/* Coluna 1: texto base + gerar */}
               <div className="space-y-2">
                 <Label htmlFor="texto-promo">
@@ -966,7 +966,7 @@ function PromocaoPage() {
             <CardDescription>Configure os dados que serão enviados na campanha.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 grid-cols-1">
 
               <div className="space-y-6">
               {/* Tipo de envio */}
@@ -1270,7 +1270,9 @@ function PromocaoPage() {
                     })}
                   </div>
                 )}
-              </div>
+        </div>
+      </div>
+
             </CardContent>
           </Card>
         </div>
