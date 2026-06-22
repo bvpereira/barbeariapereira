@@ -955,7 +955,7 @@ function PromocaoPage() {
                     <span className="text-red-500 font-medium italic">Limite excedido</span>
                   )}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button 
                     variant="secondary" 
                     size="sm" 
