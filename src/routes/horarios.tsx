@@ -231,12 +231,6 @@ function HorariosPage() {
       if (error) throw error;
 
       setDias(dias.slice(0, -1));
-      
-      // Also remove from global config and selected collaborators
-      const newGlobalConfig = { ...globalConfig };
-      delete newGlobalConfig[lastDay.data];
-      setGlobalConfig(newGlobalConfig);
-      
 
       toast.success("Último dia excluído com sucesso.");
     } catch (error: any) {
@@ -244,14 +238,30 @@ function HorariosPage() {
     }
   };
 
-  const updateGlobalField = (date: string, field: string, value: string) => {
-    setGlobalConfig({
-      ...globalConfig,
-      [date]: {
-        ...globalConfig[date],
-        [field]: value
-      }
-    });
+  const updateGlobalField = (field: keyof typeof globalConfig, value: string) => {
+    setGlobalConfig({ ...globalConfig, [field]: value });
+  };
+
+  const saveGlobalConfig = async () => {
+    if (!tenant) return;
+    setSavingGlobal(true);
+    try {
+      const { error } = await supabase
+        .from("informacoes")
+        .update({
+          manha_inicio: globalConfig.manha_inicio,
+          manha_fim: globalConfig.manha_fim,
+          tarde_inicio: globalConfig.tarde_inicio,
+          tarde_fim: globalConfig.tarde_fim,
+        } as any)
+        .eq("barbearia_id", tenant.id);
+      if (error) throw error;
+      toast.success("Configuração de horário global salva.");
+    } catch (error: any) {
+      toast.error("Erro ao salvar: " + error.message);
+    } finally {
+      setSavingGlobal(false);
+    }
   };
 
   const toggleCollaboratorSelection = async (date: string, colabId: string) => {
