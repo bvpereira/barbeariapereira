@@ -82,6 +82,7 @@ function IAEdicaoPage() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [showEditConfirm, setShowEditConfirm] = useState(false);
   const [numImagensCriadas, setNumImagensCriadas] = useState(0);
+  const [numLimiteImagens, setNumLimiteImagens] = useState(0);
   const [lastResetMonth, setLastResetMonth] = useState("");
   const editFileInputRef = useRef<HTMLInputElement>(null);
   const editUploadedPathRef = useRef<string | null>(null);
