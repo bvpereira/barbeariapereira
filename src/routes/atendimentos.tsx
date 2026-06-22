@@ -480,13 +480,29 @@ function AtendimentosPage() {
     setIsSubmitting(true);
     try {
       const isManualNew = !editingAtendimento;
+      const selectedServiceRows = selectedServicos.map((serviceId) => {
+        const service = allServicos.find((item) => item.id === serviceId);
+        const price = Number(service?.price) || 0;
+        return {
+          barbearia_id: tenant.id,
+          servico_id: serviceId,
+          valor_servico: price,
+          valor_original: price,
+          valor_desconto: 0,
+          name_servico: service?.name ?? null,
+        };
+      });
+      const originalTotal = selectedServiceRows.reduce((sum, service) => sum + service.valor_original, 0);
       const payload: any = {
         barbearia_id: tenant.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00`,
-        valor: parseFloat(valorFinal),
-        valor_original: parseFloat(valorFinal),
+        valor: originalTotal,
+        valor_original: originalTotal,
+        valor_desconto: 0,
+        clube_desconto_aplicado: 0,
+        clube_id: null,
         comissao: parseFloat(comissaoFinal),
         status: isManualNew ? 'Finalizado' : (isScheduling ? 'Agendado' : status),
         ...(isManualNew ? { manual: true } : {})
@@ -494,8 +510,10 @@ function AtendimentosPage() {
       
       let atendimentoId: string;
       if (editingAtendimento) {
-        await supabase.from('atendimentos').update(payload).eq('id', editingAtendimento.id);
-        await supabase.from('atendimento_servicos').delete().eq('atendimento_id', editingAtendimento.id);
+        const { error: updateError } = await supabase.from('atendimentos').update(payload).eq('id', editingAtendimento.id);
+        if (updateError) throw updateError;
+        const { error: deleteServicesError } = await supabase.from('atendimento_servicos').delete().eq('atendimento_id', editingAtendimento.id);
+        if (deleteServicesError) throw new Error("Serviços anteriores: " + deleteServicesError.message);
         atendimentoId = editingAtendimento.id;
       } else {
         const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
@@ -503,13 +521,9 @@ function AtendimentosPage() {
         atendimentoId = data.id;
       }
 
-      const { error: servErr } = await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
-        barbearia_id: tenant.id,
-        atendimento_id: atendimentoId,
-        servico_id: sId,
-        valor_servico: allServicos.find(s => s.id === sId)?.price || 0,
-        valor_original: allServicos.find(s => s.id === sId)?.price || 0
-      })));
+      const { error: servErr } = await supabase.from('atendimento_servicos').insert(
+        selectedServiceRows.map((service) => ({ ...service, atendimento_id: atendimentoId }))
+      );
       if (servErr) throw new Error("Serviços: " + servErr.message);
 
       // Aplicar desconto do clube de assinatura (se o cliente tiver clube ativo)
