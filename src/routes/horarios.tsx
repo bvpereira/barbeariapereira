@@ -508,48 +508,7 @@ function HorariosPage() {
               {expandedDay === dia.id && dia.ativo && (
                 <CardContent className="p-4 pt-0 space-y-6 animate-in fade-in slide-in-from-top-2">
                   <Separator />
-                  
-                  {/* Global Config Section */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Configuração de Horário Global
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <Label className="text-xs uppercase text-muted-foreground">Turno da Manhã</Label>
-                        <div className="flex items-center gap-2">
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.manha_inicio || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "manha_inicio", e.target.value)}
-                          />
-                          <span>às</span>
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.manha_fim || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "manha_fim", e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <Label className="text-xs uppercase text-muted-foreground">Turno da Tarde</Label>
-                        <div className="flex items-center gap-2">
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.tarde_inicio || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "tarde_inicio", e.target.value)}
-                          />
-                          <span>às</span>
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.tarde_fim || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "tarde_fim", e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+
 
                   {/* Collaborators List */}
                   <div className="space-y-4">
