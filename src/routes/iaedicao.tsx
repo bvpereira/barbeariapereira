@@ -307,15 +307,10 @@ function IAEdicaoPage() {
           </div>
         </div>
 
-        <Card className="border-blue-100 bg-white shadow-sm">
+        <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-            <div className="space-y-1">
-              <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
-                <ImageIcon className="h-6 w-6 text-blue-600" />
-                Edição de Imagem
-              </CardTitle>
-              <CardDescription>Envie uma imagem e defina como a inteligência artificial deve editá-la.</CardDescription>
-            </div>
+            <div />
+
             <div className="flex gap-4">
               <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
                 <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas/editadas este mês</span>
@@ -367,7 +362,7 @@ function IAEdicaoPage() {
                             const disabled = field.onlyInfinite && editSelections.edit_tipo_fundo !== "Fundo infinito";
                             return (
                               <div key={field.key} className="space-y-2">
-                                <label className="text-sm font-medium text-gray-800">{field.label}</label>
+                                <label className="text-sm font-medium text-white">{field.label}</label>
                                 <Select
                                   value={editSelections[field.key]}
                                   disabled={disabled}
