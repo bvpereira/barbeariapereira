@@ -78,6 +78,7 @@ interface Atendimento {
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
+  servicos_atendimento?: string | null;
   cupom_codigo?: string | null;
   cupom_nome?: string | null;
 }
@@ -169,7 +170,7 @@ function AtendimentosPage() {
 
     const formatted = (data as any[]).map(item => ({
       ...item,
-      servicos: item.atendimento_servicos.map((as: any) => as.servicos)
+      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean)
     }));
 
     const now = new Date();
@@ -201,7 +202,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar concluídos"); return; }
 
-    setConcluidos((data as any[]).map(item => ({ ...item, servicos: item.atendimento_servicos.map((as: any) => as.servicos) })));
+    setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setHasMoreConcluidos((count || 0) > limitConcluidos);
     setLoadingConcluidos(false);
   }, [limitConcluidos, filtroConcluidos, tenant]);
@@ -223,7 +224,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar pedidos de exclusão"); return; }
 
-    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: item.atendimento_servicos.map((as: any) => as.servicos) })));
+    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setLoadingExclusao(false);
   }, [tenant]);
 
@@ -479,13 +480,29 @@ function AtendimentosPage() {
     setIsSubmitting(true);
     try {
       const isManualNew = !editingAtendimento;
+      const selectedServiceRows = selectedServicos.map((serviceId) => {
+        const service = allServicos.find((item) => item.id === serviceId);
+        const price = Number(service?.price) || 0;
+        return {
+          barbearia_id: tenant.id,
+          servico_id: serviceId,
+          valor_servico: price,
+          valor_original: price,
+          valor_desconto: 0,
+          name_servico: service?.name ?? null,
+        };
+      });
+      const originalTotal = selectedServiceRows.reduce((sum, service) => sum + service.valor_original, 0);
       const payload: any = {
         barbearia_id: tenant.id,
         cliente_id: selectedCliente.id,
         colaborador_id: selectedColaborador,
         data: `${selectedDatePart}T${selectedTimePart || format(new Date(), "HH:mm")}:00`,
-        valor: parseFloat(valorFinal),
-        valor_original: parseFloat(valorFinal),
+        valor: originalTotal,
+        valor_original: originalTotal,
+        valor_desconto: 0,
+        clube_desconto_aplicado: 0,
+        clube_id: null,
         comissao: parseFloat(comissaoFinal),
         status: isManualNew ? 'Finalizado' : (isScheduling ? 'Agendado' : status),
         ...(isManualNew ? { manual: true } : {})
@@ -493,8 +510,10 @@ function AtendimentosPage() {
       
       let atendimentoId: string;
       if (editingAtendimento) {
-        await supabase.from('atendimentos').update(payload).eq('id', editingAtendimento.id);
-        await supabase.from('atendimento_servicos').delete().eq('atendimento_id', editingAtendimento.id);
+        const { error: updateError } = await supabase.from('atendimentos').update(payload).eq('id', editingAtendimento.id);
+        if (updateError) throw updateError;
+        const { error: deleteServicesError } = await supabase.from('atendimento_servicos').delete().eq('atendimento_id', editingAtendimento.id);
+        if (deleteServicesError) throw new Error("Serviços anteriores: " + deleteServicesError.message);
         atendimentoId = editingAtendimento.id;
       } else {
         const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
@@ -502,13 +521,9 @@ function AtendimentosPage() {
         atendimentoId = data.id;
       }
 
-      const { error: servErr } = await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
-        barbearia_id: tenant.id,
-        atendimento_id: atendimentoId,
-        servico_id: sId,
-        valor_servico: allServicos.find(s => s.id === sId)?.price || 0,
-        valor_original: allServicos.find(s => s.id === sId)?.price || 0
-      })));
+      const { error: servErr } = await supabase.from('atendimento_servicos').insert(
+        selectedServiceRows.map((service) => ({ ...service, atendimento_id: atendimentoId }))
+      );
       if (servErr) throw new Error("Serviços: " + servErr.message);
 
       // Aplicar desconto do clube de assinatura (se o cliente tiver clube ativo)
@@ -738,13 +753,16 @@ function AtendimentosPage() {
   const AtendimentoCard = ({ item }: { item: Atendimento }) => (
     <div className="relative group">
       <Card className="hover:bg-accent/5 transition-colors cursor-pointer" onClick={() => {
+        const serviceIds = item.servicos.length > 0
+          ? item.servicos.map(s => s.id)
+          : allServicos.filter(service => (item.servicos_atendimento || "").split(",").map(name => name.trim()).includes(service.name)).map(service => service.id);
         setEditingAtendimento(item);
         setSelectedCliente(item.cliente);
         setSearchCliente(item.cliente.nome);
         setSelectedColaborador(item.colaborador.id);
         setSelectedDatePart(format(parseISO(item.data), "yyyy-MM-dd"));
         setSelectedTimePart(format(parseISO(item.data), "HH:mm"));
-        setSelectedServicos(item.servicos.map(s => s.id));
+        setSelectedServicos(serviceIds);
         setValorFinal(item.valor.toString());
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
@@ -763,7 +781,7 @@ function AtendimentosPage() {
         <div className="space-y-1 text-sm text-muted-foreground">
           <div className="flex items-center gap-2"><CalendarIcon className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
           <div className="flex items-center gap-2"><User className="w-3 h-3" /><span>Colaborador: {item.colaborador.nome}</span></div>
-          <div className="flex items-center gap-2"><Scissors className="w-3 h-3" /><span>{item.servicos.map(s => s.name).join(", ")}</span></div>
+          <div className="flex items-center gap-2"><Scissors className="w-3 h-3" /><span>{item.servicos.length > 0 ? item.servicos.map(s => s.name).join(", ") : (item.servicos_atendimento || "Serviços não informados")}</span></div>
         </div>
         <div className="mt-3 pt-3 border-t flex justify-between items-start gap-2">
           {(() => {
