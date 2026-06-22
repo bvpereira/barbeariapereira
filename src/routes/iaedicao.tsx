@@ -82,6 +82,7 @@ function IAEdicaoPage() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [showEditConfirm, setShowEditConfirm] = useState(false);
   const [numImagensCriadas, setNumImagensCriadas] = useState(0);
+  const [numLimiteImagens, setNumLimiteImagens] = useState(0);
   const [lastResetMonth, setLastResetMonth] = useState("");
   const editFileInputRef = useRef<HTMLInputElement>(null);
   const editUploadedPathRef = useRef<string | null>(null);
@@ -99,6 +100,7 @@ function IAEdicaoPage() {
       if (data) {
         setEditedImage((data as any).edit_imagemeditada || null);
         setNumImagensCriadas((data as any).num_imagens_criadas || 0);
+        setNumLimiteImagens((data as any).num_limite_imagens || 0);
         setLastResetMonth((data as any).last_reset_month || "");
       }
     };
@@ -306,12 +308,24 @@ function IAEdicaoPage() {
         </div>
 
         <Card className="border-blue-100 bg-white shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
-              <ImageIcon className="h-6 w-6 text-blue-600" />
-              Edição de Imagem
-            </CardTitle>
-            <CardDescription>Envie uma imagem e defina como a inteligência artificial deve editá-la.</CardDescription>
+          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+            <div className="space-y-1">
+              <CardTitle className="text-2xl text-gray-900 flex items-center gap-2">
+                <ImageIcon className="h-6 w-6 text-blue-600" />
+                Edição de Imagem
+              </CardTitle>
+              <CardDescription>Envie uma imagem e defina como a inteligência artificial deve editá-la.</CardDescription>
+            </div>
+            <div className="flex gap-4">
+              <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas/editadas este mês</span>
+                <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
+              </div>
+              <div className="bg-green-50 px-4 py-2 rounded-lg border border-green-100 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Imagens restantes</span>
+                <span className="text-xl font-bold text-green-700">{Math.max(0, numLimiteImagens - numImagensCriadas)}</span>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">

@@ -844,7 +844,7 @@ function IAImagemPage() {
             </div>
             <div className="flex gap-4">
               <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
-                <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas este mês</span>
+                <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas/editadas este mês</span>
                 <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
               </div>
               <div className="bg-green-50 px-4 py-2 rounded-lg border border-green-100 flex flex-col items-end">
