@@ -780,6 +780,8 @@ function PromocaoPage() {
               </div>
             </CardContent>
           </Card>
+          </div>
+
 
           {/* Coluna direita: envio atual + cards de uso mensal (3 cards empilhados) */}
           {(() => {
