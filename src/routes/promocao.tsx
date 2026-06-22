@@ -1202,18 +1202,19 @@ function PromocaoPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
-        <div>
+        <div className="space-y-3">
 
 
 
           {/* Histórico */}
+          <h2 className="flex items-center gap-2 text-2xl font-semibold">
+            <History className="h-5 w-5 text-primary" />
+            Histórico de Envios
+          </h2>
           <Card className="flex-1 overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5 text-primary" />
-                Histórico de Envios
-              </CardTitle>
               <CardDescription>Últimas campanhas disparadas.</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
