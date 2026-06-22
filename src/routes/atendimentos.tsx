@@ -78,6 +78,7 @@ interface Atendimento {
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
+  servicos_atendimento?: string | null;
   cupom_codigo?: string | null;
   cupom_nome?: string | null;
 }
@@ -169,7 +170,7 @@ function AtendimentosPage() {
 
     const formatted = (data as any[]).map(item => ({
       ...item,
-      servicos: item.atendimento_servicos.map((as: any) => as.servicos)
+      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean)
     }));
 
     const now = new Date();
@@ -201,7 +202,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar concluídos"); return; }
 
-    setConcluidos((data as any[]).map(item => ({ ...item, servicos: item.atendimento_servicos.map((as: any) => as.servicos) })));
+    setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setHasMoreConcluidos((count || 0) > limitConcluidos);
     setLoadingConcluidos(false);
   }, [limitConcluidos, filtroConcluidos, tenant]);
@@ -223,7 +224,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar pedidos de exclusão"); return; }
 
-    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: item.atendimento_servicos.map((as: any) => as.servicos) })));
+    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setLoadingExclusao(false);
   }, [tenant]);
 
