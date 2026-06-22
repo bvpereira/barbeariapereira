@@ -714,12 +714,13 @@ function PromocaoPage() {
         {/* Banner + Cards de uso mensal lado a lado */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Upload de Banner para a página de clientes */}
+          <div className="space-y-3">
+          <h2 className="flex items-center gap-2 text-2xl font-semibold">
+            <ImageIcon className="h-5 w-5 text-primary" />
+            Banner para Clientes
+          </h2>
           <Card className="border-primary/20 bg-primary/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-primary" />
-                Banner para Clientes
-              </CardTitle>
               <CardDescription>Esta imagem aparecerá no topo da página do cliente (Barber Web).</CardDescription>
             </CardHeader>
             <CardContent>
