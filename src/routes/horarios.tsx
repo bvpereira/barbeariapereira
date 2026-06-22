@@ -63,17 +63,20 @@ function HorariosPage() {
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // Global config states (per day, but transient)
+  // Global config (single, stored in informacoes table)
   const [globalConfig, setGlobalConfig] = useState<{
-    [date: string]: {
-      manha_inicio: string;
-      manha_fim: string;
-      tarde_inicio: string;
-      tarde_fim: string;
-    };
-  }>({});
+    manha_inicio: string;
+    manha_fim: string;
+    tarde_inicio: string;
+    tarde_fim: string;
+  }>({
+    manha_inicio: "08:00",
+    manha_fim: "12:00",
+    tarde_inicio: "13:00",
+    tarde_fim: "18:00",
+  });
+  const [savingGlobal, setSavingGlobal] = useState(false);
 
-  // Selection for batch application
   
 
   useEffect(() => {
