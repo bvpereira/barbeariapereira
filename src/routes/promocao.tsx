@@ -976,7 +976,7 @@ function PromocaoPage() {
                       }
                       const { error } = await supabase
                         .from("promocao")
-                        .update({ [col]: text })
+                        .update({ [col]: text } as any)
                         .eq("numero_promo", 0)
                         .eq("barbearia_id", tenant.id);
                       if (error) throw error;
@@ -991,7 +991,7 @@ function PromocaoPage() {
                     try {
                       const { error } = await supabase
                         .from("promocao")
-                        .update({ [col]: "" })
+                        .update({ [col]: "" } as any)
                         .eq("numero_promo", 0)
                         .eq("barbearia_id", tenant.id);
                       if (error) throw error;
