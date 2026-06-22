@@ -753,8 +753,41 @@ function AtendimentosPage() {
           <div className="flex items-center gap-2"><User className="w-3 h-3" /><span>Colaborador: {item.colaborador.nome}</span></div>
           <div className="flex items-center gap-2"><Scissors className="w-3 h-3" /><span>{item.servicos.map(s => s.name).join(", ")}</span></div>
         </div>
-        <div className="mt-3 pt-3 border-t flex justify-between items-center">
-          <span className="font-bold text-primary">R$ {Number(item.valor).toFixed(2).replace(".", ",")}</span>
+        <div className="mt-3 pt-3 border-t flex justify-between items-start gap-2">
+          {(() => {
+            const valorFinal = Number(item.valor) || 0;
+            const cashback = Number(item.cashback_usado) || 0;
+            const clube = Number(item.clube_desconto_aplicado) || 0;
+            const descontoTotal = Number(item.valor_desconto) || 0;
+            const cupom = Math.max(0, descontoTotal - cashback - clube);
+            const original = item.valor_original != null
+              ? Number(item.valor_original)
+              : valorFinal + descontoTotal;
+            const temDesconto = descontoTotal > 0 || original > valorFinal;
+            return (
+              <div className="flex flex-col">
+                {temDesconto && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    R$ {original.toFixed(2).replace(".", ",")}
+                  </span>
+                )}
+                <span className="font-bold text-primary">
+                  R$ {valorFinal.toFixed(2).replace(".", ",")}
+                </span>
+                {temDesconto && (
+                  <div className="text-[11px] text-muted-foreground space-y-0.5 mt-1">
+                    {cashback > 0 && <div>Cashback: -R$ {cashback.toFixed(2).replace(".", ",")}</div>}
+                    {clube > 0 && <div>Plano assinatura: -R$ {clube.toFixed(2).replace(".", ",")}</div>}
+                    {cupom > 0 && (
+                      <div>
+                        Cupom{item.cupom_nome ? ` (${item.cupom_nome})` : item.cupom_codigo ? ` (${item.cupom_codigo})` : ""}: -R$ {cupom.toFixed(2).replace(".", ",")}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
              <BookingButton 
               onSuccess={fetchAgendados} 
