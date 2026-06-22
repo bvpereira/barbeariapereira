@@ -760,10 +760,13 @@ function AtendimentosPage() {
             const clube = Number(item.clube_desconto_aplicado) || 0;
             const descontoTotal = Number(item.valor_desconto) || 0;
             const cupom = Math.max(0, descontoTotal - cashback - clube);
-            const original = item.valor_original != null
-              ? Number(item.valor_original)
-              : valorFinal + descontoTotal;
-            const temDesconto = descontoTotal > 0 || original > valorFinal;
+            const somaServicos = (item.servicos || []).reduce((s, sv) => s + (Number(sv?.price) || 0), 0);
+            const valorOriginalDb = Number(item.valor_original) || 0;
+            // Real original: prefer DB value, fall back to sum of services' prices, then to valor + descontos
+            const original = valorOriginalDb > 0
+              ? valorOriginalDb
+              : (somaServicos > 0 ? somaServicos : valorFinal + descontoTotal);
+            const temDesconto = original > valorFinal + 0.001 || descontoTotal > 0;
             return (
               <div className="flex flex-col">
                 {temDesconto && (
@@ -788,6 +791,7 @@ function AtendimentosPage() {
               </div>
             );
           })()}
+
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
              <BookingButton 
               onSuccess={fetchAgendados} 
