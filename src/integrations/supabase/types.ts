@@ -1249,8 +1249,12 @@ export type Database = {
           numero_promo: number
           promo_para_quem: string | null
           testada: string | null
+          texto_enviar_1: string | null
+          texto_enviar_2: string | null
+          texto_enviar_3: string | null
           texto_promo: string | null
           texto_promo_auxiliar: string | null
+          texto_promo_ia_1: string | null
           texto_promo_ia_2: string | null
           texto_promo_ia_3: string | null
           tipo_promo: string | null
@@ -1269,8 +1273,12 @@ export type Database = {
           numero_promo: number
           promo_para_quem?: string | null
           testada?: string | null
+          texto_enviar_1?: string | null
+          texto_enviar_2?: string | null
+          texto_enviar_3?: string | null
           texto_promo?: string | null
           texto_promo_auxiliar?: string | null
+          texto_promo_ia_1?: string | null
           texto_promo_ia_2?: string | null
           texto_promo_ia_3?: string | null
           tipo_promo?: string | null
@@ -1289,8 +1297,12 @@ export type Database = {
           numero_promo?: number
           promo_para_quem?: string | null
           testada?: string | null
+          texto_enviar_1?: string | null
+          texto_enviar_2?: string | null
+          texto_enviar_3?: string | null
           texto_promo?: string | null
           texto_promo_auxiliar?: string | null
+          texto_promo_ia_1?: string | null
           texto_promo_ia_2?: string | null
           texto_promo_ia_3?: string | null
           tipo_promo?: string | null
