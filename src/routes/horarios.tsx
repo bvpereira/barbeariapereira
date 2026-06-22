@@ -445,6 +445,58 @@ function HorariosPage() {
           </div>
         )}
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="w-5 h-5" />
+              Configuração de Horário Global
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label className="text-xs uppercase text-muted-foreground">Turno da Manhã</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="time"
+                    value={globalConfig.manha_inicio}
+                    onChange={(e) => updateGlobalField("manha_inicio", e.target.value)}
+                  />
+                  <span>às</span>
+                  <Input
+                    type="time"
+                    value={globalConfig.manha_fim}
+                    onChange={(e) => updateGlobalField("manha_fim", e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Label className="text-xs uppercase text-muted-foreground">Turno da Tarde</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="time"
+                    value={globalConfig.tarde_inicio}
+                    onChange={(e) => updateGlobalField("tarde_inicio", e.target.value)}
+                  />
+                  <span>às</span>
+                  <Input
+                    type="time"
+                    value={globalConfig.tarde_fim}
+                    onChange={(e) => updateGlobalField("tarde_fim", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={saveGlobalConfig} disabled={savingGlobal} className="gap-2">
+                <Save className="w-4 h-4" />
+                {savingGlobal ? "Salvando..." : "Salvar"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+
         <div className="grid gap-4">
           {dias.map((dia) => (
             <Card key={dia.id} className={!dia.ativo ? "opacity-60" : ""}>
