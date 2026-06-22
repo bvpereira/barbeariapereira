@@ -753,13 +753,16 @@ function AtendimentosPage() {
   const AtendimentoCard = ({ item }: { item: Atendimento }) => (
     <div className="relative group">
       <Card className="hover:bg-accent/5 transition-colors cursor-pointer" onClick={() => {
+        const serviceIds = item.servicos.length > 0
+          ? item.servicos.map(s => s.id)
+          : allServicos.filter(service => (item.servicos_atendimento || "").split(",").map(name => name.trim()).includes(service.name)).map(service => service.id);
         setEditingAtendimento(item);
         setSelectedCliente(item.cliente);
         setSearchCliente(item.cliente.nome);
         setSelectedColaborador(item.colaborador.id);
         setSelectedDatePart(format(parseISO(item.data), "yyyy-MM-dd"));
         setSelectedTimePart(format(parseISO(item.data), "HH:mm"));
-        setSelectedServicos(item.servicos.map(s => s.id));
+        setSelectedServicos(serviceIds);
         setValorFinal(item.valor.toString());
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
