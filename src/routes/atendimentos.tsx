@@ -21,7 +21,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
 import { triggerWebhook } from "@/lib/webhook";
-import { useServerFn } from "@tanstack/react-start";
 import { applyClubeToAppointment } from "@/lib/clube.functions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
