@@ -970,10 +970,14 @@ export type Database = {
           instancia_reserva_api: string | null
           instancia_reserva_evo: string | null
           instancia_reserva_numero: string | null
+          manha_fim: string | null
+          manha_inicio: string | null
           modo_teste: boolean | null
           nome_admin: string | null
           nome_barbearia: string | null
           site: string | null
+          tarde_fim: string | null
+          tarde_inicio: string | null
           tel_contato: string | null
           tempo_excluir: number | null
           tempo_marcar: number | null
@@ -1010,10 +1014,14 @@ export type Database = {
           instancia_reserva_api?: string | null
           instancia_reserva_evo?: string | null
           instancia_reserva_numero?: string | null
+          manha_fim?: string | null
+          manha_inicio?: string | null
           modo_teste?: boolean | null
           nome_admin?: string | null
           nome_barbearia?: string | null
           site?: string | null
+          tarde_fim?: string | null
+          tarde_inicio?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null
           tempo_marcar?: number | null
@@ -1050,10 +1058,14 @@ export type Database = {
           instancia_reserva_api?: string | null
           instancia_reserva_evo?: string | null
           instancia_reserva_numero?: string | null
+          manha_fim?: string | null
+          manha_inicio?: string | null
           modo_teste?: boolean | null
           nome_admin?: string | null
           nome_barbearia?: string | null
           site?: string | null
+          tarde_fim?: string | null
+          tarde_inicio?: string | null
           tel_contato?: string | null
           tempo_excluir?: number | null
           tempo_marcar?: number | null
