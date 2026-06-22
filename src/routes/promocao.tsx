@@ -680,36 +680,11 @@ function PromocaoPage() {
   return (
     <AdminLayout>
       <div className="space-y-6 pb-10">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Notificações e Promoções</h1>
-            <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de notificações e promoções da barbearia.</p>
-          </div>
-          {(() => {
-            const isWhats = envioVia === "Whatsapp";
-            const isEmail = envioVia === "E-mail";
-            const color = isWhats
-              ? "text-green-500 border-green-500/40 bg-green-500/10"
-              : isEmail
-              ? "text-yellow-500 border-yellow-500/40 bg-yellow-500/10"
-              : "text-muted-foreground border-primary/15 bg-background/40";
-            return (
-              <Card className="border-primary/20 w-full md:w-72">
-                <CardHeader className="pb-2">
-                  <CardDescription>Atualmente o envio está sendo via</CardDescription>
-                  <div className={`mt-1 rounded-md border px-3 py-2 text-center text-lg font-semibold ${color}`}>
-                    {envioVia || "Não definido"}
-                  </div>
-                  {isEmail && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Estamos trabalhando para que o envio via Whatsapp seja restabelecido em breve.
-                    </p>
-                  )}
-                </CardHeader>
-              </Card>
-            );
-          })()}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Gerenciar Notificações e Promoções</h1>
+          <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de notificações e promoções da barbearia.</p>
         </div>
+
 
         {/* Banner + Cards de uso mensal lado a lado */}
         <div className="grid gap-6 md:grid-cols-2">
