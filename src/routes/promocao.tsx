@@ -836,6 +836,7 @@ function PromocaoPage() {
 
         </div>
 
+        <div className="grid gap-6 lg:grid-cols-3 items-start">
         {/* Criação de Textos com IA */}
         <Card className="border-primary/20">
           <CardHeader>
