@@ -514,7 +514,7 @@ function PromocaoPage() {
     try {
       const { data, error } = await supabase
         .from("promocao")
-        .select("texto_promo, texto_promo_ia_2, texto_promo_ia_3")
+        .select("texto_promo, texto_promo_ia_1, texto_promo_ia_2, texto_promo_ia_3, texto_enviar_1, texto_enviar_2, texto_enviar_3")
         .eq("numero_promo", 0)
         .eq("barbearia_id", tenant.id)
         .maybeSingle();
