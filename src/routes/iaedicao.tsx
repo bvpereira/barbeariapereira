@@ -309,7 +309,12 @@ function IAEdicaoPage() {
 
         <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-            <div />
+            <div className="space-y-1">
+              <CardTitle>Parâmetros de Edição</CardTitle>
+              <CardDescription>
+                Selecione uma opção em cada campo para habilitar a edição da imagem.
+              </CardDescription>
+            </div>
 
             <div className="flex gap-4">
               <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
