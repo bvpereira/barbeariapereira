@@ -833,6 +833,124 @@ function PromocaoPage() {
 
         </div>
 
+        {/* Criação de Textos com IA */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquareText className="h-5 w-5 text-primary" />
+              Criação de Textos pela IA
+            </CardTitle>
+            <CardDescription>
+              A partir de 1 texto digitado abaixo, a inteligência artificial gera outros 3 textos
+              que podem ser utilizados para a notificação ou promoção. São necessários 3 textos
+              diferentes para diminuir o risco de bloqueio durante o envio automático.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Coluna 1: texto base + gerar */}
+              <div className="space-y-2">
+                <Label htmlFor="texto-promo">
+                  Texto da Notificação/Promoção (cole aqui um texto escrito no WhatsApp)
+                </Label>
+                <Textarea
+                  id="texto-promo"
+                  placeholder="Ex: Aviso importante ou Corte + Barba com 20% de desconto nesta quarta!"
+                  className={`min-h-[160px] ${promoAtual.texto_promo?.length > 920 ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                  value={promoAtual.texto_promo || ""}
+                  onChange={(e) => setPromoAtual({ ...promoAtual, texto_promo: e.target.value })}
+                  disabled={promoAtual.testada === "sim"}
+                />
+                <div className="flex justify-between text-xs">
+                  <span className={promoAtual.texto_promo?.length > 920 ? "text-red-500 font-medium" : "text-muted-foreground"}>
+                    {promoAtual.texto_promo?.length || 0}/920 caracteres
+                  </span>
+                  {promoAtual.texto_promo?.length > 920 && (
+                    <span className="text-red-500 font-medium italic">Limite excedido</span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="w-full gap-2 bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100"
+                    onClick={handlePasteTexto}
+                    disabled={promoAtual.testada === "sim"}
+                  >
+                    <ClipboardPaste className="h-4 w-4" />
+                    Colar Texto
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="w-full gap-2 bg-red-600 hover:bg-red-700 text-white border-none"
+                    onClick={handleApagarTexto}
+                    disabled={saving}
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    Apagar Texto
+                  </Button>
+                </div>
+                <Button
+                  className="w-full gap-2 mt-2"
+                  onClick={handleGerarTextos}
+                  disabled={generatingTextos || !promoAtual.texto_promo}
+                >
+                  {generatingTextos ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  Gerar 3 Textos com IA
+                </Button>
+              </div>
+
+              {/* Coluna 2: textos gerados */}
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <Label className="text-sm font-semibold">Textos da notificação/promoção</Label>
+                    <p className="text-xs text-muted-foreground">Textos gerados pela IA</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={refreshIaTextos}
+                    disabled={refreshingIa}
+                  >
+                    {refreshingIa ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                    Atualizar
+                  </Button>
+                </div>
+                {[
+                  { label: "Texto 1 criado pela IA", key: "texto_promo_ia_1" },
+                  { label: "Texto 2 criado pela IA", key: "texto_promo_ia_2" },
+                  { label: "Texto 3 criado pela IA", key: "texto_promo_ia_3" },
+                ].map(({ label, key }) => (
+                  <div key={key} className="space-y-1">
+                    <Label className="text-xs">{label}</Label>
+                    <Textarea
+                      readOnly
+                      value={(promoAtual as any)[key] || ""}
+                      className="min-h-[80px] bg-muted/40"
+                      placeholder="Aguardando geração pela IA..."
+                    />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => handleCopyText((promoAtual as any)[key] || "")}
+                      disabled={!(promoAtual as any)[key]}
+                    >
+                      <Copy className="h-4 w-4" />
+                      Copiar texto
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+
+
 
         {/* Cadastro de Promoção (largura total) */}
         <Card>
