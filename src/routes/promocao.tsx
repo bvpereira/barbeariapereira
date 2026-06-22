@@ -680,36 +680,11 @@ function PromocaoPage() {
   return (
     <AdminLayout>
       <div className="space-y-6 pb-10">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Notificações e Promoções</h1>
-            <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de notificações e promoções da barbearia.</p>
-          </div>
-          {(() => {
-            const isWhats = envioVia === "Whatsapp";
-            const isEmail = envioVia === "E-mail";
-            const color = isWhats
-              ? "text-green-500 border-green-500/40 bg-green-500/10"
-              : isEmail
-              ? "text-yellow-500 border-yellow-500/40 bg-yellow-500/10"
-              : "text-muted-foreground border-primary/15 bg-background/40";
-            return (
-              <Card className="border-primary/20 w-full md:w-72">
-                <CardHeader className="pb-2">
-                  <CardDescription>Atualmente o envio está sendo via</CardDescription>
-                  <div className={`mt-1 rounded-md border px-3 py-2 text-center text-lg font-semibold ${color}`}>
-                    {envioVia || "Não definido"}
-                  </div>
-                  {isEmail && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Estamos trabalhando para que o envio via Whatsapp seja restabelecido em breve.
-                    </p>
-                  )}
-                </CardHeader>
-              </Card>
-            );
-          })()}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Gerenciar Notificações e Promoções</h1>
+          <p className="text-muted-foreground">Crie, envie e acompanhe o histórico de notificações e promoções da barbearia.</p>
         </div>
+
 
         {/* Banner + Cards de uso mensal lado a lado */}
         <div className="grid gap-6 md:grid-cols-2">
@@ -780,8 +755,15 @@ function PromocaoPage() {
             </CardContent>
           </Card>
 
-          {/* Cards de uso mensal */}
+          {/* Coluna direita: envio atual + cards de uso mensal (3 cards empilhados) */}
           {(() => {
+            const isWhats = envioVia === "Whatsapp";
+            const isEmail = envioVia === "E-mail";
+            const color = isWhats
+              ? "text-green-500 border-green-500/40 bg-green-500/10"
+              : isEmail
+              ? "text-yellow-500 border-yellow-500/40 bg-yellow-500/10"
+              : "text-muted-foreground border-primary/15 bg-background/40";
             const currentMonth = new Date().toISOString().slice(0, 7);
             const enviadas = promoAtual.last_reset_month === currentMonth
               ? (promoAtual.num_promo_criadas || 0)
@@ -789,7 +771,20 @@ function PromocaoPage() {
             const limite = promoAtual.num_limite_promo;
             const disponiveis = typeof limite === "number" ? Math.max(0, limite - enviadas) : null;
             return (
-              <div className="grid gap-4 sm:grid-cols-2 content-start">
+              <div className="flex flex-col gap-4">
+                <Card className="border-primary/20">
+                  <CardHeader className="pb-2">
+                    <CardDescription>Atualmente o envio está sendo via</CardDescription>
+                    <div className={`mt-1 rounded-md border px-3 py-2 text-center text-lg font-semibold ${color}`}>
+                      {envioVia || "Não definido"}
+                    </div>
+                    {isEmail && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Estamos trabalhando para que o envio via Whatsapp seja restabelecido em breve.
+                      </p>
+                    )}
+                  </CardHeader>
+                </Card>
                 <Card className="border-primary/20">
                   <CardHeader className="pb-2">
                     <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
@@ -810,6 +805,7 @@ function PromocaoPage() {
               </div>
             );
           })()}
+
         </div>
 
 
@@ -959,7 +955,7 @@ function PromocaoPage() {
                     <span className="text-red-500 font-medium italic">Limite excedido</span>
                   )}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button 
                     variant="secondary" 
                     size="sm" 
