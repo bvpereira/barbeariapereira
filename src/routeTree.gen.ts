@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as SuperloginRouteImport } from './routes/superlogin'
 import { Route as SuperadminRouteImport } from './routes/superadmin'
 import { Route as ServicosRouteImport } from './routes/servicos'
@@ -38,6 +39,11 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WebhooksRoute = WebhooksRouteImport.update({
+  id: '/webhooks',
+  path: '/webhooks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuperloginRoute = SuperloginRouteImport.update({
   id: '/superlogin',
   path: '/superlogin',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/servicos': typeof ServicosRoute
   '/superadmin': typeof SuperadminRoute
   '/superlogin': typeof SuperloginRoute
+  '/webhooks': typeof WebhooksRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/servicos': typeof ServicosRoute
   '/superadmin': typeof SuperadminRoute
   '/superlogin': typeof SuperloginRoute
+  '/webhooks': typeof WebhooksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/servicos': typeof ServicosRoute
   '/superadmin': typeof SuperadminRoute
   '/superlogin': typeof SuperloginRoute
+  '/webhooks': typeof WebhooksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/superadmin'
     | '/superlogin'
+    | '/webhooks'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/superadmin'
     | '/superlogin'
+    | '/webhooks'
   id:
     | '__root__'
     | '/'
@@ -361,6 +372,7 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/superadmin'
     | '/superlogin'
+    | '/webhooks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -392,10 +404,18 @@ export interface RootRouteChildren {
   ServicosRoute: typeof ServicosRoute
   SuperadminRoute: typeof SuperadminRoute
   SuperloginRoute: typeof SuperloginRoute
+  WebhooksRoute: typeof WebhooksRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/webhooks': {
+      id: '/webhooks'
+      path: '/webhooks'
+      fullPath: '/webhooks'
+      preLoaderRoute: typeof WebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/superlogin': {
       id: '/superlogin'
       path: '/superlogin'
@@ -624,6 +644,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicosRoute: ServicosRoute,
   SuperadminRoute: SuperadminRoute,
   SuperloginRoute: SuperloginRoute,
+  WebhooksRoute: WebhooksRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
