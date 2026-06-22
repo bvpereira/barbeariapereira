@@ -711,104 +711,107 @@ function PromocaoPage() {
           })()}
         </div>
 
-        {/* Cards de uso mensal de promoções */}
-        {(() => {
-          const currentMonth = new Date().toISOString().slice(0, 7);
-          const enviadas = promoAtual.last_reset_month === currentMonth
-            ? (promoAtual.num_promo_criadas || 0)
-            : 0;
-          const limite = promoAtual.num_limite_promo;
-          const disponiveis = typeof limite === "number" ? Math.max(0, limite - enviadas) : null;
-          return (
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card className="border-primary/20">
-                <CardHeader className="pb-2">
-                  <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
-                  <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
-                </CardHeader>
-              </Card>
-              <Card className="border-primary/20">
-                <CardHeader className="pb-2">
-                  <CardDescription>Notificações/Promoções disponíveis neste mês</CardDescription>
-                  <CardTitle className="text-3xl text-primary">
-                    {disponiveis === null ? "—" : disponiveis}
-                    {typeof limite === "number" && (
-                      <span className="text-base text-muted-foreground font-normal"> / {limite}</span>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-              </Card>
-            </div>
-          );
-        })()}
+        {/* Banner + Cards de uso mensal lado a lado */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Upload de Banner para a página de clientes */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" />
+                Banner para Clientes
+              </CardTitle>
+              <CardDescription>Esta imagem aparecerá no topo da página do cliente (Barber Web).</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <div className="relative w-full md:w-64 aspect-video rounded-lg border-2 border-dashed border-primary/30 bg-background flex items-center justify-center overflow-hidden">
+                  {promoAtual.imagem_banner ? (
+                    <img src={promoAtual.imagem_banner} alt="Banner" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-center p-4">
+                      <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2 opacity-50" />
+                      <p className="text-xs text-muted-foreground">Sem banner</p>
+                    </div>
+                  )}
+                  {uploading && (
+                    <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  )}
+                </div>
 
-
-        {/* Upload de Banner para a página de clientes */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-primary" />
-              Banner para Clientes
-            </CardTitle>
-            <CardDescription>Esta imagem aparecerá no topo da página do cliente (Barber Web).</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div className="relative w-full md:w-64 aspect-video rounded-lg border-2 border-dashed border-primary/30 bg-background flex items-center justify-center overflow-hidden">
-                {promoAtual.imagem_banner ? (
-                  <img src={promoAtual.imagem_banner} alt="Banner" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="text-center p-4">
-                    <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2 opacity-50" />
-                    <p className="text-xs text-muted-foreground">Sem banner</p>
-                  </div>
-                )}
-                {uploading && (
-                  <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex-1 space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = 'image/*';
-                      input.onchange = (e) => handleImageUpload(e as any, true);
-                      input.click();
-                    }}
-                    disabled={uploading}
-                    className="gap-2"
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                    {promoAtual.imagem_banner ? "Alterar Banner" : "Fazer Upload"}
-                  </Button>
-                  
-                  {promoAtual.imagem_banner && (
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      onClick={handleDeleteBanner}
+                <div className="flex-1 space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = (e) => handleImageUpload(e as any, true);
+                        input.click();
+                      }}
                       disabled={uploading}
                       className="gap-2"
                     >
-                      <Trash2 className="h-4 w-4" />
-                      Remover
+                      <ImageIcon className="h-4 w-4" />
+                      {promoAtual.imagem_banner ? "Alterar Banner" : "Fazer Upload"}
                     </Button>
-                  )}
+
+                    {promoAtual.imagem_banner && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleDeleteBanner}
+                        disabled={uploading}
+                        className="gap-2"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Remover
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">
+                    * Recomendado: 1200x400px ou proporção 3:1 para melhor exibição.
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground italic">
-                  * Recomendado: 1200x400px ou proporção 3:1 para melhor exibição.
-                </p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Cards de uso mensal */}
+          {(() => {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const enviadas = promoAtual.last_reset_month === currentMonth
+              ? (promoAtual.num_promo_criadas || 0)
+              : 0;
+            const limite = promoAtual.num_limite_promo;
+            const disponiveis = typeof limite === "number" ? Math.max(0, limite - enviadas) : null;
+            return (
+              <div className="grid gap-4 sm:grid-cols-2 content-start">
+                <Card className="border-primary/20">
+                  <CardHeader className="pb-2">
+                    <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
+                    <CardTitle className="text-3xl text-primary">{enviadas}</CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card className="border-primary/20">
+                  <CardHeader className="pb-2">
+                    <CardDescription>Notificações/Promoções disponíveis neste mês</CardDescription>
+                    <CardTitle className="text-3xl text-primary">
+                      {disponiveis === null ? "—" : disponiveis}
+                      {typeof limite === "number" && (
+                        <span className="text-base text-muted-foreground font-normal"> / {limite}</span>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+              </div>
+            );
+          })()}
+        </div>
+
 
         {/* Cadastro de Promoção (largura total) */}
         <Card>
