@@ -100,6 +100,7 @@ function IAEdicaoPage() {
       if (data) {
         setEditedImage((data as any).edit_imagemeditada || null);
         setNumImagensCriadas((data as any).num_imagens_criadas || 0);
+        setNumLimiteImagens((data as any).num_limite_imagens || 0);
         setLastResetMonth((data as any).last_reset_month || "");
       }
     };
