@@ -841,12 +841,13 @@ function PromocaoPage() {
 
         <div className="grid gap-6 lg:grid-cols-3 items-start">
         {/* Criação de Textos com IA */}
+        <div className="space-y-3">
+        <h2 className="flex items-center gap-2 text-2xl font-semibold">
+          <MessageSquareText className="h-5 w-5 text-primary" />
+          Criação de Textos pela IA
+        </h2>
         <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquareText className="h-5 w-5 text-primary" />
-              Criação de Textos pela IA
-            </CardTitle>
             <CardDescription>
               A partir de 1 texto digitado abaixo, a inteligência artificial gera outros 3 textos
               que podem ser utilizados para a notificação ou promoção. São necessários 3 textos
