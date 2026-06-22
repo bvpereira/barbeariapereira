@@ -755,8 +755,15 @@ function PromocaoPage() {
             </CardContent>
           </Card>
 
-          {/* Cards de uso mensal */}
+          {/* Coluna direita: envio atual + cards de uso mensal (3 cards empilhados) */}
           {(() => {
+            const isWhats = envioVia === "Whatsapp";
+            const isEmail = envioVia === "E-mail";
+            const color = isWhats
+              ? "text-green-500 border-green-500/40 bg-green-500/10"
+              : isEmail
+              ? "text-yellow-500 border-yellow-500/40 bg-yellow-500/10"
+              : "text-muted-foreground border-primary/15 bg-background/40";
             const currentMonth = new Date().toISOString().slice(0, 7);
             const enviadas = promoAtual.last_reset_month === currentMonth
               ? (promoAtual.num_promo_criadas || 0)
@@ -764,7 +771,20 @@ function PromocaoPage() {
             const limite = promoAtual.num_limite_promo;
             const disponiveis = typeof limite === "number" ? Math.max(0, limite - enviadas) : null;
             return (
-              <div className="grid gap-4 sm:grid-cols-2 content-start">
+              <div className="flex flex-col gap-4">
+                <Card className="border-primary/20">
+                  <CardHeader className="pb-2">
+                    <CardDescription>Atualmente o envio está sendo via</CardDescription>
+                    <div className={`mt-1 rounded-md border px-3 py-2 text-center text-lg font-semibold ${color}`}>
+                      {envioVia || "Não definido"}
+                    </div>
+                    {isEmail && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Estamos trabalhando para que o envio via Whatsapp seja restabelecido em breve.
+                      </p>
+                    )}
+                  </CardHeader>
+                </Card>
                 <Card className="border-primary/20">
                   <CardHeader className="pb-2">
                     <CardDescription>Notificações/Promoções enviadas neste mês</CardDescription>
@@ -785,6 +805,7 @@ function PromocaoPage() {
               </div>
             );
           })()}
+
         </div>
 
 
