@@ -66,6 +66,11 @@ interface Atendimento {
   id: string;
   data: string;
   valor: number;
+  valor_original?: number | null;
+  valor_desconto?: number | null;
+  cashback_usado?: number | null;
+  clube_desconto_aplicado?: number | null;
+  clube_id?: string | null;
   comissao: number;
   status: 'Agendado' | 'Finalizado' | 'Não compareceu';
   manual?: boolean;
@@ -73,6 +78,7 @@ interface Atendimento {
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
   cupom_codigo?: string | null;
+  cupom_nome?: string | null;
 }
 
 interface Cliente {
