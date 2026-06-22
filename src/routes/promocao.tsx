@@ -1270,13 +1270,13 @@ function PromocaoPage() {
                     })}
                   </div>
                 )}
-        </div>
-      </div>
-
+              </div>
             </CardContent>
           </Card>
         </div>
+        </div>
       </div>
+
 
       {/* Popup informativo após Enviar Teste */}
       <AlertDialog open={isTestInfoOpen} onOpenChange={setIsTestInfoOpen}>
