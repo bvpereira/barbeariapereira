@@ -1,0 +1,5 @@
+ALTER TABLE public.informacoes 
+ADD COLUMN IF NOT EXISTS manha_inicio TIME,
+ADD COLUMN IF NOT EXISTS manha_fim TIME,
+ADD COLUMN IF NOT EXISTS tarde_inicio TIME,
+ADD COLUMN IF NOT EXISTS tarde_fim TIME;

@@ -63,17 +63,20 @@ function HorariosPage() {
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // Global config states (per day, but transient)
+  // Global config (single, stored in informacoes table)
   const [globalConfig, setGlobalConfig] = useState<{
-    [date: string]: {
-      manha_inicio: string;
-      manha_fim: string;
-      tarde_inicio: string;
-      tarde_fim: string;
-    };
-  }>({});
+    manha_inicio: string;
+    manha_fim: string;
+    tarde_inicio: string;
+    tarde_fim: string;
+  }>({
+    manha_inicio: "08:00",
+    manha_fim: "12:00",
+    tarde_inicio: "13:00",
+    tarde_fim: "18:00",
+  });
+  const [savingGlobal, setSavingGlobal] = useState(false);
 
-  // Selection for batch application
   
 
   useEffect(() => {
@@ -135,17 +138,22 @@ function HorariosPage() {
       if (horariosError) throw horariosError;
       setHorariosColaboradores((horariosData as any) || []);
 
-      // Initialize global config defaults
-      const initialGlobal: any = {};
-      diasData?.forEach(dia => {
-        initialGlobal[dia.data] = {
-          manha_inicio: "08:00",
-          manha_fim: "12:00",
-          tarde_inicio: "13:00",
-          tarde_fim: "18:00"
-        };
-      });
-      setGlobalConfig(initialGlobal);
+      // Load global config from informacoes
+      const { data: infoData } = await supabase
+        .from("informacoes")
+        .select("manha_inicio, manha_fim, tarde_inicio, tarde_fim")
+        .eq("barbearia_id", tenant.id)
+        .maybeSingle();
+
+      if (infoData) {
+        setGlobalConfig({
+          manha_inicio: (infoData as any).manha_inicio?.substring(0, 5) || "08:00",
+          manha_fim: (infoData as any).manha_fim?.substring(0, 5) || "12:00",
+          tarde_inicio: (infoData as any).tarde_inicio?.substring(0, 5) || "13:00",
+          tarde_fim: (infoData as any).tarde_fim?.substring(0, 5) || "18:00",
+        });
+      }
+
 
     } catch (error: any) {
       toast.error("Erro ao carregar dados: " + error.message);
@@ -223,12 +231,6 @@ function HorariosPage() {
       if (error) throw error;
 
       setDias(dias.slice(0, -1));
-      
-      // Also remove from global config and selected collaborators
-      const newGlobalConfig = { ...globalConfig };
-      delete newGlobalConfig[lastDay.data];
-      setGlobalConfig(newGlobalConfig);
-      
 
       toast.success("Último dia excluído com sucesso.");
     } catch (error: any) {
@@ -236,14 +238,30 @@ function HorariosPage() {
     }
   };
 
-  const updateGlobalField = (date: string, field: string, value: string) => {
-    setGlobalConfig({
-      ...globalConfig,
-      [date]: {
-        ...globalConfig[date],
-        [field]: value
-      }
-    });
+  const updateGlobalField = (field: keyof typeof globalConfig, value: string) => {
+    setGlobalConfig({ ...globalConfig, [field]: value });
+  };
+
+  const saveGlobalConfig = async () => {
+    if (!tenant) return;
+    setSavingGlobal(true);
+    try {
+      const { error } = await supabase
+        .from("informacoes")
+        .update({
+          manha_inicio: globalConfig.manha_inicio,
+          manha_fim: globalConfig.manha_fim,
+          tarde_inicio: globalConfig.tarde_inicio,
+          tarde_fim: globalConfig.tarde_fim,
+        } as any)
+        .eq("barbearia_id", tenant.id);
+      if (error) throw error;
+      toast.success("Configuração de horário global salva.");
+    } catch (error: any) {
+      toast.error("Erro ao salvar: " + error.message);
+    } finally {
+      setSavingGlobal(false);
+    }
   };
 
   const toggleCollaboratorSelection = async (date: string, colabId: string) => {
@@ -298,7 +316,7 @@ function HorariosPage() {
       return;
     }
 
-    const config = globalConfig[date];
+    const config = globalConfig;
     const newHorarios = [...horariosColaboradores];
     
     const updates = selected.map(colabId => {
@@ -427,6 +445,58 @@ function HorariosPage() {
           </div>
         )}
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="w-5 h-5" />
+              Configuração de Horário Global
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label className="text-xs uppercase text-muted-foreground">Turno da Manhã</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="time"
+                    value={globalConfig.manha_inicio}
+                    onChange={(e) => updateGlobalField("manha_inicio", e.target.value)}
+                  />
+                  <span>às</span>
+                  <Input
+                    type="time"
+                    value={globalConfig.manha_fim}
+                    onChange={(e) => updateGlobalField("manha_fim", e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Label className="text-xs uppercase text-muted-foreground">Turno da Tarde</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="time"
+                    value={globalConfig.tarde_inicio}
+                    onChange={(e) => updateGlobalField("tarde_inicio", e.target.value)}
+                  />
+                  <span>às</span>
+                  <Input
+                    type="time"
+                    value={globalConfig.tarde_fim}
+                    onChange={(e) => updateGlobalField("tarde_fim", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={saveGlobalConfig} disabled={savingGlobal} className="gap-2">
+                <Save className="w-4 h-4" />
+                {savingGlobal ? "Salvando..." : "Salvar"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+
         <div className="grid gap-4">
           {dias.map((dia) => (
             <Card key={dia.id} className={!dia.ativo ? "opacity-60" : ""}>
@@ -490,48 +560,7 @@ function HorariosPage() {
               {expandedDay === dia.id && dia.ativo && (
                 <CardContent className="p-4 pt-0 space-y-6 animate-in fade-in slide-in-from-top-2">
                   <Separator />
-                  
-                  {/* Global Config Section */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Configuração de Horário Global
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <Label className="text-xs uppercase text-muted-foreground">Turno da Manhã</Label>
-                        <div className="flex items-center gap-2">
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.manha_inicio || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "manha_inicio", e.target.value)}
-                          />
-                          <span>às</span>
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.manha_fim || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "manha_fim", e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <Label className="text-xs uppercase text-muted-foreground">Turno da Tarde</Label>
-                        <div className="flex items-center gap-2">
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.tarde_inicio || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "tarde_inicio", e.target.value)}
-                          />
-                          <span>às</span>
-                          <Input 
-                            type="time" 
-                            value={globalConfig[dia.data]?.tarde_fim || ""} 
-                            onChange={(e) => updateGlobalField(dia.data, "tarde_fim", e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+
 
                   {/* Collaborators List */}
                   <div className="space-y-4">
