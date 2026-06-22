@@ -447,7 +447,19 @@ export function BookingButton({
         }
       });
 
-      const originalTotal = selectedServicos.reduce((sum, id) => sum + (allServicos.find((service) => service.id === id)?.price || 0), 0);
+      const selectedServiceRows = selectedServicos.map((serviceId) => {
+        const service = allServicos.find((item) => item.id === serviceId);
+        const price = Number(service?.price) || 0;
+        return {
+          barbearia_id: tenant!.id,
+          servico_id: serviceId,
+          valor_servico: price,
+          valor_original: price,
+          valor_desconto: 0,
+          name_servico: service?.name ?? null,
+        };
+      });
+      const originalTotal = selectedServiceRows.reduce((sum, service) => sum + service.valor_original, 0);
       const payload = {
         barbearia_id: tenant!.id,
         cliente_id: selectedCliente.id,
@@ -455,6 +467,9 @@ export function BookingButton({
         data: `${selectedDatePart}T${selectedTimePart}:00`,
         valor: originalTotal,
         valor_original: originalTotal,
+        valor_desconto: 0,
+        clube_desconto_aplicado: 0,
+        clube_id: null,
         comissao: totalComissao,
         status: 'Agendado'
       };
@@ -466,20 +481,18 @@ export function BookingButton({
         atendimentoId = initialData.id;
         
         // Delete old services
-        await supabase.from('atendimento_servicos').delete().eq('atendimento_id', atendimentoId);
+        const { error: deleteServicesError } = await supabase.from('atendimento_servicos').delete().eq('atendimento_id', atendimentoId);
+        if (deleteServicesError) throw new Error("Serviços anteriores: " + deleteServicesError.message);
       } else {
         const { data, error } = await supabase.from('atendimentos').insert([payload]).select().single();
         if (error) throw error;
         atendimentoId = data.id;
       }
 
-      await supabase.from('atendimento_servicos').insert(selectedServicos.map(sId => ({
-        barbearia_id: tenant!.id,
-        atendimento_id: atendimentoId,
-        servico_id: sId,
-        valor_servico: allServicos.find(s => s.id === sId)?.price || 0,
-        valor_original: allServicos.find(s => s.id === sId)?.price || 0
-      })));
+      const { error: insertServicesError } = await supabase.from('atendimento_servicos').insert(
+        selectedServiceRows.map((service) => ({ ...service, atendimento_id: atendimentoId }))
+      );
+      if (insertServicesError) throw new Error("Serviços: " + insertServicesError.message);
 
       if (couponCode.trim()) {
         if (!user?.id || !user?.senha) throw new Error("Faça login novamente para aplicar o cupom.");
