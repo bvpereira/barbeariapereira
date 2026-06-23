@@ -189,6 +189,10 @@ export function BookingButton({
     if (isOpen && tenant) {
       fetchFormData();
       fetchBookingSettings();
+      // Sempre pergunta novamente sobre o cashback ao abrir (inclusive em reagendamentos)
+      setUsarCashback(false);
+      setCashbackUsoStr("0");
+      
       
       if (initialData) {
         setSelectedCliente({ id: initialData.cliente_id, nome: initialData.cliente_nome, login: "" });
