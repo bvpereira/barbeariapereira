@@ -836,8 +836,9 @@ function AtendimentosPage() {
                 colaborador_id: item.colaborador.id,
                 data: item.data,
                 valor: item.valor,
-                cupom_codigo: item.cupom_codigo,
-                servicos_ids: item.servicos.map(s => s.id)
+                 cupom_codigo: item.cupom_codigo,
+                 cashback_usado: item.cashback_usado,
+                 servicos_ids: item.servicos.map(s => s.id)
               }}
             />
              <DropdownMenu>
