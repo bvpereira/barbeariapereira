@@ -298,7 +298,7 @@ export function BookingButton({
         let curr = parseISO(`${date}T${s}`);
         const end = parseISO(`${date}T${e}`);
         while (addMinutes(curr, requestedDuration) <= end) {
-          if (isAfter(curr, minAllowed) && !checkOverlap(curr, requestedDuration)) {
+          if (curr.getTime() >= minAllowed.getTime() && !checkOverlap(curr, requestedDuration)) {
             possibleTimes.push(format(curr, "HH:mm"));
           }
           curr = addMinutes(curr, 30);

@@ -407,7 +407,7 @@ function AtendimentosPage() {
             // For past dates: include all. For today: only times already passed.
             include = date < today ? true : curr <= now;
           } else {
-            include = isAfter(curr, minAllowed) && !checkOverlap(curr, requestedDuration);
+            include = curr.getTime() >= minAllowed.getTime() && !checkOverlap(curr, requestedDuration);
           }
           if (include) possibleTimes.push(format(curr, "HH:mm"));
           curr = addMinutes(curr, 30);
