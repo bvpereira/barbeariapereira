@@ -371,10 +371,12 @@ export function BookingButton({
         p_barbearia_id: tenant.id, p_cliente_id: selectedCliente.id,
       });
       if (cancelled) return;
-      setCashbackSaldo(Number((data as any)?.disponivel || 0));
+      // Ao reagendar, desconsidera o cashback já debitado neste atendimento
+      const jaUsado = Number(initialData?.cashback_usado || 0);
+      setCashbackSaldo(Number((data as any)?.disponivel || 0) + jaUsado);
     })();
     return () => { cancelled = true; };
-  }, [isOpen, cashbackEnabled, tenant, selectedCliente]);
+  }, [isOpen, cashbackEnabled, tenant, selectedCliente, initialData?.cashback_usado]);
 
 
   // Atualiza o valor final exibido com o desconto do clube quando não há cupom aplicado
