@@ -1487,6 +1487,9 @@ export type Database = {
         Row: {
           barbearia_id: string | null
           bloqueado: boolean
+          cashback_receber: number
+          cashback_saldo: number
+          cashback_usado: number
           created_at: string
           dias_inativo: string | null
           email_usuario: string | null
@@ -1504,6 +1507,9 @@ export type Database = {
         Insert: {
           barbearia_id?: string | null
           bloqueado?: boolean
+          cashback_receber?: number
+          cashback_saldo?: number
+          cashback_usado?: number
           created_at?: string
           dias_inativo?: string | null
           email_usuario?: string | null
@@ -1521,6 +1527,9 @@ export type Database = {
         Update: {
           barbearia_id?: string | null
           bloqueado?: boolean
+          cashback_receber?: number
+          cashback_saldo?: number
+          cashback_usado?: number
           created_at?: string
           dias_inativo?: string | null
           email_usuario?: string | null
@@ -1631,6 +1640,10 @@ export type Database = {
       }
       fn_recalc_cashback_atendimento: {
         Args: { p_atendimento_id: string }
+        Returns: undefined
+      }
+      fn_recalc_cashback_usuario: {
+        Args: { p_barbearia_id: string; p_cliente_id: string }
         Returns: undefined
       }
       get_atendimento_servicos_names: {
