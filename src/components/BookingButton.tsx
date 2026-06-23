@@ -189,6 +189,10 @@ export function BookingButton({
     if (isOpen && tenant) {
       fetchFormData();
       fetchBookingSettings();
+      // Sempre pergunta novamente sobre o cashback ao abrir (inclusive em reagendamentos)
+      setUsarCashback(false);
+      setCashbackUsoStr("0");
+      
       
       if (initialData) {
         setSelectedCliente({ id: initialData.cliente_id, nome: initialData.cliente_nome, login: "" });
@@ -371,10 +375,12 @@ export function BookingButton({
         p_barbearia_id: tenant.id, p_cliente_id: selectedCliente.id,
       });
       if (cancelled) return;
-      setCashbackSaldo(Number((data as any)?.disponivel || 0));
+      // Ao reagendar, desconsidera o cashback já debitado neste atendimento
+      const jaUsado = Number(initialData?.cashback_usado || 0);
+      setCashbackSaldo(Number((data as any)?.disponivel || 0) + jaUsado);
     })();
     return () => { cancelled = true; };
-  }, [isOpen, cashbackEnabled, tenant, selectedCliente]);
+  }, [isOpen, cashbackEnabled, tenant, selectedCliente, initialData?.cashback_usado]);
 
 
   // Atualiza o valor final exibido com o desconto do clube quando não há cupom aplicado
@@ -520,21 +526,22 @@ export function BookingButton({
       } catch (err) { console.warn("Clube nao aplicado:", err); }
 
       // Aplicar uso de cashback (debita saldo e diminui valor do atendimento)
-      if (cashbackEnabled && usarCashback) {
-        const usoNum = Math.max(0, parseFloat(cashbackUsoStr || "0"));
-        if (usoNum > 0) {
-          const { data: atRow } = await supabase.from('atendimentos')
-            .select('valor').eq('id', atendimentoId).maybeSingle();
-          const currentValor = Number((atRow as any)?.valor || 0);
-          const usoFinal = Math.min(usoNum, currentValor, cashbackSaldo);
-          if (usoFinal > 0) {
-            const { error: cbErr } = await supabase.from('atendimentos').update({
-              cashback_usado: usoFinal,
-              valor: Math.max(0, currentValor - usoFinal),
-            } as any).eq('id', atendimentoId);
-            if (cbErr) throw new Error("Cashback: " + cbErr.message);
-            setValorFinal(String(Math.max(0, currentValor - usoFinal)));
-          }
+      if (cashbackEnabled) {
+        const usoNum = usarCashback ? Math.max(0, parseFloat(cashbackUsoStr || "0")) : 0;
+        const { data: atRow } = await supabase.from('atendimentos')
+          .select('valor, cashback_usado').eq('id', atendimentoId).maybeSingle();
+        const currentValor = Number((atRow as any)?.valor || 0);
+        const oldUso = Number((atRow as any)?.cashback_usado || 0);
+        const usoFinal = usoNum > 0 ? Math.min(usoNum, currentValor + oldUso, cashbackSaldo) : 0;
+        if (usoFinal !== oldUso) {
+          // Restaurar o valor original antes de debitar de novo
+          const valorBase = currentValor + oldUso;
+          const { error: cbErr } = await supabase.from('atendimentos').update({
+            cashback_usado: usoFinal,
+            valor: Math.max(0, valorBase - usoFinal),
+          } as any).eq('id', atendimentoId);
+          if (cbErr) throw new Error("Cashback: " + cbErr.message);
+          setValorFinal(String(Math.max(0, valorBase - usoFinal)));
         }
       }
 
