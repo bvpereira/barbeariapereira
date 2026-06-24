@@ -150,7 +150,6 @@ function ClientePage() {
     const { data } = await supabase
       .from('servicos')
       .select('*')
-      .select('*')
       .eq('barbearia_id', tenantId)
       .order('name', { ascending: true });
     
