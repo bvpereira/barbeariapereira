@@ -21,7 +21,7 @@ import {
 } from "@/lib/themePresets";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/coresdosistema")({
+export const Route = createFileRoute("/cores")({
   component: CoresPage,
 });
 
