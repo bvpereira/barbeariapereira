@@ -256,8 +256,11 @@ function AtendimentosPage() {
     const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('barbearia_id', tenant.id).maybeSingle();
-    if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, cashback').eq('barbearia_id', tenant.id).maybeSingle();
+    if (infoData) {
+      setTempoMarcar(infoData.tempo_marcar ?? 60);
+      setCashbackEnabled(!!(infoData as any).cashback);
+    }
   }, [tenant]);
 
   useEffect(() => {
