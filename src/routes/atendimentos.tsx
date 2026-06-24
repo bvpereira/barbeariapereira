@@ -103,6 +103,8 @@ interface Servico {
   price: number;
   duration: number;
   image_url?: string | null;
+  cashback_ativo?: boolean | null;
+  cashback_percentual?: number | null;
 }
 
 function AtendimentosPage() {
