@@ -52,6 +52,10 @@ const menuSections: MenuSection[] = [
     ],
   },
   {
+    title: "CONFIGURAÇÕES",
+    items: [{ title: "Cores do sistema", icon: Palette, href: "/coresdosistema", minNivel: 1 }],
+  },
+  {
     title: "CONTA",
     items: [{ title: "Minha Conta", icon: UserCircle, href: "/minhaconta" }],
   },
