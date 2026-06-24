@@ -503,6 +503,7 @@ function AtendimentosPage() {
       const selectedServiceRows = selectedServicos.map((serviceId) => {
         const service = allServicos.find((item) => item.id === serviceId);
         const price = Number(service?.price) || 0;
+        const ov = cashbackOverrides[serviceId];
         return {
           barbearia_id: tenant.id,
           servico_id: serviceId,
@@ -510,6 +511,8 @@ function AtendimentosPage() {
           valor_original: price,
           valor_desconto: 0,
           name_servico: service?.name ?? null,
+          cashback_ativo_override: cashbackEnabled && ov ? ov.ativo : null,
+          cashback_percentual_override: cashbackEnabled && ov && ov.ativo ? ov.percentual : null,
         };
       });
       const originalTotal = selectedServiceRows.reduce((sum, service) => sum + service.valor_original, 0);
