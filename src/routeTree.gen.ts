@@ -25,7 +25,7 @@ import { Route as IacodconsumiRouteImport } from './routes/iacodconsumi'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
-import { Route as CoresdosistemaRouteImport } from './routes/coresdosistema'
+import { Route as CoresRouteImport } from './routes/cores'
 import { Route as ComunidadeRouteImport } from './routes/comunidade'
 import { Route as ColaboradoresRouteImport } from './routes/colaboradores'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
@@ -120,9 +120,9 @@ const FinanceiroRoute = FinanceiroRouteImport.update({
   path: '/financeiro',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CoresdosistemaRoute = CoresdosistemaRouteImport.update({
-  id: '/coresdosistema',
-  path: '/coresdosistema',
+const CoresRoute = CoresRouteImport.update({
+  id: '/cores',
+  path: '/cores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComunidadeRoute = ComunidadeRouteImport.update({
@@ -205,7 +205,7 @@ export interface FileRoutesByFullPath {
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
-  '/coresdosistema': typeof CoresdosistemaRoute
+  '/cores': typeof CoresRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -237,7 +237,7 @@ export interface FileRoutesByTo {
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
-  '/coresdosistema': typeof CoresdosistemaRoute
+  '/cores': typeof CoresRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -270,7 +270,7 @@ export interface FileRoutesById {
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
-  '/coresdosistema': typeof CoresdosistemaRoute
+  '/cores': typeof CoresRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -304,7 +304,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
-    | '/coresdosistema'
+    | '/cores'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -336,7 +336,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
-    | '/coresdosistema'
+    | '/cores'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -368,7 +368,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
-    | '/coresdosistema'
+    | '/cores'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -401,7 +401,7 @@ export interface RootRouteChildren {
   ColaboradorRoute: typeof ColaboradorRoute
   ColaboradoresRoute: typeof ColaboradoresRoute
   ComunidadeRoute: typeof ComunidadeRoute
-  CoresdosistemaRoute: typeof CoresdosistemaRoute
+  CoresRoute: typeof CoresRoute
   FinanceiroRoute: typeof FinanceiroRoute
   GastosRoute: typeof GastosRoute
   HorariosRoute: typeof HorariosRoute
@@ -534,11 +534,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/coresdosistema': {
-      id: '/coresdosistema'
-      path: '/coresdosistema'
-      fullPath: '/coresdosistema'
-      preLoaderRoute: typeof CoresdosistemaRouteImport
+    '/cores': {
+      id: '/cores'
+      path: '/cores'
+      fullPath: '/cores'
+      preLoaderRoute: typeof CoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comunidade': {
@@ -649,7 +649,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradorRoute: ColaboradorRoute,
   ColaboradoresRoute: ColaboradoresRoute,
   ComunidadeRoute: ComunidadeRoute,
-  CoresdosistemaRoute: CoresdosistemaRoute,
+  CoresRoute: CoresRoute,
   FinanceiroRoute: FinanceiroRoute,
   GastosRoute: GastosRoute,
   HorariosRoute: HorariosRoute,
