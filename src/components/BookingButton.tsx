@@ -403,7 +403,6 @@ export function BookingButton({
 
     const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
-    const isClient = user?.nivel === 3 || user?.nivel === "3";
 
     if (!force) {
       const colab = colaboradores.find(c => c.id === selectedColaborador);
