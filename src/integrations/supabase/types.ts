@@ -173,7 +173,9 @@ export type Database = {
         Row: {
           atendimento_id: string
           barbearia_id: string
+          cashback_ativo_override: boolean | null
           cashback_gerado_item: number
+          cashback_percentual_override: number | null
           created_at: string
           id: string
           name_servico: string | null
@@ -187,7 +189,9 @@ export type Database = {
         Insert: {
           atendimento_id: string
           barbearia_id: string
+          cashback_ativo_override?: boolean | null
           cashback_gerado_item?: number
+          cashback_percentual_override?: number | null
           created_at?: string
           id?: string
           name_servico?: string | null
@@ -201,7 +205,9 @@ export type Database = {
         Update: {
           atendimento_id?: string
           barbearia_id?: string
+          cashback_ativo_override?: boolean | null
           cashback_gerado_item?: number
+          cashback_percentual_override?: number | null
           created_at?: string
           id?: string
           name_servico?: string | null
