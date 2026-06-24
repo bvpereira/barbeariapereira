@@ -82,8 +82,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <TenantProvider>
-        <Outlet />
-        <Sonner />
+        <ThemeProvider>
+          <Outlet />
+          <Sonner />
+        </ThemeProvider>
       </TenantProvider>
     </QueryClientProvider>
   );
