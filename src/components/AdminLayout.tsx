@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 
-type MenuItem = { title: string; icon: any; href: string };
+type MenuItem = { title: string; icon: any; href: string; minNivel?: number };
 type MenuSection = { title?: string; items: MenuItem[] };
 
 const menuSections: MenuSection[] = [
