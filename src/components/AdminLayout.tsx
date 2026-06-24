@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown, Bell } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown, Bell, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
