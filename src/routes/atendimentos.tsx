@@ -319,6 +319,18 @@ function AtendimentosPage() {
       if (selectedColaborador) {
         calculateComissao(newSelection, selectedColaborador);
       }
+
+      // Inicializar override de cashback ao selecionar
+      setCashbackOverrides(prevOv => {
+        const next = { ...prevOv };
+        if (isRemoving) {
+          delete next[servicoId];
+        } else {
+          const s = allServicos.find(sv => sv.id === servicoId);
+          if (s) next[servicoId] = { ativo: !!s.cashback_ativo, percentual: Number(s.cashback_percentual) || 0 };
+        }
+        return next;
+      });
       
       return newSelection;
     });
