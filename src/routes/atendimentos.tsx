@@ -151,6 +151,9 @@ function AtendimentosPage() {
   const [status, setStatus] = useState<Atendimento['status']>('Finalizado');
   const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [cashbackEnabled, setCashbackEnabled] = useState(false);
+  // Override por serviço selecionado: { servicoId: { ativo, percentual } }
+  const [cashbackOverrides, setCashbackOverrides] = useState<Record<string, { ativo: boolean; percentual: number }>>({});
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
