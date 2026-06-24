@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown, Bell } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown, Bell, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 
-type MenuItem = { title: string; icon: any; href: string };
+type MenuItem = { title: string; icon: any; href: string; minNivel?: number };
 type MenuSection = { title?: string; items: MenuItem[] };
 
 const menuSections: MenuSection[] = [
@@ -52,6 +52,10 @@ const menuSections: MenuSection[] = [
     ],
   },
   {
+    title: "CONFIGURAÇÕES",
+    items: [{ title: "Cores do sistema", icon: Palette, href: "/coresdosistema", minNivel: 1 }],
+  },
+  {
     title: "CONTA",
     items: [{ title: "Minha Conta", icon: UserCircle, href: "/minhaconta" }],
   },
@@ -64,30 +68,43 @@ function handleLogout() {
 }
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  const [userNivel, setUserNivel] = useState<number | null>(null);
+  useEffect(() => {
+    try {
+      const u = localStorage.getItem("user");
+      if (u) setUserNivel(JSON.parse(u).nivel ?? null);
+    } catch {}
+  }, []);
   return (
     <nav className="px-4 space-y-4">
-      {menuSections.map((section, idx) => (
-        <div key={idx} className="space-y-1">
-          {section.title && (
-            <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
-              {section.title}
-            </h3>
-          )}
-          {section.items.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              onClick={onNavigate}
-              activeProps={{ className: "bg-primary text-primary-foreground" }}
-              inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium whitespace-nowrap">{item.title}</span>
-            </Link>
-          ))}
-        </div>
-      ))}
+      {menuSections.map((section, idx) => {
+        const items = section.items.filter(
+          (it) => it.minNivel === undefined || (userNivel !== null && userNivel <= it.minNivel)
+        );
+        if (items.length === 0) return null;
+        return (
+          <div key={idx} className="space-y-1">
+            {section.title && (
+              <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+                {section.title}
+              </h3>
+            )}
+            {items.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                onClick={onNavigate}
+                activeProps={{ className: "bg-primary text-primary-foreground" }}
+                inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="font-medium whitespace-nowrap">{item.title}</span>
+              </Link>
+            ))}
+          </div>
+        );
+      })}
     </nav>
   );
 }

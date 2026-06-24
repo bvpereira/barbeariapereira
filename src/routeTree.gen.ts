@@ -25,6 +25,7 @@ import { Route as IacodconsumiRouteImport } from './routes/iacodconsumi'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
+import { Route as CoresdosistemaRouteImport } from './routes/coresdosistema'
 import { Route as ComunidadeRouteImport } from './routes/comunidade'
 import { Route as ColaboradoresRouteImport } from './routes/colaboradores'
 import { Route as ColaboradorRouteImport } from './routes/colaborador'
@@ -119,6 +120,11 @@ const FinanceiroRoute = FinanceiroRouteImport.update({
   path: '/financeiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoresdosistemaRoute = CoresdosistemaRouteImport.update({
+  id: '/coresdosistema',
+  path: '/coresdosistema',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComunidadeRoute = ComunidadeRouteImport.update({
   id: '/comunidade',
   path: '/comunidade',
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
+  '/coresdosistema': typeof CoresdosistemaRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
+  '/coresdosistema': typeof CoresdosistemaRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -262,6 +270,7 @@ export interface FileRoutesById {
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
+  '/coresdosistema': typeof CoresdosistemaRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -295,6 +304,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
+    | '/coresdosistema'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -326,6 +336,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
+    | '/coresdosistema'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/colaborador'
     | '/colaboradores'
     | '/comunidade'
+    | '/coresdosistema'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -389,6 +401,7 @@ export interface RootRouteChildren {
   ColaboradorRoute: typeof ColaboradorRoute
   ColaboradoresRoute: typeof ColaboradoresRoute
   ComunidadeRoute: typeof ComunidadeRoute
+  CoresdosistemaRoute: typeof CoresdosistemaRoute
   FinanceiroRoute: typeof FinanceiroRoute
   GastosRoute: typeof GastosRoute
   HorariosRoute: typeof HorariosRoute
@@ -521,6 +534,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FinanceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/coresdosistema': {
+      id: '/coresdosistema'
+      path: '/coresdosistema'
+      fullPath: '/coresdosistema'
+      preLoaderRoute: typeof CoresdosistemaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/comunidade': {
       id: '/comunidade'
       path: '/comunidade'
@@ -629,6 +649,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradorRoute: ColaboradorRoute,
   ColaboradoresRoute: ColaboradoresRoute,
   ComunidadeRoute: ComunidadeRoute,
+  CoresdosistemaRoute: CoresdosistemaRoute,
   FinanceiroRoute: FinanceiroRoute,
   GastosRoute: GastosRoute,
   HorariosRoute: HorariosRoute,
@@ -649,12 +670,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

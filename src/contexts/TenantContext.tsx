@@ -35,7 +35,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       
       let targetSlug = ""; 
       
-      const reservedRoutes = ["admin", "login", "cadastro", "colaborador", "cliente", "atendimentos", "clientes", "colaboradores", "comunidade", "financeiro", "gastos", "horarios", "iacodconsumi", "iaimagem", "integracoes", "minhaconta", "promocao", "redefinir-senha", "registro", "servicos", "clube", "blog", "notificacoes", "barbearias", "superadmin", "superlogin"];
+      const reservedRoutes = ["admin", "login", "cadastro", "colaborador", "cliente", "atendimentos", "clientes", "colaboradores", "comunidade", "financeiro", "gastos", "horarios", "iacodconsumi", "iaimagem", "integracoes", "minhaconta", "promocao", "redefinir-senha", "registro", "servicos", "clube", "blog", "notificacoes", "barbearias", "superadmin", "superlogin", "coresdosistema"];
 
       if (slugFromUrl && !reservedRoutes.includes(slugFromUrl)) {
         targetSlug = slugFromUrl;
