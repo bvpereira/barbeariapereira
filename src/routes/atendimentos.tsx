@@ -1177,6 +1177,44 @@ function AtendimentosPage() {
                     </div>
                   </div>
 
+                  {cashbackEnabled && selectedServicos.some(id => allServicos.find(s => s.id === id)?.cashback_ativo) && (
+                    <div className="space-y-2 rounded-lg border p-3 bg-primary/5">
+                      <Label className="text-sm font-medium">Cashback por serviço</Label>
+                      <div className="space-y-2">
+                        {selectedServicos.map(sId => {
+                          const serv = allServicos.find(s => s.id === sId);
+                          if (!serv || !serv.cashback_ativo) return null;
+                          const ov = cashbackOverrides[sId] ?? { ativo: !!serv.cashback_ativo, percentual: Number(serv.cashback_percentual) || 0 };
+                          return (
+                            <div key={sId} className="flex items-center gap-2 flex-wrap">
+                              <Checkbox
+                                id={`cb-${sId}`}
+                                checked={ov.ativo}
+                                onCheckedChange={(c) => setCashbackOverrides(p => ({ ...p, [sId]: { ...(p[sId] ?? ov), ativo: !!c } }))}
+                              />
+                              <Label htmlFor={`cb-${sId}`} className="text-sm flex-1 min-w-0 truncate">{serv.name}</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                className="w-24 h-8"
+                                disabled={!ov.ativo}
+                                value={ov.percentual}
+                                onChange={(e) => {
+                                  const v = Math.max(0, Math.min(100, parseFloat(e.target.value || "0")));
+                                  setCashbackOverrides(p => ({ ...p, [sId]: { ...(p[sId] ?? ov), percentual: v } }));
+                                }}
+                              />
+                              <span className="text-xs text-muted-foreground">%</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+
                   {selectedServicos.length > 0 && (
                     <div className="space-y-2">
                       <Label>Data do Atendimento</Label>
