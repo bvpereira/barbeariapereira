@@ -168,8 +168,8 @@ const MODERNO_DARK: ThemeTokens = {
 };
 
 export const PRESETS: Record<string, { label: string; light: ThemeTokens; dark: ThemeTokens }> = {
-  claro: { label: "Claro", light: CLARO_LIGHT, dark: ESCURO_DARK },
-  escuro: { label: "Escuro", light: CLARO_LIGHT, dark: ESCURO_DARK },
+  claro: { label: "Claro", light: CLARO_LIGHT, dark: CLARO_LIGHT },
+  escuro: { label: "Escuro", light: ESCURO_DARK, dark: ESCURO_DARK },
   classico: { label: "Barbearia Clássica", light: CLASSICO_LIGHT, dark: CLASSICO_DARK },
   moderno: { label: "Moderno Minimal", light: MODERNO_LIGHT, dark: MODERNO_DARK },
 };
