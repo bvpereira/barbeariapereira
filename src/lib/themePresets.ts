@@ -269,11 +269,46 @@ const ROYAL_DARK: ThemeTokens = {
   sidebar_border: "#2e1065", sidebar_ring: "#a78bfa",
 };
 
+const MONO_LIGHT: ThemeTokens = {
+  background: "#ffffff", foreground: "#000000",
+  card: "#ffffff", card_foreground: "#000000",
+  popover: "#ffffff", popover_foreground: "#000000",
+  primary: "#000000", primary_foreground: "#ffffff",
+  secondary: "#f5f5f5", secondary_foreground: "#000000",
+  muted: "#f5f5f5", muted_foreground: "#525252",
+  accent: "#e5e5e5", accent_foreground: "#000000",
+  destructive: "#000000", destructive_foreground: "#ffffff",
+  border: "#e5e5e5", input: "#e5e5e5", ring: "#000000",
+  titulo: "#000000", subtitulo: "#525252",
+  sidebar: "#ffffff", sidebar_foreground: "#000000",
+  sidebar_primary: "#000000", sidebar_primary_foreground: "#ffffff",
+  sidebar_accent: "#f5f5f5", sidebar_accent_foreground: "#000000",
+  sidebar_border: "#e5e5e5", sidebar_ring: "#000000",
+};
+
+const MONO_DARK: ThemeTokens = {
+  background: "#000000", foreground: "#ffffff",
+  card: "#0a0a0a", card_foreground: "#ffffff",
+  popover: "#0a0a0a", popover_foreground: "#ffffff",
+  primary: "#ffffff", primary_foreground: "#000000",
+  secondary: "#171717", secondary_foreground: "#ffffff",
+  muted: "#171717", muted_foreground: "#a3a3a3",
+  accent: "#262626", accent_foreground: "#ffffff",
+  destructive: "#ffffff", destructive_foreground: "#000000",
+  border: "#262626", input: "#262626", ring: "#ffffff",
+  titulo: "#ffffff", subtitulo: "#a3a3a3",
+  sidebar: "#000000", sidebar_foreground: "#ffffff",
+  sidebar_primary: "#ffffff", sidebar_primary_foreground: "#000000",
+  sidebar_accent: "#171717", sidebar_accent_foreground: "#ffffff",
+  sidebar_border: "#262626", sidebar_ring: "#ffffff",
+};
+
 export const PRESETS: Record<string, { label: string; light: ThemeTokens; dark: ThemeTokens }> = {
   claro: { label: "Claro", light: CLARO_LIGHT, dark: CLARO_LIGHT },
   escuro: { label: "Escuro", light: ESCURO_DARK, dark: ESCURO_DARK },
   classico: { label: "Barbearia Clássica", light: CLASSICO_LIGHT, dark: CLASSICO_DARK },
   moderno: { label: "Moderno Minimal", light: MODERNO_LIGHT, dark: MODERNO_DARK },
+  mono: { label: "Minimalista P&B", light: MONO_LIGHT, dark: MONO_DARK },
   ocean: { label: "Ocean Breeze", light: OCEAN_LIGHT, dark: OCEAN_DARK },
   sunset: { label: "Sunset Glow", light: SUNSET_LIGHT, dark: SUNSET_DARK },
   royal: { label: "Royal Purple", light: ROYAL_LIGHT, dark: ROYAL_DARK },
