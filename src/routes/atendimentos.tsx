@@ -233,7 +233,7 @@ function AtendimentosPage() {
   const fetchFormData = useCallback(async () => {
     if (!tenant?.id) return;
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant.id).order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant.id).order('name');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url, cashback_ativo, cashback_percentual').eq('barbearia_id', tenant.id).order('name');
     const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id').eq('barbearia_id', tenant.id);
     
     const formattedColabs = colabs?.map(c => ({
