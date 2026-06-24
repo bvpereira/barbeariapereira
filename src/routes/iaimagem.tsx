@@ -736,7 +736,7 @@ function IAImagemPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction className="bg-blue-600 hover:bg-blue-700 text-white">
+            <AlertDialogAction className="bg-primary hover:bg-primary/90 text-primary-foreground">
               Entendi
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -766,7 +766,7 @@ function IAImagemPage() {
               return true;
             }).map((field) => (
               <div key={field.key} className="flex flex-col border-b border-gray-50 pb-2 last:border-0">
-                <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">{field.label}</span>
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">{field.label}</span>
                 <span className="text-sm text-gray-800 break-words">
                   {field.key === "imagem_imareferencia" && selections[field.key]?.startsWith("http") 
                     ? "Imagem enviada" 
@@ -790,7 +790,7 @@ function IAImagemPage() {
                 e.preventDefault();
                 confirmGenerate();
               }}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               Confirmar e Gerar
             </AlertDialogAction>
@@ -809,14 +809,14 @@ function IAImagemPage() {
               .filter((field) => !field.onlyInfinite || editSelections.edit_tipo_fundo === "Fundo infinito")
               .map((field) => (
                 <div key={field.key} className="border-b border-gray-100 pb-2">
-                  <p className="text-xs font-semibold text-blue-600 uppercase">{field.label}</p>
+                  <p className="text-xs font-semibold text-primary uppercase">{field.label}</p>
                   <p className="text-sm text-gray-800">{editSelections[field.key]}</p>
                 </div>
               ))}
           </div>
           <AlertDialogFooter>
             <Button variant="outline" onClick={() => setShowEditConfirm(false)}>Cancelar</Button>
-            <AlertDialogAction onClick={(event) => { event.preventDefault(); confirmImageEdit(); }} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <AlertDialogAction onClick={(event) => { event.preventDefault(); confirmImageEdit(); }} className="bg-primary hover:bg-primary/90 text-primary-foreground">
               Confirmar e gerar edição
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -825,8 +825,8 @@ function IAImagemPage() {
 
       <div className="w-full flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <ImageIcon className="h-6 w-6 text-blue-600" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <ImageIcon className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Gerar imagem por IA</h1>
@@ -843,9 +843,9 @@ function IAImagemPage() {
               </CardDescription>
             </div>
             <div className="flex gap-4">
-              <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
-                <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas/editadas este mês</span>
-                <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
+              <div className="bg-primary/5 px-4 py-2 rounded-lg border border-primary/20 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Imagens geradas/editadas este mês</span>
+                <span className="text-xl font-bold text-primary">{numImagensCriadas}</span>
               </div>
               <div className="bg-green-50 px-4 py-2 rounded-lg border border-green-100 flex flex-col items-end">
                 <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Imagens restantes</span>
@@ -856,13 +856,13 @@ function IAImagemPage() {
           <CardContent className="space-y-6">
             {loading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 {/* Primeira sub-área: Dados para criação */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Dados para criação</h3>
+                  <h3 className="text-lg font-semibold text-primary border-b border-primary/20 pb-2">Dados para criação</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {/* Informações Adicionais (Full width) */}
                     <div className="space-y-2 md:col-span-2">
@@ -871,7 +871,7 @@ function IAImagemPage() {
                         value={selections.imagem_informacoes}
                         onChange={(e) => setSelections(prev => ({ ...prev, imagem_informacoes: e.target.value }))}
                         placeholder="Digite informações adicionais..."
-                        className="w-full bg-white border-blue-50 focus:ring-blue-500 min-h-[100px] text-black"
+                        className="w-full bg-white border-primary/10 focus:ring-primary min-h-[100px] text-black"
                       />
                     </div>
                     {/* Objetivo da Imagem */}
@@ -881,7 +881,7 @@ function IAImagemPage() {
                         value={selections.imagem_objetivo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_objetivo: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione objetivo da imagem..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -898,7 +898,7 @@ function IAImagemPage() {
                         value={selections.imagem_campanha}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_campanha: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione campanha..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -915,7 +915,7 @@ function IAImagemPage() {
                         value={selections.tom_comunicacao}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, tom_comunicacao: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione tom de comunicação..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -930,7 +930,7 @@ function IAImagemPage() {
 
                 {/* Segunda sub-área */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Visual e Referência</h3>
+                  <h3 className="text-lg font-semibold text-primary border-b border-primary/20 pb-2">Visual e Referência</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Estilo Visual */}
                     <div className="space-y-2">
@@ -939,7 +939,7 @@ function IAImagemPage() {
                         value={selections.imagem_estilovisual}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_estilovisual: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione estilo visual..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -956,7 +956,7 @@ function IAImagemPage() {
                         value={selections.imagem_paleta}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_paleta: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione paleta de cores..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -973,7 +973,7 @@ function IAImagemPage() {
                         value={selections.imagem_elem_central}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_elem_central: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione elemento central..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -990,7 +990,7 @@ function IAImagemPage() {
                         value={selections.imagem_formato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_formato: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione formato de imagem..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1007,7 +1007,7 @@ function IAImagemPage() {
                         value={selections.imagem_comlogo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_comlogo: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione com logo?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1024,7 +1024,7 @@ function IAImagemPage() {
                         value={selections.imagem_endereco}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_endereco: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione com endereço?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1042,7 +1042,7 @@ function IAImagemPage() {
                         value={selections.imagem_instagram}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_instagram: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione com instagram?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1060,7 +1060,7 @@ function IAImagemPage() {
                         value={selections.imagem_telcontato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_telcontato: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione com telefone de contato?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1081,7 +1081,7 @@ function IAImagemPage() {
                             setSelections(prev => ({ ...prev, imagem_imareferencia: val }));
                           }}
                         >
-                          <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                          <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                             <SelectValue placeholder="Selecione imagem de referência..." />
                           </SelectTrigger>
                           <SelectContent>
@@ -1091,9 +1091,9 @@ function IAImagemPage() {
                         </Select>
 
                         {(selections.imagem_imareferencia?.startsWith("http") || selections.imagem_imareferencia === "Upar imagem de referência") && (
-                          <div className="p-4 border-2 border-dashed border-blue-100 rounded-lg bg-blue-50/30 space-y-3">
+                          <div className="p-4 border-2 border-dashed border-primary/20 rounded-lg bg-primary/5 space-y-3">
                             {selections.imagem_imareferencia?.startsWith("http") ? (
-                              <div className="relative w-full aspect-video rounded-md overflow-hidden bg-gray-100 border border-blue-100">
+                              <div className="relative w-full aspect-video rounded-md overflow-hidden bg-gray-100 border border-primary/20">
                                 <img
                                   src={selections.imagem_imareferencia}
                                   alt="Referência"
@@ -1110,7 +1110,7 @@ function IAImagemPage() {
                               </div>
                             ) : (
                               <div className="flex flex-col items-center justify-center py-4 text-center">
-                                <Upload className="h-8 w-8 text-blue-400 mb-2" />
+                                <Upload className="h-8 w-8 text-primary/60 mb-2" />
                                 <p className="text-sm text-gray-600 mb-2">Selecione uma imagem de referência</p>
                                 <Button
                                   type="button"
@@ -1118,7 +1118,7 @@ function IAImagemPage() {
                                   size="sm"
                                   onClick={() => fileInputRef.current?.click()}
                                   disabled={uploadingRef}
-                                  className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                                  className="border-primary/30 text-primary hover:bg-primary/5"
                                 >
                                   {uploadingRef ? (
                                     <>
@@ -1147,7 +1147,7 @@ function IAImagemPage() {
 
                 {/* Terceira sub-área: Estilo de Texto e Emojis */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Configurações de Texto</h3>
+                  <h3 className="text-lg font-semibold text-primary border-b border-primary/20 pb-2">Configurações de Texto</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Estilo de Texto */}
                     <div className="space-y-2">
@@ -1156,7 +1156,7 @@ function IAImagemPage() {
                         value={selections.texto_estilo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_estilo: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione estilo de texto..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1173,7 +1173,7 @@ function IAImagemPage() {
                         value={selections.texto_emoji}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_emoji: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione uso de emojis..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1191,7 +1191,7 @@ function IAImagemPage() {
                         value={selections.texto_endereco}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_endereco: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione com endereço?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1209,7 +1209,7 @@ function IAImagemPage() {
                         value={selections.texto_instagram}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_instagram: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione com instagram?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1227,7 +1227,7 @@ function IAImagemPage() {
                         value={selections.texto_telcontato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_telcontato: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-blue-50 focus:ring-blue-500 text-black">
+                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
                           <SelectValue placeholder="Selecione com telefone de contato?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1242,12 +1242,12 @@ function IAImagemPage() {
               </div>
             )}
 
-            <div className="pt-4 border-t border-blue-50 flex flex-wrap gap-4 justify-end">
+            <div className="pt-4 border-t border-primary/10 flex flex-wrap gap-4 justify-end">
               <Button
                 onClick={() => handleGenerate("legenda")}
                 disabled={saving}
                 variant="outline"
-                className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 h-11 px-6"
+                className="border-primary/30 text-primary hover:bg-primary/5 gap-2 h-11 px-6"
               >
                 {saving && generationType === "legenda" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -1261,7 +1261,7 @@ function IAImagemPage() {
                 onClick={() => handleGenerate("imagem")}
                 disabled={saving}
                 variant="outline"
-                className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 h-11 px-6"
+                className="border-primary/30 text-primary hover:bg-primary/5 gap-2 h-11 px-6"
               >
                 {saving && generationType === "imagem" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -1274,7 +1274,7 @@ function IAImagemPage() {
               <Button
                 onClick={() => handleGenerate("ambos")}
                 disabled={saving}
-                className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-11 px-6"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 h-11 px-6"
               >
                 {saving && generationType === "ambos" ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -1289,10 +1289,10 @@ function IAImagemPage() {
 
 
         {/* Área das Criações */}
-        <Card className="border-blue-100 shadow-md overflow-hidden bg-white">
-          <CardHeader className="bg-blue-50/50">
+        <Card className="border-primary/20 shadow-md overflow-hidden bg-white">
+          <CardHeader className="bg-primary/10">
             <CardTitle className="text-xl flex items-center gap-2 text-black">
-              <ImageIcon className="h-5 w-5 text-blue-600" />
+              <ImageIcon className="h-5 w-5 text-primary" />
               Últimas criações feitas pela IA
             </CardTitle>
             <CardDescription>
@@ -1306,7 +1306,7 @@ function IAImagemPage() {
                 <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Imagem</h3>
                 {createdImageUrl ? (
                   <div className="flex flex-col items-center space-y-4">
-                    <div className="relative group rounded-xl overflow-hidden border-4 border-blue-50 shadow-lg w-full">
+                    <div className="relative group rounded-xl overflow-hidden border-4 border-primary/10 shadow-lg w-full">
                       <img 
                         src={createdImageUrl} 
                         alt="Imagem criada pela IA" 
@@ -1315,7 +1315,7 @@ function IAImagemPage() {
                     </div>
                     <Button 
                       variant="outline" 
-                      className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2"
+                      className="border-primary/30 text-primary hover:bg-primary/5 gap-2"
                       onClick={handleDownload}
                     >
                       <Download className="h-4 w-4" />
@@ -1335,14 +1335,14 @@ function IAImagemPage() {
                 <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Legenda</h3>
                 {createdCaption ? (
                   <div className="flex flex-col space-y-4">
-                    <div className="bg-gray-50 rounded-xl border border-blue-50 p-6 shadow-inner min-h-[200px]">
+                    <div className="bg-gray-50 rounded-xl border border-primary/10 p-6 shadow-inner min-h-[200px]">
                       <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
                         {createdCaption}
                       </p>
                     </div>
                     <Button 
                       variant="outline" 
-                      className="border-blue-200 text-blue-600 hover:bg-blue-50 gap-2 self-start"
+                      className="border-primary/30 text-primary hover:bg-primary/5 gap-2 self-start"
                       onClick={handleCopyCaption}
                     >
                       <Copy className="h-4 w-4" />

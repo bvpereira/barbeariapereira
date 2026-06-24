@@ -282,14 +282,14 @@ function IAEdicaoPage() {
               .filter((field) => !field.onlyInfinite || editSelections.edit_tipo_fundo === "Fundo infinito")
               .map((field) => (
                 <div key={field.key} className="border-b border-gray-100 pb-2">
-                  <p className="text-xs font-semibold text-blue-600 uppercase">{field.label}</p>
+                  <p className="text-xs font-semibold text-primary uppercase">{field.label}</p>
                   <p className="text-sm text-gray-800">{editSelections[field.key]}</p>
                 </div>
               ))}
           </div>
           <AlertDialogFooter>
             <Button variant="outline" onClick={() => setShowEditConfirm(false)}>Cancelar</Button>
-            <AlertDialogAction onClick={(event) => { event.preventDefault(); confirmImageEdit(); }} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <AlertDialogAction onClick={(event) => { event.preventDefault(); confirmImageEdit(); }} className="bg-primary hover:bg-primary/90 text-primary-foreground">
               Confirmar e gerar edição
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -298,8 +298,8 @@ function IAEdicaoPage() {
 
       <div className="w-full flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <ImageIcon className="h-6 w-6 text-blue-600" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <ImageIcon className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Edição de imagem por IA</h1>
@@ -317,9 +317,9 @@ function IAEdicaoPage() {
             </div>
 
             <div className="flex gap-4">
-              <div className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 flex flex-col items-end">
-                <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider">Imagens geradas/editadas este mês</span>
-                <span className="text-xl font-bold text-blue-700">{numImagensCriadas}</span>
+              <div className="bg-primary/5 px-4 py-2 rounded-lg border border-primary/20 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Imagens geradas/editadas este mês</span>
+                <span className="text-xl font-bold text-primary">{numImagensCriadas}</span>
               </div>
               <div className="bg-green-50 px-4 py-2 rounded-lg border border-green-100 flex flex-col items-end">
                 <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Imagens restantes</span>
@@ -331,8 +331,8 @@ function IAEdicaoPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
               {/* Coluna 1: Imagem original */}
               <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Imagem original</h3>
-                <div className="rounded-xl border-2 border-dashed border-blue-100 bg-blue-50/30 p-5">
+                <h3 className="text-lg font-semibold text-primary border-b border-primary/20 pb-2">Imagem original</h3>
+                <div className="rounded-xl border-2 border-dashed border-primary/20 bg-primary/5 p-5">
                   {editUploadedImage ? (
                     <div className="flex flex-col items-center gap-5">
                       <img src={editUploadedImage} alt="Imagem enviada para edição" className="h-44 w-full rounded-lg object-contain bg-white border" />
@@ -343,7 +343,7 @@ function IAEdicaoPage() {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center py-7 text-center">
-                      <Upload className="h-10 w-10 text-blue-400 mb-3" />
+                      <Upload className="h-10 w-10 text-primary/60 mb-3" />
                       <p className="text-sm text-gray-600 mb-4">Envie uma imagem de até 10 MB.</p>
                       <Button type="button" variant="outline" onClick={() => editFileInputRef.current?.click()} disabled={uploadingEdit}>
                         {uploadingEdit ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</> : "Escolher imagem"}
@@ -361,7 +361,7 @@ function IAEdicaoPage() {
                     const section = EDIT_SECTIONS[idx];
                     return (
                       <section key={section.title} className="space-y-4">
-                        <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">{section.title}</h3>
+                        <h3 className="text-lg font-semibold text-primary border-b border-primary/20 pb-2">{section.title}</h3>
                         <div className="grid grid-cols-1 gap-4">
                           {section.fields.map((field) => {
                             const disabled = field.onlyInfinite && editSelections.edit_tipo_fundo !== "Fundo infinito";
@@ -391,19 +391,19 @@ function IAEdicaoPage() {
               ))}
             </div>
 
-            <div className="flex justify-end pt-3 border-t border-blue-100">
-              <Button onClick={requestEditConfirmation} disabled={savingEdit || uploadingEdit} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+            <div className="flex justify-end pt-3 border-t border-primary/20">
+              <Button onClick={requestEditConfirmation} disabled={savingEdit || uploadingEdit} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
                 {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
                 Gerar edição de imagem
               </Button>
             </div>
 
             <section className="space-y-4">
-              <h3 className="text-lg font-semibold text-blue-700 border-b border-blue-100 pb-2">Imagem editada</h3>
+              <h3 className="text-lg font-semibold text-primary border-b border-primary/20 pb-2">Imagem editada</h3>
               {editedImage ? (
                 <div className="flex flex-col items-center gap-4">
-                  <img src={editedImage} alt="Imagem editada pela IA" className="max-h-[520px] w-full rounded-xl object-contain bg-gray-50 border border-blue-100" />
-                  <Button variant="outline" onClick={downloadEditedImage} className="border-blue-200 text-blue-600 gap-2"><Download className="h-4 w-4" /> Baixar imagem editada</Button>
+                  <img src={editedImage} alt="Imagem editada pela IA" className="max-h-[520px] w-full rounded-xl object-contain bg-gray-50 border border-primary/20" />
+                  <Button variant="outline" onClick={downloadEditedImage} className="border-primary/30 text-primary gap-2"><Download className="h-4 w-4" /> Baixar imagem editada</Button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 rounded-xl bg-gray-50 border border-dashed border-gray-200">
