@@ -743,6 +743,215 @@ export type Database = {
           },
         ]
       }
+      cores: {
+        Row: {
+          accent: string | null
+          accent_foreground: string | null
+          background: string | null
+          barbearia_id: string
+          border: string | null
+          card: string | null
+          card_foreground: string | null
+          created_at: string
+          dark_accent: string | null
+          dark_accent_foreground: string | null
+          dark_background: string | null
+          dark_border: string | null
+          dark_card: string | null
+          dark_card_foreground: string | null
+          dark_destructive: string | null
+          dark_destructive_foreground: string | null
+          dark_foreground: string | null
+          dark_input: string | null
+          dark_muted: string | null
+          dark_muted_foreground: string | null
+          dark_popover: string | null
+          dark_popover_foreground: string | null
+          dark_primary: string | null
+          dark_primary_foreground: string | null
+          dark_ring: string | null
+          dark_secondary: string | null
+          dark_secondary_foreground: string | null
+          dark_sidebar: string | null
+          dark_sidebar_accent: string | null
+          dark_sidebar_accent_foreground: string | null
+          dark_sidebar_border: string | null
+          dark_sidebar_foreground: string | null
+          dark_sidebar_primary: string | null
+          dark_sidebar_primary_foreground: string | null
+          dark_sidebar_ring: string | null
+          dark_subtitulo: string | null
+          dark_titulo: string | null
+          destructive: string | null
+          destructive_foreground: string | null
+          foreground: string | null
+          id: string
+          input: string | null
+          modo: string
+          muted: string | null
+          muted_foreground: string | null
+          popover: string | null
+          popover_foreground: string | null
+          preset: string
+          primary: string | null
+          primary_foreground: string | null
+          ring: string | null
+          secondary: string | null
+          secondary_foreground: string | null
+          sidebar: string | null
+          sidebar_accent: string | null
+          sidebar_accent_foreground: string | null
+          sidebar_border: string | null
+          sidebar_foreground: string | null
+          sidebar_primary: string | null
+          sidebar_primary_foreground: string | null
+          sidebar_ring: string | null
+          subtitulo: string | null
+          titulo: string | null
+          updated_at: string
+        }
+        Insert: {
+          accent?: string | null
+          accent_foreground?: string | null
+          background?: string | null
+          barbearia_id: string
+          border?: string | null
+          card?: string | null
+          card_foreground?: string | null
+          created_at?: string
+          dark_accent?: string | null
+          dark_accent_foreground?: string | null
+          dark_background?: string | null
+          dark_border?: string | null
+          dark_card?: string | null
+          dark_card_foreground?: string | null
+          dark_destructive?: string | null
+          dark_destructive_foreground?: string | null
+          dark_foreground?: string | null
+          dark_input?: string | null
+          dark_muted?: string | null
+          dark_muted_foreground?: string | null
+          dark_popover?: string | null
+          dark_popover_foreground?: string | null
+          dark_primary?: string | null
+          dark_primary_foreground?: string | null
+          dark_ring?: string | null
+          dark_secondary?: string | null
+          dark_secondary_foreground?: string | null
+          dark_sidebar?: string | null
+          dark_sidebar_accent?: string | null
+          dark_sidebar_accent_foreground?: string | null
+          dark_sidebar_border?: string | null
+          dark_sidebar_foreground?: string | null
+          dark_sidebar_primary?: string | null
+          dark_sidebar_primary_foreground?: string | null
+          dark_sidebar_ring?: string | null
+          dark_subtitulo?: string | null
+          dark_titulo?: string | null
+          destructive?: string | null
+          destructive_foreground?: string | null
+          foreground?: string | null
+          id?: string
+          input?: string | null
+          modo?: string
+          muted?: string | null
+          muted_foreground?: string | null
+          popover?: string | null
+          popover_foreground?: string | null
+          preset?: string
+          primary?: string | null
+          primary_foreground?: string | null
+          ring?: string | null
+          secondary?: string | null
+          secondary_foreground?: string | null
+          sidebar?: string | null
+          sidebar_accent?: string | null
+          sidebar_accent_foreground?: string | null
+          sidebar_border?: string | null
+          sidebar_foreground?: string | null
+          sidebar_primary?: string | null
+          sidebar_primary_foreground?: string | null
+          sidebar_ring?: string | null
+          subtitulo?: string | null
+          titulo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accent?: string | null
+          accent_foreground?: string | null
+          background?: string | null
+          barbearia_id?: string
+          border?: string | null
+          card?: string | null
+          card_foreground?: string | null
+          created_at?: string
+          dark_accent?: string | null
+          dark_accent_foreground?: string | null
+          dark_background?: string | null
+          dark_border?: string | null
+          dark_card?: string | null
+          dark_card_foreground?: string | null
+          dark_destructive?: string | null
+          dark_destructive_foreground?: string | null
+          dark_foreground?: string | null
+          dark_input?: string | null
+          dark_muted?: string | null
+          dark_muted_foreground?: string | null
+          dark_popover?: string | null
+          dark_popover_foreground?: string | null
+          dark_primary?: string | null
+          dark_primary_foreground?: string | null
+          dark_ring?: string | null
+          dark_secondary?: string | null
+          dark_secondary_foreground?: string | null
+          dark_sidebar?: string | null
+          dark_sidebar_accent?: string | null
+          dark_sidebar_accent_foreground?: string | null
+          dark_sidebar_border?: string | null
+          dark_sidebar_foreground?: string | null
+          dark_sidebar_primary?: string | null
+          dark_sidebar_primary_foreground?: string | null
+          dark_sidebar_ring?: string | null
+          dark_subtitulo?: string | null
+          dark_titulo?: string | null
+          destructive?: string | null
+          destructive_foreground?: string | null
+          foreground?: string | null
+          id?: string
+          input?: string | null
+          modo?: string
+          muted?: string | null
+          muted_foreground?: string | null
+          popover?: string | null
+          popover_foreground?: string | null
+          preset?: string
+          primary?: string | null
+          primary_foreground?: string | null
+          ring?: string | null
+          secondary?: string | null
+          secondary_foreground?: string | null
+          sidebar?: string | null
+          sidebar_accent?: string | null
+          sidebar_accent_foreground?: string | null
+          sidebar_border?: string | null
+          sidebar_foreground?: string | null
+          sidebar_primary?: string | null
+          sidebar_primary_foreground?: string | null
+          sidebar_ring?: string | null
+          subtitulo?: string | null
+          titulo?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cores_barbearia_id_fkey"
+            columns: ["barbearia_id"]
+            isOneToOne: true
+            referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cupons_desconto: {
         Row: {
           barbearia_id: string
