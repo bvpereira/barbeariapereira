@@ -403,13 +403,19 @@ export function BookingButton({
 
     const userData = localStorage.getItem("user");
     const user = userData ? JSON.parse(userData) : null;
-    const isClient = user?.nivel === 3 || user?.nivel === "3";
 
-    if (!isClient && !force) {
+    if (!force) {
       const colab = colaboradores.find(c => c.id === selectedColaborador);
       const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
       
       const newDate = parseISO(`${selectedDatePart}T${selectedTimePart}`);
+      
+      // Calcular valor com cashback/cupom/clube
+      const baseTotal = selectedServicos.reduce((acc, sId) => acc + (allServicos.find(s => s.id === sId)?.price || 0), 0);
+      const cupomDesc = couponResult ? Number((couponResult as any).valor_desconto || 0) : 0;
+      const clubeDesc = clubePreview ? clubePreview.desconto : 0;
+      const cashbackUso = (cashbackEnabled && usarCashback) ? Math.max(0, parseFloat(cashbackUsoStr || "0")) : 0;
+      const valorAPagar = Math.max(0, baseTotal - cupomDesc - clubeDesc - cashbackUso);
       
       const data: any = {
         isUpdate: !!initialData?.id,
@@ -418,6 +424,11 @@ export function BookingButton({
         data: format(newDate, "dd/MM/yyyy"),
         horario: selectedTimePart,
         servicos: servs.join(", "),
+        valorOriginal: baseTotal,
+        valorAPagar,
+        cupomDesc,
+        clubeDesc,
+        cashbackUso,
       };
 
       if (initialData?.id) {
@@ -990,6 +1001,25 @@ export function BookingButton({
                 <p><strong>Horário:</strong> {confirmationData?.horario}</p>
               </div>
             </div>
+
+            {confirmationData && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Resumo do Valor:</p>
+                <div className="bg-primary/5 border border-primary/20 p-3 rounded-md text-sm space-y-1">
+                  <p className="flex justify-between"><span>Valor original:</span><span>R$ {Number(confirmationData.valorOriginal || 0).toFixed(2).replace(".", ",")}</span></p>
+                  {confirmationData.clubeDesc > 0 && (
+                    <p className="flex justify-between text-muted-foreground"><span>Clube de assinatura:</span><span>- R$ {Number(confirmationData.clubeDesc).toFixed(2).replace(".", ",")}</span></p>
+                  )}
+                  {confirmationData.cupomDesc > 0 && (
+                    <p className="flex justify-between text-muted-foreground"><span>Cupom de desconto:</span><span>- R$ {Number(confirmationData.cupomDesc).toFixed(2).replace(".", ",")}</span></p>
+                  )}
+                  {confirmationData.cashbackUso > 0 && (
+                    <p className="flex justify-between text-muted-foreground"><span>Cashback utilizado:</span><span>- R$ {Number(confirmationData.cashbackUso).toFixed(2).replace(".", ",")}</span></p>
+                  )}
+                  <p className="flex justify-between font-bold text-primary pt-1 border-t border-primary/20"><span>Você vai pagar:</span><span>R$ {Number(confirmationData.valorAPagar || 0).toFixed(2).replace(".", ",")}</span></p>
+                </div>
+              </div>
+            )}
 
             {confirmationData?.isReschedule && (
               <div className="space-y-2">

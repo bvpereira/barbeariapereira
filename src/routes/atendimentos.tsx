@@ -103,6 +103,8 @@ interface Servico {
   price: number;
   duration: number;
   image_url?: string | null;
+  cashback_ativo?: boolean | null;
+  cashback_percentual?: number | null;
 }
 
 function AtendimentosPage() {
@@ -149,6 +151,9 @@ function AtendimentosPage() {
   const [status, setStatus] = useState<Atendimento['status']>('Finalizado');
   const [tempoMarcar, setTempoMarcar] = useState<number>(60);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [cashbackEnabled, setCashbackEnabled] = useState(false);
+  // Override por serviço selecionado: { servicoId: { ativo, percentual } }
+  const [cashbackOverrides, setCashbackOverrides] = useState<Record<string, { ativo: boolean; percentual: number }>>({});
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
@@ -231,7 +236,7 @@ function AtendimentosPage() {
   const fetchFormData = useCallback(async () => {
     if (!tenant?.id) return;
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome, ativo, foto_url').eq('barbearia_id', tenant.id).order('nome');
-    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url').eq('barbearia_id', tenant.id).order('name');
+    const { data: servs } = await supabase.from('servicos').select('id, name, price, duration, image_url, cashback_ativo, cashback_percentual').eq('barbearia_id', tenant.id).order('name');
     const { data: rels } = await supabase.from('colaborador_servicos').select('colaborador_id, servico_id').eq('barbearia_id', tenant.id);
     
     const formattedColabs = colabs?.map(c => ({
@@ -251,8 +256,11 @@ function AtendimentosPage() {
     const { data: agendaData } = await supabase.from('dias_agenda').select('data').eq('barbearia_id', tenant.id).eq('ativo', true).order('data', { ascending: false }).limit(1);
     if (agendaData && agendaData.length > 0) setMaxDate(agendaData[0].data);
 
-    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar').eq('barbearia_id', tenant.id).maybeSingle();
-    if (infoData) setTempoMarcar(infoData.tempo_marcar ?? 60);
+    const { data: infoData } = await supabase.from('informacoes').select('tempo_marcar, cashback').eq('barbearia_id', tenant.id).maybeSingle();
+    if (infoData) {
+      setTempoMarcar(infoData.tempo_marcar ?? 60);
+      setCashbackEnabled(!!(infoData as any).cashback);
+    }
   }, [tenant]);
 
   useEffect(() => {
@@ -311,6 +319,18 @@ function AtendimentosPage() {
       if (selectedColaborador) {
         calculateComissao(newSelection, selectedColaborador);
       }
+
+      // Inicializar override de cashback ao selecionar
+      setCashbackOverrides(prevOv => {
+        const next = { ...prevOv };
+        if (isRemoving) {
+          delete next[servicoId];
+        } else {
+          const s = allServicos.find(sv => sv.id === servicoId);
+          if (s) next[servicoId] = { ativo: !!s.cashback_ativo, percentual: Number(s.cashback_percentual) || 0 };
+        }
+        return next;
+      });
       
       return newSelection;
     });
@@ -450,11 +470,12 @@ function AtendimentosPage() {
     const user = userData ? JSON.parse(userData) : null;
     const isClient = user?.nivel === 3 || user?.nivel === "3";
 
-    if (!isClient && !force) {
+    if (!force) {
       const colab = colaboradores.find(c => c.id === selectedColaborador);
       const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
       
       const newDate = parseISO(`${selectedDatePart}T${selectedTimePart}`);
+      const baseTotal = selectedServicos.reduce((acc, sId) => acc + (allServicos.find(s => s.id === sId)?.price || 0), 0);
       
       const data: any = {
         isUpdate: !!editingAtendimento,
@@ -463,6 +484,8 @@ function AtendimentosPage() {
         data: format(newDate, "dd/MM/yyyy"),
         horario: selectedTimePart,
         servicos: servs.join(", "),
+        valorOriginal: baseTotal,
+        valorAPagar: baseTotal,
       };
 
       if (editingAtendimento) {
@@ -483,6 +506,7 @@ function AtendimentosPage() {
       const selectedServiceRows = selectedServicos.map((serviceId) => {
         const service = allServicos.find((item) => item.id === serviceId);
         const price = Number(service?.price) || 0;
+        const ov = cashbackOverrides[serviceId];
         return {
           barbearia_id: tenant.id,
           servico_id: serviceId,
@@ -490,6 +514,8 @@ function AtendimentosPage() {
           valor_original: price,
           valor_desconto: 0,
           name_servico: service?.name ?? null,
+          cashback_ativo_override: cashbackEnabled && ov ? ov.ativo : null,
+          cashback_percentual_override: cashbackEnabled && ov && ov.ativo ? ov.percentual : null,
         };
       });
       const originalTotal = selectedServiceRows.reduce((sum, service) => sum + service.valor_original, 0);
@@ -1154,6 +1180,44 @@ function AtendimentosPage() {
                     </div>
                   </div>
 
+                  {cashbackEnabled && selectedServicos.some(id => allServicos.find(s => s.id === id)?.cashback_ativo) && (
+                    <div className="space-y-2 rounded-lg border p-3 bg-primary/5">
+                      <Label className="text-sm font-medium">Cashback por serviço</Label>
+                      <div className="space-y-2">
+                        {selectedServicos.map(sId => {
+                          const serv = allServicos.find(s => s.id === sId);
+                          if (!serv || !serv.cashback_ativo) return null;
+                          const ov = cashbackOverrides[sId] ?? { ativo: !!serv.cashback_ativo, percentual: Number(serv.cashback_percentual) || 0 };
+                          return (
+                            <div key={sId} className="flex items-center gap-2 flex-wrap">
+                              <Checkbox
+                                id={`cb-${sId}`}
+                                checked={ov.ativo}
+                                onCheckedChange={(c) => setCashbackOverrides(p => ({ ...p, [sId]: { ...(p[sId] ?? ov), ativo: !!c } }))}
+                              />
+                              <Label htmlFor={`cb-${sId}`} className="text-sm flex-1 min-w-0 truncate">{serv.name}</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                className="w-24 h-8"
+                                disabled={!ov.ativo}
+                                value={ov.percentual}
+                                onChange={(e) => {
+                                  const v = Math.max(0, Math.min(100, parseFloat(e.target.value || "0")));
+                                  setCashbackOverrides(p => ({ ...p, [sId]: { ...(p[sId] ?? ov), percentual: v } }));
+                                }}
+                              />
+                              <span className="text-xs text-muted-foreground">%</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+
                   {selectedServicos.length > 0 && (
                     <div className="space-y-2">
                       <Label>Data do Atendimento</Label>
@@ -1313,6 +1377,9 @@ function AtendimentosPage() {
                   <p><strong>Serviços:</strong> {confirmationData?.servicos}</p>
                   <p><strong>Data:</strong> {confirmationData?.data}</p>
                   <p><strong>Horário:</strong> {confirmationData?.horario}</p>
+                  {confirmationData?.valorOriginal !== undefined && (
+                    <p><strong>Valor total:</strong> R$ {Number(confirmationData.valorOriginal).toFixed(2).replace(".", ",")}</p>
+                  )}
                 </div>
               </div>
 

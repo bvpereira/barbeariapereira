@@ -651,9 +651,16 @@ function ClientePage() {
                             <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                               {servico.detalhes || "Sem descrição disponível."}
                             </p>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {servico.duration} min
+                            <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {servico.duration} min
+                              </span>
+                              {servico.cashback_ativo && Number(servico.cashback_percentual) > 0 && (
+                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-[10px] px-1.5 py-0">
+                                  {Number(servico.cashback_percentual)}% cashback
+                                </Badge>
+                              )}
                             </div>
                           </div>
                           
