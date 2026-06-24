@@ -91,6 +91,24 @@ function applyMode(modo: "light" | "dark" | "auto", cleanupRef: { fn?: () => voi
   }
 }
 
+// Aplica o tema em cache de forma SÍNCRONA no carregamento do módulo (antes do primeiro paint),
+// evitando o flash das cores padrão do projeto.
+if (typeof window !== "undefined") {
+  try {
+    const raw = localStorage.getItem("theme:last");
+    if (raw) {
+      const row = JSON.parse(raw) as CoresRow;
+      applyLight(row.light || {});
+      applyDarkStyleTag(row.dark || {});
+      const root = document.documentElement;
+      const modo = row.modo || "light";
+      if (modo === "dark") root.classList.add("dark");
+      else if (modo === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches) root.classList.add("dark");
+      else root.classList.remove("dark");
+    }
+  } catch {}
+}
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { tenant } = useTenant();
   const [cores, setCores] = useState<CoresRow | null>(null);
@@ -112,10 +130,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (data) {
         const row = rowToCores(data, tenant.id);
         setCores(row);
-        try { localStorage.setItem(`theme:${tenant.slug}`, JSON.stringify(row)); } catch {}
+        try {
+          const serialized = JSON.stringify(row);
+          localStorage.setItem(`theme:${tenant.slug}`, serialized);
+          localStorage.setItem("theme:last", serialized);
+        } catch {}
       } else {
         setCores(null);
-        try { localStorage.removeItem(`theme:${tenant.slug}`); } catch {}
+        try {
+          localStorage.removeItem(`theme:${tenant.slug}`);
+          localStorage.removeItem("theme:last");
+        } catch {}
       }
     } catch (e) {
       console.error("[ThemeProvider] erro carregando cores", e);
@@ -140,12 +165,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => cleanupRef.fn?.();
   }, [cores, tenant?.slug]);
 
-  // Cache otimista do localStorage antes do fetch (evita FOUC)
+  // Cache otimista do localStorage antes do fetch (evita FOUC entre rotas)
   useEffect(() => {
     if (!tenant?.slug) return;
     try {
       const raw = localStorage.getItem(`theme:${tenant.slug}`);
-      if (raw) setCores(JSON.parse(raw));
+      if (raw) {
+        setCores(JSON.parse(raw));
+        localStorage.setItem("theme:last", raw);
+      }
     } catch {}
     fetchCores();
   }, [tenant?.slug, fetchCores]);
