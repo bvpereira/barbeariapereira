@@ -272,18 +272,18 @@ function IAEdicaoPage() {
   return (
     <AdminLayout>
       <AlertDialog open={showEditConfirm} onOpenChange={setShowEditConfirm}>
-        <AlertDialogContent className="bg-white max-w-2xl max-h-[85vh] overflow-y-auto">
+        <AlertDialogContent className="bg-card max-w-2xl max-h-[85vh] overflow-y-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl text-gray-900">Confirmar edição de imagem</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl text-foreground">Confirmar edição de imagem</AlertDialogTitle>
             <AlertDialogDescription>Revise os dados escolhidos antes de solicitar a edição.</AlertDialogDescription>
           </AlertDialogHeader>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3">
             {EDIT_SECTIONS.flatMap((section) => section.fields)
               .filter((field) => !field.onlyInfinite || editSelections.edit_tipo_fundo === "Fundo infinito")
               .map((field) => (
-                <div key={field.key} className="border-b border-gray-100 pb-2">
+                <div key={field.key} className="border-b border-border pb-2">
                   <p className="text-xs font-semibold text-primary uppercase">{field.label}</p>
-                  <p className="text-sm text-gray-800">{editSelections[field.key]}</p>
+                  <p className="text-sm text-foreground">{editSelections[field.key]}</p>
                 </div>
               ))}
           </div>
@@ -321,9 +321,9 @@ function IAEdicaoPage() {
                 <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Imagens geradas/editadas este mês</span>
                 <span className="text-xl font-bold text-primary">{numImagensCriadas}</span>
               </div>
-              <div className="bg-green-50 px-4 py-2 rounded-lg border border-green-100 flex flex-col items-end">
-                <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Imagens restantes</span>
-                <span className="text-xl font-bold text-green-700">{Math.max(0, numLimiteImagens - numImagensCriadas)}</span>
+              <div className="bg-primary/10 px-4 py-2 rounded-lg border border-primary/20 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Imagens restantes</span>
+                <span className="text-xl font-bold text-primary">{Math.max(0, numLimiteImagens - numImagensCriadas)}</span>
               </div>
             </div>
           </CardHeader>
@@ -335,16 +335,16 @@ function IAEdicaoPage() {
                 <div className="rounded-xl border-2 border-dashed border-primary/20 bg-primary/5 p-5">
                   {editUploadedImage ? (
                     <div className="flex flex-col items-center gap-5">
-                      <img src={editUploadedImage} alt="Imagem enviada para edição" className="h-44 w-full rounded-lg object-contain bg-white border" />
+                      <img src={editUploadedImage} alt="Imagem enviada para edição" className="h-44 w-full rounded-lg object-contain bg-card border" />
                       <div className="space-y-2 text-center">
-                        <p className="text-sm text-gray-600">Imagem salva para esta barbearia.</p>
+                        <p className="text-sm text-muted-foreground">Imagem salva para esta barbearia.</p>
                         <Button type="button" variant="outline" onClick={() => editFileInputRef.current?.click()} disabled={uploadingEdit}>Trocar imagem</Button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center py-7 text-center">
                       <Upload className="h-10 w-10 text-primary/60 mb-3" />
-                      <p className="text-sm text-gray-600 mb-4">Envie uma imagem de até 10 MB.</p>
+                      <p className="text-sm text-muted-foreground mb-4">Envie uma imagem de até 10 MB.</p>
                       <Button type="button" variant="outline" onClick={() => editFileInputRef.current?.click()} disabled={uploadingEdit}>
                         {uploadingEdit ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</> : "Escolher imagem"}
                       </Button>
@@ -367,7 +367,7 @@ function IAEdicaoPage() {
                             const disabled = field.onlyInfinite && editSelections.edit_tipo_fundo !== "Fundo infinito";
                             return (
                               <div key={field.key} className="space-y-2">
-                                <label className="text-sm font-medium text-white">{field.label}</label>
+                                <label className="text-sm font-medium text-foreground">{field.label}</label>
                                 <Select
                                   value={editSelections[field.key]}
                                   disabled={disabled}
@@ -377,7 +377,7 @@ function IAEdicaoPage() {
                                     ...(field.key === "edit_tipo_fundo" && value !== "Fundo infinito" ? { edit_cor_fundo: "" } : {}),
                                   }))}
                                 >
-                                  <SelectTrigger className="w-full bg-white text-gray-900"><SelectValue placeholder={disabled ? "Disponível apenas para Fundo infinito" : "Selecione uma opção"} /></SelectTrigger>
+                                  <SelectTrigger className="w-full bg-card text-foreground"><SelectValue placeholder={disabled ? "Disponível apenas para Fundo infinito" : "Selecione uma opção"} /></SelectTrigger>
                                   <SelectContent>{field.options.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent>
                                 </Select>
                               </div>
@@ -402,13 +402,13 @@ function IAEdicaoPage() {
               <h3 className="text-lg font-semibold text-primary border-b border-primary/20 pb-2">Imagem editada</h3>
               {editedImage ? (
                 <div className="flex flex-col items-center gap-4">
-                  <img src={editedImage} alt="Imagem editada pela IA" className="max-h-[520px] w-full rounded-xl object-contain bg-gray-50 border border-primary/20" />
+                  <img src={editedImage} alt="Imagem editada pela IA" className="max-h-[520px] w-full rounded-xl object-contain bg-muted border border-primary/20" />
                   <Button variant="outline" onClick={downloadEditedImage} className="border-primary/30 text-primary gap-2"><Download className="h-4 w-4" /> Baixar imagem editada</Button>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 rounded-xl bg-gray-50 border border-dashed border-gray-200">
-                  <ImageIcon className="h-12 w-12 text-gray-300 mb-2" />
-                  <p className="text-sm text-gray-500">A imagem editada aparecerá aqui.</p>
+                <div className="flex flex-col items-center justify-center py-12 rounded-xl bg-muted border border-dashed border-border">
+                  <ImageIcon className="h-12 w-12 text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">A imagem editada aparecerá aqui.</p>
                 </div>
               )}
             </section>
