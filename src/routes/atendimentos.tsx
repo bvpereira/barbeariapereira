@@ -1377,6 +1377,9 @@ function AtendimentosPage() {
                   <p><strong>Serviços:</strong> {confirmationData?.servicos}</p>
                   <p><strong>Data:</strong> {confirmationData?.data}</p>
                   <p><strong>Horário:</strong> {confirmationData?.horario}</p>
+                  {confirmationData?.valorOriginal !== undefined && (
+                    <p><strong>Valor total:</strong> R$ {Number(confirmationData.valorOriginal).toFixed(2).replace(".", ",")}</p>
+                  )}
                 </div>
               </div>
 
