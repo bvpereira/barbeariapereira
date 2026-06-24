@@ -167,11 +167,116 @@ const MODERNO_DARK: ThemeTokens = {
   sidebar_border: "#27272a", sidebar_ring: "#34d399",
 };
 
+const OCEAN_LIGHT: ThemeTokens = {
+  background: "#f0f9ff", foreground: "#082f49",
+  card: "#ffffff", card_foreground: "#082f49",
+  popover: "#ffffff", popover_foreground: "#082f49",
+  primary: "#0284c7", primary_foreground: "#f0f9ff",
+  secondary: "#e0f2fe", secondary_foreground: "#082f49",
+  muted: "#e0f2fe", muted_foreground: "#0c4a6e",
+  accent: "#bae6fd", accent_foreground: "#082f49",
+  destructive: "#dc2626", destructive_foreground: "#ffffff",
+  border: "#bae6fd", input: "#bae6fd", ring: "#0284c7",
+  titulo: "#082f49", subtitulo: "#0c4a6e",
+  sidebar: "#082f49", sidebar_foreground: "#e0f2fe",
+  sidebar_primary: "#38bdf8", sidebar_primary_foreground: "#082f49",
+  sidebar_accent: "#0c4a6e", sidebar_accent_foreground: "#e0f2fe",
+  sidebar_border: "#0c4a6e", sidebar_ring: "#38bdf8",
+};
+
+const OCEAN_DARK: ThemeTokens = {
+  background: "#031827", foreground: "#e0f2fe",
+  card: "#082f49", card_foreground: "#e0f2fe",
+  popover: "#082f49", popover_foreground: "#e0f2fe",
+  primary: "#38bdf8", primary_foreground: "#031827",
+  secondary: "#0c4a6e", secondary_foreground: "#e0f2fe",
+  muted: "#0c4a6e", muted_foreground: "#7dd3fc",
+  accent: "#075985", accent_foreground: "#e0f2fe",
+  destructive: "#ef4444", destructive_foreground: "#ffffff",
+  border: "#0c4a6e", input: "#0c4a6e", ring: "#38bdf8",
+  titulo: "#e0f2fe", subtitulo: "#bae6fd",
+  sidebar: "#020c18", sidebar_foreground: "#e0f2fe",
+  sidebar_primary: "#38bdf8", sidebar_primary_foreground: "#031827",
+  sidebar_accent: "#082f49", sidebar_accent_foreground: "#e0f2fe",
+  sidebar_border: "#082f49", sidebar_ring: "#38bdf8",
+};
+
+const SUNSET_LIGHT: ThemeTokens = {
+  background: "#fff7ed", foreground: "#431407",
+  card: "#ffffff", card_foreground: "#431407",
+  popover: "#ffffff", popover_foreground: "#431407",
+  primary: "#ea580c", primary_foreground: "#fff7ed",
+  secondary: "#ffedd5", secondary_foreground: "#431407",
+  muted: "#ffedd5", muted_foreground: "#9a3412",
+  accent: "#fed7aa", accent_foreground: "#431407",
+  destructive: "#b91c1c", destructive_foreground: "#ffffff",
+  border: "#fed7aa", input: "#fed7aa", ring: "#ea580c",
+  titulo: "#431407", subtitulo: "#9a3412",
+  sidebar: "#431407", sidebar_foreground: "#ffedd5",
+  sidebar_primary: "#fb923c", sidebar_primary_foreground: "#431407",
+  sidebar_accent: "#7c2d12", sidebar_accent_foreground: "#ffedd5",
+  sidebar_border: "#7c2d12", sidebar_ring: "#fb923c",
+};
+
+const SUNSET_DARK: ThemeTokens = {
+  background: "#1c0a03", foreground: "#ffedd5",
+  card: "#431407", card_foreground: "#ffedd5",
+  popover: "#431407", popover_foreground: "#ffedd5",
+  primary: "#fb923c", primary_foreground: "#1c0a03",
+  secondary: "#7c2d12", secondary_foreground: "#ffedd5",
+  muted: "#7c2d12", muted_foreground: "#fdba74",
+  accent: "#9a3412", accent_foreground: "#ffedd5",
+  destructive: "#ef4444", destructive_foreground: "#ffffff",
+  border: "#7c2d12", input: "#7c2d12", ring: "#fb923c",
+  titulo: "#ffedd5", subtitulo: "#fed7aa",
+  sidebar: "#0f0502", sidebar_foreground: "#ffedd5",
+  sidebar_primary: "#fb923c", sidebar_primary_foreground: "#1c0a03",
+  sidebar_accent: "#431407", sidebar_accent_foreground: "#ffedd5",
+  sidebar_border: "#431407", sidebar_ring: "#fb923c",
+};
+
+const ROYAL_LIGHT: ThemeTokens = {
+  background: "#faf5ff", foreground: "#2e1065",
+  card: "#ffffff", card_foreground: "#2e1065",
+  popover: "#ffffff", popover_foreground: "#2e1065",
+  primary: "#7c3aed", primary_foreground: "#faf5ff",
+  secondary: "#ede9fe", secondary_foreground: "#2e1065",
+  muted: "#ede9fe", muted_foreground: "#5b21b6",
+  accent: "#ddd6fe", accent_foreground: "#2e1065",
+  destructive: "#dc2626", destructive_foreground: "#ffffff",
+  border: "#ddd6fe", input: "#ddd6fe", ring: "#7c3aed",
+  titulo: "#2e1065", subtitulo: "#5b21b6",
+  sidebar: "#2e1065", sidebar_foreground: "#ede9fe",
+  sidebar_primary: "#a78bfa", sidebar_primary_foreground: "#2e1065",
+  sidebar_accent: "#4c1d95", sidebar_accent_foreground: "#ede9fe",
+  sidebar_border: "#4c1d95", sidebar_ring: "#a78bfa",
+};
+
+const ROYAL_DARK: ThemeTokens = {
+  background: "#130726", foreground: "#ede9fe",
+  card: "#2e1065", card_foreground: "#ede9fe",
+  popover: "#2e1065", popover_foreground: "#ede9fe",
+  primary: "#a78bfa", primary_foreground: "#130726",
+  secondary: "#4c1d95", secondary_foreground: "#ede9fe",
+  muted: "#4c1d95", muted_foreground: "#c4b5fd",
+  accent: "#5b21b6", accent_foreground: "#ede9fe",
+  destructive: "#ef4444", destructive_foreground: "#ffffff",
+  border: "#4c1d95", input: "#4c1d95", ring: "#a78bfa",
+  titulo: "#ede9fe", subtitulo: "#ddd6fe",
+  sidebar: "#0a0314", sidebar_foreground: "#ede9fe",
+  sidebar_primary: "#a78bfa", sidebar_primary_foreground: "#130726",
+  sidebar_accent: "#2e1065", sidebar_accent_foreground: "#ede9fe",
+  sidebar_border: "#2e1065", sidebar_ring: "#a78bfa",
+};
+
 export const PRESETS: Record<string, { label: string; light: ThemeTokens; dark: ThemeTokens }> = {
   claro: { label: "Claro", light: CLARO_LIGHT, dark: CLARO_LIGHT },
   escuro: { label: "Escuro", light: ESCURO_DARK, dark: ESCURO_DARK },
   classico: { label: "Barbearia Clássica", light: CLASSICO_LIGHT, dark: CLASSICO_DARK },
   moderno: { label: "Moderno Minimal", light: MODERNO_LIGHT, dark: MODERNO_DARK },
+  ocean: { label: "Ocean Breeze", light: OCEAN_LIGHT, dark: OCEAN_DARK },
+  sunset: { label: "Sunset Glow", light: SUNSET_LIGHT, dark: SUNSET_DARK },
+  royal: { label: "Royal Purple", light: ROYAL_LIGHT, dark: ROYAL_DARK },
 };
 
 export const DEFAULT_PRESET = "classico";
