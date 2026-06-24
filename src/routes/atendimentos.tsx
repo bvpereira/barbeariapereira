@@ -470,11 +470,12 @@ function AtendimentosPage() {
     const user = userData ? JSON.parse(userData) : null;
     const isClient = user?.nivel === 3 || user?.nivel === "3";
 
-    if (!isClient && !force) {
+    if (!force) {
       const colab = colaboradores.find(c => c.id === selectedColaborador);
       const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
       
       const newDate = parseISO(`${selectedDatePart}T${selectedTimePart}`);
+      const baseTotal = selectedServicos.reduce((acc, sId) => acc + (allServicos.find(s => s.id === sId)?.price || 0), 0);
       
       const data: any = {
         isUpdate: !!editingAtendimento,
@@ -483,6 +484,8 @@ function AtendimentosPage() {
         data: format(newDate, "dd/MM/yyyy"),
         horario: selectedTimePart,
         servicos: servs.join(", "),
+        valorOriginal: baseTotal,
+        valorAPagar: baseTotal,
       };
 
       if (editingAtendimento) {
