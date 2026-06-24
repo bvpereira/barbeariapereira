@@ -68,30 +68,43 @@ function handleLogout() {
 }
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  const [userNivel, setUserNivel] = useState<number | null>(null);
+  useEffect(() => {
+    try {
+      const u = localStorage.getItem("user");
+      if (u) setUserNivel(JSON.parse(u).nivel ?? null);
+    } catch {}
+  }, []);
   return (
     <nav className="px-4 space-y-4">
-      {menuSections.map((section, idx) => (
-        <div key={idx} className="space-y-1">
-          {section.title && (
-            <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
-              {section.title}
-            </h3>
-          )}
-          {section.items.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              onClick={onNavigate}
-              activeProps={{ className: "bg-primary text-primary-foreground" }}
-              inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium whitespace-nowrap">{item.title}</span>
-            </Link>
-          ))}
-        </div>
-      ))}
+      {menuSections.map((section, idx) => {
+        const items = section.items.filter(
+          (it) => it.minNivel === undefined || (userNivel !== null && userNivel <= it.minNivel)
+        );
+        if (items.length === 0) return null;
+        return (
+          <div key={idx} className="space-y-1">
+            {section.title && (
+              <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+                {section.title}
+              </h3>
+            )}
+            {items.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                onClick={onNavigate}
+                activeProps={{ className: "bg-primary text-primary-foreground" }}
+                inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="font-medium whitespace-nowrap">{item.title}</span>
+              </Link>
+            ))}
+          </div>
+        );
+      })}
     </nav>
   );
 }
