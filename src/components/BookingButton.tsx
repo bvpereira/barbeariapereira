@@ -1002,6 +1002,25 @@ export function BookingButton({
               </div>
             </div>
 
+            {confirmationData && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Resumo do Valor:</p>
+                <div className="bg-primary/5 border border-primary/20 p-3 rounded-md text-sm space-y-1">
+                  <p className="flex justify-between"><span>Valor original:</span><span>R$ {Number(confirmationData.valorOriginal || 0).toFixed(2).replace(".", ",")}</span></p>
+                  {confirmationData.clubeDesc > 0 && (
+                    <p className="flex justify-between text-muted-foreground"><span>Clube de assinatura:</span><span>- R$ {Number(confirmationData.clubeDesc).toFixed(2).replace(".", ",")}</span></p>
+                  )}
+                  {confirmationData.cupomDesc > 0 && (
+                    <p className="flex justify-between text-muted-foreground"><span>Cupom de desconto:</span><span>- R$ {Number(confirmationData.cupomDesc).toFixed(2).replace(".", ",")}</span></p>
+                  )}
+                  {confirmationData.cashbackUso > 0 && (
+                    <p className="flex justify-between text-muted-foreground"><span>Cashback utilizado:</span><span>- R$ {Number(confirmationData.cashbackUso).toFixed(2).replace(".", ",")}</span></p>
+                  )}
+                  <p className="flex justify-between font-bold text-primary pt-1 border-t border-primary/20"><span>Você vai pagar:</span><span>R$ {Number(confirmationData.valorAPagar || 0).toFixed(2).replace(".", ",")}</span></p>
+                </div>
+              </div>
+            )}
+
             {confirmationData?.isReschedule && (
               <div className="space-y-2">
                 <p className="text-sm font-medium text-amber-600">Dados do Agendamento Anterior:</p>
