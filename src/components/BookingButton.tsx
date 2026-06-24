@@ -405,11 +405,18 @@ export function BookingButton({
     const user = userData ? JSON.parse(userData) : null;
     const isClient = user?.nivel === 3 || user?.nivel === "3";
 
-    if (!isClient && !force) {
+    if (!force) {
       const colab = colaboradores.find(c => c.id === selectedColaborador);
       const servs = selectedServicos.map(id => allServicos.find(s => s.id === id)?.name).filter(Boolean);
       
       const newDate = parseISO(`${selectedDatePart}T${selectedTimePart}`);
+      
+      // Calcular valor com cashback/cupom/clube
+      const baseTotal = selectedServicos.reduce((acc, sId) => acc + (allServicos.find(s => s.id === sId)?.price || 0), 0);
+      const cupomDesc = couponResult ? Number((couponResult as any).valor_desconto || 0) : 0;
+      const clubeDesc = clubePreview ? clubePreview.desconto : 0;
+      const cashbackUso = (cashbackEnabled && usarCashback) ? Math.max(0, parseFloat(cashbackUsoStr || "0")) : 0;
+      const valorAPagar = Math.max(0, baseTotal - cupomDesc - clubeDesc - cashbackUso);
       
       const data: any = {
         isUpdate: !!initialData?.id,
@@ -418,6 +425,11 @@ export function BookingButton({
         data: format(newDate, "dd/MM/yyyy"),
         horario: selectedTimePart,
         servicos: servs.join(", "),
+        valorOriginal: baseTotal,
+        valorAPagar,
+        cupomDesc,
+        clubeDesc,
+        cashbackUso,
       };
 
       if (initialData?.id) {
