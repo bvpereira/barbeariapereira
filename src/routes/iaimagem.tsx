@@ -723,15 +723,15 @@ function IAImagemPage() {
   return (
     <AdminLayout>
       <AlertDialog open={showLimitAlert} onOpenChange={setShowLimitAlert}>
-        <AlertDialogContent className="bg-white">
+        <AlertDialogContent className="bg-card">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-red-100 rounded-full">
-                <AlertCircle className="h-6 w-6 text-red-600" />
+              <div className="p-2 bg-destructive/10 rounded-full">
+                <AlertCircle className="h-6 w-6 text-destructive" />
               </div>
               <AlertDialogTitle className="text-xl">Limite de Imagens Atingido</AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-base text-gray-600">
+            <AlertDialogDescription className="text-base text-muted-foreground">
               Você atingiu o limite de imagens criadas neste mês. Seu acesso será renovado automaticamente no <strong>dia primeiro do próximo mês</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -744,12 +744,12 @@ function IAImagemPage() {
       </AlertDialog>
 
       <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-        <AlertDialogContent className="bg-white max-w-lg">
+        <AlertDialogContent className="bg-card max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl text-gray-900">
+            <AlertDialogTitle className="text-xl text-foreground">
               Confirmar Criação de {generationType === "ambos" ? "Imagem e Legenda" : generationType === "imagem" ? "Apenas Imagem" : "Apenas Legenda"}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-base text-gray-600">
+            <AlertDialogDescription className="text-base text-muted-foreground">
               Revise os parâmetros selecionados antes de gerar:
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -765,9 +765,9 @@ function IAImagemPage() {
               if (generationType === "legenda") return [...subAreas.dadosCriacao, ...subAreas.configuracoesTexto].includes(f.key);
               return true;
             }).map((field) => (
-              <div key={field.key} className="flex flex-col border-b border-gray-50 pb-2 last:border-0">
+              <div key={field.key} className="flex flex-col border-b border-border pb-2 last:border-0">
                 <span className="text-xs font-semibold text-primary uppercase tracking-wider">{field.label}</span>
-                <span className="text-sm text-gray-800 break-words">
+                <span className="text-sm text-foreground break-words">
                   {field.key === "imagem_imareferencia" && selections[field.key]?.startsWith("http") 
                     ? "Imagem enviada" 
                     : (selections[field.key] || "Não preenchido")}
@@ -781,7 +781,7 @@ function IAImagemPage() {
               variant="outline" 
               onClick={() => setShowConfirmModal(false)} 
               disabled={saving}
-              className="border-gray-200 text-gray-700 hover:bg-gray-100"
+              className="border-border text-foreground hover:bg-muted"
             >
               Cancelar
             </Button>
@@ -799,18 +799,18 @@ function IAImagemPage() {
       </AlertDialog>
 
       <AlertDialog open={showEditConfirm} onOpenChange={setShowEditConfirm}>
-        <AlertDialogContent className="bg-white max-w-2xl max-h-[85vh] overflow-y-auto">
+        <AlertDialogContent className="bg-card max-w-2xl max-h-[85vh] overflow-y-auto">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl text-gray-900">Confirmar edição de imagem</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl text-foreground">Confirmar edição de imagem</AlertDialogTitle>
             <AlertDialogDescription>Revise os dados escolhidos antes de solicitar a edição.</AlertDialogDescription>
           </AlertDialogHeader>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-3">
             {EDIT_SECTIONS.flatMap((section) => section.fields)
               .filter((field) => !field.onlyInfinite || editSelections.edit_tipo_fundo === "Fundo infinito")
               .map((field) => (
-                <div key={field.key} className="border-b border-gray-100 pb-2">
+                <div key={field.key} className="border-b border-border pb-2">
                   <p className="text-xs font-semibold text-primary uppercase">{field.label}</p>
-                  <p className="text-sm text-gray-800">{editSelections[field.key]}</p>
+                  <p className="text-sm text-foreground">{editSelections[field.key]}</p>
                 </div>
               ))}
           </div>
@@ -847,9 +847,9 @@ function IAImagemPage() {
                 <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Imagens geradas/editadas este mês</span>
                 <span className="text-xl font-bold text-primary">{numImagensCriadas}</span>
               </div>
-              <div className="bg-green-50 px-4 py-2 rounded-lg border border-green-100 flex flex-col items-end">
-                <span className="text-[10px] font-semibold text-green-600 uppercase tracking-wider">Imagens restantes</span>
-                <span className="text-xl font-bold text-green-700">{Math.max(0, numLimiteImagens - numImagensCriadas)}</span>
+              <div className="bg-primary/10 px-4 py-2 rounded-lg border border-primary/20 flex flex-col items-end">
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Imagens restantes</span>
+                <span className="text-xl font-bold text-primary">{Math.max(0, numLimiteImagens - numImagensCriadas)}</span>
               </div>
             </div>
           </CardHeader>
@@ -866,22 +866,22 @@ function IAImagemPage() {
                   <div className="grid grid-cols-1 gap-4">
                     {/* Informações Adicionais (Full width) */}
                     <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-medium text-white">Informações Adicionais</label>
+                      <label className="text-sm font-medium text-foreground">Informações Adicionais</label>
                       <Textarea
                         value={selections.imagem_informacoes}
                         onChange={(e) => setSelections(prev => ({ ...prev, imagem_informacoes: e.target.value }))}
                         placeholder="Digite informações adicionais..."
-                        className="w-full bg-white border-primary/10 focus:ring-primary min-h-[100px] text-black"
+                        className="w-full bg-card border-primary/10 focus:ring-primary min-h-[100px] text-foreground"
                       />
                     </div>
                     {/* Objetivo da Imagem */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Objetivo da Imagem</label>
+                      <label className="text-sm font-medium text-foreground">Objetivo da Imagem</label>
                       <Select
                         value={selections.imagem_objetivo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_objetivo: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione objetivo da imagem..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -893,12 +893,12 @@ function IAImagemPage() {
                     </div>
                     {/* Campanha */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Campanha</label>
+                      <label className="text-sm font-medium text-foreground">Campanha</label>
                       <Select
                         value={selections.imagem_campanha}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_campanha: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione campanha..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -910,12 +910,12 @@ function IAImagemPage() {
                     </div>
                     {/* Tom de comunicação */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Tom de comunicação</label>
+                      <label className="text-sm font-medium text-foreground">Tom de comunicação</label>
                       <Select
                         value={selections.tom_comunicacao}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, tom_comunicacao: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione tom de comunicação..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -934,12 +934,12 @@ function IAImagemPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Estilo Visual */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Estilo visual</label>
+                      <label className="text-sm font-medium text-foreground">Estilo visual</label>
                       <Select
                         value={selections.imagem_estilovisual}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_estilovisual: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione estilo visual..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -951,12 +951,12 @@ function IAImagemPage() {
                     </div>
                     {/* Paleta de cores */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Paleta de cores</label>
+                      <label className="text-sm font-medium text-foreground">Paleta de cores</label>
                       <Select
                         value={selections.imagem_paleta}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_paleta: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione paleta de cores..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -968,12 +968,12 @@ function IAImagemPage() {
                     </div>
                     {/* Elemento central */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Elemento central</label>
+                      <label className="text-sm font-medium text-foreground">Elemento central</label>
                       <Select
                         value={selections.imagem_elem_central}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_elem_central: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione elemento central..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -985,12 +985,12 @@ function IAImagemPage() {
                     </div>
                     {/* Formato de Imagem */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Formato de Imagem</label>
+                      <label className="text-sm font-medium text-foreground">Formato de Imagem</label>
                       <Select
                         value={selections.imagem_formato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_formato: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione formato de imagem..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1002,12 +1002,12 @@ function IAImagemPage() {
                     </div>
                     {/* Com Logo? */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Com logo?</label>
+                      <label className="text-sm font-medium text-foreground">Com logo?</label>
                       <Select
                         value={selections.imagem_comlogo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_comlogo: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione com logo?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1019,12 +1019,12 @@ function IAImagemPage() {
                     </div>
                     {/* Com endereço? (Imagem) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Com endereço?</label>
+                      <label className="text-sm font-medium text-foreground">Com endereço?</label>
                       <Select
                         value={selections.imagem_endereco}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_endereco: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione com endereço?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1037,12 +1037,12 @@ function IAImagemPage() {
 
                     {/* Com instagram? (Imagem) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Com instagram?</label>
+                      <label className="text-sm font-medium text-foreground">Com instagram?</label>
                       <Select
                         value={selections.imagem_instagram}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_instagram: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione com instagram?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1055,12 +1055,12 @@ function IAImagemPage() {
 
                     {/* Com telefone de contato? (Imagem) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Com telefone de contato?</label>
+                      <label className="text-sm font-medium text-foreground">Com telefone de contato?</label>
                       <Select
                         value={selections.imagem_telcontato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, imagem_telcontato: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione com telefone de contato?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1073,7 +1073,7 @@ function IAImagemPage() {
 
                     {/* Imagem de Referência (largura total da coluna) */}
                     <div className="space-y-2 sm:col-span-2">
-                      <label className="text-sm font-medium text-white">Imagem de Referência</label>
+                      <label className="text-sm font-medium text-foreground">Imagem de Referência</label>
                       <div className="space-y-3">
                         <Select
                           value={selections.imagem_imareferencia?.startsWith("http") ? "Upar imagem de referência" : selections.imagem_imareferencia}
@@ -1081,7 +1081,7 @@ function IAImagemPage() {
                             setSelections(prev => ({ ...prev, imagem_imareferencia: val }));
                           }}
                         >
-                          <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                          <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                             <SelectValue placeholder="Selecione imagem de referência..." />
                           </SelectTrigger>
                           <SelectContent>
@@ -1093,7 +1093,7 @@ function IAImagemPage() {
                         {(selections.imagem_imareferencia?.startsWith("http") || selections.imagem_imareferencia === "Upar imagem de referência") && (
                           <div className="p-4 border-2 border-dashed border-primary/20 rounded-lg bg-primary/5 space-y-3">
                             {selections.imagem_imareferencia?.startsWith("http") ? (
-                              <div className="relative w-full aspect-video rounded-md overflow-hidden bg-gray-100 border border-primary/20">
+                              <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted border border-primary/20">
                                 <img
                                   src={selections.imagem_imareferencia}
                                   alt="Referência"
@@ -1111,7 +1111,7 @@ function IAImagemPage() {
                             ) : (
                               <div className="flex flex-col items-center justify-center py-4 text-center">
                                 <Upload className="h-8 w-8 text-primary/60 mb-2" />
-                                <p className="text-sm text-gray-600 mb-2">Selecione uma imagem de referência</p>
+                                <p className="text-sm text-muted-foreground mb-2">Selecione uma imagem de referência</p>
                                 <Button
                                   type="button"
                                   variant="outline"
@@ -1151,12 +1151,12 @@ function IAImagemPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Estilo de Texto */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Estilo de Texto</label>
+                      <label className="text-sm font-medium text-foreground">Estilo de Texto</label>
                       <Select
                         value={selections.texto_estilo}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_estilo: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione estilo de texto..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1168,12 +1168,12 @@ function IAImagemPage() {
                     </div>
                     {/* Uso de emojis */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Uso de emojis</label>
+                      <label className="text-sm font-medium text-foreground">Uso de emojis</label>
                       <Select
                         value={selections.texto_emoji}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_emoji: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione uso de emojis..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1186,12 +1186,12 @@ function IAImagemPage() {
 
                     {/* Com endereço? (Texto) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Com endereço?</label>
+                      <label className="text-sm font-medium text-foreground">Com endereço?</label>
                       <Select
                         value={selections.texto_endereco}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_endereco: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione com endereço?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1204,12 +1204,12 @@ function IAImagemPage() {
 
                     {/* Com instagram? (Texto) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Com instagram?</label>
+                      <label className="text-sm font-medium text-foreground">Com instagram?</label>
                       <Select
                         value={selections.texto_instagram}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_instagram: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione com instagram?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1222,12 +1222,12 @@ function IAImagemPage() {
 
                     {/* Com telefone de contato? (Texto) */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Com telefone de contato?</label>
+                      <label className="text-sm font-medium text-foreground">Com telefone de contato?</label>
                       <Select
                         value={selections.texto_telcontato}
                         onValueChange={(val) => setSelections(prev => ({ ...prev, texto_telcontato: val }))}
                       >
-                        <SelectTrigger className="w-full bg-white border-primary/10 focus:ring-primary text-black">
+                        <SelectTrigger className="w-full bg-card border-primary/10 focus:ring-primary text-foreground">
                           <SelectValue placeholder="Selecione com telefone de contato?..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -1289,9 +1289,9 @@ function IAImagemPage() {
 
 
         {/* Área das Criações */}
-        <Card className="border-primary/20 shadow-md overflow-hidden bg-white">
+        <Card className="border-primary/20 shadow-md overflow-hidden bg-card">
           <CardHeader className="bg-primary/10">
-            <CardTitle className="text-xl flex items-center gap-2 text-black">
+            <CardTitle className="text-xl flex items-center gap-2 text-foreground">
               <ImageIcon className="h-5 w-5 text-primary" />
               Últimas criações feitas pela IA
             </CardTitle>
@@ -1303,7 +1303,7 @@ function IAImagemPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Coluna da Imagem */}
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Imagem</h3>
+                <h3 className="text-lg font-bold text-foreground border-b pb-2">Imagem</h3>
                 {createdImageUrl ? (
                   <div className="flex flex-col items-center space-y-4">
                     <div className="relative group rounded-xl overflow-hidden border-4 border-primary/10 shadow-lg w-full">
@@ -1323,20 +1323,20 @@ function IAImagemPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                    <ImageIcon className="h-12 w-12 text-gray-300 mb-2" />
-                    <p className="text-sm text-gray-500">Nenhuma imagem gerada ainda</p>
+                  <div className="flex flex-col items-center justify-center py-12 bg-muted rounded-xl border border-dashed border-border">
+                    <ImageIcon className="h-12 w-12 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">Nenhuma imagem gerada ainda</p>
                   </div>
                 )}
               </div>
 
               {/* Coluna da Legenda */}
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Legenda</h3>
+                <h3 className="text-lg font-bold text-foreground border-b pb-2">Legenda</h3>
                 {createdCaption ? (
                   <div className="flex flex-col space-y-4">
-                    <div className="bg-gray-50 rounded-xl border border-primary/10 p-6 shadow-inner min-h-[200px]">
-                      <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                    <div className="bg-muted rounded-xl border border-primary/10 p-6 shadow-inner min-h-[200px]">
+                      <p className="text-foreground whitespace-pre-wrap leading-relaxed">
                         {createdCaption}
                       </p>
                     </div>
@@ -1350,9 +1350,9 @@ function IAImagemPage() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200 h-full min-h-[200px]">
-                    <AlertCircle className="h-12 w-12 text-gray-300 mb-2" />
-                    <p className="text-sm text-gray-500">Nenhuma legenda gerada ainda</p>
+                  <div className="flex flex-col items-center justify-center py-12 bg-muted rounded-xl border border-dashed border-border h-full min-h-[200px]">
+                    <AlertCircle className="h-12 w-12 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">Nenhuma legenda gerada ainda</p>
                   </div>
                 )}
               </div>
@@ -1361,7 +1361,7 @@ function IAImagemPage() {
             {!createdImageUrl && !createdCaption && (
               <div className="text-center mt-12 space-y-4 w-full">
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-400 max-w-xs mx-auto">
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                     Preencha todos os campos acima e clique nos botões de gerar para criar seus conteúdos.
                   </p>
                 </div>
