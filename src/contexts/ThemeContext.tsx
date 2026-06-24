@@ -165,12 +165,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => cleanupRef.fn?.();
   }, [cores, tenant?.slug]);
 
-  // Cache otimista do localStorage antes do fetch (evita FOUC)
+  // Cache otimista do localStorage antes do fetch (evita FOUC entre rotas)
   useEffect(() => {
     if (!tenant?.slug) return;
     try {
       const raw = localStorage.getItem(`theme:${tenant.slug}`);
-      if (raw) setCores(JSON.parse(raw));
+      if (raw) {
+        setCores(JSON.parse(raw));
+        localStorage.setItem("theme:last", raw);
+      }
     } catch {}
     fetchCores();
   }, [tenant?.slug, fetchCores]);
