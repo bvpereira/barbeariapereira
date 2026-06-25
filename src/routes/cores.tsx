@@ -22,6 +22,16 @@ import {
 } from "@/lib/themePresets";
 import { toast } from "sonner";
 import { Pencil, Check, X, Copy } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/cores")({
   component: CoresPage,
@@ -45,6 +55,7 @@ function CoresPage() {
   const [saving, setSaving] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [nomeEdit, setNomeEdit] = useState("");
+  const [duplicarOpen, setDuplicarOpen] = useState(false);
 
   // gate nível 1
   useEffect(() => {
@@ -173,24 +184,25 @@ function CoresPage() {
     }
   };
 
-  const handleDuplicar = async () => {
-    if (!perfilSel?.id) return;
-    const destino = perfis.find((p) => p.id !== perfilSel.id);
-    if (!destino?.id) { toast.error("Não há outro perfil para receber a cópia"); return; }
-    const ok = window.confirm(
-      `Isso vai sobrescrever as cores de "${destino.nome_perfil}" com as cores de "${perfilSel.nome_perfil}". Continuar?`,
-    );
-    if (!ok) return;
+  const destinoPerfil = useMemo(
+    () => (perfilSel ? perfis.find((p) => p.id !== perfilSel.id) : undefined),
+    [perfis, perfilSel],
+  );
+
+  const handleDuplicarConfirm = async () => {
+    if (!perfilSel?.id || !destinoPerfil?.id) return;
     try {
       const { error } = await supabase
         .from("cores" as any)
         .update(buildRow())
-        .eq("id", destino.id);
+        .eq("id", destinoPerfil.id);
       if (error) throw error;
       await refresh();
-      toast.success(`Cores duplicadas para "${destino.nome_perfil}"`);
+      toast.success(`Cores duplicadas para "${destinoPerfil.nome_perfil}"`);
     } catch (e: any) {
       toast.error("Erro ao duplicar: " + (e?.message || "desconhecido"));
+    } finally {
+      setDuplicarOpen(false);
     }
   };
 
@@ -259,7 +271,7 @@ function CoresPage() {
                 <Button size="sm" variant="outline" onClick={handleAtivar} disabled={!!perfilSel.ativo}>
                   {perfilSel.ativo ? "Já está ativo" : "Tornar ativo"}
                 </Button>
-                <Button size="sm" variant="outline" onClick={handleDuplicar} disabled={perfis.length < 2}>
+                <Button size="sm" variant="outline" onClick={() => setDuplicarOpen(true)} disabled={perfis.length < 2 || !destinoPerfil}>
                   <Copy className="w-4 h-4 mr-1" /> Duplicar para o outro perfil
                 </Button>
               </div>
@@ -388,6 +400,23 @@ function CoresPage() {
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={duplicarOpen} onOpenChange={setDuplicarOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Duplicar cores para o outro perfil?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isso vai sobrescrever todas as cores de{" "}
+              <strong>"{destinoPerfil?.nome_perfil}"</strong> com as cores atuais de{" "}
+              <strong>"{perfilSel?.nome_perfil}"</strong>. Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDuplicarConfirm}>Duplicar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }
