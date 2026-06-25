@@ -10,15 +10,19 @@ export interface CoresRow {
   modo: "light" | "dark" | "auto";
   light: Partial<ThemeTokens>;
   dark: Partial<ThemeTokens>;
+  nome_perfil?: string;
+  ativo?: boolean;
 }
 
 interface ThemeContextType {
   cores: CoresRow | null;
+  perfis: CoresRow[];
   loading: boolean;
   refresh: () => Promise<void>;
 }
 
-const ThemeContext = createContext<ThemeContextType>({ cores: null, loading: true, refresh: async () => {} });
+const ThemeContext = createContext<ThemeContextType>({ cores: null, perfis: [], loading: true, refresh: async () => {} });
+
 
 const STYLE_TAG_ID = "tenant-dark-theme";
 
