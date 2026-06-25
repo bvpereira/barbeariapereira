@@ -119,11 +119,13 @@ if (typeof window !== "undefined") {
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { tenant } = useTenant();
   const [cores, setCores] = useState<CoresRow | null>(null);
+  const [perfis, setPerfis] = useState<CoresRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchCores = useCallback(async () => {
     if (!tenant?.id) {
       setCores(null);
+      setPerfis([]);
       setLoading(false);
       return;
     }
@@ -133,12 +135,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .from("cores" as any)
         .select("*")
         .eq("barbearia_id", tenant.id)
-        .maybeSingle();
-      if (data) {
-        const row = rowToCores(data, tenant.id);
-        setCores(row);
+        .order("nome_perfil", { ascending: true });
+      const rows = (data || []).map((d: any) => rowToCores(d, tenant.id));
+      setPerfis(rows);
+      const ativo = rows.find((r) => r.ativo) || rows[0] || null;
+      if (ativo) {
+        setCores(ativo);
         try {
-          const serialized = JSON.stringify(row);
+          const serialized = JSON.stringify(ativo);
           localStorage.setItem(`theme:${tenant.slug}`, serialized);
           localStorage.setItem("theme:last", serialized);
         } catch {}
@@ -172,7 +176,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => cleanupRef.fn?.();
   }, [cores, tenant?.slug]);
 
-  // Cache otimista do localStorage antes do fetch (evita FOUC entre rotas)
   useEffect(() => {
     if (!tenant?.slug) return;
     try {
@@ -186,10 +189,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [tenant?.slug, fetchCores]);
 
   return (
-    <ThemeContext.Provider value={{ cores, loading, refresh: fetchCores }}>
+    <ThemeContext.Provider value={{ cores, perfis, loading, refresh: fetchCores }}>
       {children}
     </ThemeContext.Provider>
   );
+
 };
 
 export const useTheme = () => useContext(ThemeContext);
