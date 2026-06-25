@@ -971,6 +971,26 @@ function ClientePage() {
                     className="bg-muted cursor-not-allowed"
                   />
                 </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="userEmail">E-mail</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="userEmail"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                    />
+                    <Button
+                      size="icon"
+                      onClick={handleUpdateEmail}
+                      disabled={isUpdatingEmail || newEmail === (user.email_usuario || "")}
+                      variant="secondary"
+                    >
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
               
               <div className="pt-2">
