@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useTheme, CoresRow } from "@/contexts/ThemeContext";
 import {
   COLOR_TOKENS,
   ColorToken,
@@ -20,6 +21,7 @@ import {
   DEFAULT_PRESET,
 } from "@/lib/themePresets";
 import { toast } from "sonner";
+import { Pencil, Check, X, Copy } from "lucide-react";
 
 export const Route = createFileRoute("/cores")({
   component: CoresPage,
@@ -28,24 +30,21 @@ export const Route = createFileRoute("/cores")({
 type Modo = "light" | "dark" | "auto";
 type EditingMode = "light" | "dark";
 
-function emptyTokens(): ThemeTokens {
-  const t: any = {};
-  for (const k of COLOR_TOKENS) t[k] = "#000000";
-  return t as ThemeTokens;
-}
-
 function CoresPage() {
   const navigate = useNavigate();
   const { tenant } = useTenant();
-  const { cores, refresh } = useTheme();
+  const { perfis, refresh } = useTheme();
 
   const [nivelOk, setNivelOk] = useState<boolean | null>(null);
+  const [perfilSelId, setPerfilSelId] = useState<string | null>(null);
   const [preset, setPreset] = useState<string>(DEFAULT_PRESET);
   const [modo, setModo] = useState<Modo>("light");
   const [editing, setEditing] = useState<EditingMode>("light");
   const [light, setLight] = useState<ThemeTokens>(PRESETS[DEFAULT_PRESET].light);
   const [dark, setDark] = useState<ThemeTokens>(PRESETS[DEFAULT_PRESET].dark);
   const [saving, setSaving] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [nomeEdit, setNomeEdit] = useState("");
 
   // gate nível 1
   useEffect(() => {
@@ -58,16 +57,31 @@ function CoresPage() {
     } catch { navigate({ to: "/login" }); }
   }, [navigate]);
 
-  // hidratação a partir do que está salvo
+  // seleciona perfil inicial (o ativo) quando perfis carregarem
   useEffect(() => {
-    if (!cores) return;
-    setPreset(cores.preset || "custom");
-    setModo((cores.modo as Modo) || "light");
-    setLight((prev) => ({ ...prev, ...cores.light }));
-    setDark((prev) => ({ ...prev, ...cores.dark }));
-  }, [cores]);
+    if (perfis.length === 0) return;
+    if (perfilSelId && perfis.some((p) => p.id === perfilSelId)) return;
+    const ativo = perfis.find((p) => p.ativo) || perfis[0];
+    if (ativo?.id) setPerfilSelId(ativo.id);
+  }, [perfis, perfilSelId]);
 
-  // preview ao vivo: aplica CSS vars enquanto edita
+  const perfilSel = useMemo<CoresRow | null>(
+    () => perfis.find((p) => p.id === perfilSelId) || null,
+    [perfis, perfilSelId],
+  );
+
+  // hidrata estado a partir do perfil selecionado
+  useEffect(() => {
+    if (!perfilSel) return;
+    setPreset(perfilSel.preset || "custom");
+    setModo((perfilSel.modo as Modo) || "light");
+    setLight({ ...PRESETS[DEFAULT_PRESET].light, ...perfilSel.light });
+    setDark({ ...PRESETS[DEFAULT_PRESET].dark, ...perfilSel.dark });
+    setNomeEdit(perfilSel.nome_perfil || "");
+    setRenaming(false);
+  }, [perfilSel?.id]);
+
+  // preview ao vivo
   useEffect(() => {
     const root = document.documentElement;
     const tokens = editing === "light" ? light : dark;
@@ -92,23 +106,27 @@ function CoresPage() {
     else setDark((prev) => ({ ...prev, [token]: value }));
   };
 
+  const buildRow = () => {
+    const row: any = { preset, modo };
+    for (const t of COLOR_TOKENS) {
+      row[t] = light[t];
+      row["dark_" + t] = dark[t];
+    }
+    return row;
+  };
+
   const handleSave = async () => {
-    if (!tenant?.id) return;
+    if (!perfilSel?.id) return;
     setSaving(true);
     try {
-      const row: any = { barbearia_id: tenant.id, preset, modo };
-      for (const t of COLOR_TOKENS) {
-        row[t] = light[t];
-        row["dark_" + t] = dark[t];
-      }
       const { error } = await supabase
         .from("cores" as any)
-        .upsert(row, { onConflict: "barbearia_id" });
+        .update(buildRow())
+        .eq("id", perfilSel.id);
       if (error) throw error;
       await refresh();
-      toast.success("Cores salvas!");
+      toast.success("Perfil salvo!");
     } catch (e: any) {
-      console.error(e);
       toast.error("Erro ao salvar: " + (e?.message || "desconhecido"));
     } finally {
       setSaving(false);
@@ -120,8 +138,63 @@ function CoresPage() {
     applyPreset(key);
   };
 
-  const currentTokens = editing === "light" ? light : dark;
+  const handleAtivar = async () => {
+    if (!perfilSel?.id || perfilSel.ativo) return;
+    try {
+      const { error } = await supabase.rpc("set_perfil_cores_ativo" as any, { _perfil_id: perfilSel.id });
+      if (error) throw error;
+      await refresh();
+      toast.success(`Perfil "${perfilSel.nome_perfil}" agora está ativo`);
+    } catch (e: any) {
+      toast.error("Erro ao ativar: " + (e?.message || "desconhecido"));
+    }
+  };
 
+  const handleRenomear = async () => {
+    if (!perfilSel?.id) return;
+    const nome = nomeEdit.trim();
+    if (!nome) { toast.error("Nome não pode ficar vazio"); return; }
+    if (nome.length > 30) { toast.error("Máx. 30 caracteres"); return; }
+    try {
+      const { error } = await supabase
+        .from("cores" as any)
+        .update({ nome_perfil: nome })
+        .eq("id", perfilSel.id);
+      if (error) {
+        if ((error as any).code === "23505") toast.error("Já existe um perfil com esse nome");
+        else throw error;
+        return;
+      }
+      await refresh();
+      setRenaming(false);
+      toast.success("Perfil renomeado");
+    } catch (e: any) {
+      toast.error("Erro ao renomear: " + (e?.message || "desconhecido"));
+    }
+  };
+
+  const handleDuplicar = async () => {
+    if (!perfilSel?.id) return;
+    const destino = perfis.find((p) => p.id !== perfilSel.id);
+    if (!destino?.id) { toast.error("Não há outro perfil para receber a cópia"); return; }
+    const ok = window.confirm(
+      `Isso vai sobrescrever as cores de "${destino.nome_perfil}" com as cores de "${perfilSel.nome_perfil}". Continuar?`,
+    );
+    if (!ok) return;
+    try {
+      const { error } = await supabase
+        .from("cores" as any)
+        .update(buildRow())
+        .eq("id", destino.id);
+      if (error) throw error;
+      await refresh();
+      toast.success(`Cores duplicadas para "${destino.nome_perfil}"`);
+    } catch (e: any) {
+      toast.error("Erro ao duplicar: " + (e?.message || "desconhecido"));
+    }
+  };
+
+  const currentTokens = editing === "light" ? light : dark;
   const presetKeys = useMemo(() => Object.keys(PRESETS), []);
 
   if (nivelOk !== true) return null;
@@ -138,6 +211,61 @@ function CoresPage() {
             A página pública <code>/{tenant?.slug || "slug"}</code> não é afetada.
           </p>
         </div>
+
+        {/* Perfis */}
+        <Card>
+          <CardHeader><CardTitle>Perfis de cores</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {perfis.map((p) => {
+                const isSel = p.id === perfilSelId;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPerfilSelId(p.id!)}
+                    className={`px-3 py-2 rounded-md border text-sm flex items-center gap-2 transition ${
+                      isSel ? "border-primary ring-2 ring-primary bg-primary/10" : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <span>{p.nome_perfil}</span>
+                    {p.ativo && <Badge variant="secondary" className="text-[10px]">Ativo</Badge>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {perfilSel && (
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+                {renaming ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={nomeEdit}
+                      onChange={(e) => setNomeEdit(e.target.value)}
+                      maxLength={30}
+                      className="h-8 w-48"
+                      autoFocus
+                    />
+                    <Button size="sm" variant="outline" onClick={handleRenomear}><Check className="w-4 h-4" /></Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setRenaming(false); setNomeEdit(perfilSel.nome_perfil || ""); }}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => setRenaming(true)}>
+                    <Pencil className="w-4 h-4 mr-1" /> Renomear
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" onClick={handleAtivar} disabled={!!perfilSel.ativo}>
+                  {perfilSel.ativo ? "Já está ativo" : "Tornar ativo"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleDuplicar} disabled={perfis.length < 2}>
+                  <Copy className="w-4 h-4 mr-1" /> Duplicar para o outro perfil
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Presets */}
         <Card>
@@ -255,8 +383,8 @@ function CoresPage() {
 
         <div className="flex gap-2 justify-end sticky bottom-4 bg-background/80 backdrop-blur p-3 rounded-lg border border-border">
           <Button variant="outline" onClick={handleRestaurarPreset}>Restaurar preset</Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Salvando..." : "Salvar cores"}
+          <Button onClick={handleSave} disabled={saving || !perfilSel}>
+            {saving ? "Salvando..." : `Salvar ${perfilSel?.nome_perfil || ""}`.trim()}
           </Button>
         </div>
       </div>
