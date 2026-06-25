@@ -58,6 +58,8 @@ function ClientePage() {
   const [isUpdatingPromocao, setIsUpdatingPromocao] = useState(false);
   const [newName, setNewName] = useState("");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -240,6 +242,7 @@ function ClientePage() {
 
       setUser(parsedUser);
       setNewName(parsedUser.nome);
+      setNewEmail(parsedUser.email_usuario || "");
       fetchAgendamentos(parsedUser.id);
       fetchHistorico(parsedUser.id);
       fetchUserPromocao(parsedUser.id);
@@ -303,6 +306,32 @@ function ClientePage() {
       setIsUpdatingName(false);
     }
   };
+
+  const handleUpdateEmail = async () => {
+    if (!user) return;
+    const email = newEmail.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("E-mail inválido");
+      return;
+    }
+    setIsUpdatingEmail(true);
+    try {
+      const { error } = await supabase
+        .from('usuarios')
+        .update({ email_usuario: email || null })
+        .eq('id', user.id);
+      if (error) throw error;
+      const updatedUser = { ...user, email_usuario: email };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      toast.success("E-mail atualizado com sucesso");
+    } catch (error: any) {
+      toast.error("Erro ao atualizar e-mail: " + error.message);
+    } finally {
+      setIsUpdatingEmail(false);
+    }
+  };
+
 
   const handleChangePassword = async () => {
     if (!user) return;
@@ -941,6 +970,26 @@ function ClientePage() {
                     disabled 
                     className="bg-muted cursor-not-allowed"
                   />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="userEmail">E-mail</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="userEmail"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                    />
+                    <Button
+                      size="icon"
+                      onClick={handleUpdateEmail}
+                      disabled={isUpdatingEmail || newEmail === (user.email_usuario || "")}
+                      variant="secondary"
+                    >
+                      <Save className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
               
