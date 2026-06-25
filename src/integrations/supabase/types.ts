@@ -753,6 +753,7 @@ export type Database = {
         Row: {
           accent: string | null
           accent_foreground: string | null
+          ativo: boolean
           background: string | null
           barbearia_id: string
           border: string | null
@@ -796,6 +797,7 @@ export type Database = {
           modo: string
           muted: string | null
           muted_foreground: string | null
+          nome_perfil: string
           popover: string | null
           popover_foreground: string | null
           preset: string
@@ -819,6 +821,7 @@ export type Database = {
         Insert: {
           accent?: string | null
           accent_foreground?: string | null
+          ativo?: boolean
           background?: string | null
           barbearia_id: string
           border?: string | null
@@ -862,6 +865,7 @@ export type Database = {
           modo?: string
           muted?: string | null
           muted_foreground?: string | null
+          nome_perfil?: string
           popover?: string | null
           popover_foreground?: string | null
           preset?: string
@@ -885,6 +889,7 @@ export type Database = {
         Update: {
           accent?: string | null
           accent_foreground?: string | null
+          ativo?: boolean
           background?: string | null
           barbearia_id?: string
           border?: string | null
@@ -928,6 +933,7 @@ export type Database = {
           modo?: string
           muted?: string | null
           muted_foreground?: string | null
+          nome_perfil?: string
           popover?: string | null
           popover_foreground?: string | null
           preset?: string
@@ -952,7 +958,7 @@ export type Database = {
           {
             foreignKeyName: "cores_barbearia_id_fkey"
             columns: ["barbearia_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "barbearias"
             referencedColumns: ["id"]
           },
@@ -2099,6 +2105,10 @@ export type Database = {
           p_data_inicio: string
           p_valor: number
         }
+        Returns: undefined
+      }
+      set_perfil_cores_ativo: {
+        Args: { _perfil_id: string }
         Returns: undefined
       }
       soft_delete_barbearia: {
