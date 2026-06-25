@@ -55,6 +55,7 @@ function CoresPage() {
   const [saving, setSaving] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [nomeEdit, setNomeEdit] = useState("");
+  const [duplicarOpen, setDuplicarOpen] = useState(false);
 
   // gate nível 1
   useEffect(() => {
