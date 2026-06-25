@@ -271,7 +271,7 @@ function CoresPage() {
                 <Button size="sm" variant="outline" onClick={handleAtivar} disabled={!!perfilSel.ativo}>
                   {perfilSel.ativo ? "Já está ativo" : "Tornar ativo"}
                 </Button>
-                <Button size="sm" variant="outline" onClick={handleDuplicar} disabled={perfis.length < 2}>
+                <Button size="sm" variant="outline" onClick={() => setDuplicarOpen(true)} disabled={perfis.length < 2 || !destinoPerfil}>
                   <Copy className="w-4 h-4 mr-1" /> Duplicar para o outro perfil
                 </Button>
               </div>
