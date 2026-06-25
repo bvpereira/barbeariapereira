@@ -242,6 +242,7 @@ function ClientePage() {
 
       setUser(parsedUser);
       setNewName(parsedUser.nome);
+      setNewEmail(parsedUser.email || "");
       fetchAgendamentos(parsedUser.id);
       fetchHistorico(parsedUser.id);
       fetchUserPromocao(parsedUser.id);
