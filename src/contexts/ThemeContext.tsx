@@ -40,8 +40,11 @@ function rowToCores(row: any, barbeariaId: string): CoresRow {
     modo: (row.modo as any) || "light",
     light,
     dark,
+    nome_perfil: row.nome_perfil,
+    ativo: row.ativo,
   };
 }
+
 
 function applyLight(tokens: Partial<ThemeTokens>) {
   const root = document.documentElement;
