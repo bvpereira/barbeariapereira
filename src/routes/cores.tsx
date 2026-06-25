@@ -184,24 +184,25 @@ function CoresPage() {
     }
   };
 
-  const handleDuplicar = async () => {
-    if (!perfilSel?.id) return;
-    const destino = perfis.find((p) => p.id !== perfilSel.id);
-    if (!destino?.id) { toast.error("Não há outro perfil para receber a cópia"); return; }
-    const ok = window.confirm(
-      `Isso vai sobrescrever as cores de "${destino.nome_perfil}" com as cores de "${perfilSel.nome_perfil}". Continuar?`,
-    );
-    if (!ok) return;
+  const destinoPerfil = useMemo(
+    () => (perfilSel ? perfis.find((p) => p.id !== perfilSel.id) : undefined),
+    [perfis, perfilSel],
+  );
+
+  const handleDuplicarConfirm = async () => {
+    if (!perfilSel?.id || !destinoPerfil?.id) return;
     try {
       const { error } = await supabase
         .from("cores" as any)
         .update(buildRow())
-        .eq("id", destino.id);
+        .eq("id", destinoPerfil.id);
       if (error) throw error;
       await refresh();
-      toast.success(`Cores duplicadas para "${destino.nome_perfil}"`);
+      toast.success(`Cores duplicadas para "${destinoPerfil.nome_perfil}"`);
     } catch (e: any) {
       toast.error("Erro ao duplicar: " + (e?.message || "desconhecido"));
+    } finally {
+      setDuplicarOpen(false);
     }
   };
 
