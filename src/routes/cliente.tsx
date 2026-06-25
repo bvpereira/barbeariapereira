@@ -318,10 +318,10 @@ function ClientePage() {
     try {
       const { error } = await supabase
         .from('usuarios')
-        .update({ email: email || null })
+        .update({ email_usuario: email || null })
         .eq('id', user.id);
       if (error) throw error;
-      const updatedUser = { ...user, email };
+      const updatedUser = { ...user, email_usuario: email };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
       toast.success("E-mail atualizado com sucesso");
