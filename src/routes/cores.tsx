@@ -22,6 +22,16 @@ import {
 } from "@/lib/themePresets";
 import { toast } from "sonner";
 import { Pencil, Check, X, Copy } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/cores")({
   component: CoresPage,
