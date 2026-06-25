@@ -400,6 +400,23 @@ function CoresPage() {
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={duplicarOpen} onOpenChange={setDuplicarOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Duplicar cores para o outro perfil?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isso vai sobrescrever todas as cores de{" "}
+              <strong>"{destinoPerfil?.nome_perfil}"</strong> com as cores atuais de{" "}
+              <strong>"{perfilSel?.nome_perfil}"</strong>. Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDuplicarConfirm}>Duplicar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }
