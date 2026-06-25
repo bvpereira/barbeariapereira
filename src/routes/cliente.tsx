@@ -316,14 +316,17 @@ function ClientePage() {
     }
     setIsUpdatingEmail(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('usuarios')
         .update({ email_usuario: email || null })
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select()
+        .single();
       if (error) throw error;
-      const updatedUser = { ...user, email_usuario: email };
+      const updatedUser = { ...user, ...data, email_usuario: data?.email_usuario ?? (email || null) };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
+      setNewEmail(updatedUser.email_usuario || "");
       toast.success("E-mail atualizado com sucesso");
     } catch (error: any) {
       toast.error("Erro ao atualizar e-mail: " + error.message);
