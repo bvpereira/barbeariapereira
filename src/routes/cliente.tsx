@@ -307,6 +307,32 @@ function ClientePage() {
     }
   };
 
+  const handleUpdateEmail = async () => {
+    if (!user) return;
+    const email = newEmail.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("E-mail inválido");
+      return;
+    }
+    setIsUpdatingEmail(true);
+    try {
+      const { error } = await supabase
+        .from('usuarios')
+        .update({ email: email || null })
+        .eq('id', user.id);
+      if (error) throw error;
+      const updatedUser = { ...user, email };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      toast.success("E-mail atualizado com sucesso");
+    } catch (error: any) {
+      toast.error("Erro ao atualizar e-mail: " + error.message);
+    } finally {
+      setIsUpdatingEmail(false);
+    }
+  };
+
+
   const handleChangePassword = async () => {
     if (!user) return;
     if (!currentPassword || !newPassword || !confirmPassword) {
