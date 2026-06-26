@@ -201,9 +201,23 @@ function FinanceiroPage() {
         }
       });
 
-      const liquidoMes = brutoMes - comissoesMes - despesasMes;
+      // Receita do Clube via Stripe no mês
+      const { data: clubePagamentosMes } = await supabase
+        .from("clube_pagamentos")
+        .select("valor_bruto, taxa_stripe, valor_liquido, tipo")
+        .eq("barbearia_id", tenant.id)
+        .gte("pago_em", startMonth.toISOString())
+        .lte("pago_em", endMonth.toISOString());
+      let clubeLiquidoMes = 0, clubeTaxasMes = 0, clubeReembolsosMes = 0;
+      for (const p of clubePagamentosMes ?? []) {
+        clubeLiquidoMes += Number(p.valor_liquido);
+        clubeTaxasMes += Number(p.taxa_stripe);
+        if (p.tipo === "refund" || Number(p.valor_bruto) < 0) clubeReembolsosMes += Math.abs(Number(p.valor_bruto));
+      }
+
+      const liquidoMes = brutoMes - comissoesMes - despesasMes + clubeLiquidoMes;
       const liquidoDia = brutoDia - comissoesDia;
-      const previsaoTotalMes = brutoMes + previsaoAgendadosMes;
+      const previsaoTotalMes = brutoMes + previsaoAgendadosMes + clubeLiquidoMes;
 
       const start12 = startOfMonth(subMonths(today, 11));
       
