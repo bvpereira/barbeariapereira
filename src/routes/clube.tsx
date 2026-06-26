@@ -193,6 +193,7 @@ function ClubePage() {
           <TabsList>
             <TabsTrigger value="clubes">Clubes</TabsTrigger>
             <TabsTrigger value="expirando">Prestes a expirar ({expirando.length})</TabsTrigger>
+            <TabsTrigger value="integracoes">Integrações de pagamento</TabsTrigger>
           </TabsList>
 
           <TabsContent value="clubes" className="mt-4">
@@ -252,8 +253,13 @@ function ClubePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                      <div className="flex gap-2 pt-2 border-t">
-                        <Button variant="outline" size="sm" onClick={() => edit(clube)}><Pencil className="w-4 h-4" /> Editar</Button>
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button variant="outline" size="sm" onClick={() => void edit(clube)}><Pencil className="w-4 h-4" /> Editar</Button>
+                        {stripeAtivo && (
+                          <Button variant="outline" size="sm" disabled={syncingId === clube.id} onClick={() => void handleSync(clube)}>
+                            <RefreshCw className={`w-4 h-4 ${syncingId === clube.id ? "animate-spin" : ""}`} /> Sincronizar Stripe
+                          </Button>
+                        )}
                         <Button variant="ghost" size="sm" className="text-destructive" onClick={() => void handleDelete(clube)}>
                           <Trash2 className="w-4 h-4" /> Excluir
                         </Button>
