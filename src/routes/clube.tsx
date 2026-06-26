@@ -69,9 +69,24 @@ function ClubePage() {
   const load = async () => {
     if (!credentials) return;
     try {
-      const [c, e] = await Promise.all([listFn({ data: credentials }), expFn({ data: credentials })]);
-      setClubes(c); setExpirando(e);
+      const [c, e, sc] = await Promise.all([
+        listFn({ data: credentials }),
+        expFn({ data: credentials }),
+        getStripeFn({ data: credentials }).catch(() => ({ ativo: false } as any)),
+      ]);
+      setClubes(c); setExpirando(e); setStripeAtivo(Boolean(sc?.ativo));
     } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao carregar clubes."); }
+  };
+
+  const handleSync = async (clube: Clube) => {
+    if (!credentials) return;
+    setSyncingId(clube.id);
+    try {
+      await syncOneFn({ data: { ...credentials, clube_id: clube.id } });
+      toast.success("Clube sincronizado com o Stripe.");
+      await load();
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao sincronizar."); }
+    finally { setSyncingId(null); }
   };
 
   useEffect(() => {
