@@ -143,10 +143,19 @@ function ClubePage() {
     }
     setSaving(true);
     try {
-      await saveFn({ data: {
+      const saved: any = await saveFn({ data: {
         ...credentials, id: form.id, nome: form.nome, valor_mensal: valor,
         descricao: form.descricao, ativo: form.ativo, regras_servicos: form.regras,
       } });
+      const savedId: string | undefined = form.id ?? saved?.id ?? saved?.[0]?.id;
+      if (stripeAtivo && savedId) {
+        try {
+          await setOptsFn({ data: { ...credentials, clube_id: savedId,
+            trial_dias: form.trial_dias || 0,
+            stripe_coupon_id: form.stripe_coupon_id?.trim() || null } });
+          await syncOneFn({ data: { ...credentials, clube_id: savedId } });
+        } catch (e) { console.error("Stripe sync failed", e); toast.error("Salvo, mas houve erro ao sincronizar com Stripe."); }
+      }
       toast.success(form.id ? "Clube atualizado." : "Clube criado.");
       setOpen(false); reset(); await load();
     } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao salvar."); }
