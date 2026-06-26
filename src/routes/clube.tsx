@@ -295,6 +295,14 @@ function ClubePage() {
               </Card>
             )}
           </TabsContent>
+
+          <TabsContent value="integracoes" className="mt-4">
+            {credentials && (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <StripeIntegrationCard credentials={credentials} onChange={() => void load()} />
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
@@ -315,6 +323,27 @@ function ClubePage() {
                 <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
                 <Label>Clube ativo</Label>
               </div>
+
+              {stripeAtivo && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-3">
+                  <p className="text-sm font-medium">Opções do Stripe</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Dias de teste grátis</Label>
+                      <Input type="number" min={0} max={365} value={form.trial_dias}
+                        onChange={(e) => setForm({ ...form, trial_dias: Number(e.target.value) || 0 })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">ID de cupom Stripe (opcional)</Label>
+                      <Input maxLength={100} placeholder="ex.: PROMO10" value={form.stripe_coupon_id}
+                        onChange={(e) => setForm({ ...form, stripe_coupon_id: e.target.value })} />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Mudanças de preço criam um novo Price no Stripe; assinaturas existentes continuam no preço anterior até a renovação.
+                  </p>
+                </div>
+              )}
               <div className="space-y-3">
                 <div>
                   <Label>Serviços contemplados</Label>
