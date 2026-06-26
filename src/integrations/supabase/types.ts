@@ -517,6 +517,72 @@ export type Database = {
         }
         Relationships: []
       }
+      clube_pagamentos: {
+        Row: {
+          barbearia_id: string
+          cliente_id: string | null
+          clube_id: string | null
+          clube_usuario_id: string | null
+          created_at: string
+          id: string
+          moeda: string
+          pago_em: string
+          refunded_amount: number
+          status: string
+          stripe_charge_id: string | null
+          stripe_event_id: string | null
+          stripe_invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_subscription_id: string | null
+          taxa_stripe: number
+          tipo: string
+          valor_bruto: number
+          valor_liquido: number
+        }
+        Insert: {
+          barbearia_id: string
+          cliente_id?: string | null
+          clube_id?: string | null
+          clube_usuario_id?: string | null
+          created_at?: string
+          id?: string
+          moeda?: string
+          pago_em?: string
+          refunded_amount?: number
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_event_id?: string | null
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          taxa_stripe?: number
+          tipo?: string
+          valor_bruto?: number
+          valor_liquido?: number
+        }
+        Update: {
+          barbearia_id?: string
+          cliente_id?: string | null
+          clube_id?: string | null
+          clube_usuario_id?: string | null
+          created_at?: string
+          id?: string
+          moeda?: string
+          pago_em?: string
+          refunded_amount?: number
+          status?: string
+          stripe_charge_id?: string | null
+          stripe_event_id?: string | null
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          taxa_stripe?: number
+          tipo?: string
+          valor_bruto?: number
+          valor_liquido?: number
+        }
+        Relationships: []
+      }
       clube_usuarios: {
         Row: {
           barbearia_id: string
@@ -1224,6 +1290,8 @@ export type Database = {
           site: string | null
           stripe_account_id: string | null
           stripe_ativo: boolean
+          stripe_fee_fixed: number
+          stripe_fee_percent: number
           stripe_webhook_secret: string | null
           tarde_fim: string | null
           tarde_inicio: string | null
@@ -1272,6 +1340,8 @@ export type Database = {
           site?: string | null
           stripe_account_id?: string | null
           stripe_ativo?: boolean
+          stripe_fee_fixed?: number
+          stripe_fee_percent?: number
           stripe_webhook_secret?: string | null
           tarde_fim?: string | null
           tarde_inicio?: string | null
@@ -1320,6 +1390,8 @@ export type Database = {
           site?: string | null
           stripe_account_id?: string | null
           stripe_ativo?: boolean
+          stripe_fee_fixed?: number
+          stripe_fee_percent?: number
           stripe_webhook_secret?: string | null
           tarde_fim?: string | null
           tarde_inicio?: string | null
