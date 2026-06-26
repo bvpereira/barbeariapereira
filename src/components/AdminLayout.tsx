@@ -162,7 +162,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Mobile Topbar */}
-      <header className="md:hidden fixed top-0 inset-x-0 h-14 z-20 flex items-center justify-between px-4 border-b border-border bg-card/80 backdrop-blur-sm">
+      <header className="md:hidden fixed top-0 inset-x-0 h-14 z-20 flex items-center justify-between px-4 border-b border-sidebar-border bg-sidebar text-sidebar-foreground backdrop-blur-sm">
         <h2 className="text-lg font-bold flex items-center gap-2">
           <img src={logoUrl} alt="Logo" className="w-6 h-6 object-contain" />
           Admin
