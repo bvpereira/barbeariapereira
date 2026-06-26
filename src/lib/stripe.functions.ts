@@ -32,7 +32,7 @@ export const saveStripeConfig = createServerFn({ method: "POST" })
     if (finalKey && (data.chave_stripe || data.ativo)) {
       const stripe = makeStripe(finalKey);
       try {
-        const acc = await stripe.accounts.retrieve();
+        const acc = await stripe.accounts.retrieve("");
         accountId = acc.id;
       } catch (e) {
         throw new Error("Chave do Stripe inválida.");

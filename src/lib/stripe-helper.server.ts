@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export function makeStripe(apiKey: string): Stripe {
-  return new Stripe(apiKey, { apiVersion: "2024-12-18.acacia" as Stripe.LatestApiVersion });
+  return new Stripe(apiKey);
 }
 
 export async function assertAdmin(barbeariaId: string, adminId: string, adminPassword: string) {

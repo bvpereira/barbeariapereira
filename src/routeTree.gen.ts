@@ -39,6 +39,9 @@ import { Route as AtendimentosRouteImport } from './routes/atendimentos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ClubeSucessoRouteImport } from './routes/clube.sucesso'
+import { Route as ClubeCanceladoRouteImport } from './routes/clube.cancelado'
+import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 
 const WebhooksRoute = WebhooksRouteImport.update({
   id: '/webhooks',
@@ -190,6 +193,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClubeSucessoRoute = ClubeSucessoRouteImport.update({
+  id: '/sucesso',
+  path: '/sucesso',
+  getParentRoute: () => ClubeRoute,
+} as any)
+const ClubeCanceladoRoute = ClubeCanceladoRouteImport.update({
+  id: '/cancelado',
+  path: '/cancelado',
+  getParentRoute: () => ClubeRoute,
+} as any)
+const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
+  id: '/api/public/stripe-webhook',
+  path: '/api/public/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -201,7 +219,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
-  '/clube': typeof ClubeRoute
+  '/clube': typeof ClubeRouteWithChildren
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
@@ -222,6 +240,9 @@ export interface FileRoutesByFullPath {
   '/superadmin': typeof SuperadminRoute
   '/superlogin': typeof SuperloginRoute
   '/webhooks': typeof WebhooksRoute
+  '/clube/cancelado': typeof ClubeCanceladoRoute
+  '/clube/sucesso': typeof ClubeSucessoRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -233,7 +254,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
-  '/clube': typeof ClubeRoute
+  '/clube': typeof ClubeRouteWithChildren
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
@@ -254,6 +275,9 @@ export interface FileRoutesByTo {
   '/superadmin': typeof SuperadminRoute
   '/superlogin': typeof SuperloginRoute
   '/webhooks': typeof WebhooksRoute
+  '/clube/cancelado': typeof ClubeCanceladoRoute
+  '/clube/sucesso': typeof ClubeSucessoRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -266,7 +290,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
-  '/clube': typeof ClubeRoute
+  '/clube': typeof ClubeRouteWithChildren
   '/colaborador': typeof ColaboradorRoute
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
@@ -287,6 +311,9 @@ export interface FileRoutesById {
   '/superadmin': typeof SuperadminRoute
   '/superlogin': typeof SuperloginRoute
   '/webhooks': typeof WebhooksRoute
+  '/clube/cancelado': typeof ClubeCanceladoRoute
+  '/clube/sucesso': typeof ClubeSucessoRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -321,6 +348,9 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/superlogin'
     | '/webhooks'
+    | '/clube/cancelado'
+    | '/clube/sucesso'
+    | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -353,6 +383,9 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/superlogin'
     | '/webhooks'
+    | '/clube/cancelado'
+    | '/clube/sucesso'
+    | '/api/public/stripe-webhook'
   id:
     | '__root__'
     | '/'
@@ -385,6 +418,9 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/superlogin'
     | '/webhooks'
+    | '/clube/cancelado'
+    | '/clube/sucesso'
+    | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -397,7 +433,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   ClienteRoute: typeof ClienteRoute
   ClientesRoute: typeof ClientesRoute
-  ClubeRoute: typeof ClubeRoute
+  ClubeRoute: typeof ClubeRouteWithChildren
   ColaboradorRoute: typeof ColaboradorRoute
   ColaboradoresRoute: typeof ColaboradoresRoute
   ComunidadeRoute: typeof ComunidadeRoute
@@ -418,6 +454,7 @@ export interface RootRouteChildren {
   SuperadminRoute: typeof SuperadminRoute
   SuperloginRoute: typeof SuperloginRoute
   WebhooksRoute: typeof WebhooksRoute
+  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -632,8 +669,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/clube/sucesso': {
+      id: '/clube/sucesso'
+      path: '/sucesso'
+      fullPath: '/clube/sucesso'
+      preLoaderRoute: typeof ClubeSucessoRouteImport
+      parentRoute: typeof ClubeRoute
+    }
+    '/clube/cancelado': {
+      id: '/clube/cancelado'
+      path: '/cancelado'
+      fullPath: '/clube/cancelado'
+      preLoaderRoute: typeof ClubeCanceladoRouteImport
+      parentRoute: typeof ClubeRoute
+    }
+    '/api/public/stripe-webhook': {
+      id: '/api/public/stripe-webhook'
+      path: '/api/public/stripe-webhook'
+      fullPath: '/api/public/stripe-webhook'
+      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface ClubeRouteChildren {
+  ClubeCanceladoRoute: typeof ClubeCanceladoRoute
+  ClubeSucessoRoute: typeof ClubeSucessoRoute
+}
+
+const ClubeRouteChildren: ClubeRouteChildren = {
+  ClubeCanceladoRoute: ClubeCanceladoRoute,
+  ClubeSucessoRoute: ClubeSucessoRoute,
+}
+
+const ClubeRouteWithChildren = ClubeRoute._addFileChildren(ClubeRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -645,7 +715,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   ClienteRoute: ClienteRoute,
   ClientesRoute: ClientesRoute,
-  ClubeRoute: ClubeRoute,
+  ClubeRoute: ClubeRouteWithChildren,
   ColaboradorRoute: ColaboradorRoute,
   ColaboradoresRoute: ColaboradoresRoute,
   ComunidadeRoute: ComunidadeRoute,
@@ -666,6 +736,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperadminRoute: SuperadminRoute,
   SuperloginRoute: SuperloginRoute,
   WebhooksRoute: WebhooksRoute,
+  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
