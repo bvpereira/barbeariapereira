@@ -195,6 +195,7 @@ function ClubePage() {
             <TabsTrigger value="clubes">Clubes</TabsTrigger>
             <TabsTrigger value="expirando">Prestes a expirar ({expirando.length})</TabsTrigger>
             <TabsTrigger value="integracoes">Integrações de pagamento</TabsTrigger>
+            <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
           </TabsList>
 
           <TabsContent value="clubes" className="mt-4">
