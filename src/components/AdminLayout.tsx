@@ -173,9 +173,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72">
+          <SheetContent side="left" className="p-0 w-72 bg-sidebar text-sidebar-foreground border-sidebar-border">
             <SheetHeader className="p-6">
-              <SheetTitle className="flex items-center gap-2">
+              <SheetTitle className="flex items-center gap-2 text-sidebar-foreground">
                 <img src={logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
                 Admin
               </SheetTitle>
@@ -184,7 +184,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <div className="px-4 mt-6">
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                className="w-full justify-start gap-3 text-sidebar-foreground/80 hover:text-destructive hover:bg-destructive/10"
                 onClick={handleLogout}
               >
                 <LogOut className="w-5 h-5" />
