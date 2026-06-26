@@ -85,7 +85,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         return (
           <div key={idx} className="space-y-1">
             {section.title && (
-              <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+              <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-sidebar-foreground/60 uppercase">
                 {section.title}
               </h3>
             )}
@@ -94,8 +94,8 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                 key={item.href}
                 to={item.href}
                 onClick={onNavigate}
-                activeProps={{ className: "bg-primary text-primary-foreground" }}
-                inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
+                activeProps={{ className: "bg-sidebar-primary text-sidebar-primary-foreground" }}
+                inactiveProps={{ className: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground/80" }}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
               >
                 <item.icon className="w-5 h-5" />
