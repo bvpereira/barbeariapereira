@@ -22,6 +22,7 @@ import { useTenant } from "@/contexts/TenantContext";
 import { listClubes, saveClube, toggleClube, deleteClube, listExpirando } from "@/lib/clube.functions";
 import { getStripeConfig, setClubeStripeOptions, syncClubeToStripe } from "@/lib/stripe.functions";
 import { StripeIntegrationCard } from "@/components/StripeIntegrationCard";
+import { ClubeFinanceiroTab } from "@/components/ClubeFinanceiroTab";
 
 export const Route = createFileRoute("/clube")({ component: ClubePage });
 
@@ -194,6 +195,7 @@ function ClubePage() {
             <TabsTrigger value="clubes">Clubes</TabsTrigger>
             <TabsTrigger value="expirando">Prestes a expirar ({expirando.length})</TabsTrigger>
             <TabsTrigger value="integracoes">Integrações de pagamento</TabsTrigger>
+            <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
           </TabsList>
 
           <TabsContent value="clubes" className="mt-4">
@@ -210,6 +212,7 @@ function ClubePage() {
                             <Crown className="text-primary w-5 h-5" />{clube.nome}
                           </CardTitle>
                           <p className="text-sm text-muted-foreground mt-1">R$ {Number(clube.valor_mensal).toFixed(2)}/mês</p>
+                          <p className="text-xs text-muted-foreground">Líquido estimado: R$ {Math.max(0, Number(clube.valor_mensal) - (Number(clube.valor_mensal) * 0.0399 + 0.39)).toFixed(2)}/mês <span className="opacity-70">(após taxas Stripe)</span></p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Switch checked={clube.ativo} onCheckedChange={() => void handleToggle(clube)} />
@@ -302,6 +305,10 @@ function ClubePage() {
                 <StripeIntegrationCard credentials={credentials} onChange={() => void load()} />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="financeiro" className="mt-4">
+            {credentials && <ClubeFinanceiroTab credentials={credentials} />}
           </TabsContent>
         </Tabs>
 

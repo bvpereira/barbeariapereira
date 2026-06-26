@@ -64,6 +64,9 @@ interface FinanceiroData {
   comissoesMes: number;
   previsaoTotalMes: number;
   previsaoAgendadosMes: number;
+  clubeLiquidoMes: number;
+  clubeTaxasMes: number;
+  clubeReembolsosMes: number;
   comissoesPorColaborador: { nome: string; valor: number }[];
   chartData: any[];
   historico: any[];
@@ -81,6 +84,9 @@ function FinanceiroPage() {
     comissoesMes: 0,
     previsaoTotalMes: 0,
     previsaoAgendadosMes: 0,
+    clubeLiquidoMes: 0,
+    clubeTaxasMes: 0,
+    clubeReembolsosMes: 0,
     comissoesPorColaborador: [],
     chartData: [],
     historico: []
@@ -195,9 +201,23 @@ function FinanceiroPage() {
         }
       });
 
-      const liquidoMes = brutoMes - comissoesMes - despesasMes;
+      // Receita do Clube via Stripe no mês
+      const { data: clubePagamentosMes } = await supabase
+        .from("clube_pagamentos")
+        .select("valor_bruto, taxa_stripe, valor_liquido, tipo")
+        .eq("barbearia_id", tenant.id)
+        .gte("pago_em", startMonth.toISOString())
+        .lte("pago_em", endMonth.toISOString());
+      let clubeLiquidoMes = 0, clubeTaxasMes = 0, clubeReembolsosMes = 0;
+      for (const p of clubePagamentosMes ?? []) {
+        clubeLiquidoMes += Number(p.valor_liquido);
+        clubeTaxasMes += Number(p.taxa_stripe);
+        if (p.tipo === "refund" || Number(p.valor_bruto) < 0) clubeReembolsosMes += Math.abs(Number(p.valor_bruto));
+      }
+
+      const liquidoMes = brutoMes - comissoesMes - despesasMes + clubeLiquidoMes;
       const liquidoDia = brutoDia - comissoesDia;
-      const previsaoTotalMes = brutoMes + previsaoAgendadosMes;
+      const previsaoTotalMes = brutoMes + previsaoAgendadosMes + clubeLiquidoMes;
 
       const start12 = startOfMonth(subMonths(today, 11));
       
@@ -262,6 +282,9 @@ function FinanceiroPage() {
         comissoesMes,
         previsaoTotalMes,
         previsaoAgendadosMes,
+        clubeLiquidoMes,
+        clubeTaxasMes,
+        clubeReembolsosMes,
         comissoesPorColaborador: colaboradores?.map(c => ({
           nome: c.nome,
           valor: comissoesColabMap.get(c.id) || 0
@@ -354,7 +377,14 @@ function FinanceiroPage() {
               <div className={cn("text-2xl font-bold", data.liquidoMes >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
                 {formatCurrency(data.liquidoMes)}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Bruto - comissões - gastos</p>
+              <p className="text-xs text-muted-foreground mt-1">Bruto - comissões - gastos + clube (líquido)</p>
+              {data.clubeLiquidoMes !== 0 && (
+                <p className="text-xs text-primary mt-1">
+                  + Clube (líquido): {formatCurrency(data.clubeLiquidoMes)}
+                  {data.clubeTaxasMes > 0 && <span className="text-muted-foreground"> · taxas Stripe {formatCurrency(data.clubeTaxasMes)}</span>}
+                  {data.clubeReembolsosMes > 0 && <span className="text-destructive"> · reembolsos {formatCurrency(data.clubeReembolsosMes)}</span>}
+                </p>
+              )}
             </CardContent>
           </Card>
           <Card>

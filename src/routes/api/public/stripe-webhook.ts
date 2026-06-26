@@ -165,16 +165,88 @@ async function handleEvent(event: any, barbeariaId: string) {
     }
     case "invoice.paid": {
       const subId = obj.subscription as string;
-      if (!subId) break;
-      const periodEnd: number | undefined =
-        obj.lines?.data?.[0]?.period?.end ?? undefined;
-      const dataFim = periodEnd
-        ? new Date(periodEnd * 1000).toISOString().slice(0, 10)
-        : addMonths(new Date(), 1).toISOString().slice(0, 10);
-      await supabaseAdmin
-        .from("clube_usuarios")
-        .update({ data_fim: dataFim, status_stripe: "active" })
-        .eq("stripe_subscription_id", subId);
+      if (subId) {
+        const periodEnd: number | undefined =
+          obj.lines?.data?.[0]?.period?.end ?? undefined;
+        const dataFim = periodEnd
+          ? new Date(periodEnd * 1000).toISOString().slice(0, 10)
+          : addMonths(new Date(), 1).toISOString().slice(0, 10);
+        await supabaseAdmin
+          .from("clube_usuarios")
+          .update({ data_fim: dataFim, status_stripe: "active" })
+          .eq("stripe_subscription_id", subId);
+      }
+
+      const amountPaid = Number(obj.amount_paid ?? 0) / 100;
+      if (amountPaid > 0 && obj.id) {
+        const meta = obj.metadata ?? obj.subscription_details?.metadata ?? obj.lines?.data?.[0]?.metadata ?? {};
+        const { data: cfgFee } = await supabaseAdmin
+          .from("informacoes")
+          .select("stripe_fee_percent, stripe_fee_fixed")
+          .eq("barbearia_id", barbeariaId)
+          .maybeSingle();
+        const pct = Number((cfgFee as { stripe_fee_percent?: number } | null)?.stripe_fee_percent ?? 0.0399);
+        const fix = Number((cfgFee as { stripe_fee_fixed?: number } | null)?.stripe_fee_fixed ?? 0.39);
+        const taxa = Math.round((amountPaid * pct + fix) * 100) / 100;
+        const liquido = Math.round((amountPaid - taxa) * 100) / 100;
+        await supabaseAdmin.from("clube_pagamentos").insert({
+          barbearia_id: barbeariaId,
+          clube_id: meta.clube_id ?? null,
+          cliente_id: meta.cliente_id ?? null,
+          stripe_invoice_id: obj.id,
+          stripe_payment_intent_id: (obj.payment_intent as string) ?? null,
+          stripe_charge_id: (obj.charge as string) ?? null,
+          stripe_subscription_id: subId ?? null,
+          stripe_event_id: event.id,
+          valor_bruto: amountPaid,
+          taxa_stripe: taxa,
+          valor_liquido: liquido,
+          moeda: obj.currency ?? "brl",
+          status: "paid",
+          tipo: "payment",
+          pago_em: new Date(((obj.status_transitions?.paid_at ?? obj.created ?? Math.floor(Date.now() / 1000)) as number) * 1000).toISOString(),
+        });
+      }
+      break;
+    }
+    case "charge.refunded": {
+      const chargeId = obj.id as string;
+      const refundedTotal = Number(obj.amount_refunded ?? 0) / 100;
+      if (!chargeId || refundedTotal <= 0) break;
+      const { data: original } = await supabaseAdmin
+        .from("clube_pagamentos")
+        .select("id, barbearia_id, clube_id, cliente_id, stripe_invoice_id, stripe_subscription_id, valor_bruto, refunded_amount")
+        .eq("stripe_charge_id", chargeId)
+        .eq("tipo", "payment")
+        .maybeSingle();
+      const prevRefunded = Number(original?.refunded_amount ?? 0);
+      const delta = Math.max(0, refundedTotal - prevRefunded);
+      if (delta > 0) {
+        await supabaseAdmin.from("clube_pagamentos").insert({
+          barbearia_id: original?.barbearia_id ?? barbeariaId,
+          clube_id: original?.clube_id ?? null,
+          cliente_id: original?.cliente_id ?? null,
+          stripe_invoice_id: original?.stripe_invoice_id ?? null,
+          stripe_charge_id: chargeId,
+          stripe_subscription_id: original?.stripe_subscription_id ?? null,
+          stripe_event_id: event.id,
+          valor_bruto: -delta,
+          taxa_stripe: 0,
+          valor_liquido: -delta,
+          moeda: obj.currency ?? "brl",
+          status: "refunded",
+          tipo: "refund",
+          pago_em: new Date().toISOString(),
+        });
+      }
+      if (original) {
+        const novoTotal = prevRefunded + delta;
+        const novoStatus = novoTotal >= Number(original.valor_bruto) ? "refunded" : "partial_refund";
+        await supabaseAdmin
+          .from("clube_pagamentos")
+          .update({ refunded_amount: novoTotal, status: novoStatus })
+          .eq("id", original.id);
+      }
       break;
     }
     case "invoice.payment_failed": {
