@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { getStripeConfig, saveStripeConfig, syncAllClubes } from "@/lib/stripe.functions";
+import { getStripeConfig, saveStripeConfig, syncAllClubes, recreateStripeWebhook, backfillStripeSubscriptions, listStripeWebhooks } from "@/lib/stripe.functions";
 
 interface Props {
   credentials: { barbearia_id: string; admin_id: string; admin_password: string };
@@ -19,10 +19,15 @@ export function StripeIntegrationCard({ credentials, onChange }: Props) {
   const getFn = useServerFn(getStripeConfig);
   const saveFn = useServerFn(saveStripeConfig);
   const syncFn = useServerFn(syncAllClubes);
+  const recreateFn = useServerFn(recreateStripeWebhook);
+  const backfillFn = useServerFn(backfillStripeSubscriptions);
+  const listWhFn = useServerFn(listStripeWebhooks);
   const [cfg, setCfg] = useState<{ ativo: boolean; configurado: boolean; account_id: string | null; chave_mascarada: string } | null>(null);
+  const [webhooks, setWebhooks] = useState<{ id: string; url: string; status: string }[] | null>(null);
   const [chave, setChave] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -118,6 +123,76 @@ export function StripeIntegrationCard({ credentials, onChange }: Props) {
             Salvar chave
           </Button>
         </div>
+
+        {cfg?.ativo && (
+          <div className="space-y-3 pt-3 border-t">
+            <div className="text-sm font-medium">Diagnóstico do webhook</div>
+            <p className="text-xs text-muted-foreground">
+              Se um pagamento foi feito no Stripe mas a assinatura não aparece para o cliente,
+              o webhook pode estar apontando para uma URL antiga. Recrie usando a URL atual ({window.location.origin}) e
+              importe as assinaturas existentes.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy !== null}
+                onClick={async () => {
+                  setBusy("list");
+                  try { setWebhooks(await listWhFn({ data: credentials }) as never); }
+                  catch (e) { toast.error(e instanceof Error ? e.message : "Erro."); }
+                  finally { setBusy(null); }
+                }}
+              >
+                {busy === "list" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Ver webhooks no Stripe
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy !== null}
+                onClick={async () => {
+                  setBusy("recreate");
+                  try {
+                    const r = await recreateFn({ data: { ...credentials, base_url: window.location.origin } });
+                    toast.success(`Webhook recriado: ${r.url}`);
+                    setWebhooks(null);
+                  } catch (e) { toast.error(e instanceof Error ? e.message : "Erro."); }
+                  finally { setBusy(null); }
+                }}
+              >
+                {busy === "recreate" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Recriar webhook com URL atual
+              </Button>
+              <Button
+                size="sm"
+                disabled={busy !== null}
+                onClick={async () => {
+                  setBusy("backfill");
+                  try {
+                    const r = await backfillFn({ data: credentials });
+                    toast.success(`Backfill: ${r.imported} importada(s), ${r.skipped} ignorada(s).`);
+                    onChange?.();
+                  } catch (e) { toast.error(e instanceof Error ? e.message : "Erro."); }
+                  finally { setBusy(null); }
+                }}
+              >
+                {busy === "backfill" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Importar assinaturas existentes
+              </Button>
+            </div>
+            {webhooks && (
+              <div className="rounded-md border bg-muted/30 p-2 text-xs space-y-1">
+                {webhooks.length === 0 ? <div>Nenhum webhook registrado.</div> : webhooks.map((w) => (
+                  <div key={w.id} className="flex items-center justify-between gap-2">
+                    <code className="truncate">{w.url}</code>
+                    <Badge variant={w.status === "enabled" ? "default" : "secondary"}>{w.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
