@@ -32,7 +32,7 @@ export const saveStripeConfig = createServerFn({ method: "POST" })
     if (finalKey && (data.chave_stripe || data.ativo)) {
       const stripe = makeStripe(finalKey);
       try {
-        const acc = await stripe.accounts.retrieve();
+        const acc = await (stripe.accounts as unknown as { retrieve: () => Promise<{ id: string }> }).retrieve();
         accountId = acc.id;
       } catch (e) {
         console.error("Stripe key validation failed:", e);
