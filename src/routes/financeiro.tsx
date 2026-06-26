@@ -64,6 +64,9 @@ interface FinanceiroData {
   comissoesMes: number;
   previsaoTotalMes: number;
   previsaoAgendadosMes: number;
+  clubeLiquidoMes: number;
+  clubeTaxasMes: number;
+  clubeReembolsosMes: number;
   comissoesPorColaborador: { nome: string; valor: number }[];
   chartData: any[];
   historico: any[];
