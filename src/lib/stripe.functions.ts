@@ -348,3 +348,121 @@ export const getClienteSubscriptionStatus = createServerFn({ method: "POST" })
       data_fim: r?.data_fim ?? null,
     };
   });
+
+/** List webhook endpoints currently registered in the barbershop's Stripe account. */
+export const listStripeWebhooks = createServerFn({ method: "POST" })
+  .inputValidator((i) => creds.parse(i))
+  .handler(async ({ data }) => {
+    const { assertAdmin, getStripeForBarbearia } = await import("@/lib/stripe-helper.server");
+    await assertAdmin(data.barbearia_id, data.admin_id, data.admin_password);
+    const stripe = await getStripeForBarbearia(data.barbearia_id);
+    const list = await stripe.webhookEndpoints.list({ limit: 50 });
+    return list.data.map((w) => ({ id: w.id, url: w.url, status: w.status, metadata: w.metadata }));
+  });
+
+/** Delete the saved webhook and create a fresh one with the current base_url. */
+export const recreateStripeWebhook = createServerFn({ method: "POST" })
+  .inputValidator((i) => creds.extend({ base_url: z.string().url().max(500) }).parse(i))
+  .handler(async ({ data }) => {
+    const { assertAdmin, getStripeForBarbearia, getBarbeariaStripeConfig } = await import("@/lib/stripe-helper.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertAdmin(data.barbearia_id, data.admin_id, data.admin_password);
+    const stripe = await getStripeForBarbearia(data.barbearia_id);
+    const cfg = await getBarbeariaStripeConfig(data.barbearia_id);
+    const url = `${data.base_url.replace(/\/$/, "")}/api/public/stripe-webhook`;
+
+    // Delete any webhook in this account pointing at our path (any host) to avoid duplicates.
+    const existing = await stripe.webhookEndpoints.list({ limit: 100 });
+    for (const w of existing.data) {
+      if (w.url.endsWith("/api/public/stripe-webhook") || w.metadata?.barbearia_id === data.barbearia_id) {
+        try { await stripe.webhookEndpoints.del(w.id); } catch (e) { console.error("del wh", w.id, e); }
+      }
+    }
+    const wh = await stripe.webhookEndpoints.create({
+      url,
+      enabled_events: [
+        "checkout.session.completed",
+        "invoice.paid",
+        "invoice.payment_failed",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+      ],
+      metadata: { barbearia_id: data.barbearia_id },
+    });
+    void cfg;
+    await supabaseAdmin
+      .from("informacoes")
+      .update({ stripe_webhook_secret: wh.secret ?? null })
+      .eq("barbearia_id", data.barbearia_id);
+    return { url, ok: true };
+  });
+
+/** Backfill clube_usuarios from active Stripe subscriptions (recovers missed webhooks). */
+export const backfillStripeSubscriptions = createServerFn({ method: "POST" })
+  .inputValidator((i) => creds.parse(i))
+  .handler(async ({ data }) => {
+    const { assertAdmin, getStripeForBarbearia } = await import("@/lib/stripe-helper.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertAdmin(data.barbearia_id, data.admin_id, data.admin_password);
+    const stripe = await getStripeForBarbearia(data.barbearia_id);
+
+    let imported = 0;
+    let skipped = 0;
+    let cursor: string | undefined;
+    // Iterate all subs (not just active) so canceled/past_due also sync.
+    for (let page = 0; page < 20; page++) {
+      const subs = await stripe.subscriptions.list({ limit: 100, status: "all", starting_after: cursor });
+      for (const s of subs.data) {
+        const meta = s.metadata ?? {};
+        const clienteId = meta.cliente_id;
+        const clubeId = meta.clube_id;
+        const subBarbId = meta.barbearia_id;
+        if (!clienteId || !clubeId || subBarbId !== data.barbearia_id) { skipped++; continue; }
+
+        const periodEnd: number | undefined = (s as unknown as { current_period_end?: number }).current_period_end
+          ?? s.items?.data?.[0]?.current_period_end;
+        const dataFim = periodEnd
+          ? new Date(periodEnd * 1000).toISOString().slice(0, 10)
+          : new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+
+        const { data: existing } = await supabaseAdmin
+          .from("clube_usuarios")
+          .select("id")
+          .eq("stripe_subscription_id", s.id)
+          .maybeSingle();
+
+        if (existing) {
+          await supabaseAdmin
+            .from("clube_usuarios")
+            .update({
+              status_stripe: s.status,
+              data_fim: dataFim,
+              stripe_customer_id: typeof s.customer === "string" ? s.customer : s.customer.id,
+            })
+            .eq("id", existing.id);
+        } else {
+          const { data: clube } = await supabaseAdmin
+            .from("clube_assinatura")
+            .select("valor_mensal")
+            .eq("id", clubeId)
+            .maybeSingle();
+          await supabaseAdmin.from("clube_usuarios").insert({
+            usuario_id: clienteId,
+            clube_id: clubeId,
+            barbearia_id: data.barbearia_id,
+            data_inicio: new Date(s.start_date * 1000).toISOString().slice(0, 10),
+            data_fim: dataFim,
+            valor_pago: Number(clube?.valor_mensal ?? 0),
+            origem: "stripe",
+            status_stripe: s.status,
+            stripe_subscription_id: s.id,
+            stripe_customer_id: typeof s.customer === "string" ? s.customer : s.customer.id,
+          });
+        }
+        imported++;
+      }
+      if (!subs.has_more) break;
+      cursor = subs.data[subs.data.length - 1]?.id;
+    }
+    return { imported, skipped };
+  });
