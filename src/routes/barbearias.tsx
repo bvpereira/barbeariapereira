@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AtSign, ChevronDown, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Users } from "lucide-react";
+import { AtSign, ChevronDown, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Upload, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { updateBarbeariaSlugFn, setBarbeariaAtivaFn, hardDeleteBarbeariaFn } from "@/lib/barbearias-admin.functions";
+import { uploadImage, deleteByPublicUrl } from "@/lib/storage";
 
 
 
@@ -67,6 +68,7 @@ type BarbeariaData = {
   instanciaReservaApi: string;
   instanciaReservaNumero: string;
   instanciaPropria: "sim" | "nao";
+  qrcodeInstanciaPropria: string | null;
   modoTeste: boolean;
   instanciaFuncionando: boolean;
   limiteImagens: number | null;
@@ -164,7 +166,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const [infoResult, agenteResult, responsavelResult, clientesResult, colaboradoresResult, recentesResult, servicosResult, promoResult] = await Promise.all([
-        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_reserva_evo, instancia_reserva_api, instancia_reserva_numero, instancia_propria, modo_teste, instancia_funcionando, envio_via").eq("barbearia_id", barbearia.id).maybeSingle(),
+        supabase.from("informacoes").select("id, nome_barbearia, tel_contato, email, google_avaliacao, instagram, instancia_evo, instancia_api, instancia_numero, instancia_reserva_evo, instancia_reserva_api, instancia_reserva_numero, instancia_propria, qrcode_instancia_propria, modo_teste, instancia_funcionando, envio_via").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("agentes_ia").select("id, num_limite_imagens").eq("barbearia_id", barbearia.id).maybeSingle(),
         supabase.from("usuarios").select("nome").eq("barbearia_id", barbearia.id).eq("nivel", 1).maybeSingle(),
         supabase.from("usuarios").select("id", { count: "exact", head: true }).eq("barbearia_id", barbearia.id).eq("nivel", 3),
@@ -198,6 +200,7 @@ async function fetchBarbearias(): Promise<BarbeariaData[]> {
         instanciaReservaApi: (infoResult.data as any)?.instancia_reserva_api || "",
         instanciaReservaNumero: (infoResult.data as any)?.instancia_reserva_numero || "",
         instanciaPropria: (infoResult.data?.instancia_propria === "sim" ? "sim" : "nao"),
+        qrcodeInstanciaPropria: (infoResult.data as any)?.qrcode_instancia_propria ?? null,
         modoTeste: (infoResult.data as any)?.modo_teste === true,
         instanciaFuncionando: (infoResult.data as any)?.instancia_funcionando !== false,
         limiteImagens: agenteResult.data?.num_limite_imagens ?? null,
@@ -320,6 +323,33 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const qrMutation = useMutation({
+    mutationFn: async (args: { action: "upload" | "delete"; file?: File }) => {
+      if (!barbearia.informacoesId) throw new Error("Configurações da barbearia ausentes.");
+      if (args.action === "upload") {
+        if (!args.file) throw new Error("Selecione um arquivo.");
+        if (barbearia.qrcodeInstanciaPropria) {
+          await deleteByPublicUrl("informacoes_imagens", barbearia.qrcodeInstanciaPropria);
+        }
+        const url = await uploadImage("informacoes_imagens", barbearia.id, barbearia.informacoesId, "qrcode_instancia_propria", args.file);
+        const { error } = await supabase.from("informacoes").update({ qrcode_instancia_propria: url } as any).eq("id", barbearia.informacoesId);
+        if (error) throw error;
+      } else {
+        if (barbearia.qrcodeInstanciaPropria) {
+          await deleteByPublicUrl("informacoes_imagens", barbearia.qrcodeInstanciaPropria);
+        }
+        const { error } = await supabase.from("informacoes").update({ qrcode_instancia_propria: null } as any).eq("id", barbearia.informacoesId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: async (_d, args) => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      toast.success(args.action === "upload" ? "QR code enviado." : "QR code removido.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const metrics = [
     ["Criada em", formatDate(barbearia.createdAt)],
@@ -568,6 +598,45 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
             </Button>
           </div>
         </section>
+
+        <section className="space-y-3 rounded-lg border border-primary/10 bg-background/30 p-4">
+          <div>
+            <h3 className="font-josefin text-lg font-bold uppercase tracking-wide text-foreground">QR code da Instância própria</h3>
+            <p className="text-sm text-muted-foreground">Envie a imagem do QR code para conectar a instância própria.</p>
+          </div>
+          {barbearia.qrcodeInstanciaPropria ? (
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <img src={barbearia.qrcodeInstanciaPropria} alt="QR code" className="h-40 w-40 rounded-md border border-primary/15 bg-white object-contain p-2" />
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={qrMutation.isPending}
+                onClick={() => qrMutation.mutate({ action: "delete" })}
+              >
+                <Trash2 className="h-4 w-4" />
+                {qrMutation.isPending ? "Removendo..." : "Excluir imagem"}
+              </Button>
+            </div>
+          ) : (
+            <label className="flex w-fit cursor-pointer items-center gap-2 rounded-md border border-dashed border-primary/40 bg-background/40 px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-foreground">
+              <Upload className="h-4 w-4" />
+              {qrMutation.isPending ? "Enviando..." : "Fazer upload do QR code"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={qrMutation.isPending}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) qrMutation.mutate({ action: "upload", file });
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+        </section>
+
+
 
         <section>
           <h3 className="mb-4 flex items-center gap-2 font-josefin text-lg font-bold uppercase tracking-wide text-foreground">

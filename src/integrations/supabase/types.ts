@@ -1287,6 +1287,7 @@ export type Database = {
           modo_teste: boolean | null
           nome_admin: string | null
           nome_barbearia: string | null
+          qrcode_instancia_propria: string | null
           site: string | null
           stripe_account_id: string | null
           stripe_ativo: boolean
@@ -1337,6 +1338,7 @@ export type Database = {
           modo_teste?: boolean | null
           nome_admin?: string | null
           nome_barbearia?: string | null
+          qrcode_instancia_propria?: string | null
           site?: string | null
           stripe_account_id?: string | null
           stripe_ativo?: boolean
@@ -1387,6 +1389,7 @@ export type Database = {
           modo_teste?: boolean | null
           nome_admin?: string | null
           nome_barbearia?: string | null
+          qrcode_instancia_propria?: string | null
           site?: string | null
           stripe_account_id?: string | null
           stripe_ativo?: boolean
