@@ -47,6 +47,7 @@ export const saveStripeConfig = createServerFn({ method: "POST" })
             "checkout.session.completed",
             "invoice.paid",
             "invoice.payment_failed",
+            "charge.refunded",
             "customer.subscription.updated",
             "customer.subscription.deleted",
           ],
