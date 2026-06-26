@@ -68,6 +68,7 @@ type BarbeariaData = {
   instanciaReservaApi: string;
   instanciaReservaNumero: string;
   instanciaPropria: "sim" | "nao";
+  qrcodeInstanciaPropria: string | null;
   modoTeste: boolean;
   instanciaFuncionando: boolean;
   limiteImagens: number | null;
