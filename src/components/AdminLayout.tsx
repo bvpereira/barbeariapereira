@@ -85,7 +85,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         return (
           <div key={idx} className="space-y-1">
             {section.title && (
-              <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-muted-foreground/70 uppercase">
+              <h3 className="px-4 pt-2 pb-1 text-xs font-semibold tracking-wider text-sidebar-foreground/60 uppercase">
                 {section.title}
               </h3>
             )}
@@ -94,8 +94,8 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                 key={item.href}
                 to={item.href}
                 onClick={onNavigate}
-                activeProps={{ className: "bg-primary text-primary-foreground" }}
-                inactiveProps={{ className: "hover:bg-accent text-muted-foreground hover:text-foreground" }}
+                activeProps={{ className: "bg-sidebar-primary text-sidebar-primary-foreground" }}
+                inactiveProps={{ className: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sidebar-foreground/80" }}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors"
               >
                 <item.icon className="w-5 h-5" />
@@ -141,9 +141,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="w-72 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
+      <aside className="w-72 border-r border-sidebar-border bg-sidebar text-sidebar-foreground backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-xl font-bold flex items-center gap-2">
+          <h2 className="text-xl font-bold flex items-center gap-2 text-sidebar-foreground">
             <img src={logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
             Admin
           </h2>
@@ -152,7 +152,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="px-4 mt-2 pb-8">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            className="w-full justify-start gap-3 text-sidebar-foreground/80 hover:text-destructive hover:bg-destructive/10"
             onClick={handleLogout}
           >
             <LogOut className="w-5 h-5" />
@@ -162,7 +162,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Mobile Topbar */}
-      <header className="md:hidden fixed top-0 inset-x-0 h-14 z-20 flex items-center justify-between px-4 border-b border-border bg-card/80 backdrop-blur-sm">
+      <header className="md:hidden fixed top-0 inset-x-0 h-14 z-20 flex items-center justify-between px-4 border-b border-sidebar-border bg-sidebar text-sidebar-foreground backdrop-blur-sm">
         <h2 className="text-lg font-bold flex items-center gap-2">
           <img src={logoUrl} alt="Logo" className="w-6 h-6 object-contain" />
           Admin
@@ -173,9 +173,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72">
+          <SheetContent side="left" className="p-0 w-72 bg-sidebar text-sidebar-foreground border-sidebar-border">
             <SheetHeader className="p-6">
-              <SheetTitle className="flex items-center gap-2">
+              <SheetTitle className="flex items-center gap-2 text-sidebar-foreground">
                 <img src={logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
                 Admin
               </SheetTitle>
@@ -184,7 +184,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <div className="px-4 mt-6">
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                className="w-full justify-start gap-3 text-sidebar-foreground/80 hover:text-destructive hover:bg-destructive/10"
                 onClick={handleLogout}
               >
                 <LogOut className="w-5 h-5" />
