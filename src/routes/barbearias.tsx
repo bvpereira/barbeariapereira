@@ -324,6 +324,33 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const qrMutation = useMutation({
+    mutationFn: async (args: { action: "upload" | "delete"; file?: File }) => {
+      if (!barbearia.informacoesId) throw new Error("Configurações da barbearia ausentes.");
+      if (args.action === "upload") {
+        if (!args.file) throw new Error("Selecione um arquivo.");
+        if (barbearia.qrcodeInstanciaPropria) {
+          await deleteByPublicUrl("informacoes_imagens", barbearia.qrcodeInstanciaPropria);
+        }
+        const url = await uploadImage("informacoes_imagens", barbearia.id, barbearia.informacoesId, "qrcode_instancia_propria", args.file);
+        const { error } = await supabase.from("informacoes").update({ qrcode_instancia_propria: url } as any).eq("id", barbearia.informacoesId);
+        if (error) throw error;
+      } else {
+        if (barbearia.qrcodeInstanciaPropria) {
+          await deleteByPublicUrl("informacoes_imagens", barbearia.qrcodeInstanciaPropria);
+        }
+        const { error } = await supabase.from("informacoes").update({ qrcode_instancia_propria: null } as any).eq("id", barbearia.informacoesId);
+        if (error) throw error;
+      }
+    },
+    onSuccess: async (_d, args) => {
+      await queryClient.invalidateQueries({ queryKey: ["superadmin-barbearias"] });
+      toast.success(args.action === "upload" ? "QR code enviado." : "QR code removido.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const metrics = [
     ["Criada em", formatDate(barbearia.createdAt)],
     ["Clientes cadastrados", barbearia.clientes],
