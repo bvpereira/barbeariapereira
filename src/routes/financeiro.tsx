@@ -282,6 +282,9 @@ function FinanceiroPage() {
         comissoesMes,
         previsaoTotalMes,
         previsaoAgendadosMes,
+        clubeLiquidoMes,
+        clubeTaxasMes,
+        clubeReembolsosMes,
         comissoesPorColaborador: colaboradores?.map(c => ({
           nome: c.nome,
           valor: comissoesColabMap.get(c.id) || 0
