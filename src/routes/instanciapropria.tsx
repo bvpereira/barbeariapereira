@@ -34,7 +34,7 @@ function InstanciaPropriaPage() {
     enabled: !!user?.barbearia_id,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("informacoes")
+        .from("informacoes" as any)
         .select("instancia_propria, qrcode_instancia_propria")
         .eq("barbearia_id", user!.barbearia_id)
         .maybeSingle();
