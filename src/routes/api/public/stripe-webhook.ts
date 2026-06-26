@@ -140,7 +140,7 @@ async function handleEvent(event: any, barbeariaId: string) {
         barbearia_id: barbeariaId,
         data_inicio: dataInicio,
         data_fim: dataFim,
-        valor: clube?.valor_mensal ?? 0,
+        valor_pago: Number(clube?.valor_mensal ?? 0),
         origem: "stripe",
         status_stripe: params.status ?? "active",
         stripe_subscription_id: params.subscriptionId,
