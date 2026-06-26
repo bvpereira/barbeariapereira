@@ -141,9 +141,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="w-72 border-r border-border bg-card/50 backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
+      <aside className="w-72 border-r border-sidebar-border bg-sidebar text-sidebar-foreground backdrop-blur-sm fixed h-full z-10 hidden md:block overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-xl font-bold flex items-center gap-2">
+          <h2 className="text-xl font-bold flex items-center gap-2 text-sidebar-foreground">
             <img src={logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
             Admin
           </h2>
@@ -152,7 +152,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="px-4 mt-2 pb-8">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            className="w-full justify-start gap-3 text-sidebar-foreground/80 hover:text-destructive hover:bg-destructive/10"
             onClick={handleLogout}
           >
             <LogOut className="w-5 h-5" />
