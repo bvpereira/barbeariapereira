@@ -19,6 +19,7 @@ import { Route as PromocaoRouteImport } from './routes/promocao'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as MinhacontaRouteImport } from './routes/minhaconta'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as InstanciapropriaRouteImport } from './routes/instanciapropria'
 import { Route as IaimagemRouteImport } from './routes/iaimagem'
 import { Route as IaedicaoRouteImport } from './routes/iaedicao'
 import { Route as IacodconsumiRouteImport } from './routes/iacodconsumi'
@@ -91,6 +92,11 @@ const MinhacontaRoute = MinhacontaRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstanciapropriaRoute = InstanciapropriaRouteImport.update({
+  id: '/instanciapropria',
+  path: '/instanciapropria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IaimagemRoute = IaimagemRouteImport.update({
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/iacodconsumi': typeof IacodconsumiRoute
   '/iaedicao': typeof IaedicaoRoute
   '/iaimagem': typeof IaimagemRoute
+  '/instanciapropria': typeof InstanciapropriaRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/notificacoes': typeof NotificacoesRoute
@@ -265,6 +272,7 @@ export interface FileRoutesByTo {
   '/iacodconsumi': typeof IacodconsumiRoute
   '/iaedicao': typeof IaedicaoRoute
   '/iaimagem': typeof IaimagemRoute
+  '/instanciapropria': typeof InstanciapropriaRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/notificacoes': typeof NotificacoesRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/iacodconsumi': typeof IacodconsumiRoute
   '/iaedicao': typeof IaedicaoRoute
   '/iaimagem': typeof IaimagemRoute
+  '/instanciapropria': typeof InstanciapropriaRoute
   '/login': typeof LoginRoute
   '/minhaconta': typeof MinhacontaRoute
   '/notificacoes': typeof NotificacoesRoute
@@ -338,6 +347,7 @@ export interface FileRouteTypes {
     | '/iacodconsumi'
     | '/iaedicao'
     | '/iaimagem'
+    | '/instanciapropria'
     | '/login'
     | '/minhaconta'
     | '/notificacoes'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/iacodconsumi'
     | '/iaedicao'
     | '/iaimagem'
+    | '/instanciapropria'
     | '/login'
     | '/minhaconta'
     | '/notificacoes'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/iacodconsumi'
     | '/iaedicao'
     | '/iaimagem'
+    | '/instanciapropria'
     | '/login'
     | '/minhaconta'
     | '/notificacoes'
@@ -444,6 +456,7 @@ export interface RootRouteChildren {
   IacodconsumiRoute: typeof IacodconsumiRoute
   IaedicaoRoute: typeof IaedicaoRoute
   IaimagemRoute: typeof IaimagemRoute
+  InstanciapropriaRoute: typeof InstanciapropriaRoute
   LoginRoute: typeof LoginRoute
   MinhacontaRoute: typeof MinhacontaRoute
   NotificacoesRoute: typeof NotificacoesRoute
@@ -527,6 +540,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instanciapropria': {
+      id: '/instanciapropria'
+      path: '/instanciapropria'
+      fullPath: '/instanciapropria'
+      preLoaderRoute: typeof InstanciapropriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/iaimagem': {
@@ -726,6 +746,7 @@ const rootRouteChildren: RootRouteChildren = {
   IacodconsumiRoute: IacodconsumiRoute,
   IaedicaoRoute: IaedicaoRoute,
   IaimagemRoute: IaimagemRoute,
+  InstanciapropriaRoute: InstanciapropriaRoute,
   LoginRoute: LoginRoute,
   MinhacontaRoute: MinhacontaRoute,
   NotificacoesRoute: NotificacoesRoute,
