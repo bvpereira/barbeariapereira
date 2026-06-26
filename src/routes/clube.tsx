@@ -306,6 +306,10 @@ function ClubePage() {
               </div>
             )}
           </TabsContent>
+
+          <TabsContent value="financeiro" className="mt-4">
+            {credentials && <ClubeFinanceiroTab credentials={credentials} />}
+          </TabsContent>
         </Tabs>
 
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
