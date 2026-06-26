@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { getStripeConfig, saveStripeConfig, syncAllClubes } from "@/lib/stripe.functions";
+import { getStripeConfig, saveStripeConfig, syncAllClubes, recreateStripeWebhook, backfillStripeSubscriptions, listStripeWebhooks } from "@/lib/stripe.functions";
 
 interface Props {
   credentials: { barbearia_id: string; admin_id: string; admin_password: string };
