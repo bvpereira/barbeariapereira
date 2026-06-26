@@ -572,6 +572,45 @@ function BarbeariaCard({ barbearia }: { barbearia: BarbeariaData }) {
           </div>
         </section>
 
+        <section className="space-y-3 rounded-lg border border-primary/10 bg-background/30 p-4">
+          <div>
+            <h3 className="font-josefin text-lg font-bold uppercase tracking-wide text-foreground">QR code da Instância própria</h3>
+            <p className="text-sm text-muted-foreground">Envie a imagem do QR code para conectar a instância própria.</p>
+          </div>
+          {barbearia.qrcodeInstanciaPropria ? (
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <img src={barbearia.qrcodeInstanciaPropria} alt="QR code" className="h-40 w-40 rounded-md border border-primary/15 bg-white object-contain p-2" />
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={qrMutation.isPending}
+                onClick={() => qrMutation.mutate({ action: "delete" })}
+              >
+                <Trash2 className="h-4 w-4" />
+                {qrMutation.isPending ? "Removendo..." : "Excluir imagem"}
+              </Button>
+            </div>
+          ) : (
+            <label className="flex w-fit cursor-pointer items-center gap-2 rounded-md border border-dashed border-primary/40 bg-background/40 px-4 py-3 text-sm text-muted-foreground hover:border-primary hover:text-foreground">
+              <Upload className="h-4 w-4" />
+              {qrMutation.isPending ? "Enviando..." : "Fazer upload do QR code"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={qrMutation.isPending}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) qrMutation.mutate({ action: "upload", file });
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+        </section>
+
+
+
         <section>
           <h3 className="mb-4 flex items-center gap-2 font-josefin text-lg font-bold uppercase tracking-wide text-foreground">
             <Users className="h-5 w-5 text-primary" /> Informações da barbearia
