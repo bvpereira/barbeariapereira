@@ -84,6 +84,9 @@ function FinanceiroPage() {
     comissoesMes: 0,
     previsaoTotalMes: 0,
     previsaoAgendadosMes: 0,
+    clubeLiquidoMes: 0,
+    clubeTaxasMes: 0,
+    clubeReembolsosMes: 0,
     comissoesPorColaborador: [],
     chartData: [],
     historico: []
