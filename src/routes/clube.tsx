@@ -22,6 +22,7 @@ import { useTenant } from "@/contexts/TenantContext";
 import { listClubes, saveClube, toggleClube, deleteClube, listExpirando } from "@/lib/clube.functions";
 import { getStripeConfig, setClubeStripeOptions, syncClubeToStripe } from "@/lib/stripe.functions";
 import { StripeIntegrationCard } from "@/components/StripeIntegrationCard";
+import { ClubeFinanceiroTab } from "@/components/ClubeFinanceiroTab";
 
 export const Route = createFileRoute("/clube")({ component: ClubePage });
 
