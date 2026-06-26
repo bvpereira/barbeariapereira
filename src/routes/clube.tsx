@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
-import { Crown, Plus, Pencil, Trash2, Power, Users, AlertTriangle } from "lucide-react";
+import { Crown, Plus, Pencil, Trash2, Users, AlertTriangle, RefreshCw } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { listClubes, saveClube, toggleClube, deleteClube, listExpirando } from "@/lib/clube.functions";
+import { getStripeConfig, setClubeStripeOptions, syncClubeToStripe } from "@/lib/stripe.functions";
+import { StripeIntegrationCard } from "@/components/StripeIntegrationCard";
 
 export const Route = createFileRoute("/clube")({ component: ClubePage });
 
@@ -32,6 +34,7 @@ const emptyForm = {
   id: undefined as string | undefined,
   nome: "", valor_mensal: "", descricao: "", ativo: true,
   regras: [] as Rule[],
+  trial_dias: 0, stripe_coupon_id: "",
 };
 
 function ClubePage() {
@@ -43,11 +46,18 @@ function ClubePage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
 
+  const [form, setForm] = useState(emptyForm);
+  const [stripeAtivo, setStripeAtivo] = useState(false);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
+
   const listFn = useServerFn(listClubes);
   const saveFn = useServerFn(saveClube);
   const toggleFn = useServerFn(toggleClube);
   const deleteFn = useServerFn(deleteClube);
   const expFn = useServerFn(listExpirando);
+  const getStripeFn = useServerFn(getStripeConfig);
+  const setOptsFn = useServerFn(setClubeStripeOptions);
+  const syncOneFn = useServerFn(syncClubeToStripe);
 
   const user = useMemo(() => {
     try { return JSON.parse(localStorage.getItem("user") ?? "null"); } catch { return null; }
