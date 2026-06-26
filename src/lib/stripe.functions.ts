@@ -32,10 +32,12 @@ export const saveStripeConfig = createServerFn({ method: "POST" })
     if (finalKey && (data.chave_stripe || data.ativo)) {
       const stripe = makeStripe(finalKey);
       try {
-        const acc = await stripe.accounts.retrieve("");
+        const acc = await stripe.accounts.retrieve();
         accountId = acc.id;
       } catch (e) {
-        throw new Error("Chave do Stripe inválida.");
+        console.error("Stripe key validation failed:", e);
+        const msg = e instanceof Error ? e.message : "desconhecido";
+        throw new Error(`Chave do Stripe inválida: ${msg}`);
       }
       if (data.ativo && !webhookSecret) {
         const url = `${data.base_url.replace(/\/$/, "")}/api/public/stripe-webhook`;
