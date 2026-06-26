@@ -45,8 +45,6 @@ function ClubePage() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
-
-  const [form, setForm] = useState(emptyForm);
   const [stripeAtivo, setStripeAtivo] = useState(false);
   const [syncingId, setSyncingId] = useState<string | null>(null);
 
@@ -88,11 +86,19 @@ function ClubePage() {
   }, [tenant?.id, tenantLoading]);
 
   const reset = () => setForm(emptyForm);
-  const edit = (clube: Clube) => {
+  const edit = async (clube: Clube) => {
+    let trial_dias = 0, stripe_coupon_id = "";
+    try {
+      const { data } = await supabase.from("clube_assinatura")
+        .select("trial_dias, stripe_coupon_id").eq("id", clube.id).maybeSingle();
+      trial_dias = Number((data as any)?.trial_dias ?? 0);
+      stripe_coupon_id = (data as any)?.stripe_coupon_id ?? "";
+    } catch { /* ignore */ }
     setForm({
       id: clube.id, nome: clube.nome, valor_mensal: String(clube.valor_mensal),
       descricao: clube.descricao, ativo: clube.ativo,
       regras: clube.regras_servicos.map((r) => ({ ...r, valor_desconto: Number(r.valor_desconto) })),
+      trial_dias, stripe_coupon_id,
     });
     setOpen(true);
   };
