@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AtSign, ChevronDown, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Users } from "lucide-react";
+import { AtSign, ChevronDown, ExternalLink, MessageCircle, Power, Save, Scissors, Trash2, Upload, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SuperAdminLayout } from "@/components/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { updateBarbeariaSlugFn, setBarbeariaAtivaFn, hardDeleteBarbeariaFn } from "@/lib/barbearias-admin.functions";
+import { uploadImage, deleteByPublicUrl } from "@/lib/storage";
 
 
 
