@@ -19,10 +19,15 @@ export function StripeIntegrationCard({ credentials, onChange }: Props) {
   const getFn = useServerFn(getStripeConfig);
   const saveFn = useServerFn(saveStripeConfig);
   const syncFn = useServerFn(syncAllClubes);
+  const recreateFn = useServerFn(recreateStripeWebhook);
+  const backfillFn = useServerFn(backfillStripeSubscriptions);
+  const listWhFn = useServerFn(listStripeWebhooks);
   const [cfg, setCfg] = useState<{ ativo: boolean; configurado: boolean; account_id: string | null; chave_mascarada: string } | null>(null);
+  const [webhooks, setWebhooks] = useState<{ id: string; url: string; status: string }[] | null>(null);
   const [chave, setChave] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
