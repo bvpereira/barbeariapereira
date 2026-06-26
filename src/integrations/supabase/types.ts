@@ -476,6 +476,10 @@ export type Database = {
           id: string
           nome: string
           regras_servicos: Json
+          stripe_coupon_id: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          trial_dias: number
           updated_at: string
           valor_mensal: number
         }
@@ -488,6 +492,10 @@ export type Database = {
           id?: string
           nome: string
           regras_servicos?: Json
+          stripe_coupon_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          trial_dias?: number
           updated_at?: string
           valor_mensal: number
         }
@@ -500,6 +508,10 @@ export type Database = {
           id?: string
           nome?: string
           regras_servicos?: Json
+          stripe_coupon_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          trial_dias?: number
           updated_at?: string
           valor_mensal?: number
         }
@@ -516,7 +528,11 @@ export type Database = {
           data_inicio: string
           id: string
           motivo_cancelamento: string | null
+          origem: string
           status: string
+          status_stripe: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           usuario_id: string
           valor_pago: number
@@ -531,7 +547,11 @@ export type Database = {
           data_inicio: string
           id?: string
           motivo_cancelamento?: string | null
+          origem?: string
           status?: string
+          status_stripe?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           usuario_id: string
           valor_pago?: number
@@ -546,7 +566,11 @@ export type Database = {
           data_inicio?: string
           id?: string
           motivo_cancelamento?: string | null
+          origem?: string
           status?: string
+          status_stripe?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           usuario_id?: string
           valor_pago?: number
@@ -1166,6 +1190,7 @@ export type Database = {
         Row: {
           barbearia_id: string
           cashback: boolean
+          chave_stripe: string | null
           created_at: string
           email: string | null
           endereco: string | null
@@ -1197,6 +1222,9 @@ export type Database = {
           nome_admin: string | null
           nome_barbearia: string | null
           site: string | null
+          stripe_account_id: string | null
+          stripe_ativo: boolean
+          stripe_webhook_secret: string | null
           tarde_fim: string | null
           tarde_inicio: string | null
           tel_contato: string | null
@@ -1210,6 +1238,7 @@ export type Database = {
         Insert: {
           barbearia_id: string
           cashback?: boolean
+          chave_stripe?: string | null
           created_at?: string
           email?: string | null
           endereco?: string | null
@@ -1241,6 +1270,9 @@ export type Database = {
           nome_admin?: string | null
           nome_barbearia?: string | null
           site?: string | null
+          stripe_account_id?: string | null
+          stripe_ativo?: boolean
+          stripe_webhook_secret?: string | null
           tarde_fim?: string | null
           tarde_inicio?: string | null
           tel_contato?: string | null
@@ -1254,6 +1286,7 @@ export type Database = {
         Update: {
           barbearia_id?: string
           cashback?: boolean
+          chave_stripe?: string | null
           created_at?: string
           email?: string | null
           endereco?: string | null
@@ -1285,6 +1318,9 @@ export type Database = {
           nome_admin?: string | null
           nome_barbearia?: string | null
           site?: string | null
+          stripe_account_id?: string | null
+          stripe_ativo?: boolean
+          stripe_webhook_secret?: string | null
           tarde_fim?: string | null
           tarde_inicio?: string | null
           tel_contato?: string | null
@@ -1617,6 +1653,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stripe_eventos: {
+        Row: {
+          barbearia_id: string | null
+          event_id: string
+          processed_at: string
+          type: string
+        }
+        Insert: {
+          barbearia_id?: string | null
+          event_id: string
+          processed_at?: string
+          type: string
+        }
+        Update: {
+          barbearia_id?: string | null
+          event_id?: string
+          processed_at?: string
+          type?: string
+        }
+        Relationships: []
       }
       superadmin: {
         Row: {
@@ -2027,6 +2084,10 @@ export type Database = {
           id: string
           nome: string
           regras_servicos: Json
+          stripe_coupon_id: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          trial_dias: number
           updated_at: string
           valor_mensal: number
         }

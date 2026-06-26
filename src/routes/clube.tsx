@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
-import { Crown, Plus, Pencil, Trash2, Power, Users, AlertTriangle } from "lucide-react";
+import { Crown, Plus, Pencil, Trash2, Users, AlertTriangle, RefreshCw } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { listClubes, saveClube, toggleClube, deleteClube, listExpirando } from "@/lib/clube.functions";
+import { getStripeConfig, setClubeStripeOptions, syncClubeToStripe } from "@/lib/stripe.functions";
+import { StripeIntegrationCard } from "@/components/StripeIntegrationCard";
 
 export const Route = createFileRoute("/clube")({ component: ClubePage });
 
@@ -32,6 +34,7 @@ const emptyForm = {
   id: undefined as string | undefined,
   nome: "", valor_mensal: "", descricao: "", ativo: true,
   regras: [] as Rule[],
+  trial_dias: 0, stripe_coupon_id: "",
 };
 
 function ClubePage() {
@@ -42,12 +45,17 @@ function ClubePage() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [stripeAtivo, setStripeAtivo] = useState(false);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
 
   const listFn = useServerFn(listClubes);
   const saveFn = useServerFn(saveClube);
   const toggleFn = useServerFn(toggleClube);
   const deleteFn = useServerFn(deleteClube);
   const expFn = useServerFn(listExpirando);
+  const getStripeFn = useServerFn(getStripeConfig);
+  const setOptsFn = useServerFn(setClubeStripeOptions);
+  const syncOneFn = useServerFn(syncClubeToStripe);
 
   const user = useMemo(() => {
     try { return JSON.parse(localStorage.getItem("user") ?? "null"); } catch { return null; }
@@ -61,9 +69,24 @@ function ClubePage() {
   const load = async () => {
     if (!credentials) return;
     try {
-      const [c, e] = await Promise.all([listFn({ data: credentials }), expFn({ data: credentials })]);
-      setClubes(c); setExpirando(e);
+      const [c, e, sc] = await Promise.all([
+        listFn({ data: credentials }),
+        expFn({ data: credentials }),
+        getStripeFn({ data: credentials }).catch(() => ({ ativo: false } as any)),
+      ]);
+      setClubes(c); setExpirando(e); setStripeAtivo(Boolean(sc?.ativo));
     } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao carregar clubes."); }
+  };
+
+  const handleSync = async (clube: Clube) => {
+    if (!credentials) return;
+    setSyncingId(clube.id);
+    try {
+      await syncOneFn({ data: { ...credentials, clube_id: clube.id } });
+      toast.success("Clube sincronizado com o Stripe.");
+      await load();
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao sincronizar."); }
+    finally { setSyncingId(null); }
   };
 
   useEffect(() => {
@@ -78,11 +101,19 @@ function ClubePage() {
   }, [tenant?.id, tenantLoading]);
 
   const reset = () => setForm(emptyForm);
-  const edit = (clube: Clube) => {
+  const edit = async (clube: Clube) => {
+    let trial_dias = 0, stripe_coupon_id = "";
+    try {
+      const { data } = await supabase.from("clube_assinatura")
+        .select("trial_dias, stripe_coupon_id").eq("id", clube.id).maybeSingle();
+      trial_dias = Number((data as any)?.trial_dias ?? 0);
+      stripe_coupon_id = (data as any)?.stripe_coupon_id ?? "";
+    } catch { /* ignore */ }
     setForm({
       id: clube.id, nome: clube.nome, valor_mensal: String(clube.valor_mensal),
       descricao: clube.descricao, ativo: clube.ativo,
       regras: clube.regras_servicos.map((r) => ({ ...r, valor_desconto: Number(r.valor_desconto) })),
+      trial_dias, stripe_coupon_id,
     });
     setOpen(true);
   };
@@ -112,10 +143,19 @@ function ClubePage() {
     }
     setSaving(true);
     try {
-      await saveFn({ data: {
+      const saved: any = await saveFn({ data: {
         ...credentials, id: form.id, nome: form.nome, valor_mensal: valor,
         descricao: form.descricao, ativo: form.ativo, regras_servicos: form.regras,
       } });
+      const savedId: string | undefined = form.id ?? saved?.id ?? saved?.[0]?.id;
+      if (stripeAtivo && savedId) {
+        try {
+          await setOptsFn({ data: { ...credentials, clube_id: savedId,
+            trial_dias: form.trial_dias || 0,
+            stripe_coupon_id: form.stripe_coupon_id?.trim() || null } });
+          await syncOneFn({ data: { ...credentials, clube_id: savedId } });
+        } catch (e) { console.error("Stripe sync failed", e); toast.error("Salvo, mas houve erro ao sincronizar com Stripe."); }
+      }
       toast.success(form.id ? "Clube atualizado." : "Clube criado.");
       setOpen(false); reset(); await load();
     } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao salvar."); }
@@ -153,6 +193,7 @@ function ClubePage() {
           <TabsList>
             <TabsTrigger value="clubes">Clubes</TabsTrigger>
             <TabsTrigger value="expirando">Prestes a expirar ({expirando.length})</TabsTrigger>
+            <TabsTrigger value="integracoes">Integrações de pagamento</TabsTrigger>
           </TabsList>
 
           <TabsContent value="clubes" className="mt-4">
@@ -212,8 +253,13 @@ function ClubePage() {
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
-                      <div className="flex gap-2 pt-2 border-t">
-                        <Button variant="outline" size="sm" onClick={() => edit(clube)}><Pencil className="w-4 h-4" /> Editar</Button>
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button variant="outline" size="sm" onClick={() => void edit(clube)}><Pencil className="w-4 h-4" /> Editar</Button>
+                        {stripeAtivo && (
+                          <Button variant="outline" size="sm" disabled={syncingId === clube.id} onClick={() => void handleSync(clube)}>
+                            <RefreshCw className={`w-4 h-4 ${syncingId === clube.id ? "animate-spin" : ""}`} /> Sincronizar Stripe
+                          </Button>
+                        )}
                         <Button variant="ghost" size="sm" className="text-destructive" onClick={() => void handleDelete(clube)}>
                           <Trash2 className="w-4 h-4" /> Excluir
                         </Button>
@@ -249,6 +295,14 @@ function ClubePage() {
               </Card>
             )}
           </TabsContent>
+
+          <TabsContent value="integracoes" className="mt-4">
+            {credentials && (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <StripeIntegrationCard credentials={credentials} onChange={() => void load()} />
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
@@ -269,6 +323,27 @@ function ClubePage() {
                 <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
                 <Label>Clube ativo</Label>
               </div>
+
+              {stripeAtivo && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-3">
+                  <p className="text-sm font-medium">Opções do Stripe</p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Dias de teste grátis</Label>
+                      <Input type="number" min={0} max={365} value={form.trial_dias}
+                        onChange={(e) => setForm({ ...form, trial_dias: Number(e.target.value) || 0 })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">ID de cupom Stripe (opcional)</Label>
+                      <Input maxLength={100} placeholder="ex.: PROMO10" value={form.stripe_coupon_id}
+                        onChange={(e) => setForm({ ...form, stripe_coupon_id: e.target.value })} />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Mudanças de preço criam um novo Price no Stripe; assinaturas existentes continuam no preço anterior até a renovação.
+                  </p>
+                </div>
+              )}
               <div className="space-y-3">
                 <div>
                   <Label>Serviços contemplados</Label>
