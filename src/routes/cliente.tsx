@@ -1119,6 +1119,21 @@ function ClientePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={clubeCanceladoOpen} onOpenChange={setClubeCanceladoOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Pagamento cancelado</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <p>Seu pagamento foi cancelado e <strong className="text-foreground">nenhum valor foi cobrado</strong>.</p>
+            <p>Você pode tentar novamente quando quiser pela sua área de cliente.</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setClubeCanceladoOpen(false)} className="w-full">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
