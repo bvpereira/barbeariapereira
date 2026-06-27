@@ -74,28 +74,58 @@ function ClientePage() {
   const [clubeSucessoOpen, setClubeSucessoOpen] = useState(false);
   const [clubeCanceladoOpen, setClubeCanceladoOpen] = useState(false);
 
+  const fetchSubStatus = useServerFn(getClienteSubscriptionStatus);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
 
+    const cleanParam = (...keys: string[]) => {
+      keys.forEach((k) => params.delete(k));
+      const qs = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    };
+
     if (params.get("clube_sucesso") === "1") {
       const sessionId = params.get("session_id") || "default";
       const storageKey = `clube_sucesso_shown:${sessionId}`;
-      if (!localStorage.getItem(storageKey)) {
-        setClubeSucessoOpen(true);
-        localStorage.setItem(storageKey, "1");
+      if (!localStorage.getItem(storageKey) && tenant?.id && user?.id) {
+        // Poll Supabase up to ~10s waiting for the webhook to mark the club as active.
+        let cancelled = false;
+        (async () => {
+          const activeStatuses = new Set(["active", "trialing"]);
+          for (let i = 0; i < 6 && !cancelled; i++) {
+            try {
+              const res = await fetchSubStatus({
+                data: { barbearia_id: tenant.id, cliente_id: user.id },
+              });
+              if (res?.status_stripe && activeStatuses.has(res.status_stripe)) {
+                setClubeSucessoOpen(true);
+                localStorage.setItem(storageKey, "1");
+                cleanParam("clube_sucesso", "session_id");
+                return;
+              }
+            } catch (e) {
+              console.error("status check failed", e);
+            }
+            await new Promise((r) => setTimeout(r, 1500));
+          }
+          if (!cancelled) {
+            toast.info("Pagamento recebido. Estamos confirmando sua assinatura...");
+            cleanParam("clube_sucesso", "session_id");
+          }
+        })();
+        return () => {
+          cancelled = true;
+        };
+      } else {
+        cleanParam("clube_sucesso", "session_id");
       }
-      params.delete("clube_sucesso");
-      params.delete("session_id");
-      const qs = params.toString();
-      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
     } else if (params.get("clube_cancelado") === "1") {
       setClubeCanceladoOpen(true);
-      params.delete("clube_cancelado");
-      const qs = params.toString();
-      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+      cleanParam("clube_cancelado");
     }
-  }, []);
+  }, [tenant?.id, user?.id, fetchSubStatus]);
 
   const conflitos = useMemo(() => {
     const items = agendamentos.map((a) => {
