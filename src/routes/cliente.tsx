@@ -1097,6 +1097,21 @@ function ClientePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={clubeSucessoOpen} onOpenChange={setClubeSucessoOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Obrigado pela confiança! 🎉</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <p>Seu clube de assinatura já está <strong className="text-foreground">ativo e pronto para uso</strong>.</p>
+            <p>Aproveite todos os benefícios e bom atendimento!</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setClubeSucessoOpen(false)} className="w-full">Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
