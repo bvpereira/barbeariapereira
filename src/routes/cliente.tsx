@@ -70,18 +70,25 @@ function ClientePage() {
   const [isBloqueado, setIsBloqueado] = useState(false);
   const [cashbackEconomizado, setCashbackEconomizado] = useState<number | null>(null);
   const [clubeSucessoOpen, setClubeSucessoOpen] = useState(false);
+  const [clubeCanceladoOpen, setClubeCanceladoOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
+
     if (params.get("clube_sucesso") === "1") {
-      setClubeSucessoOpen(true);
+      const sessionId = params.get("session_id") || "default";
+      const storageKey = `clube_sucesso_shown:${sessionId}`;
+      if (!localStorage.getItem(storageKey)) {
+        setClubeSucessoOpen(true);
+        localStorage.setItem(storageKey, "1");
+      }
       params.delete("clube_sucesso");
       params.delete("session_id");
       const qs = params.toString();
       window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
     } else if (params.get("clube_cancelado") === "1") {
-      toast.info("Pagamento cancelado. Você pode tentar novamente quando quiser.");
+      setClubeCanceladoOpen(true);
       params.delete("clube_cancelado");
       const qs = params.toString();
       window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
