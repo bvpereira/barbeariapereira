@@ -284,8 +284,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         },
       },
       discounts: clube.stripe_coupon_id ? [{ coupon: clube.stripe_coupon_id }] : undefined,
-      success_url: `${base}/clube/sucesso?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${base}/clube/cancelado`,
+      success_url: `${base}/cliente?clube_sucesso=1&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${base}/cliente?clube_cancelado=1`,
       metadata: {
         barbearia_id: data.barbearia_id,
         cliente_id: data.cliente_id,
