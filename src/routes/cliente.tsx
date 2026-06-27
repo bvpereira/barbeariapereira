@@ -69,6 +69,24 @@ function ClientePage() {
   const [imagemBanner, setImagemBanner] = useState<string | null>(null);
   const [isBloqueado, setIsBloqueado] = useState(false);
   const [cashbackEconomizado, setCashbackEconomizado] = useState<number | null>(null);
+  const [clubeSucessoOpen, setClubeSucessoOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("clube_sucesso") === "1") {
+      setClubeSucessoOpen(true);
+      params.delete("clube_sucesso");
+      params.delete("session_id");
+      const qs = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    } else if (params.get("clube_cancelado") === "1") {
+      toast.info("Pagamento cancelado. Você pode tentar novamente quando quiser.");
+      params.delete("clube_cancelado");
+      const qs = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    }
+  }, []);
 
   const conflitos = useMemo(() => {
     const items = agendamentos.map((a) => {
