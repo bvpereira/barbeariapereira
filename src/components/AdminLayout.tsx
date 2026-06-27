@@ -19,7 +19,6 @@ const menuSections: MenuSection[] = [
       { title: "Serviços", icon: Scissors, href: "/servicos" },
       { title: "Horários", icon: Clock, href: "/horarios" },
       { title: "Colaboradores", icon: Users, href: "/colaboradores" },
-      { title: "Calculadora", icon: Calculator, href: "/calculadora", minNivel: 1 },
     ],
   },
   {
@@ -35,6 +34,7 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "Gastos", icon: Wallet, href: "/gastos" },
       { title: "Financeiro", icon: DollarSign, href: "/financeiro" },
+      { title: "Calculadora", icon: Calculator, href: "/calculadora", minNivel: 1 },
     ],
   },
   {
