@@ -33,6 +33,7 @@ import { Route as ColaboradorRouteImport } from './routes/colaborador'
 import { Route as ClubeRouteImport } from './routes/clube'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as ClienteRouteImport } from './routes/cliente'
+import { Route as CalculadoraRouteImport } from './routes/calculadora'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BarbeariasRouteImport } from './routes/barbearias'
@@ -164,6 +165,11 @@ const ClienteRoute = ClienteRouteImport.update({
   path: '/cliente',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalculadoraRoute = CalculadoraRouteImport.update({
+  id: '/calculadora',
+  path: '/calculadora',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CadastroRoute = CadastroRouteImport.update({
   id: '/cadastro',
   path: '/cadastro',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/barbearias': typeof BarbeariasRoute
   '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
+  '/calculadora': typeof CalculadoraRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
   '/clube': typeof ClubeRouteWithChildren
@@ -259,6 +266,7 @@ export interface FileRoutesByTo {
   '/barbearias': typeof BarbeariasRoute
   '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
+  '/calculadora': typeof CalculadoraRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
   '/clube': typeof ClubeRouteWithChildren
@@ -296,6 +304,7 @@ export interface FileRoutesById {
   '/barbearias': typeof BarbeariasRoute
   '/blog': typeof BlogRoute
   '/cadastro': typeof CadastroRoute
+  '/calculadora': typeof CalculadoraRoute
   '/cliente': typeof ClienteRoute
   '/clientes': typeof ClientesRoute
   '/clube': typeof ClubeRouteWithChildren
@@ -334,6 +343,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/blog'
     | '/cadastro'
+    | '/calculadora'
     | '/cliente'
     | '/clientes'
     | '/clube'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/blog'
     | '/cadastro'
+    | '/calculadora'
     | '/cliente'
     | '/clientes'
     | '/clube'
@@ -406,6 +417,7 @@ export interface FileRouteTypes {
     | '/barbearias'
     | '/blog'
     | '/cadastro'
+    | '/calculadora'
     | '/cliente'
     | '/clientes'
     | '/clube'
@@ -443,6 +455,7 @@ export interface RootRouteChildren {
   BarbeariasRoute: typeof BarbeariasRoute
   BlogRoute: typeof BlogRoute
   CadastroRoute: typeof CadastroRoute
+  CalculadoraRoute: typeof CalculadoraRoute
   ClienteRoute: typeof ClienteRoute
   ClientesRoute: typeof ClientesRoute
   ClubeRoute: typeof ClubeRouteWithChildren
@@ -640,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClienteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calculadora': {
+      id: '/calculadora'
+      path: '/calculadora'
+      fullPath: '/calculadora'
+      preLoaderRoute: typeof CalculadoraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cadastro': {
       id: '/cadastro'
       path: '/cadastro'
@@ -733,6 +753,7 @@ const rootRouteChildren: RootRouteChildren = {
   BarbeariasRoute: BarbeariasRoute,
   BlogRoute: BlogRoute,
   CadastroRoute: CadastroRoute,
+  CalculadoraRoute: CalculadoraRoute,
   ClienteRoute: ClienteRoute,
   ClientesRoute: ClientesRoute,
   ClubeRoute: ClubeRouteWithChildren,
