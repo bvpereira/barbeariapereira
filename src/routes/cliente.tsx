@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { getClienteSubscriptionStatus } from "@/lib/stripe.functions";
 import { BookingButton } from "@/components/BookingButton";
 import { ClienteClubeView } from "@/components/ClienteClubeView";
 import { CashbackCard } from "@/components/CashbackCard";
