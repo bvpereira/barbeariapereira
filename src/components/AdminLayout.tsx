@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet } from "@tanstack/react-router";
-import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, MessageSquare, Crown, Bell, Palette, QrCode, Calculator } from "lucide-react";
+import { Scissors, LayoutDashboard, LogOut, Users, Clock, Wallet, UserCircle, Calendar, DollarSign, Home, Link2, Megaphone, Menu, Scale, Image as ImageIcon, Wand2, MessageSquare, Crown, Bell, Palette, QrCode, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +42,7 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "IA – CDC", icon: Scale, href: "/iacodconsumi" },
       { title: "IA – Imagem", icon: ImageIcon, href: "/iaimagem" },
-      { title: "IA – Edição", icon: ImageIcon, href: "/iaedicao" },
+      { title: "IA – Edição", icon: Wand2, href: "/iaedicao" },
     ],
   },
   {
