@@ -373,7 +373,7 @@ export const listStripeWebhooks = createServerFn({ method: "POST" })
 export const recreateStripeWebhook = createServerFn({ method: "POST" })
   .inputValidator((i) => creds.extend({ base_url: z.string().url().max(500) }).parse(i))
   .handler(async ({ data }) => {
-    const { assertAdmin, getStripeForBarbearia, getBarbeariaStripeConfig } = await import("@/lib/stripe-helper.server");
+    const { assertAdmin, getStripeForBarbearia } = await import("@/lib/stripe-helper.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(data.barbearia_id, data.admin_id, data.admin_password);
     const stripe = await getStripeForBarbearia(data.barbearia_id);
