@@ -40,7 +40,7 @@ export const saveStripeConfig = createServerFn({ method: "POST" })
         throw new Error(`Chave do Stripe inválida: ${msg}`);
       }
       if (data.ativo && !webhookSecret) {
-        const url = `${data.base_url.replace(/\/$/, "")}/api/public/stripe-webhook`;
+        const url = stableWebhookUrl();
         const wh = await stripe.webhookEndpoints.create({
           url,
           enabled_events: [
