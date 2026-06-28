@@ -1,6 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+// Stable production URL for this Lovable project — immutable across renames
+// and independent of where the admin's browser is when they activate Stripe.
+// Stripe will POST events here regardless of preview/custom-domain changes.
+const STABLE_PROJECT_HOST = "project--ffc6bf25-924b-4dc4-9d40-a87b650caa0c.lovable.app";
+function stableWebhookUrl() {
+  return `https://${STABLE_PROJECT_HOST}/api/public/stripe-webhook`;
+}
+
 const creds = z.object({
   barbearia_id: z.string().uuid(),
   admin_id: z.string().uuid(),
