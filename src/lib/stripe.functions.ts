@@ -398,7 +398,7 @@ export const recreateStripeWebhook = createServerFn({ method: "POST" })
       ],
       metadata: { barbearia_id: data.barbearia_id },
     });
-    void cfg;
+    
     await supabaseAdmin
       .from("informacoes")
       .update({ stripe_webhook_secret: wh.secret ?? null })
