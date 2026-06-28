@@ -926,13 +926,11 @@ export function BookingButton({
                         </Label>
                       </div>
                       {usarCashback && (
-                        <Input type="number" min="0" max={maxUso} step="0.01"
-                          value={cashbackUsoStr}
-                          onChange={(e) => {
-                            const v = Math.max(0, Math.min(maxUso, parseFloat(e.target.value || "0")));
-                            setCashbackUsoStr(String(v));
-                          }} />
+                        <p className="text-xs text-muted-foreground">
+                          Será utilizado R$ {maxUso.toFixed(2).replace(".", ",")} do seu saldo (uso total obrigatório, limitado ao valor do atendimento).
+                        </p>
                       )}
+
                     </>
                   )}
                 </div>
