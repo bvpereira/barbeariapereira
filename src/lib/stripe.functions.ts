@@ -1,6 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+// Stable production URL for this Lovable project — immutable across renames
+// and independent of where the admin's browser is when they activate Stripe.
+// Stripe will POST events here regardless of preview/custom-domain changes.
+const STABLE_PROJECT_HOST = "project--ffc6bf25-924b-4dc4-9d40-a87b650caa0c.lovable.app";
+function stableWebhookUrl() {
+  return `https://${STABLE_PROJECT_HOST}/api/public/stripe-webhook`;
+}
+
 const creds = z.object({
   barbearia_id: z.string().uuid(),
   admin_id: z.string().uuid(),
@@ -40,7 +48,7 @@ export const saveStripeConfig = createServerFn({ method: "POST" })
         throw new Error(`Chave do Stripe inválida: ${msg}`);
       }
       if (data.ativo && !webhookSecret) {
-        const url = `${data.base_url.replace(/\/$/, "")}/api/public/stripe-webhook`;
+        const url = stableWebhookUrl();
         const wh = await stripe.webhookEndpoints.create({
           url,
           enabled_events: [
@@ -365,12 +373,11 @@ export const listStripeWebhooks = createServerFn({ method: "POST" })
 export const recreateStripeWebhook = createServerFn({ method: "POST" })
   .inputValidator((i) => creds.extend({ base_url: z.string().url().max(500) }).parse(i))
   .handler(async ({ data }) => {
-    const { assertAdmin, getStripeForBarbearia, getBarbeariaStripeConfig } = await import("@/lib/stripe-helper.server");
+    const { assertAdmin, getStripeForBarbearia } = await import("@/lib/stripe-helper.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(data.barbearia_id, data.admin_id, data.admin_password);
     const stripe = await getStripeForBarbearia(data.barbearia_id);
-    const cfg = await getBarbeariaStripeConfig(data.barbearia_id);
-    const url = `${data.base_url.replace(/\/$/, "")}/api/public/stripe-webhook`;
+    const url = stableWebhookUrl();
 
     // Delete any webhook in this account pointing at our path (any host) to avoid duplicates.
     const existing = await stripe.webhookEndpoints.list({ limit: 100 });
@@ -391,7 +398,7 @@ export const recreateStripeWebhook = createServerFn({ method: "POST" })
       ],
       metadata: { barbearia_id: data.barbearia_id },
     });
-    void cfg;
+    
     await supabaseAdmin
       .from("informacoes")
       .update({ stripe_webhook_secret: wh.secret ?? null })
