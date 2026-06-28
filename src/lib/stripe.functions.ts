@@ -377,8 +377,7 @@ export const recreateStripeWebhook = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(data.barbearia_id, data.admin_id, data.admin_password);
     const stripe = await getStripeForBarbearia(data.barbearia_id);
-    const cfg = await getBarbeariaStripeConfig(data.barbearia_id);
-    const url = `${data.base_url.replace(/\/$/, "")}/api/public/stripe-webhook`;
+    const url = stableWebhookUrl();
 
     // Delete any webhook in this account pointing at our path (any host) to avoid duplicates.
     const existing = await stripe.webhookEndpoints.list({ limit: 100 });
