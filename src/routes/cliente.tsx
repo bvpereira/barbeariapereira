@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { getClienteSubscriptionStatus } from "@/lib/stripe.functions";
+import { getClienteSubscriptionStatus, syncCheckoutSession } from "@/lib/stripe.functions";
 import { BookingButton } from "@/components/BookingButton";
 import { ClienteClubeView } from "@/components/ClienteClubeView";
 import { CashbackCard } from "@/components/CashbackCard";
@@ -75,6 +75,7 @@ function ClientePage() {
   const [clubeCanceladoOpen, setClubeCanceladoOpen] = useState(false);
 
   const fetchSubStatus = useServerFn(getClienteSubscriptionStatus);
+  const syncSession = useServerFn(syncCheckoutSession);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -90,9 +91,16 @@ function ClientePage() {
       const sessionId = params.get("session_id") || "default";
       const storageKey = `clube_sucesso_shown:${sessionId}`;
       if (!localStorage.getItem(storageKey) && tenant?.id && user?.id) {
-        // Poll Supabase up to ~10s waiting for the webhook to mark the club as active.
         let cancelled = false;
         (async () => {
+          // Webhook-independent: sync the Checkout Session directly from Stripe.
+          if (sessionId && sessionId !== "default") {
+            try {
+              await syncSession({ data: { barbearia_id: tenant.id, cliente_id: user.id, session_id: sessionId } });
+            } catch (e) {
+              console.error("syncCheckoutSession failed", e);
+            }
+          }
           const activeStatuses = new Set(["active", "trialing"]);
           for (let i = 0; i < 6 && !cancelled; i++) {
             try {
@@ -125,7 +133,7 @@ function ClientePage() {
       setClubeCanceladoOpen(true);
       cleanParam("clube_cancelado");
     }
-  }, [tenant?.id, user?.id, fetchSubStatus]);
+  }, [tenant?.id, user?.id, fetchSubStatus, syncSession]);
 
   const conflitos = useMemo(() => {
     const items = agendamentos.map((a) => {
