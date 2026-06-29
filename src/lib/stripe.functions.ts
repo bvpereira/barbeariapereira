@@ -475,3 +475,72 @@ export const backfillStripeSubscriptions = createServerFn({ method: "POST" })
     }
     return { imported, skipped };
   });
+
+/** Sync a single Checkout Session immediately after redirect (webhook-independent). */
+export const syncCheckoutSession = createServerFn({ method: "POST" })
+  .inputValidator((i) => z.object({
+    barbearia_id: z.string().uuid(),
+    cliente_id: z.string().uuid(),
+    session_id: z.string().min(1).max(200),
+  }).parse(i))
+  .handler(async ({ data }) => {
+    const { getStripeForBarbearia } = await import("@/lib/stripe-helper.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const stripe = await getStripeForBarbearia(data.barbearia_id);
+
+    const session = await stripe.checkout.sessions.retrieve(data.session_id, { expand: ["subscription"] });
+    const sub = session.subscription as unknown as {
+      id: string; status: string; start_date: number; current_period_end?: number;
+      items?: { data?: Array<{ current_period_end?: number }> };
+      customer: string | { id: string };
+    } | null;
+    if (!sub || typeof sub === "string") return { ok: false, reason: "no_subscription" };
+
+    const meta = (session.metadata ?? {}) as Record<string, string>;
+    const clienteId = meta.cliente_id ?? data.cliente_id;
+    const clubeId = meta.clube_id;
+    if (!clubeId) return { ok: false, reason: "no_clube_metadata" };
+
+    const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+    const periodEnd = sub.current_period_end ?? sub.items?.data?.[0]?.current_period_end;
+    const dataFim = periodEnd
+      ? new Date(periodEnd * 1000).toISOString().slice(0, 10)
+      : new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    const dataInicio = new Date((sub.start_date ?? Math.floor(Date.now() / 1000)) * 1000).toISOString().slice(0, 10);
+
+    const { data: existing } = await supabaseAdmin
+      .from("clube_usuarios")
+      .select("id")
+      .eq("stripe_subscription_id", sub.id)
+      .maybeSingle();
+
+    if (existing) {
+      await supabaseAdmin.from("clube_usuarios")
+        .update({ status_stripe: sub.status, data_fim: dataFim, stripe_customer_id: customerId })
+        .eq("id", existing.id);
+    } else {
+      // Archive any previous active row for this user (mirrors set_cliente_clube).
+      await supabaseAdmin.from("clube_usuarios")
+        .update({ status: "arquivada" })
+        .eq("usuario_id", clienteId)
+        .eq("barbearia_id", data.barbearia_id)
+        .eq("status", "ativa");
+
+      const { data: clube } = await supabaseAdmin
+        .from("clube_assinatura").select("valor_mensal").eq("id", clubeId).maybeSingle();
+      await supabaseAdmin.from("clube_usuarios").insert({
+        usuario_id: clienteId,
+        clube_id: clubeId,
+        barbearia_id: data.barbearia_id,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+        valor_pago: Number(clube?.valor_mensal ?? 0),
+        origem: "stripe",
+        status: "ativa",
+        status_stripe: sub.status,
+        stripe_subscription_id: sub.id,
+        stripe_customer_id: customerId,
+      });
+    }
+    return { ok: true, status: sub.status };
+  });
