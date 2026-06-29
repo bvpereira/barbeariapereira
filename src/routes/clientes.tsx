@@ -215,6 +215,25 @@ function ClientesPage() {
     }
   }, [search, limit, tenant, tenantLoading]);
 
+  // Realtime: refresh client list when Stripe webhooks update clube_usuarios
+  useEffect(() => {
+    if (!tenant?.id) return;
+    const channel = supabase
+      .channel(`clube_usuarios_${tenant.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "clube_usuarios", filter: `barbearia_id=eq.${tenant.id}` },
+        () => {
+          fetchClientes();
+          fetchTotal();
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [tenant?.id]);
+
   const fetchFormData = async () => {
     if (!tenant?.id) return;
     const { data: colabs } = await supabase.from('colaboradores').select('id, nome').eq('barbearia_id', tenant.id).order('nome');
