@@ -1071,6 +1071,16 @@ function AtendimentosPage() {
                 {concluidos.length === 0 && (
                   <p className="text-muted-foreground text-center py-10">Nenhum atendimento concluído encontrado.</p>
                 )}
+
+                {totalConcluidos > PAGE_SIZE && (
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <Button variant="outline" size="sm" disabled={pageConcluidos === 0} onClick={() => setPageConcluidos(p => Math.max(0, p - 1))}>Anterior</Button>
+                    <span className="text-sm text-muted-foreground">
+                      Página {pageConcluidos + 1} de {Math.max(1, Math.ceil(totalConcluidos / PAGE_SIZE))}
+                    </span>
+                    <Button variant="outline" size="sm" disabled={(pageConcluidos + 1) * PAGE_SIZE >= totalConcluidos} onClick={() => setPageConcluidos(p => p + 1)}>Próxima</Button>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
