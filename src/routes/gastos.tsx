@@ -419,6 +419,32 @@ function GastosPage() {
                       onChange={(e) => setDataGasto(e.target.value)} 
                     />
                   </div>
+                  <div className="grid gap-2">
+                    <Label>Vincular a produto do estoque (opcional)</Label>
+                    <Select value={estoqueId || "none"} onValueChange={(v) => {
+                      const val = v === "none" ? "" : v;
+                      setEstoqueId(val);
+                      if (val) {
+                        const p = produtosEstoque.find(x => x.id === val);
+                        if (p && !nome.trim()) setNome(p.nome);
+                      }
+                    }}>
+                      <SelectTrigger><SelectValue placeholder="Nenhum" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Nenhum</SelectItem>
+                        {produtosEstoque.map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.nome} ({p.tipo === "consumivel" ? "Consumível" : "Revenda"})</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {estoqueId && (
+                    <div className="grid gap-2">
+                      <Label>Quantidade comprada</Label>
+                      <Input type="number" step="0.001" value={quantidadeComprada} onChange={(e) => setQuantidadeComprada(e.target.value)} placeholder="Ex: 5" />
+                      <p className="text-xs text-muted-foreground">Esta quantidade será acrescida ao estoque do produto.</p>
+                    </div>
+                  )}
                 </div>
                 <DialogFooter className="flex-col sm:flex-row gap-2">
                   <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">Cancelar</Button>
