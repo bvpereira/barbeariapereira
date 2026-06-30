@@ -292,7 +292,7 @@ function EstoquePage() {
                 {!editing && (
                   <div><Label>Qtd. inicial</Label><Input type="number" step="0.001" value={form.quantidade_atual} onChange={(e) => setForm(f => ({ ...f, quantidade_atual: e.target.value }))} /></div>
                 )}
-                <div><Label>Alerta ≤</Label><Input type="number" step="0.001" value={form.alerta_estoque} onChange={(e) => setForm(f => ({ ...f, alerta_estoque: e.target.value }))} /></div>
+                <div><Label>Alerta ≤</Label><Input type="number" step="1" value={form.alerta_estoque} onChange={(e) => setForm(f => ({ ...f, alerta_estoque: e.target.value }))} /></div>
                 <div>
                   <Label>Unidade</Label>
                   <Select value={form.unidade_medida} onValueChange={(v) => setForm(f => ({ ...f, unidade_medida: v }))}>
