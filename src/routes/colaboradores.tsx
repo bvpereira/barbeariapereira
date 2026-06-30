@@ -717,6 +717,35 @@ function CollaboratorsPage() {
                       )}
                     </div>
                   </div>
+
+                  {(() => {
+                    const c = comissoesPorColab[colab.id];
+                    const fmt = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
+                    const mesLabel = (m: string) => {
+                      const [y, mm] = m.split("-");
+                      const nomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+                      return `${nomes[Number(mm) - 1]}/${y.slice(2)}`;
+                    };
+                    return (
+                      <div className="space-y-1 pt-2 border-t border-border/50">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-semibold text-primary uppercase tracking-wider">Comissões recebidas</p>
+                          <span className="text-xs font-bold">{fmt(c?.total ?? 0)}</span>
+                        </div>
+                        {c && c.meses.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {c.meses.map((m) => (
+                              <span key={m.mes} className="px-2 py-0.5 bg-muted text-foreground/80 rounded-full text-[10px] border border-border">
+                                {mesLabel(m.mes)}: {fmt(m.valor)}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground italic">Nenhuma comissão registrada</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </CardContent>
                 <CardFooter className="p-3 pt-0 md:p-4 md:pt-0 flex gap-1 justify-end">
                   <Button variant="default" size="sm" className="gap-1 h-6 px-2 text-[10px]" onClick={() => handleEdit(colab)}>
