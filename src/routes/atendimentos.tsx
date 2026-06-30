@@ -467,6 +467,7 @@ function AtendimentosPage() {
     setComissaoFinal("0");
     setStatus('Finalizado');
     setColabServicosIds([]);
+    setProdutosVenda([]);
   };
 
   const handleSave = async (isScheduling: boolean, force: boolean = false) => {
