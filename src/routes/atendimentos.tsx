@@ -1050,6 +1050,47 @@ function AtendimentosPage() {
           </TabsContent>
 
           <TabsContent value="concluidos" className="space-y-8 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-end flex-wrap p-4 border rounded-lg bg-muted/30">
+              <div className="space-y-1">
+                <Label className="text-xs">Data início</Label>
+                <Input
+                  type="date"
+                  value={dataInicioConcluidos}
+                  onChange={(e) => { setDataInicioConcluidos(e.target.value); setPageConcluidos(0); }}
+                  className="w-[170px]"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Data fim</Label>
+                <Input
+                  type="date"
+                  value={dataFimConcluidos}
+                  onChange={(e) => { setDataFimConcluidos(e.target.value); setPageConcluidos(0); }}
+                  className="w-[170px]"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Status</Label>
+                <Select value={filtroConcluidos} onValueChange={(v) => { setFiltroConcluidos(v as any); setPageConcluidos(0); }}>
+                  <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Todos">Todos</SelectItem>
+                    <SelectItem value="Finalizado">Finalizado</SelectItem>
+                    <SelectItem value="Não compareceu">Não compareceu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {(dataInicioConcluidos || dataFimConcluidos || filtroConcluidos !== 'Todos') && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => { setDataInicioConcluidos(""); setDataFimConcluidos(""); setFiltroConcluidos('Todos'); setPageConcluidos(0); }}
+                >
+                  Limpar filtros
+                </Button>
+              )}
+            </div>
+
             {loadingConcluidos ? (
               <p>Carregando...</p>
             ) : (
