@@ -19,6 +19,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/colaboradores")({
   component: CollaboratorsPage,
