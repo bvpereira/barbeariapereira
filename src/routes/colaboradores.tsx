@@ -117,6 +117,29 @@ function CollaboratorsPage() {
 
       if (collaboratorsError) throw collaboratorsError;
       setCollaborators((collaboratorsData as any) || []);
+
+      const { data: atendData, error: atendError } = await supabase
+        .from("atendimentos")
+        .select("colaborador_id, comissao, data")
+        .eq("barbearia_id", tenant!.id)
+        .eq("status", "Finalizado");
+      if (atendError) throw atendError;
+      const agg: Record<string, Record<string, number>> = {};
+      (atendData || []).forEach((a: any) => {
+        if (!a.colaborador_id || !a.data) return;
+        const val = Number(a.comissao) || 0;
+        if (val === 0) return;
+        const d = new Date(a.data);
+        const mes = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        agg[a.colaborador_id] = agg[a.colaborador_id] || {};
+        agg[a.colaborador_id][mes] = (agg[a.colaborador_id][mes] || 0) + val;
+      });
+      const result: Record<string, { total: number; meses: { mes: string; valor: number }[] }> = {};
+      Object.entries(agg).forEach(([cid, meses]) => {
+        const arr = Object.entries(meses).map(([mes, valor]) => ({ mes, valor })).sort((a, b) => b.mes.localeCompare(a.mes));
+        result[cid] = { total: arr.reduce((s, m) => s + m.valor, 0), meses: arr };
+      });
+      setComissoesPorColab(result);
     } catch (error: any) {
       toast.error("Erro ao carregar dados: " + error.message);
     } finally {
