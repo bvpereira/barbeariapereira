@@ -154,6 +154,10 @@ function AtendimentosPage() {
   const [cashbackEnabled, setCashbackEnabled] = useState(false);
   // Override por serviço selecionado: { servicoId: { ativo, percentual } }
   const [cashbackOverrides, setCashbackOverrides] = useState<Record<string, { ativo: boolean; percentual: number }>>({});
+  // Produtos de revenda
+  const [produtosRevendaCatalog, setProdutosRevendaCatalog] = useState<{ id: string; nome: string; preco_revenda: number; quantidade_atual: number; unidade_medida: string }[]>([]);
+  const [produtosVenda, setProdutosVenda] = useState<{ id?: string; estoque_id: string; nome_produto: string; quantidade: number; valor_unitario: number }[]>([]);
+  const [userNivel, setUserNivel] = useState<number | null>(null);
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
