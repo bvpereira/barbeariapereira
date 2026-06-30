@@ -148,8 +148,8 @@ function IACodConsumiPage() {
     <AdminLayout>
       <div className="max-w-4xl mx-auto h-[calc(100vh-180px)] flex flex-col space-y-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-orange-100 rounded-lg">
-            <Scale className="h-6 w-6 text-orange-600" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Scale className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">IA – Assistente Código do Consumidor</h1>
@@ -157,23 +157,23 @@ function IACodConsumiPage() {
           </div>
         </div>
 
-        <Card className="flex-1 flex flex-col overflow-hidden border-orange-100 shadow-sm">
-          <CardHeader className="py-3 border-b bg-orange-50/30 flex flex-row items-center justify-between space-y-0">
+        <Card className="flex-1 flex flex-col overflow-hidden border-border shadow-sm">
+          <CardHeader className="py-3 border-b bg-muted/30 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Bot className="h-4 w-4 text-orange-600" />
+              <Bot className="h-4 w-4 text-primary" />
               Chat de Suporte Jurídico
             </CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={handleCopy}
-              className="h-8 gap-2 border-orange-200 text-orange-700 hover:bg-orange-100 hover:text-orange-800"
+              className="h-8 gap-2"
             >
               <Copy className="h-3.5 w-3.5" />
               Copiar Conversa
             </Button>
           </CardHeader>
-          <CardContent className="flex-1 p-0 flex flex-col bg-white">
+          <CardContent className="flex-1 p-0 flex flex-col bg-card">
             <ScrollArea className="flex-1 p-4">
               <div className="space-y-4">
                 {messages.map((msg, i) => (
@@ -188,7 +188,7 @@ function IACodConsumiPage() {
                     >
                       <div
                         className={`mt-1 p-1 rounded-full h-8 w-8 flex items-center justify-center shrink-0 ${
-                          msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-orange-100 text-orange-600"
+                          msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
                         }`}
                       >
                         {msg.role === "user" ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
@@ -197,7 +197,7 @@ function IACodConsumiPage() {
                         className={`p-3 rounded-2xl ${
                           msg.role === "user"
                             ? "bg-primary text-primary-foreground rounded-tr-none"
-                            : "bg-muted text-foreground rounded-tl-none border border-orange-50"
+                            : "bg-muted text-foreground rounded-tl-none border border-border"
                         }`}
                       >
                         <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
@@ -208,11 +208,11 @@ function IACodConsumiPage() {
                 {loading && (
                   <div className="flex justify-start">
                     <div className="flex gap-3 max-w-[80%]">
-                      <div className="mt-1 p-1 rounded-full h-8 w-8 flex items-center justify-center shrink-0 bg-orange-100 text-orange-600">
+                      <div className="mt-1 p-1 rounded-full h-8 w-8 flex items-center justify-center shrink-0 bg-primary/10 text-primary">
                         <Bot className="h-5 w-5" />
                       </div>
-                      <div className="p-4 rounded-2xl bg-muted rounded-tl-none border border-orange-50">
-                        <Loader2 className="h-4 w-4 animate-spin text-orange-600" />
+                      <div className="p-4 rounded-2xl bg-muted rounded-tl-none border border-border">
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
                       </div>
                     </div>
                   </div>
@@ -234,12 +234,10 @@ function IACodConsumiPage() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   disabled={loading}
-                  className="bg-white border-orange-100 focus-visible:ring-orange-500 text-black"
                 />
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={loading || !input.trim()}
-                  className="bg-orange-600 hover:bg-orange-700 text-white"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 </Button>
