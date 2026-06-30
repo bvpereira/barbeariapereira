@@ -62,6 +62,7 @@ function CollaboratorsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCollaborator, setEditingCollaborator] = useState<Collaborator | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Collaborator | null>(null);
 
   // Form states
   const [nome, setNome] = useState("");
