@@ -57,6 +57,7 @@ interface Collaborator {
 function CollaboratorsPage() {
   const { tenant, loading: tenantLoading } = useTenant();
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [comissoesPorColab, setComissoesPorColab] = useState<Record<string, { total: number; meses: { mes: string; valor: number }[] }>>({});
   const [allServices, setAllServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -116,6 +117,29 @@ function CollaboratorsPage() {
 
       if (collaboratorsError) throw collaboratorsError;
       setCollaborators((collaboratorsData as any) || []);
+
+      const { data: atendData, error: atendError } = await supabase
+        .from("atendimentos")
+        .select("colaborador_id, comissao, data")
+        .eq("barbearia_id", tenant!.id)
+        .eq("status", "Finalizado");
+      if (atendError) throw atendError;
+      const agg: Record<string, Record<string, number>> = {};
+      (atendData || []).forEach((a: any) => {
+        if (!a.colaborador_id || !a.data) return;
+        const val = Number(a.comissao) || 0;
+        if (val === 0) return;
+        const d = new Date(a.data);
+        const mes = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        agg[a.colaborador_id] = agg[a.colaborador_id] || {};
+        agg[a.colaborador_id][mes] = (agg[a.colaborador_id][mes] || 0) + val;
+      });
+      const result: Record<string, { total: number; meses: { mes: string; valor: number }[] }> = {};
+      Object.entries(agg).forEach(([cid, meses]) => {
+        const arr = Object.entries(meses).map(([mes, valor]) => ({ mes, valor })).sort((a, b) => b.mes.localeCompare(a.mes));
+        result[cid] = { total: arr.reduce((s, m) => s + m.valor, 0), meses: arr };
+      });
+      setComissoesPorColab(result);
     } catch (error: any) {
       toast.error("Erro ao carregar dados: " + error.message);
     } finally {
@@ -693,6 +717,35 @@ function CollaboratorsPage() {
                       )}
                     </div>
                   </div>
+
+                  {(() => {
+                    const c = comissoesPorColab[colab.id];
+                    const fmt = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
+                    const mesLabel = (m: string) => {
+                      const [y, mm] = m.split("-");
+                      const nomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+                      return `${nomes[Number(mm) - 1]}/${y.slice(2)}`;
+                    };
+                    return (
+                      <div className="space-y-1 pt-2 border-t border-border/50">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-semibold text-primary uppercase tracking-wider">Comissões recebidas</p>
+                          <span className="text-xs font-bold">{fmt(c?.total ?? 0)}</span>
+                        </div>
+                        {c && c.meses.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {c.meses.map((m) => (
+                              <span key={m.mes} className="px-2 py-0.5 bg-muted text-foreground/80 rounded-full text-[10px] border border-border">
+                                {mesLabel(m.mes)}: {fmt(m.valor)}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground italic">Nenhuma comissão registrada</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </CardContent>
                 <CardFooter className="p-3 pt-0 md:p-4 md:pt-0 flex gap-1 justify-end">
                   <Button variant="default" size="sm" className="gap-1 h-6 px-2 text-[10px]" onClick={() => handleEdit(colab)}>
