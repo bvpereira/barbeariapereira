@@ -20,6 +20,16 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { CouponsSection } from "@/components/CouponsSection";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/servicos")({
   component: ServicesPage,
