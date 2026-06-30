@@ -277,6 +277,7 @@ function AtendimentosPage() {
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
+      setUserNivel(Number(parsedUser.nivel));
       if (tenant?.id && parsedUser.barbearia_id !== tenant.id) {
         toast.error("Acesso negado.");
         window.location.href = "/";
