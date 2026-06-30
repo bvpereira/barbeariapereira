@@ -172,7 +172,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     applyLight(cores.light);
     applyDarkStyleTag(cores.dark);
-    applyMode(cores.modo, cleanupRef);
+    applyMode("light", cleanupRef);
     return () => cleanupRef.fn?.();
   }, [cores, tenant?.slug]);
 
