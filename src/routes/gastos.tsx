@@ -94,7 +94,16 @@ function GastosPage() {
     fetchGastos();
     fetchSummaryData();
     fetchColaboradores();
+    fetchProdutosEstoque();
   }, [selectedMonth, tenant, tenantLoading]);
+
+  const fetchProdutosEstoque = async () => {
+    if (!tenant?.id) return;
+    const { data } = await supabase.from("estoque" as any)
+      .select("id, nome, tipo, unidade_medida")
+      .eq("barbearia_id", tenant.id).is("deleted_at", null).order("nome");
+    setProdutosEstoque(((data as any) || []) as any);
+  };
 
   const fetchColaboradores = async () => {
     if (!tenant?.id) return;
