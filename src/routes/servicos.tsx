@@ -57,6 +57,7 @@ function ServicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
 
   // Form states
