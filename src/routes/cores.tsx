@@ -317,13 +317,13 @@ function CoresPage() {
                     <input
                       type="color"
                       value={currentTokens[t] || "#000000"}
-                      onChange={(e) => setToken(editing, t, e.target.value)}
+                      onChange={(e) => setToken("light", t, e.target.value)}
                       className="w-10 h-10 rounded cursor-pointer border border-border bg-transparent"
                     />
                     <Input
                       id={`fld-${t}`}
                       value={currentTokens[t] || ""}
-                      onChange={(e) => setToken(editing, t, e.target.value)}
+                      onChange={(e) => setToken("light", t, e.target.value)}
                       className="font-mono text-xs"
                     />
                   </div>
