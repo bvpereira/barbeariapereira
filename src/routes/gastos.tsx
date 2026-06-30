@@ -211,11 +211,13 @@ function GastosPage() {
 
     try {
       const [year, month, day] = dataGasto.split("-").map(Number);
-      const payload = {
+      const payload: any = {
         barbearia_id: tenant!.id,
         nome,
         valor: parseFloat(valor),
         data: `${dataGasto}T12:00:00`,
+        estoque_id: estoqueId || null,
+        quantidade_comprada: estoqueId && quantidadeComprada ? parseFloat(quantidadeComprada) : null,
       };
 
       if (editingGasto) {
