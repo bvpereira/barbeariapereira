@@ -663,7 +663,7 @@ function CollaboratorsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {collaborators.map((colab) => (
-              <Card key={colab.id} className="overflow-hidden border-border bg-card/40 hover:bg-card/60 transition-all">
+              <Card key={colab.id} className="overflow-hidden border-border bg-card hover:bg-card/90 transition-all">
                 <CardHeader className="flex flex-row items-center gap-3 p-3 md:gap-4 md:p-4">
                   <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden bg-muted flex-shrink-0">
                     {colab.foto_url ? (
