@@ -804,6 +804,14 @@ function AtendimentosPage() {
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
         fetchColabServicos(item.colaborador.id);
+        // Carregar produtos vendidos do atendimento
+        supabase.from('atendimento_produtos' as any)
+          .select('id, estoque_id, nome_produto, quantidade, valor_unitario')
+          .eq('atendimento_id', item.id)
+          .then(({ data }) => setProdutosVenda(((data as any) || []).map((p: any) => ({
+            id: p.id, estoque_id: p.estoque_id || "", nome_produto: p.nome_produto,
+            quantidade: Number(p.quantidade), valor_unitario: Number(p.valor_unitario),
+          }))));
         setIsDialogOpen(true);
       }}>
 
