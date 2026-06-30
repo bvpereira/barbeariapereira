@@ -1031,6 +1031,16 @@ function AtendimentosPage() {
                 {atencao.length === 0 && agendados.length === 0 && (
                   <p className="text-muted-foreground text-center py-10">Nenhum agendamento encontrado.</p>
                 )}
+
+                {totalAgendados > PAGE_SIZE && (
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <Button variant="outline" size="sm" disabled={pageAgendados === 0} onClick={() => setPageAgendados(p => Math.max(0, p - 1))}>Anterior</Button>
+                    <span className="text-sm text-muted-foreground">
+                      Página {pageAgendados + 1} de {Math.max(1, Math.ceil(totalAgendados / PAGE_SIZE))}
+                    </span>
+                    <Button variant="outline" size="sm" disabled={(pageAgendados + 1) * PAGE_SIZE >= totalAgendados} onClick={() => setPageAgendados(p => p + 1)}>Próxima</Button>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
