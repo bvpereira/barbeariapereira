@@ -303,11 +303,13 @@ function GastosPage() {
     }
   };
 
-  const openEditDialog = (gasto: Gasto) => {
+  const openEditDialog = (gasto: any) => {
     setEditingGasto(gasto);
     setNome(gasto.nome);
     setValor(gasto.valor.toString());
     setDataGasto(format(parseISO(gasto.data), "yyyy-MM-dd"));
+    setEstoqueId(gasto.estoque_id || "");
+    setQuantidadeComprada(gasto.quantidade_comprada ? String(gasto.quantidade_comprada) : "");
     setIsDialogOpen(true);
   };
 
