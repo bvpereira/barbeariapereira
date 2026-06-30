@@ -308,8 +308,6 @@ function ServicesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
-
     try {
       const { data: service } = await supabase
         .from("servicos")
