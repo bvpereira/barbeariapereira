@@ -308,42 +308,6 @@ function CoresPage() {
           </CardContent>
         </Card>
 
-        {/* Modo + toggle de edição */}
-        <Card>
-          <CardHeader><CardTitle>Modo de cores</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="mb-2 block">Modo aplicado ao site</Label>
-              <RadioGroup value={modo} onValueChange={(v) => setModo(v as Modo)} className="flex gap-4">
-                {(["light", "dark", "auto"] as Modo[]).map((m) => (
-                  <div key={m} className="flex items-center gap-2">
-                    <RadioGroupItem value={m} id={`modo-${m}`} />
-                    <Label htmlFor={`modo-${m}`} className="capitalize">
-                      {m === "light" ? "Claro" : m === "dark" ? "Escuro" : "Automático"}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-            <div>
-              <Label className="mb-2 block">Editando esquema</Label>
-              <div className="inline-flex rounded-md border border-border overflow-hidden">
-                {(["light", "dark"] as EditingMode[]).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setEditing(m)}
-                    className={`px-4 py-2 text-sm ${
-                      editing === m ? "bg-primary text-primary-foreground" : "bg-background text-foreground"
-                    }`}
-                  >
-                    {m === "light" ? "Claro" : "Escuro"}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Form de tokens */}
         {TOKEN_GROUPS.map((group) => (
