@@ -563,6 +563,26 @@ function AtendimentosPage() {
       );
       if (servErr) throw new Error("Serviços: " + servErr.message);
 
+      // Persistir produtos vendidos (apenas em edição)
+      if (editingAtendimento) {
+        await supabase.from('atendimento_produtos' as any).delete().eq('atendimento_id', atendimentoId);
+        const linhasProd = produtosVenda.filter(p => p.estoque_id && p.quantidade > 0).map(p => ({
+          atendimento_id: atendimentoId, barbearia_id: tenant.id,
+          estoque_id: p.estoque_id, nome_produto: p.nome_produto,
+          quantidade: p.quantidade, valor_unitario: p.valor_unitario,
+        }));
+        if (linhasProd.length > 0) {
+          const { error: prodErr } = await supabase.from('atendimento_produtos' as any).insert(linhasProd);
+          if (prodErr) throw new Error("Produtos: " + prodErr.message);
+        }
+        // Recalcular valor total = serviços + produtos
+        const totalProdutos = linhasProd.reduce((s, p) => s + (p.quantidade * p.valor_unitario), 0);
+        const novoTotal = originalTotal + totalProdutos;
+        await supabase.from('atendimentos').update({ valor: novoTotal, valor_original: novoTotal }).eq('id', atendimentoId);
+      }
+
+
+
       // Aplicar desconto do clube de assinatura (se o cliente tiver clube ativo)
       try {
         await applyClubeFn({ data: {
