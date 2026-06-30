@@ -19,6 +19,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/colaboradores")({
   component: CollaboratorsPage,
@@ -61,6 +62,7 @@ function CollaboratorsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCollaborator, setEditingCollaborator] = useState<Collaborator | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Collaborator | null>(null);
 
   // Form states
   const [nome, setNome] = useState("");
@@ -421,7 +423,7 @@ function CollaboratorsPage() {
   };
 
   const handleDelete = async (colab: Collaborator) => {
-    if (!confirm(`Tem certeza que deseja remover ${colab.nome}?`)) return;
+    
 
     try {
       await deleteByPublicUrl("collaborator-images", colab.foto_url);
@@ -696,7 +698,7 @@ function CollaboratorsPage() {
                   <Button variant="outline" size="sm" className="flex-1 gap-1 h-8 md:h-9" onClick={() => handleEdit(colab)}>
                     <Pencil className="w-3 h-3" /> Editar
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1 gap-1 h-8 md:h-9 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(colab)}>
+                  <Button variant="ghost" size="sm" className="flex-1 gap-1 h-8 md:h-9 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setDeleteTarget(colab)}>
                     <Trash2 className="w-3 h-3" /> Excluir
                   </Button>
                 </CardFooter>
@@ -705,6 +707,25 @@ function CollaboratorsPage() {
           </div>
         )}
       </div>
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover colaborador?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.nome} será removido permanentemente, junto com suas fotos, serviços vinculados e acesso ao sistema. Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { const t = deleteTarget; setDeleteTarget(null); if (t) handleDelete(t); }}
+            >
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }

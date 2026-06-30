@@ -20,6 +20,16 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { CouponsSection } from "@/components/CouponsSection";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/servicos")({
   component: ServicesPage,
@@ -47,6 +57,7 @@ function ServicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
 
   // Form states
@@ -297,8 +308,6 @@ function ServicesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este serviço?")) return;
-
     try {
       const { data: service } = await supabase
         .from("servicos")
@@ -557,7 +566,7 @@ function ServicesPage() {
                         variant="ghost"
                         size="sm"
                         className="h-6 px-2 gap-1 text-[11px] border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => handleDelete(service.id)}
+                        onClick={() => setDeleteId(service.id)}
                       >
                         <Trash2 className="w-3 h-3" /> Excluir
                       </Button>
@@ -607,6 +616,25 @@ function ServicesPage() {
         )}
         {!isLoading && tenant?.id && <CouponsSection tenantId={tenant.id} services={services} />}
       </div>
+      <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir serviço?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O serviço será removido permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { const id = deleteId; setDeleteId(null); if (id) handleDelete(id); }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }

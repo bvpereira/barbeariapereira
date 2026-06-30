@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit2, Trash2, AlertTriangle, Search, Settings2, Package, Boxes, History, Download } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/estoque")({ component: EstoquePage });
 
@@ -140,12 +141,13 @@ function EstoquePage() {
     setIsOpen(false); resetForm(); fetchProdutos();
   };
 
+  const [deleteTarget, setDeleteTarget] = useState<Produto | null>(null);
   const handleDelete = async (p: Produto) => {
-    if (!confirm(`Excluir "${p.nome}"?`)) return;
     const { error } = await supabase.from("estoque" as any).update({ deleted_at: new Date().toISOString() }).eq("id", p.id);
     if (error) return toast.error(error.message);
     toast.success("Excluído"); fetchProdutos();
   };
+
 
   const openAdjust = (p: Produto) => { setAdjustTarget(p); setAdjustQtd(String(p.quantidade_atual)); setAdjustMotivo(""); setAdjustOpen(true); };
   const handleAdjust = async () => {
@@ -266,7 +268,7 @@ function EstoquePage() {
                             <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openHistorico(p)} title="Histórico"><History className="w-3.5 h-3.5" /></Button>
                             <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openAdjust(p)} title="Ajustar saldo"><Settings2 className="w-3.5 h-3.5" /></Button>
                             <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openEdit(p)}><Edit2 className="w-3.5 h-3.5" /></Button>
-                            <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => handleDelete(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -356,6 +358,26 @@ function EstoquePage() {
             </div>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
+              <AlertDialogDescription>
+                "{deleteTarget?.nome}" será removido permanentemente. Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={() => { const t = deleteTarget; setDeleteTarget(null); if (t) handleDelete(t); }}
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AdminLayout>
   );
