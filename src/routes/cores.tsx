@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { useTheme, CoresRow } from "@/contexts/ThemeContext";
@@ -48,8 +48,6 @@ function CoresPage() {
   const [nivelOk, setNivelOk] = useState<boolean | null>(null);
   const [perfilSelId, setPerfilSelId] = useState<string | null>(null);
   const [preset, setPreset] = useState<string>(DEFAULT_PRESET);
-  const [modo, setModo] = useState<Modo>("light");
-  const [editing, setEditing] = useState<EditingMode>("light");
   const [light, setLight] = useState<ThemeTokens>(PRESETS[DEFAULT_PRESET].light);
   const [dark, setDark] = useState<ThemeTokens>(PRESETS[DEFAULT_PRESET].dark);
   const [saving, setSaving] = useState(false);
@@ -85,23 +83,21 @@ function CoresPage() {
   useEffect(() => {
     if (!perfilSel) return;
     setPreset(perfilSel.preset || "custom");
-    setModo((perfilSel.modo as Modo) || "light");
+    
     setLight({ ...PRESETS[DEFAULT_PRESET].light, ...perfilSel.light });
     setDark({ ...PRESETS[DEFAULT_PRESET].dark, ...perfilSel.dark });
     setNomeEdit(perfilSel.nome_perfil || "");
     setRenaming(false);
   }, [perfilSel?.id]);
 
-  // preview ao vivo
+  // preview ao vivo (sempre claro)
   useEffect(() => {
     const root = document.documentElement;
-    const tokens = editing === "light" ? light : dark;
     for (const t of COLOR_TOKENS) {
-      root.style.setProperty(cssVarName(t), tokens[t]);
+      root.style.setProperty(cssVarName(t), light[t]);
     }
-    if (editing === "dark") root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [light, dark, editing]);
+    root.classList.remove("dark");
+  }, [light]);
 
   const applyPreset = (key: string) => {
     const p = PRESETS[key];
@@ -118,7 +114,7 @@ function CoresPage() {
   };
 
   const buildRow = () => {
-    const row: any = { preset, modo };
+    const row: any = { preset, modo: "light" };
     for (const t of COLOR_TOKENS) {
       row[t] = light[t];
       row["dark_" + t] = dark[t];
@@ -206,7 +202,7 @@ function CoresPage() {
     }
   };
 
-  const currentTokens = editing === "light" ? light : dark;
+  const currentTokens = light;
   const presetKeys = useMemo(() => Object.keys(PRESETS), []);
 
   if (nivelOk !== true) return null;
@@ -308,42 +304,6 @@ function CoresPage() {
           </CardContent>
         </Card>
 
-        {/* Modo + toggle de edição */}
-        <Card>
-          <CardHeader><CardTitle>Modo de cores</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="mb-2 block">Modo aplicado ao site</Label>
-              <RadioGroup value={modo} onValueChange={(v) => setModo(v as Modo)} className="flex gap-4">
-                {(["light", "dark", "auto"] as Modo[]).map((m) => (
-                  <div key={m} className="flex items-center gap-2">
-                    <RadioGroupItem value={m} id={`modo-${m}`} />
-                    <Label htmlFor={`modo-${m}`} className="capitalize">
-                      {m === "light" ? "Claro" : m === "dark" ? "Escuro" : "Automático"}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-            <div>
-              <Label className="mb-2 block">Editando esquema</Label>
-              <div className="inline-flex rounded-md border border-border overflow-hidden">
-                {(["light", "dark"] as EditingMode[]).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setEditing(m)}
-                    className={`px-4 py-2 text-sm ${
-                      editing === m ? "bg-primary text-primary-foreground" : "bg-background text-foreground"
-                    }`}
-                  >
-                    {m === "light" ? "Claro" : "Escuro"}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Form de tokens */}
         {TOKEN_GROUPS.map((group) => (
@@ -357,13 +317,13 @@ function CoresPage() {
                     <input
                       type="color"
                       value={currentTokens[t] || "#000000"}
-                      onChange={(e) => setToken(editing, t, e.target.value)}
+                      onChange={(e) => setToken("light", t, e.target.value)}
                       className="w-10 h-10 rounded cursor-pointer border border-border bg-transparent"
                     />
                     <Input
                       id={`fld-${t}`}
                       value={currentTokens[t] || ""}
-                      onChange={(e) => setToken(editing, t, e.target.value)}
+                      onChange={(e) => setToken("light", t, e.target.value)}
                       className="font-mono text-xs"
                     />
                   </div>
