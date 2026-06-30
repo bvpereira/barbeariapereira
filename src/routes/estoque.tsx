@@ -45,7 +45,9 @@ function EstoquePage() {
   // Dialog produto
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState<Produto | null>(null);
+  const [createType, setCreateType] = useState<"consumivel" | "revenda">("consumivel");
   const [form, setForm] = useState({ nome: "", quantidade_atual: "0", alerta_estoque: "0", preco_revenda: "", categoria: "", marca: "", unidade_medida: "un" });
+
 
   // Ajuste manual
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -92,9 +94,10 @@ function EstoquePage() {
     setForm({ nome: "", quantidade_atual: "0", alerta_estoque: "0", preco_revenda: "", categoria: "", marca: "", unidade_medida: "un" });
   };
 
-  const openCreate = () => { resetForm(); setIsOpen(true); };
+  const openCreate = (tipo: "consumivel" | "revenda") => { resetForm(); setCreateType(tipo); setIsOpen(true); };
   const openEdit = (p: Produto) => {
     setEditing(p);
+    setCreateType(p.tipo);
     setForm({
       nome: p.nome, quantidade_atual: String(p.quantidade_atual), alerta_estoque: String(p.alerta_estoque),
       preco_revenda: p.preco_revenda?.toString() || "", categoria: p.categoria || "", marca: p.marca || "",
@@ -103,16 +106,19 @@ function EstoquePage() {
     setIsOpen(true);
   };
 
+
   const handleSave = async () => {
     if (!tenant?.id) return;
     if (!form.nome.trim()) return toast.error("Informe o nome");
+    const tipoProduto = editing ? editing.tipo : createType;
     const payload: any = {
-      barbearia_id: tenant.id, nome: form.nome.trim(), tipo: tab,
+      barbearia_id: tenant.id, nome: form.nome.trim(), tipo: tipoProduto,
       alerta_estoque: parseFloat(form.alerta_estoque) || 0,
-      preco_revenda: tab === "revenda" ? (parseFloat(form.preco_revenda) || 0) : null,
+      preco_revenda: tipoProduto === "revenda" ? (parseFloat(form.preco_revenda) || 0) : null,
       categoria: form.categoria.trim() || null, marca: form.marca.trim() || null,
       unidade_medida: form.unidade_medida || "un",
     };
+
     if (editing) {
       const { error } = await supabase.from("estoque" as any).update(payload).eq("id", editing.id);
       if (error) return toast.error(error.message);
@@ -177,10 +183,12 @@ function EstoquePage() {
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Boxes className="w-7 h-7" /> Estoque</h1>
             <p className="text-muted-foreground text-sm mt-1">Gerencie produtos consumíveis e de revenda</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" onClick={exportarAlertas} className="gap-2"><Download className="w-4 h-4" />Exportar alertas</Button>
-            <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" />Novo produto</Button>
+            <Button onClick={() => openCreate("consumivel")} className="gap-2"><Plus className="w-4 h-4" /><Package className="w-4 h-4" />Novo consumível</Button>
+            <Button onClick={() => openCreate("revenda")} className="gap-2"><Plus className="w-4 h-4" /><Boxes className="w-4 h-4" />Novo revenda</Button>
           </div>
+
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
