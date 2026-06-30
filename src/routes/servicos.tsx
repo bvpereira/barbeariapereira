@@ -559,7 +559,7 @@ function ServicesPage() {
                       )}
                     </div>
                     <div className="absolute bottom-2 right-2 flex gap-1.5">
-                      <Button variant="outline" size="sm" className="h-6 px-2 gap-1 text-[11px]" onClick={() => handleEdit(service)}>
+                      <Button variant="default" size="sm" className="h-6 px-2 gap-1 text-[11px]" onClick={() => handleEdit(service)}>
                         <Pencil className="w-3 h-3" /> Editar
                       </Button>
                       <Button
