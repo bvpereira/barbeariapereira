@@ -694,11 +694,11 @@ function CollaboratorsPage() {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter className="p-3 pt-0 md:p-4 md:pt-0 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 gap-1 h-8 md:h-9" onClick={() => handleEdit(colab)}>
+                <CardFooter className="p-3 pt-0 md:p-4 md:pt-0 flex gap-1 justify-end">
+                  <Button variant="default" size="sm" className="gap-1 h-6 px-2 text-[10px]" onClick={() => handleEdit(colab)}>
                     <Pencil className="w-3 h-3" /> Editar
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1 gap-1 h-8 md:h-9 border border-white text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setDeleteTarget(colab)}>
+                  <Button variant="destructive" size="sm" className="gap-1 h-6 px-2 text-[10px]" onClick={() => setDeleteTarget(colab)}>
                     <Trash2 className="w-3 h-3" /> Excluir
                   </Button>
                 </CardFooter>
