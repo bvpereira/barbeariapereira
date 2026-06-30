@@ -358,6 +358,26 @@ function EstoquePage() {
             </div>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
+              <AlertDialogDescription>
+                "{deleteTarget?.nome}" será removido permanentemente. Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={() => { const t = deleteTarget; setDeleteTarget(null); if (t) handleDelete(t); }}
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AdminLayout>
   );
