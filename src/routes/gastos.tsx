@@ -75,12 +75,15 @@ function GastosPage() {
   const [isSalarioDialogOpen, setIsSalarioDialogOpen] = useState(false);
   const [editingGasto, setEditingGasto] = useState<Gasto | null>(null);
   const [colaboradores, setColaboradores] = useState<{ id: string; nome: string }[]>([]);
+  const [produtosEstoque, setProdutosEstoque] = useState<{ id: string; nome: string; tipo: string; unidade_medida: string }[]>([]);
   
   // Form states
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
   const [dataGasto, setDataGasto] = useState(format(new Date(), "yyyy-MM-dd"));
   const [selectedColaboradorId, setSelectedColaboradorId] = useState("");
+  const [estoqueId, setEstoqueId] = useState<string>("");
+  const [quantidadeComprada, setQuantidadeComprada] = useState<string>("");
 
   const [totalMesAtual, setTotalMesAtual] = useState(0);
   const [totalUltimos12Meses, setTotalUltimos12Meses] = useState(0);
