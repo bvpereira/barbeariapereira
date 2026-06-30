@@ -26,6 +26,7 @@ import { Route as IacodconsumiRouteImport } from './routes/iacodconsumi'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as GastosRouteImport } from './routes/gastos'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
+import { Route as EstoqueRouteImport } from './routes/estoque'
 import { Route as CoresRouteImport } from './routes/cores'
 import { Route as ComunidadeRouteImport } from './routes/comunidade'
 import { Route as ColaboradoresRouteImport } from './routes/colaboradores'
@@ -128,6 +129,11 @@ const GastosRoute = GastosRouteImport.update({
 const FinanceiroRoute = FinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstoqueRoute = EstoqueRouteImport.update({
+  id: '/estoque',
+  path: '/estoque',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoresRoute = CoresRouteImport.update({
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
   '/cores': typeof CoresRoute
+  '/estoque': typeof EstoqueRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
   '/cores': typeof CoresRoute
+  '/estoque': typeof EstoqueRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/colaboradores': typeof ColaboradoresRoute
   '/comunidade': typeof ComunidadeRoute
   '/cores': typeof CoresRoute
+  '/estoque': typeof EstoqueRoute
   '/financeiro': typeof FinanceiroRoute
   '/gastos': typeof GastosRoute
   '/horarios': typeof HorariosRoute
@@ -351,6 +360,7 @@ export interface FileRouteTypes {
     | '/colaboradores'
     | '/comunidade'
     | '/cores'
+    | '/estoque'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/colaboradores'
     | '/comunidade'
     | '/cores'
+    | '/estoque'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/colaboradores'
     | '/comunidade'
     | '/cores'
+    | '/estoque'
     | '/financeiro'
     | '/gastos'
     | '/horarios'
@@ -463,6 +475,7 @@ export interface RootRouteChildren {
   ColaboradoresRoute: typeof ColaboradoresRoute
   ComunidadeRoute: typeof ComunidadeRoute
   CoresRoute: typeof CoresRoute
+  EstoqueRoute: typeof EstoqueRoute
   FinanceiroRoute: typeof FinanceiroRoute
   GastosRoute: typeof GastosRoute
   HorariosRoute: typeof HorariosRoute
@@ -602,6 +615,13 @@ declare module '@tanstack/react-router' {
       path: '/financeiro'
       fullPath: '/financeiro'
       preLoaderRoute: typeof FinanceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estoque': {
+      id: '/estoque'
+      path: '/estoque'
+      fullPath: '/estoque'
+      preLoaderRoute: typeof EstoqueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cores': {
@@ -761,6 +781,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradoresRoute: ColaboradoresRoute,
   ComunidadeRoute: ComunidadeRoute,
   CoresRoute: CoresRoute,
+  EstoqueRoute: EstoqueRoute,
   FinanceiroRoute: FinanceiroRoute,
   GastosRoute: GastosRoute,
   HorariosRoute: HorariosRoute,
