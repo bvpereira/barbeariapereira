@@ -114,12 +114,13 @@ function AtendimentosPage() {
   const [concluidos, setConcluidos] = useState<Atendimento[]>([]);
   const [loadingAgendados, setLoadingAgendados] = useState(true);
   const [loadingConcluidos, setLoadingConcluidos] = useState(true);
-  const [limitAgendados, setLimitAgendados] = useState(10);
-  const [limitConcluidos, setLimitConcluidos] = useState(10);
+  const PAGE_SIZE = 30;
+  const [pageAgendados, setPageAgendados] = useState(0);
+  const [pageConcluidos, setPageConcluidos] = useState(0);
+  const [totalAgendados, setTotalAgendados] = useState(0);
+  const [totalConcluidos, setTotalConcluidos] = useState(0);
   const [pedidosExclusao, setPedidosExclusao] = useState<Atendimento[]>([]);
   const [loadingExclusao, setLoadingExclusao] = useState(false);
-  const [hasMoreAgendados, setHasMoreAgendados] = useState(false);
-  const [hasMoreConcluidos, setHasMoreConcluidos] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
   const invalidateCouponFn = useServerFn(invalidateAppointmentCoupon);
   const applyClubeFn = useServerFn(applyClubeToAppointment);
@@ -173,7 +174,7 @@ function AtendimentosPage() {
       .eq('barbearia_id', tenant.id)
       .eq('status', 'Agendado')
       .order('data', { ascending: true })
-      .range(0, limitAgendados - 1);
+      .range(pageAgendados * PAGE_SIZE, pageAgendados * PAGE_SIZE + PAGE_SIZE - 1);
 
     if (error) { toast.error("Erro ao carregar agendados"); return; }
 
@@ -185,9 +186,9 @@ function AtendimentosPage() {
     const now = new Date();
     setAtencao(formatted.filter(item => new Date(item.data) < now));
     setAgendados(formatted.filter(item => new Date(item.data) >= now));
-    setHasMoreAgendados((count || 0) > limitAgendados);
+    setTotalAgendados(count || 0);
     setLoadingAgendados(false);
-  }, [limitAgendados, tenant]);
+  }, [pageAgendados, tenant]);
 
   const fetchConcluidos = useCallback(async () => {
     if (!tenant?.id) return;
@@ -207,14 +208,14 @@ function AtendimentosPage() {
 
     const { data, error, count } = await query
       .order('data', { ascending: false })
-      .range(0, limitConcluidos - 1);
+      .range(pageConcluidos * PAGE_SIZE, pageConcluidos * PAGE_SIZE + PAGE_SIZE - 1);
 
     if (error) { toast.error("Erro ao carregar concluídos"); return; }
 
     setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
-    setHasMoreConcluidos((count || 0) > limitConcluidos);
+    setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
-  }, [limitConcluidos, filtroConcluidos, tenant]);
+  }, [pageConcluidos, filtroConcluidos, tenant]);
 
   const fetchPedidosExclusao = useCallback(async () => {
     if (!tenant?.id) return;
@@ -1030,6 +1031,16 @@ function AtendimentosPage() {
                 {atencao.length === 0 && agendados.length === 0 && (
                   <p className="text-muted-foreground text-center py-10">Nenhum agendamento encontrado.</p>
                 )}
+
+                {totalAgendados > PAGE_SIZE && (
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <Button variant="outline" size="sm" disabled={pageAgendados === 0} onClick={() => setPageAgendados(p => Math.max(0, p - 1))}>Anterior</Button>
+                    <span className="text-sm text-muted-foreground">
+                      Página {pageAgendados + 1} de {Math.max(1, Math.ceil(totalAgendados / PAGE_SIZE))}
+                    </span>
+                    <Button variant="outline" size="sm" disabled={(pageAgendados + 1) * PAGE_SIZE >= totalAgendados} onClick={() => setPageAgendados(p => p + 1)}>Próxima</Button>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
@@ -1059,6 +1070,16 @@ function AtendimentosPage() {
                 
                 {concluidos.length === 0 && (
                   <p className="text-muted-foreground text-center py-10">Nenhum atendimento concluído encontrado.</p>
+                )}
+
+                {totalConcluidos > PAGE_SIZE && (
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <Button variant="outline" size="sm" disabled={pageConcluidos === 0} onClick={() => setPageConcluidos(p => Math.max(0, p - 1))}>Anterior</Button>
+                    <span className="text-sm text-muted-foreground">
+                      Página {pageConcluidos + 1} de {Math.max(1, Math.ceil(totalConcluidos / PAGE_SIZE))}
+                    </span>
+                    <Button variant="outline" size="sm" disabled={(pageConcluidos + 1) * PAGE_SIZE >= totalConcluidos} onClick={() => setPageConcluidos(p => p + 1)}>Próxima</Button>
+                  </div>
                 )}
               </>
             )}
