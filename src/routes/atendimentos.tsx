@@ -114,12 +114,13 @@ function AtendimentosPage() {
   const [concluidos, setConcluidos] = useState<Atendimento[]>([]);
   const [loadingAgendados, setLoadingAgendados] = useState(true);
   const [loadingConcluidos, setLoadingConcluidos] = useState(true);
-  const [limitAgendados, setLimitAgendados] = useState(10);
-  const [limitConcluidos, setLimitConcluidos] = useState(10);
+  const PAGE_SIZE = 30;
+  const [pageAgendados, setPageAgendados] = useState(0);
+  const [pageConcluidos, setPageConcluidos] = useState(0);
+  const [totalAgendados, setTotalAgendados] = useState(0);
+  const [totalConcluidos, setTotalConcluidos] = useState(0);
   const [pedidosExclusao, setPedidosExclusao] = useState<Atendimento[]>([]);
   const [loadingExclusao, setLoadingExclusao] = useState(false);
-  const [hasMoreAgendados, setHasMoreAgendados] = useState(false);
-  const [hasMoreConcluidos, setHasMoreConcluidos] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
   const invalidateCouponFn = useServerFn(invalidateAppointmentCoupon);
   const applyClubeFn = useServerFn(applyClubeToAppointment);
