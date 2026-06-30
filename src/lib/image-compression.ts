@@ -19,6 +19,39 @@ const SKIP_TYPES = new Set([
 ]);
 
 /**
+ * Recorta a imagem para um quadrado centralizado (center-crop) usando canvas.
+ * Mantém o tipo original; SVG/GIF/ICO passam direto.
+ */
+export async function cropToSquare(file: File): Promise<File> {
+  try {
+    if (!file || !file.type?.startsWith("image/")) return file;
+    if (SKIP_TYPES.has(file.type)) return file;
+
+    const bitmap = await createImageBitmap(file);
+    const size = Math.min(bitmap.width, bitmap.height);
+    const sx = Math.floor((bitmap.width - size) / 2);
+    const sy = Math.floor((bitmap.height - size) / 2);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, sx, sy, size, size, 0, 0, size, size);
+    bitmap.close?.();
+
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob(resolve, file.type || "image/jpeg", 0.95),
+    );
+    if (!blob) return file;
+    return new File([blob], file.name, { type: blob.type, lastModified: Date.now() });
+  } catch (err) {
+    console.warn("[cropToSquare] falha, usando original:", err);
+    return file;
+  }
+}
+
+/**
  * Comprime e converte imagens raster para WebP no browser antes do upload.
  * - Pula SVG, GIF, ICO e qualquer arquivo que não seja imagem.
  * - Se a compressão falhar ou resultar em arquivo maior, retorna o original.

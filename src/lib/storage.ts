@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { compressImage, type CompressPreset } from "@/lib/image-compression";
+import { compressImage, cropToSquare, type CompressPreset } from "@/lib/image-compression";
 
 /**
  * Deleta um arquivo do storage a partir da sua URL pública.
@@ -42,8 +42,12 @@ export const uploadImage = async (
   slot: string,
   file: File,
   preset?: CompressPreset,
+  options?: { square?: boolean },
 ) => {
-  const finalFile = await compressImage(file, preset ?? presetForBucket(bucket, slot));
+  const squareByBucket = bucket === "collaborator-images" || bucket === "service-images";
+  const shouldSquare = options?.square ?? squareByBucket;
+  const prepared = shouldSquare ? await cropToSquare(file) : file;
+  const finalFile = await compressImage(prepared, preset ?? presetForBucket(bucket, slot));
 
   const fileExt = finalFile.name.split(".").pop();
   const uuid = Math.random().toString(36).substring(2, 10);
