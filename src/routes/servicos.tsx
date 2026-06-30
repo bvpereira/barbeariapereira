@@ -123,7 +123,7 @@ function ServicesPage() {
         .from("servicos")
         .select("*")
         .eq("barbearia_id", tenant.id)
-        .order("nome", { ascending: true });
+        .order("name", { ascending: true });
 
       if (error) throw error;
       setServices(data || []);
