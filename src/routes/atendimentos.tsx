@@ -122,6 +122,8 @@ function AtendimentosPage() {
   const [pedidosExclusao, setPedidosExclusao] = useState<Atendimento[]>([]);
   const [loadingExclusao, setLoadingExclusao] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
+  const [dataInicioConcluidos, setDataInicioConcluidos] = useState<string>("");
+  const [dataFimConcluidos, setDataFimConcluidos] = useState<string>("");
   const invalidateCouponFn = useServerFn(invalidateAppointmentCoupon);
   const applyClubeFn = useServerFn(applyClubeToAppointment);
 
@@ -205,6 +207,8 @@ function AtendimentosPage() {
       .in('status', ['Finalizado', 'Não compareceu']);
 
     if (filtroConcluidos !== 'Todos') query = query.eq('status', filtroConcluidos);
+    if (dataInicioConcluidos) query = query.gte('data', `${dataInicioConcluidos}T00:00:00`);
+    if (dataFimConcluidos) query = query.lte('data', `${dataFimConcluidos}T23:59:59`);
 
     const { data, error, count } = await query
       .order('data', { ascending: false })
@@ -215,7 +219,7 @@ function AtendimentosPage() {
     setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
-  }, [pageConcluidos, filtroConcluidos, tenant]);
+  }, [pageConcluidos, filtroConcluidos, dataInicioConcluidos, dataFimConcluidos, tenant]);
 
   const fetchPedidosExclusao = useCallback(async () => {
     if (!tenant?.id) return;
@@ -1046,6 +1050,47 @@ function AtendimentosPage() {
           </TabsContent>
 
           <TabsContent value="concluidos" className="space-y-8 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-end flex-wrap p-4 border rounded-lg bg-muted/30">
+              <div className="space-y-1">
+                <Label className="text-xs">Data início</Label>
+                <Input
+                  type="date"
+                  value={dataInicioConcluidos}
+                  onChange={(e) => { setDataInicioConcluidos(e.target.value); setPageConcluidos(0); }}
+                  className="w-[170px]"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Data fim</Label>
+                <Input
+                  type="date"
+                  value={dataFimConcluidos}
+                  onChange={(e) => { setDataFimConcluidos(e.target.value); setPageConcluidos(0); }}
+                  className="w-[170px]"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Status</Label>
+                <Select value={filtroConcluidos} onValueChange={(v) => { setFiltroConcluidos(v as any); setPageConcluidos(0); }}>
+                  <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Todos">Todos</SelectItem>
+                    <SelectItem value="Finalizado">Finalizado</SelectItem>
+                    <SelectItem value="Não compareceu">Não compareceu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {(dataInicioConcluidos || dataFimConcluidos || filtroConcluidos !== 'Todos') && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => { setDataInicioConcluidos(""); setDataFimConcluidos(""); setFiltroConcluidos('Todos'); setPageConcluidos(0); }}
+                >
+                  Limpar filtros
+                </Button>
+              )}
+            </div>
+
             {loadingConcluidos ? (
               <p>Carregando...</p>
             ) : (
