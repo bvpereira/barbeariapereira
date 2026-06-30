@@ -253,6 +253,11 @@ function AtendimentosPage() {
 
     setColaboradores(formattedColabs as Colaborador[]);
     setAllServicos(servs || []);
+
+    const { data: prods } = await supabase.from('estoque' as any)
+      .select('id, nome, preco_revenda, quantidade_atual, unidade_medida')
+      .eq('barbearia_id', tenant.id).eq('tipo', 'revenda').is('deleted_at', null).order('nome');
+    setProdutosRevendaCatalog((prods as any) || []);
   }, [tenant]);
 
   const fetchBookingSettings = useCallback(async () => {
