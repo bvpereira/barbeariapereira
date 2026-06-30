@@ -48,8 +48,6 @@ function CoresPage() {
   const [nivelOk, setNivelOk] = useState<boolean | null>(null);
   const [perfilSelId, setPerfilSelId] = useState<string | null>(null);
   const [preset, setPreset] = useState<string>(DEFAULT_PRESET);
-  const [modo, setModo] = useState<Modo>("light");
-  const [editing, setEditing] = useState<EditingMode>("light");
   const [light, setLight] = useState<ThemeTokens>(PRESETS[DEFAULT_PRESET].light);
   const [dark, setDark] = useState<ThemeTokens>(PRESETS[DEFAULT_PRESET].dark);
   const [saving, setSaving] = useState(false);
