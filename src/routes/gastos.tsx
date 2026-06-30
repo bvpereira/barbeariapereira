@@ -268,6 +268,8 @@ function GastosPage() {
     setDataGasto(format(new Date(), "yyyy-MM-dd"));
     setEditingGasto(null);
     setSelectedColaboradorId("");
+    setEstoqueId("");
+    setQuantidadeComprada("");
   };
 
   const handleSaveSalario = async () => {
