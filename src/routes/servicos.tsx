@@ -563,9 +563,9 @@ function ServicesPage() {
                         <Pencil className="w-3 h-3" /> Editar
                       </Button>
                       <Button
-                        variant="ghost"
+                        variant="destructive"
                         size="sm"
-                        className="h-6 px-2 gap-1 text-[11px] border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        className="h-6 px-2 gap-1 text-[11px]"
                         onClick={() => setDeleteId(service.id)}
                       >
                         <Trash2 className="w-3 h-3" /> Excluir
