@@ -57,6 +57,7 @@ interface Collaborator {
 function CollaboratorsPage() {
   const { tenant, loading: tenantLoading } = useTenant();
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [comissoesPorColab, setComissoesPorColab] = useState<Record<string, { total: number; meses: { mes: string; valor: number }[] }>>({});
   const [allServices, setAllServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
