@@ -118,7 +118,7 @@ function CoresPage() {
   };
 
   const buildRow = () => {
-    const row: any = { preset, modo };
+    const row: any = { preset, modo: "light" };
     for (const t of COLOR_TOKENS) {
       row[t] = light[t];
       row["dark_" + t] = dark[t];
