@@ -75,12 +75,15 @@ function GastosPage() {
   const [isSalarioDialogOpen, setIsSalarioDialogOpen] = useState(false);
   const [editingGasto, setEditingGasto] = useState<Gasto | null>(null);
   const [colaboradores, setColaboradores] = useState<{ id: string; nome: string }[]>([]);
+  const [produtosEstoque, setProdutosEstoque] = useState<{ id: string; nome: string; tipo: string; unidade_medida: string }[]>([]);
   
   // Form states
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
   const [dataGasto, setDataGasto] = useState(format(new Date(), "yyyy-MM-dd"));
   const [selectedColaboradorId, setSelectedColaboradorId] = useState("");
+  const [estoqueId, setEstoqueId] = useState<string>("");
+  const [quantidadeComprada, setQuantidadeComprada] = useState<string>("");
 
   const [totalMesAtual, setTotalMesAtual] = useState(0);
   const [totalUltimos12Meses, setTotalUltimos12Meses] = useState(0);
@@ -91,7 +94,16 @@ function GastosPage() {
     fetchGastos();
     fetchSummaryData();
     fetchColaboradores();
+    fetchProdutosEstoque();
   }, [selectedMonth, tenant, tenantLoading]);
+
+  const fetchProdutosEstoque = async () => {
+    if (!tenant?.id) return;
+    const { data } = await supabase.from("estoque" as any)
+      .select("id, nome, tipo, unidade_medida")
+      .eq("barbearia_id", tenant.id).is("deleted_at", null).order("nome");
+    setProdutosEstoque(((data as any) || []) as any);
+  };
 
   const fetchColaboradores = async () => {
     if (!tenant?.id) return;
@@ -199,11 +211,13 @@ function GastosPage() {
 
     try {
       const [year, month, day] = dataGasto.split("-").map(Number);
-      const payload = {
+      const payload: any = {
         barbearia_id: tenant!.id,
         nome,
         valor: parseFloat(valor),
         data: `${dataGasto}T12:00:00`,
+        estoque_id: estoqueId || null,
+        quantidade_comprada: estoqueId && quantidadeComprada ? parseFloat(quantidadeComprada) : null,
       };
 
       if (editingGasto) {
@@ -254,6 +268,8 @@ function GastosPage() {
     setDataGasto(format(new Date(), "yyyy-MM-dd"));
     setEditingGasto(null);
     setSelectedColaboradorId("");
+    setEstoqueId("");
+    setQuantidadeComprada("");
   };
 
   const handleSaveSalario = async () => {
@@ -287,11 +303,13 @@ function GastosPage() {
     }
   };
 
-  const openEditDialog = (gasto: Gasto) => {
+  const openEditDialog = (gasto: any) => {
     setEditingGasto(gasto);
     setNome(gasto.nome);
     setValor(gasto.valor.toString());
     setDataGasto(format(parseISO(gasto.data), "yyyy-MM-dd"));
+    setEstoqueId(gasto.estoque_id || "");
+    setQuantidadeComprada(gasto.quantidade_comprada ? String(gasto.quantidade_comprada) : "");
     setIsDialogOpen(true);
   };
 
@@ -401,6 +419,32 @@ function GastosPage() {
                       onChange={(e) => setDataGasto(e.target.value)} 
                     />
                   </div>
+                  <div className="grid gap-2">
+                    <Label>Vincular a produto do estoque (opcional)</Label>
+                    <Select value={estoqueId || "none"} onValueChange={(v) => {
+                      const val = v === "none" ? "" : v;
+                      setEstoqueId(val);
+                      if (val) {
+                        const p = produtosEstoque.find(x => x.id === val);
+                        if (p && !nome.trim()) setNome(p.nome);
+                      }
+                    }}>
+                      <SelectTrigger><SelectValue placeholder="Nenhum" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Nenhum</SelectItem>
+                        {produtosEstoque.map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.nome} ({p.tipo === "consumivel" ? "Consumível" : "Revenda"})</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {estoqueId && (
+                    <div className="grid gap-2">
+                      <Label>Quantidade comprada</Label>
+                      <Input type="number" step="0.001" value={quantidadeComprada} onChange={(e) => setQuantidadeComprada(e.target.value)} placeholder="Ex: 5" />
+                      <p className="text-xs text-muted-foreground">Esta quantidade será acrescida ao estoque do produto.</p>
+                    </div>
+                  )}
                 </div>
                 <DialogFooter className="flex-col sm:flex-row gap-2">
                   <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">Cancelar</Button>

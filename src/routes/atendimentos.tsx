@@ -154,6 +154,10 @@ function AtendimentosPage() {
   const [cashbackEnabled, setCashbackEnabled] = useState(false);
   // Override por serviço selecionado: { servicoId: { ativo, percentual } }
   const [cashbackOverrides, setCashbackOverrides] = useState<Record<string, { ativo: boolean; percentual: number }>>({});
+  // Produtos de revenda
+  const [produtosRevendaCatalog, setProdutosRevendaCatalog] = useState<{ id: string; nome: string; preco_revenda: number; quantidade_atual: number; unidade_medida: string }[]>([]);
+  const [produtosVenda, setProdutosVenda] = useState<{ id?: string; estoque_id: string; nome_produto: string; quantidade: number; valor_unitario: number }[]>([]);
+  const [userNivel, setUserNivel] = useState<number | null>(null);
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
@@ -249,6 +253,11 @@ function AtendimentosPage() {
 
     setColaboradores(formattedColabs as Colaborador[]);
     setAllServicos(servs || []);
+
+    const { data: prods } = await supabase.from('estoque' as any)
+      .select('id, nome, preco_revenda, quantidade_atual, unidade_medida')
+      .eq('barbearia_id', tenant.id).eq('tipo', 'revenda').is('deleted_at', null).order('nome');
+    setProdutosRevendaCatalog((prods as any) || []);
   }, [tenant]);
 
   const fetchBookingSettings = useCallback(async () => {
@@ -268,6 +277,7 @@ function AtendimentosPage() {
     const userData = localStorage.getItem("user");
     if (userData) {
       const parsedUser = JSON.parse(userData);
+      setUserNivel(Number(parsedUser.nivel));
       if (tenant?.id && parsedUser.barbearia_id !== tenant.id) {
         toast.error("Acesso negado.");
         window.location.href = "/";
@@ -457,6 +467,7 @@ function AtendimentosPage() {
     setComissaoFinal("0");
     setStatus('Finalizado');
     setColabServicosIds([]);
+    setProdutosVenda([]);
   };
 
   const handleSave = async (isScheduling: boolean, force: boolean = false) => {
@@ -551,6 +562,26 @@ function AtendimentosPage() {
         selectedServiceRows.map((service) => ({ ...service, atendimento_id: atendimentoId }))
       );
       if (servErr) throw new Error("Serviços: " + servErr.message);
+
+      // Persistir produtos vendidos (apenas em edição)
+      if (editingAtendimento) {
+        await supabase.from('atendimento_produtos' as any).delete().eq('atendimento_id', atendimentoId);
+        const linhasProd = produtosVenda.filter(p => p.estoque_id && p.quantidade > 0).map(p => ({
+          atendimento_id: atendimentoId, barbearia_id: tenant.id,
+          estoque_id: p.estoque_id, nome_produto: p.nome_produto,
+          quantidade: p.quantidade, valor_unitario: p.valor_unitario,
+        }));
+        if (linhasProd.length > 0) {
+          const { error: prodErr } = await supabase.from('atendimento_produtos' as any).insert(linhasProd);
+          if (prodErr) throw new Error("Produtos: " + prodErr.message);
+        }
+        // Recalcular valor total = serviços + produtos
+        const totalProdutos = linhasProd.reduce((s, p) => s + (p.quantidade * p.valor_unitario), 0);
+        const novoTotal = originalTotal + totalProdutos;
+        await supabase.from('atendimentos').update({ valor: novoTotal, valor_original: novoTotal }).eq('id', atendimentoId);
+      }
+
+
 
       // Aplicar desconto do clube de assinatura (se o cliente tiver clube ativo)
       try {
@@ -793,6 +824,14 @@ function AtendimentosPage() {
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
         fetchColabServicos(item.colaborador.id);
+        // Carregar produtos vendidos do atendimento
+        supabase.from('atendimento_produtos' as any)
+          .select('id, estoque_id, nome_produto, quantidade, valor_unitario')
+          .eq('atendimento_id', item.id)
+          .then(({ data }) => setProdutosVenda(((data as any) || []).map((p: any) => ({
+            id: p.id, estoque_id: p.estoque_id || "", nome_produto: p.nome_produto,
+            quantidade: Number(p.quantidade), valor_unitario: Number(p.valor_unitario),
+          }))));
         setIsDialogOpen(true);
       }}>
 
@@ -1313,6 +1352,61 @@ function AtendimentosPage() {
                   )}
                  </>
                )}
+
+              {editingAtendimento && (userNivel === 1 || userNivel === 2) && (
+                <div className="space-y-2 rounded-lg border p-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">Produtos vendidos (revenda)</Label>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setProdutosVenda(p => [...p, { estoque_id: "", nome_produto: "", quantidade: 1, valor_unitario: 0 }])}>
+                      + Adicionar
+                    </Button>
+                  </div>
+                  {produtosVenda.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Nenhum produto adicionado.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {produtosVenda.map((pv, idx) => (
+                        <div key={idx} className="grid grid-cols-12 gap-1 items-end">
+                          <div className="col-span-5">
+                            <Select value={pv.estoque_id} onValueChange={(v) => {
+                              const prod = produtosRevendaCatalog.find(x => x.id === v);
+                              setProdutosVenda(arr => arr.map((p, i) => i === idx ? {
+                                ...p, estoque_id: v,
+                                nome_produto: prod?.nome || p.nome_produto,
+                                valor_unitario: prod?.preco_revenda ?? p.valor_unitario,
+                              } : p));
+                            }}>
+                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Produto" /></SelectTrigger>
+                              <SelectContent>
+                                {produtosRevendaCatalog.map(p => (
+                                  <SelectItem key={p.id} value={p.id}>{p.nome} ({Number(p.quantidade_atual)} {p.unidade_medida})</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-2">
+                            <Input type="number" step="0.001" className="h-8 text-xs" value={pv.quantidade}
+                              onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, quantidade: parseFloat(e.target.value) || 0 } : p))} />
+                          </div>
+                          <div className="col-span-4">
+                            <Input type="number" step="0.01" className="h-8 text-xs" value={pv.valor_unitario}
+                              onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, valor_unitario: parseFloat(e.target.value) || 0 } : p))} />
+                          </div>
+                          <Button type="button" size="icon" variant="ghost" className="h-8 w-8 col-span-1"
+                            onClick={() => setProdutosVenda(arr => arr.filter((_, i) => i !== idx))}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      <p className="text-xs text-muted-foreground text-right">
+                        Total produtos: R$ {produtosVenda.reduce((s, p) => s + (p.quantidade * p.valor_unitario), 0).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+
               {!editingAtendimento ? (
                 <div className="space-y-2">
                   <Label>Status</Label>

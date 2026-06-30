@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { migrateImages } from "@/lib/migrate-images.functions";
 import { verifyMigration } from "@/lib/verify-migration.functions";
 import { NotificationsPanel } from "@/components/NotificationsPanel";
+import { EstoqueAlertaCard } from "@/components/EstoqueAlertaCard";
 
 
 
@@ -349,6 +350,9 @@ function AdminPage() {
 
           <NotificationsPanel />
         </div>
+
+        <EstoqueAlertaCard />
+
 
 
         {/* Cards de Resumo Hoje */}

@@ -169,6 +169,57 @@ export type Database = {
           },
         ]
       }
+      atendimento_produtos: {
+        Row: {
+          atendimento_id: string
+          barbearia_id: string
+          created_at: string
+          estoque_id: string | null
+          id: string
+          nome_produto: string
+          quantidade: number
+          valor_total: number | null
+          valor_unitario: number
+        }
+        Insert: {
+          atendimento_id: string
+          barbearia_id: string
+          created_at?: string
+          estoque_id?: string | null
+          id?: string
+          nome_produto: string
+          quantidade?: number
+          valor_total?: number | null
+          valor_unitario: number
+        }
+        Update: {
+          atendimento_id?: string
+          barbearia_id?: string
+          created_at?: string
+          estoque_id?: string | null
+          id?: string
+          nome_produto?: string
+          quantidade?: number
+          valor_total?: number | null
+          valor_unitario?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atendimento_produtos_atendimento_id_fkey"
+            columns: ["atendimento_id"]
+            isOneToOne: false
+            referencedRelation: "atendimentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimento_produtos_estoque_id_fkey"
+            columns: ["estoque_id"]
+            isOneToOne: false
+            referencedRelation: "estoque"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       atendimento_servicos: {
         Row: {
           atendimento_id: string
@@ -1160,29 +1211,139 @@ export type Database = {
           },
         ]
       }
+      estoque: {
+        Row: {
+          alerta_estoque: number
+          ativo: boolean
+          barbearia_id: string
+          categoria: string | null
+          created_at: string
+          custo_medio: number
+          deleted_at: string | null
+          id: string
+          marca: string | null
+          nome: string
+          preco_revenda: number | null
+          quantidade_atual: number
+          tipo: string
+          unidade_medida: string | null
+          updated_at: string
+        }
+        Insert: {
+          alerta_estoque?: number
+          ativo?: boolean
+          barbearia_id: string
+          categoria?: string | null
+          created_at?: string
+          custo_medio?: number
+          deleted_at?: string | null
+          id?: string
+          marca?: string | null
+          nome: string
+          preco_revenda?: number | null
+          quantidade_atual?: number
+          tipo: string
+          unidade_medida?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alerta_estoque?: number
+          ativo?: boolean
+          barbearia_id?: string
+          categoria?: string | null
+          created_at?: string
+          custo_medio?: number
+          deleted_at?: string | null
+          id?: string
+          marca?: string | null
+          nome?: string
+          preco_revenda?: number | null
+          quantidade_atual?: number
+          tipo?: string
+          unidade_medida?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      estoque_movimentos: {
+        Row: {
+          barbearia_id: string
+          created_at: string
+          custo_unitario: number | null
+          estoque_id: string
+          id: string
+          motivo: string | null
+          origem: string | null
+          origem_id: string | null
+          quantidade: number
+          saldo_apos: number
+          tipo: string
+        }
+        Insert: {
+          barbearia_id: string
+          created_at?: string
+          custo_unitario?: number | null
+          estoque_id: string
+          id?: string
+          motivo?: string | null
+          origem?: string | null
+          origem_id?: string | null
+          quantidade: number
+          saldo_apos: number
+          tipo: string
+        }
+        Update: {
+          barbearia_id?: string
+          created_at?: string
+          custo_unitario?: number | null
+          estoque_id?: string
+          id?: string
+          motivo?: string | null
+          origem?: string | null
+          origem_id?: string | null
+          quantidade?: number
+          saldo_apos?: number
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estoque_movimentos_estoque_id_fkey"
+            columns: ["estoque_id"]
+            isOneToOne: false
+            referencedRelation: "estoque"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gastos: {
         Row: {
           barbearia_id: string
           created_at: string
           data: string
+          estoque_id: string | null
           id: string
           nome: string
+          quantidade_comprada: number | null
           valor: number
         }
         Insert: {
           barbearia_id: string
           created_at?: string
           data?: string
+          estoque_id?: string | null
           id?: string
           nome: string
+          quantidade_comprada?: number | null
           valor: number
         }
         Update: {
           barbearia_id?: string
           created_at?: string
           data?: string
+          estoque_id?: string | null
           id?: string
           nome?: string
+          quantidade_comprada?: number | null
           valor?: number
         }
         Relationships: [
@@ -1191,6 +1352,13 @@ export type Database = {
             columns: ["barbearia_id"]
             isOneToOne: false
             referencedRelation: "barbearias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gastos_estoque_id_fkey"
+            columns: ["estoque_id"]
+            isOneToOne: false
+            referencedRelation: "estoque"
             referencedColumns: ["id"]
           },
         ]
@@ -1924,6 +2092,23 @@ export type Database = {
       }
       _rewrite_clone_image_urls: {
         Args: { p_new_barb: string; p_old_barb: string }
+        Returns: undefined
+      }
+      ajustar_estoque_manual: {
+        Args: { p_estoque_id: string; p_motivo: string; p_novo_saldo: number }
+        Returns: undefined
+      }
+      aplicar_movimento_estoque: {
+        Args: {
+          p_barbearia_id: string
+          p_custo_unit: number
+          p_estoque_id: string
+          p_motivo: string
+          p_origem: string
+          p_origem_id: string
+          p_qtd: number
+          p_tipo: string
+        }
         Returns: undefined
       }
       apply_clube_to_appointment: {
