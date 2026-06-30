@@ -268,7 +268,7 @@ function EstoquePage() {
                             <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openHistorico(p)} title="Histórico"><History className="w-3.5 h-3.5" /></Button>
                             <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openAdjust(p)} title="Ajustar saldo"><Settings2 className="w-3.5 h-3.5" /></Button>
                             <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openEdit(p)}><Edit2 className="w-3.5 h-3.5" /></Button>
-                            <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => handleDelete(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(p)}><Trash2 className="w-3.5 h-3.5" /></Button>
                           </div>
                         </CardContent>
                       </Card>
