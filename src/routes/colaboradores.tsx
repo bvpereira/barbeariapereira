@@ -423,7 +423,7 @@ function CollaboratorsPage() {
   };
 
   const handleDelete = async (colab: Collaborator) => {
-    if (!confirm(`Tem certeza que deseja remover ${colab.nome}?`)) return;
+    
 
     try {
       await deleteByPublicUrl("collaborator-images", colab.foto_url);
