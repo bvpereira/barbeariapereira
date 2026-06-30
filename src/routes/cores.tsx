@@ -90,16 +90,14 @@ function CoresPage() {
     setRenaming(false);
   }, [perfilSel?.id]);
 
-  // preview ao vivo
+  // preview ao vivo (sempre claro)
   useEffect(() => {
     const root = document.documentElement;
-    const tokens = editing === "light" ? light : dark;
     for (const t of COLOR_TOKENS) {
-      root.style.setProperty(cssVarName(t), tokens[t]);
+      root.style.setProperty(cssVarName(t), light[t]);
     }
-    if (editing === "dark") root.classList.add("dark");
-    else root.classList.remove("dark");
-  }, [light, dark, editing]);
+    root.classList.remove("dark");
+  }, [light]);
 
   const applyPreset = (key: string) => {
     const p = PRESETS[key];
