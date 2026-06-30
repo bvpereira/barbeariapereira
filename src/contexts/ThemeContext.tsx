@@ -107,11 +107,7 @@ if (typeof window !== "undefined") {
       const row = JSON.parse(raw) as CoresRow;
       applyLight(row.light || {});
       applyDarkStyleTag(row.dark || {});
-      const root = document.documentElement;
-      const modo = row.modo || "light";
-      if (modo === "dark") root.classList.add("dark");
-      else if (modo === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches) root.classList.add("dark");
-      else root.classList.remove("dark");
+      document.documentElement.classList.remove("dark");
     }
   } catch {}
 }
