@@ -208,14 +208,14 @@ function AtendimentosPage() {
 
     const { data, error, count } = await query
       .order('data', { ascending: false })
-      .range(0, limitConcluidos - 1);
+      .range(pageConcluidos * PAGE_SIZE, pageConcluidos * PAGE_SIZE + PAGE_SIZE - 1);
 
     if (error) { toast.error("Erro ao carregar concluídos"); return; }
 
     setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
-    setHasMoreConcluidos((count || 0) > limitConcluidos);
+    setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
-  }, [limitConcluidos, filtroConcluidos, tenant]);
+  }, [pageConcluidos, filtroConcluidos, tenant]);
 
   const fetchPedidosExclusao = useCallback(async () => {
     if (!tenant?.id) return;
