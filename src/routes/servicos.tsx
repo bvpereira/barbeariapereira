@@ -566,7 +566,7 @@ function ServicesPage() {
                         variant="ghost"
                         size="sm"
                         className="h-6 px-2 gap-1 text-[11px] border border-white text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => handleDelete(service.id)}
+                        onClick={() => setDeleteId(service.id)}
                       >
                         <Trash2 className="w-3 h-3" /> Excluir
                       </Button>
