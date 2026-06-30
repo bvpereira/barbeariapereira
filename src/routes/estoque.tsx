@@ -141,12 +141,13 @@ function EstoquePage() {
     setIsOpen(false); resetForm(); fetchProdutos();
   };
 
+  const [deleteTarget, setDeleteTarget] = useState<Produto | null>(null);
   const handleDelete = async (p: Produto) => {
-    if (!confirm(`Excluir "${p.nome}"?`)) return;
     const { error } = await supabase.from("estoque" as any).update({ deleted_at: new Date().toISOString() }).eq("id", p.id);
     if (error) return toast.error(error.message);
     toast.success("Excluído"); fetchProdutos();
   };
+
 
   const openAdjust = (p: Produto) => { setAdjustTarget(p); setAdjustQtd(String(p.quantidade_atual)); setAdjustMotivo(""); setAdjustOpen(true); };
   const handleAdjust = async () => {
