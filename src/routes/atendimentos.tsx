@@ -1352,6 +1352,61 @@ function AtendimentosPage() {
                   )}
                  </>
                )}
+
+              {editingAtendimento && (userNivel === 1 || userNivel === 2) && (
+                <div className="space-y-2 rounded-lg border p-3 bg-muted/20">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">Produtos vendidos (revenda)</Label>
+                    <Button type="button" size="sm" variant="outline" onClick={() => setProdutosVenda(p => [...p, { estoque_id: "", nome_produto: "", quantidade: 1, valor_unitario: 0 }])}>
+                      + Adicionar
+                    </Button>
+                  </div>
+                  {produtosVenda.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">Nenhum produto adicionado.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {produtosVenda.map((pv, idx) => (
+                        <div key={idx} className="grid grid-cols-12 gap-1 items-end">
+                          <div className="col-span-5">
+                            <Select value={pv.estoque_id} onValueChange={(v) => {
+                              const prod = produtosRevendaCatalog.find(x => x.id === v);
+                              setProdutosVenda(arr => arr.map((p, i) => i === idx ? {
+                                ...p, estoque_id: v,
+                                nome_produto: prod?.nome || p.nome_produto,
+                                valor_unitario: prod?.preco_revenda ?? p.valor_unitario,
+                              } : p));
+                            }}>
+                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Produto" /></SelectTrigger>
+                              <SelectContent>
+                                {produtosRevendaCatalog.map(p => (
+                                  <SelectItem key={p.id} value={p.id}>{p.nome} ({Number(p.quantidade_atual)} {p.unidade_medida})</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-2">
+                            <Input type="number" step="0.001" className="h-8 text-xs" value={pv.quantidade}
+                              onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, quantidade: parseFloat(e.target.value) || 0 } : p))} />
+                          </div>
+                          <div className="col-span-4">
+                            <Input type="number" step="0.01" className="h-8 text-xs" value={pv.valor_unitario}
+                              onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, valor_unitario: parseFloat(e.target.value) || 0 } : p))} />
+                          </div>
+                          <Button type="button" size="icon" variant="ghost" className="h-8 w-8 col-span-1"
+                            onClick={() => setProdutosVenda(arr => arr.filter((_, i) => i !== idx))}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      <p className="text-xs text-muted-foreground text-right">
+                        Total produtos: R$ {produtosVenda.reduce((s, p) => s + (p.quantidade * p.valor_unitario), 0).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+
               {!editingAtendimento ? (
                 <div className="space-y-2">
                   <Label>Status</Label>
