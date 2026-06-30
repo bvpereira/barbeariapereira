@@ -27,9 +27,9 @@ const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const emptyForm = {
   id: undefined as string | undefined, nome: "", descricao: "", codigo: "", dias_semana: [] as number[],
   limite_por_cliente: "ilimitado" as "1" | "ilimitado", somente_novos_clientes: false,
-  inatividade_mode: "todos" as "todos" | "dias", inatividade_dias: "", total_mode: "qualquer" as "qualquer" | "minimo",
-  valor_minimo_total: "", tipo_desconto_total: "percentual" as "percentual" | "fixo", valor_desconto_total: "",
-  regras_servicos: [] as Rule[],
+  inatividade_mode: "todos" as "todos" | "dias", inatividade_dias: "",
+  tipo_desconto: "percentual" as "percentual" | "fixo", valor_desconto: "",
+  servicos_ids: [] as string[],
 };
 
 export function CouponsSection({ tenantId, services }: { tenantId: string; services: Service[] }) {
@@ -57,27 +57,28 @@ export function CouponsSection({ tenantId, services }: { tenantId: string; servi
   const reset = () => { setForm(emptyForm); setRange(undefined); };
   const edit = (coupon: Coupon) => {
     const rules = Array.isArray(coupon.regras_servicos) ? coupon.regras_servicos as unknown as Rule[] : [];
+    const first = rules[0];
     setForm({
       id: coupon.id, nome: coupon.nome, descricao: coupon.descricao, codigo: coupon.codigo,
       dias_semana: coupon.dias_semana, limite_por_cliente: coupon.limite_por_cliente as "1" | "ilimitado",
       somente_novos_clientes: coupon.somente_novos_clientes,
       inatividade_mode: coupon.inatividade_dias ? "dias" : "todos", inatividade_dias: coupon.inatividade_dias?.toString() ?? "",
-      total_mode: coupon.valor_minimo_total ? "minimo" : "qualquer", valor_minimo_total: coupon.valor_minimo_total?.toString() ?? "",
-      tipo_desconto_total: (coupon.tipo_desconto_total as "percentual" | "fixo") ?? "percentual",
-      valor_desconto_total: coupon.valor_desconto_total?.toString() ?? "", regras_servicos: rules,
+      tipo_desconto: (first?.tipo_desconto as "percentual" | "fixo") ?? "percentual",
+      valor_desconto: first?.valor_desconto?.toString() ?? "",
+      servicos_ids: rules.map((r) => r.servico_id),
     });
     setRange({ from: parseISO(coupon.data_inicio), to: parseISO(coupon.data_fim) }); setOpen(true);
   };
 
   const toggleService = (id: string, checked: boolean) => setForm((current) => ({
-    ...current, regras_servicos: checked
-      ? [...current.regras_servicos, { servico_id: id, tipo_desconto: current.total_mode === "minimo" ? null : "percentual", valor_desconto: null }]
-      : current.regras_servicos.filter((rule) => rule.servico_id !== id),
+    ...current, servicos_ids: checked ? [...current.servicos_ids, id] : current.servicos_ids.filter((sid) => sid !== id),
   }));
 
   const submit = async () => {
     if (!credentials || !range?.from || !range.to) return toast.error("Selecione o período completo do cupom.");
-    if (!form.dias_semana.length || !form.regras_servicos.length) return toast.error("Selecione dias e serviços elegíveis.");
+    if (!form.dias_semana.length || !form.servicos_ids.length) return toast.error("Selecione dias e serviços elegíveis.");
+    const valor = Number(form.valor_desconto);
+    if (!valor || valor <= 0) return toast.error("Informe o valor do desconto.");
     setSaving(true);
     try {
       await saveFn({ data: {
@@ -85,10 +86,8 @@ export function CouponsSection({ tenantId, services }: { tenantId: string; servi
         data_inicio: format(range.from, "yyyy-MM-dd"), data_fim: format(range.to, "yyyy-MM-dd"), dias_semana: form.dias_semana,
         limite_por_cliente: form.limite_por_cliente, somente_novos_clientes: form.somente_novos_clientes,
         inatividade_dias: !form.somente_novos_clientes && form.inatividade_mode === "dias" ? Number(form.inatividade_dias) : null,
-        valor_minimo_total: form.total_mode === "minimo" ? Number(form.valor_minimo_total) : null,
-        tipo_desconto_total: form.total_mode === "minimo" ? form.tipo_desconto_total : null,
-        valor_desconto_total: form.total_mode === "minimo" ? Number(form.valor_desconto_total) : null,
-        regras_servicos: form.regras_servicos.map((rule) => form.total_mode === "minimo" ? { ...rule, tipo_desconto: null, valor_desconto: null } : rule),
+        valor_minimo_total: null, tipo_desconto_total: null, valor_desconto_total: null,
+        regras_servicos: form.servicos_ids.map((sid) => ({ servico_id: sid, tipo_desconto: form.tipo_desconto, valor_desconto: valor })),
       } });
       toast.success(form.id ? "Cupom atualizado." : "Cupom criado."); setOpen(false); reset(); await load();
     } catch (error) { toast.error(error instanceof Error ? error.message : "Erro ao salvar cupom."); }
@@ -121,9 +120,9 @@ export function CouponsSection({ tenantId, services }: { tenantId: string; servi
         <div className="space-y-2"><Label>Duração</Label><Popover><PopoverTrigger asChild><Button variant="outline" className="w-full justify-start"><CalendarDays />{range?.from ? `${format(range.from, "dd/MM/yyyy")} — ${range.to ? format(range.to, "dd/MM/yyyy") : "..."}` : "Selecionar período"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0"><Calendar mode="range" selected={range} onSelect={setRange} locale={ptBR} className="pointer-events-auto" /></PopoverContent></Popover></div>
         <div className="space-y-2"><Label>Dias da semana</Label><div className="grid grid-cols-4 gap-2 sm:grid-cols-7">{weekdays.map((day, index) => <label key={day} className="flex items-center gap-2 rounded-md border p-2 text-sm"><Checkbox checked={form.dias_semana.includes(index)} onCheckedChange={(checked) => setForm({ ...form, dias_semana: checked ? [...form.dias_semana, index] : form.dias_semana.filter((value) => value !== index) })} />{day}</label>)}</div></div>
         <div className="grid gap-5 sm:grid-cols-2"><Choice label="Número de uso por usuário" value={form.limite_por_cliente} onChange={(value) => setForm({ ...form, limite_por_cliente: value as "1" | "ilimitado" })} options={[["1", "Uma vez"], ["ilimitado", "Ilimitado"]]} /><Choice label="Novos clientes" value={form.somente_novos_clientes ? "sim" : "nao"} onChange={(value) => setForm({ ...form, somente_novos_clientes: value === "sim", inatividade_mode: value === "sim" ? "todos" : form.inatividade_mode, inatividade_dias: value === "sim" ? "" : form.inatividade_dias })} options={[["sim", "Sim"], ["nao", "Não"]]} /></div>
-        <div className="space-y-3"><Label>Tempo de cliente inativo</Label><RadioGroup disabled={form.somente_novos_clientes} value={form.inatividade_mode} onValueChange={(value) => setForm({ ...form, inatividade_mode: value as "todos" | "dias" })} className="flex gap-5"><RadioOption value="todos" label="Todos os clientes" /><RadioOption value="dias" label="Após número de dias" /></RadioGroup>{form.inatividade_mode === "dias" && !form.somente_novos_clientes && <Input type="number" min={1} placeholder="Ex: 60" value={form.inatividade_dias} onChange={(e) => setForm({ ...form, inatividade_dias: e.target.value })} />}</div>
-        <div className="space-y-3"><Label>Faixa de valor total</Label><RadioGroup value={form.total_mode} onValueChange={(value) => setForm({ ...form, total_mode: value as "qualquer" | "minimo", regras_servicos: form.regras_servicos.map((rule) => ({ ...rule, tipo_desconto: value === "minimo" ? null : rule.tipo_desconto ?? "percentual", valor_desconto: value === "minimo" ? null : rule.valor_desconto })) })} className="flex gap-5"><RadioOption value="qualquer" label="Qualquer valor" /><RadioOption value="minimo" label="A partir de um valor" /></RadioGroup>{form.total_mode === "minimo" && <div className="grid gap-3 sm:grid-cols-3"><Input type="number" min={0.01} step="0.01" placeholder="Valor mínimo" value={form.valor_minimo_total} onChange={(e) => setForm({ ...form, valor_minimo_total: e.target.value })} /><Select value={form.tipo_desconto_total} onValueChange={(value) => setForm({ ...form, tipo_desconto_total: value as "percentual" | "fixo" })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentual">Percentual</SelectItem><SelectItem value="fixo">Valor fixo</SelectItem></SelectContent></Select><Input type="number" min={0.01} step="0.01" placeholder="Desconto" value={form.valor_desconto_total} onChange={(e) => setForm({ ...form, valor_desconto_total: e.target.value })} /></div>}</div>
-        <div className="space-y-3"><div><Label>Serviços</Label><p className="text-xs text-muted-foreground">O cupom será válido se o atendimento contiver qualquer serviço marcado.</p></div><div className="space-y-2">{services.map((service) => { const rule = form.regras_servicos.find((item) => item.servico_id === service.id); return <div key={service.id} className="grid items-center gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_140px_120px]"><label className="flex items-center gap-3"><Checkbox checked={Boolean(rule)} onCheckedChange={(checked) => toggleService(service.id, Boolean(checked))} /><span><strong>{service.name}</strong><small className="block text-muted-foreground">R$ {Number(service.price).toFixed(2)}</small></span></label>{rule && form.total_mode === "qualquer" && <><Select value={rule.tipo_desconto ?? "percentual"} onValueChange={(value) => setForm({ ...form, regras_servicos: form.regras_servicos.map((item) => item.servico_id === service.id ? { ...item, tipo_desconto: value as "percentual" | "fixo" } : item) })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentual">Percentual</SelectItem><SelectItem value="fixo">Valor fixo</SelectItem></SelectContent></Select><Input type="number" min={0.01} step="0.01" placeholder="Desconto" value={rule.valor_desconto ?? ""} onChange={(e) => setForm({ ...form, regras_servicos: form.regras_servicos.map((item) => item.servico_id === service.id ? { ...item, valor_desconto: e.target.value ? Number(e.target.value) : null } : item) })} /></>}</div>; })}</div></div>
+        <div className="space-y-3"><Label>Tempo de cliente inativo</Label><RadioGroup disabled={form.somente_novos_clientes} value={form.inatividade_mode} onValueChange={(value) => setForm({ ...form, inatividade_mode: value as "todos" | "dias" })} className="flex gap-5"><RadioOption value="todos" label="Todos os clientes" /><RadioOption value="dias" label="Após número de dias" /></RadioGroup>{form.inatividade_mode === "dias" && !form.somente_novos_clientes && <Input type="number" min={1} step={1} placeholder="Ex: 60" value={form.inatividade_dias} onChange={(e) => setForm({ ...form, inatividade_dias: e.target.value })} />}</div>
+        <div className="space-y-2"><Label>Desconto aplicado aos serviços selecionados</Label><div className="grid gap-3 sm:grid-cols-2"><Select value={form.tipo_desconto} onValueChange={(value) => setForm({ ...form, tipo_desconto: value as "percentual" | "fixo" })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="percentual">Percentual (%)</SelectItem><SelectItem value="fixo">Valor fixo (R$)</SelectItem></SelectContent></Select><Input type="number" min={1} step={1} placeholder={form.tipo_desconto === "percentual" ? "Ex: 10" : "Ex: 5"} value={form.valor_desconto} onChange={(e) => setForm({ ...form, valor_desconto: e.target.value })} /></div><p className="text-xs text-muted-foreground">O mesmo desconto será aplicado a cada serviço marcado abaixo.</p></div>
+        <div className="space-y-3"><div><Label>Serviços</Label><p className="text-xs text-muted-foreground">O cupom será válido se o atendimento contiver qualquer serviço marcado.</p></div><div className="space-y-2">{services.map((service) => <label key={service.id} className="flex items-center gap-3 rounded-lg border p-3"><Checkbox checked={form.servicos_ids.includes(service.id)} onCheckedChange={(checked) => toggleService(service.id, Boolean(checked))} /><span><strong>{service.name}</strong><small className="block text-muted-foreground">R$ {Number(service.price).toFixed(2)}</small></span></label>)}</div></div>
       </div><DialogFooter><Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button><Button disabled={saving} onClick={() => void submit()}>{saving ? "Salvando..." : "Salvar cupom"}</Button></DialogFooter>
     </DialogContent></Dialog>
   </section>;
