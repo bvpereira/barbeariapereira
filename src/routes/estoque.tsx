@@ -281,7 +281,7 @@ function EstoquePage() {
         {/* Dialog Criar/Editar */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent>
-            <DialogHeader><DialogTitle>{editing ? "Editar produto" : `Novo produto ${tab === "consumivel" ? "consumível" : "de revenda"}`}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editing ? "Editar produto" : `Novo produto ${createType === "consumivel" ? "consumível" : "de revenda"}`}</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div><Label>Nome *</Label><Input value={form.nome} onChange={(e) => setForm(f => ({ ...f, nome: e.target.value }))} /></div>
               <div className="grid grid-cols-2 gap-3">
@@ -307,7 +307,7 @@ function EstoquePage() {
                   </Select>
                 </div>
               </div>
-              {tab === "revenda" && (
+              {(editing ? editing.tipo : createType) === "revenda" && (
                 <div><Label>Preço de revenda (R$)</Label><Input type="number" step="0.01" value={form.preco_revenda} onChange={(e) => setForm(f => ({ ...f, preco_revenda: e.target.value }))} /></div>
               )}
             </div>
