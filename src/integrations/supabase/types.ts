@@ -2405,6 +2405,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      seed_limpar: { Args: never; Returns: undefined }
       set_barbearia_ativa: {
         Args: {
           p_admin_id: string
