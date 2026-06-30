@@ -195,8 +195,8 @@ function EstoquePage() {
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
           <TabsList>
-            <TabsTrigger value="consumivel" className="gap-2"><Package className="w-4 h-4" />Consumíveis</TabsTrigger>
-            <TabsTrigger value="revenda" className="gap-2"><Boxes className="w-4 h-4" />Revenda</TabsTrigger>
+            <TabsTrigger value="consumivel" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Package className="w-4 h-4" />Consumíveis</TabsTrigger>
+            <TabsTrigger value="revenda" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Boxes className="w-4 h-4" />Revenda</TabsTrigger>
           </TabsList>
 
           {(["consumivel", "revenda"] as const).map(t => (
