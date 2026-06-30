@@ -207,6 +207,8 @@ function AtendimentosPage() {
       .in('status', ['Finalizado', 'Não compareceu']);
 
     if (filtroConcluidos !== 'Todos') query = query.eq('status', filtroConcluidos);
+    if (dataInicioConcluidos) query = query.gte('data', `${dataInicioConcluidos}T00:00:00`);
+    if (dataFimConcluidos) query = query.lte('data', `${dataFimConcluidos}T23:59:59`);
 
     const { data, error, count } = await query
       .order('data', { ascending: false })
@@ -217,7 +219,7 @@ function AtendimentosPage() {
     setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
-  }, [pageConcluidos, filtroConcluidos, tenant]);
+  }, [pageConcluidos, filtroConcluidos, dataInicioConcluidos, dataFimConcluidos, tenant]);
 
   const fetchPedidosExclusao = useCallback(async () => {
     if (!tenant?.id) return;
