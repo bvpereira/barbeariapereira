@@ -122,6 +122,8 @@ function AtendimentosPage() {
   const [pedidosExclusao, setPedidosExclusao] = useState<Atendimento[]>([]);
   const [loadingExclusao, setLoadingExclusao] = useState(false);
   const [filtroConcluidos, setFiltroConcluidos] = useState<'Todos' | 'Finalizado' | 'Não compareceu'>('Todos');
+  const [dataInicioConcluidos, setDataInicioConcluidos] = useState<string>("");
+  const [dataFimConcluidos, setDataFimConcluidos] = useState<string>("");
   const invalidateCouponFn = useServerFn(invalidateAppointmentCoupon);
   const applyClubeFn = useServerFn(applyClubeToAppointment);
 
