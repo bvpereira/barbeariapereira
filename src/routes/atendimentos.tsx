@@ -174,7 +174,7 @@ function AtendimentosPage() {
       .eq('barbearia_id', tenant.id)
       .eq('status', 'Agendado')
       .order('data', { ascending: true })
-      .range(0, limitAgendados - 1);
+      .range(pageAgendados * PAGE_SIZE, pageAgendados * PAGE_SIZE + PAGE_SIZE - 1);
 
     if (error) { toast.error("Erro ao carregar agendados"); return; }
 
@@ -186,9 +186,9 @@ function AtendimentosPage() {
     const now = new Date();
     setAtencao(formatted.filter(item => new Date(item.data) < now));
     setAgendados(formatted.filter(item => new Date(item.data) >= now));
-    setHasMoreAgendados((count || 0) > limitAgendados);
+    setTotalAgendados(count || 0);
     setLoadingAgendados(false);
-  }, [limitAgendados, tenant]);
+  }, [pageAgendados, tenant]);
 
   const fetchConcluidos = useCallback(async () => {
     if (!tenant?.id) return;
