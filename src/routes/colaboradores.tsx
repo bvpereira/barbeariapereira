@@ -666,7 +666,7 @@ function CollaboratorsPage() {
                         title={colab.ativo ? "Desativar colaborador" : "Ativar colaborador"}
                       />
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">{colab.resumo || "Sem resumo"}</p>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{colab.resumo || "Sem resumo"}</p>
                   </div>
                 </CardHeader>
                 <CardContent className="p-3 pt-0 md:p-4 md:pt-0 space-y-3">
