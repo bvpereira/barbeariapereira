@@ -202,7 +202,7 @@ function CoresPage() {
     }
   };
 
-  const currentTokens = editing === "light" ? light : dark;
+  const currentTokens = light;
   const presetKeys = useMemo(() => Object.keys(PRESETS), []);
 
   if (nivelOk !== true) return null;
