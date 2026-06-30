@@ -83,7 +83,7 @@ function CoresPage() {
   useEffect(() => {
     if (!perfilSel) return;
     setPreset(perfilSel.preset || "custom");
-    setModo((perfilSel.modo as Modo) || "light");
+    
     setLight({ ...PRESETS[DEFAULT_PRESET].light, ...perfilSel.light });
     setDark({ ...PRESETS[DEFAULT_PRESET].dark, ...perfilSel.dark });
     setNomeEdit(perfilSel.nome_perfil || "");
