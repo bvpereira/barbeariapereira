@@ -314,6 +314,7 @@ export type Database = {
           data: string
           id: string
           manual: boolean
+          meio_pagamento: string | null
           pedido_exclusao: boolean | null
           servicos_atendimento: string | null
           status: string
@@ -342,6 +343,7 @@ export type Database = {
           data: string
           id?: string
           manual?: boolean
+          meio_pagamento?: string | null
           pedido_exclusao?: boolean | null
           servicos_atendimento?: string | null
           status: string
@@ -370,6 +372,7 @@ export type Database = {
           data?: string
           id?: string
           manual?: boolean
+          meio_pagamento?: string | null
           pedido_exclusao?: boolean | null
           servicos_atendimento?: string | null
           status?: string

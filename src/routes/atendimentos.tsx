@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -56,9 +56,21 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { QrCode, Banknote, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { invalidateAppointmentCoupon } from "@/lib/coupons.functions";
+
+type MeioPagamento = 'pix' | 'dinheiro' | 'credito' | 'debito';
+const MEIO_PAG_LABEL: Record<MeioPagamento, string> = {
+  pix: 'Pix', dinheiro: 'Dinheiro', credito: 'Cartão de crédito', debito: 'Cartão de débito',
+};
+const MEIO_PAG_OPTIONS: MeioPagamento[] = ['pix', 'dinheiro', 'credito', 'debito'];
+const MEIO_PAG_ICON: Record<MeioPagamento, React.ComponentType<{ className?: string }>> = {
+  pix: QrCode, dinheiro: Banknote, credito: CreditCard, debito: CreditCard,
+};
 
 export const Route = createFileRoute("/atendimentos")({
   component: AtendimentosPage,
@@ -82,6 +94,7 @@ interface Atendimento {
   servicos_atendimento?: string | null;
   cupom_codigo?: string | null;
   cupom_nome?: string | null;
+  meio_pagamento?: MeioPagamento | null;
 }
 
 interface Cliente {
@@ -162,6 +175,12 @@ function AtendimentosPage() {
   const [produtosRevendaCatalog, setProdutosRevendaCatalog] = useState<{ id: string; nome: string; preco_revenda: number; quantidade_atual: number; unidade_medida: string }[]>([]);
   const [produtosVenda, setProdutosVenda] = useState<{ id?: string; estoque_id: string; nome_produto: string; quantidade: number; valor_unitario: number }[]>([]);
   const [userNivel, setUserNivel] = useState<number | null>(null);
+  // Meio de pagamento
+  const [finalizeDialog, setFinalizeDialog] = useState<{ id: string } | null>(null);
+  const [finalizeMeio, setFinalizeMeio] = useState<MeioPagamento | ''>('');
+  const [meioPagamentoEdit, setMeioPagamentoEdit] = useState<MeioPagamento | ''>('');
+  const [filtroMeioPag, setFiltroMeioPag] = useState<'Todos' | MeioPagamento>('Todos');
+  const [resumoMeio, setResumoMeio] = useState<Record<string, { total: number; qtd: number }>>({});
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
@@ -208,6 +227,7 @@ function AtendimentosPage() {
       .in('status', ['Finalizado', 'Não compareceu']);
 
     if (filtroConcluidos !== 'Todos') query = query.eq('status', filtroConcluidos);
+    if (filtroMeioPag !== 'Todos') query = query.eq('meio_pagamento', filtroMeioPag);
     if (dataInicioConcluidos) query = query.gte('data', `${dataInicioConcluidos}T00:00:00`);
     if (dataFimConcluidos) query = query.lte('data', `${dataFimConcluidos}T23:59:59`);
 
@@ -220,7 +240,25 @@ function AtendimentosPage() {
     setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
-  }, [pageConcluidos, filtroConcluidos, dataInicioConcluidos, dataFimConcluidos, tenant]);
+
+    // Resumo por meio de pagamento (mesmos filtros, sem paginação)
+    let rq = supabase
+      .from('atendimentos')
+      .select('valor, meio_pagamento')
+      .eq('barbearia_id', tenant.id)
+      .eq('status', 'Finalizado');
+    if (dataInicioConcluidos) rq = rq.gte('data', `${dataInicioConcluidos}T00:00:00`);
+    if (dataFimConcluidos) rq = rq.lte('data', `${dataFimConcluidos}T23:59:59`);
+    const { data: rd } = await rq.limit(1000);
+    const agg: Record<string, { total: number; qtd: number }> = {};
+    (rd || []).forEach((r: any) => {
+      const k = r.meio_pagamento || 'nao_informado';
+      if (!agg[k]) agg[k] = { total: 0, qtd: 0 };
+      agg[k].total += Number(r.valor) || 0;
+      agg[k].qtd += 1;
+    });
+    setResumoMeio(agg);
+  }, [pageConcluidos, filtroConcluidos, filtroMeioPag, dataInicioConcluidos, dataFimConcluidos, tenant]);
 
   const fetchPedidosExclusao = useCallback(async () => {
     if (!tenant?.id) return;
@@ -474,6 +512,7 @@ function AtendimentosPage() {
     setStatus('Finalizado');
     setColabServicosIds([]);
     setProdutosVenda([]);
+    setMeioPagamentoEdit('');
   };
 
   const handleSave = async (isScheduling: boolean, force: boolean = false) => {
@@ -548,6 +587,8 @@ function AtendimentosPage() {
         clube_id: null,
         comissao: parseFloat(comissaoFinal),
         status: isManualNew ? 'Finalizado' : (isScheduling ? 'Agendado' : status),
+        ...(((isManualNew || status === 'Finalizado') && meioPagamentoEdit) ? { meio_pagamento: meioPagamentoEdit } : {}),
+        ...((!isManualNew && status !== 'Finalizado') ? { meio_pagamento: null } : {}),
         ...(isManualNew ? { manual: true } : {})
       };
       
@@ -657,10 +698,12 @@ function AtendimentosPage() {
     }
   };
 
-  const updateStatus = async (id: string, newStatus: Atendimento['status']) => {
+  const updateStatus = async (id: string, newStatus: Atendimento['status'], meioPagamento?: MeioPagamento) => {
     if (!tenant?.id) return;
     try {
       const payload: any = { status: newStatus };
+      if (newStatus === 'Finalizado' && meioPagamento) payload.meio_pagamento = meioPagamento;
+      if (newStatus !== 'Finalizado') payload.meio_pagamento = null;
       
       // If finalizing and comissao is 0, we might want to calculate it
       // However, the requirement says "locked once finalized", so if we update via menu
@@ -829,6 +872,7 @@ function AtendimentosPage() {
         setValorFinal(item.valor.toString());
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
+        setMeioPagamentoEdit((item.meio_pagamento as MeioPagamento) || '');
         fetchColabServicos(item.colaborador.id);
         // Carregar produtos vendidos do atendimento
         supabase.from('atendimento_produtos' as any)
@@ -847,6 +891,14 @@ function AtendimentosPage() {
           <div className="flex items-center gap-2">
             {item.manual && <Badge variant="outline" className="border-blue-500 text-blue-600">Manual</Badge>}
             {getStatusBadge(item.status)}
+            {item.status === 'Finalizado' && item.meio_pagamento && (() => {
+              const Icon = MEIO_PAG_ICON[item.meio_pagamento];
+              return (
+                <Badge variant="outline" className="gap-1">
+                  <Icon className="w-3 h-3" />{MEIO_PAG_LABEL[item.meio_pagamento]}
+                </Badge>
+              );
+            })()}
           </div>
         </div>
         <div className="space-y-1 text-sm text-muted-foreground">
@@ -922,7 +974,7 @@ function AtendimentosPage() {
                 <DropdownMenuItem onClick={() => updateStatus(item.id, 'Agendado')}>
                   <Clock className="w-4 h-4 mr-2" /> Agendado
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => updateStatus(item.id, 'Finalizado')}>
+                <DropdownMenuItem onClick={() => { setFinalizeMeio(''); setFinalizeDialog({ id: item.id }); }}>
                   <CheckCircle2 className="w-4 h-4 mr-2" /> Finalizado
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => updateStatus(item.id, 'Não compareceu')}>
@@ -1081,16 +1133,54 @@ function AtendimentosPage() {
                   </SelectContent>
                 </Select>
               </div>
-              {(dataInicioConcluidos || dataFimConcluidos || filtroConcluidos !== 'Todos') && (
+              <div className="space-y-1">
+                <Label className="text-xs">Meio de pagamento</Label>
+                <Select value={filtroMeioPag} onValueChange={(v) => { setFiltroMeioPag(v as any); setPageConcluidos(0); }}>
+                  <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Todos">Todos</SelectItem>
+                    {MEIO_PAG_OPTIONS.map(m => (
+                      <SelectItem key={m} value={m}>{MEIO_PAG_LABEL[m]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {(dataInicioConcluidos || dataFimConcluidos || filtroConcluidos !== 'Todos' || filtroMeioPag !== 'Todos') && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => { setDataInicioConcluidos(""); setDataFimConcluidos(""); setFiltroConcluidos('Todos'); setPageConcluidos(0); }}
+                  onClick={() => { setDataInicioConcluidos(""); setDataFimConcluidos(""); setFiltroConcluidos('Todos'); setFiltroMeioPag('Todos'); setPageConcluidos(0); }}
                 >
                   Limpar filtros
                 </Button>
               )}
             </div>
+
+            {/* Resumo por meio de pagamento */}
+            {Object.keys(resumoMeio).length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {[...MEIO_PAG_OPTIONS, 'nao_informado'].map((k) => {
+                  const r = resumoMeio[k];
+                  if (!r) return null;
+                  const label = k === 'nao_informado' ? 'Não informado' : MEIO_PAG_LABEL[k as MeioPagamento];
+                  const Icon = k === 'nao_informado' ? Banknote : MEIO_PAG_ICON[k as MeioPagamento];
+                  return (
+                    <Card key={k}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Icon className="w-3.5 h-3.5" />
+                          <span>{label}</span>
+                        </div>
+                        <div className="text-lg font-bold mt-1">
+                          R$ {r.total.toFixed(2).replace('.', ',')}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">{r.qtd} atend.</div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
 
             {loadingConcluidos ? (
               <p>Carregando...</p>
@@ -1522,6 +1612,20 @@ function AtendimentosPage() {
                   </Select>
                 </div>
               )}
+
+              {((!editingAtendimento) || (status === 'Finalizado' && (userNivel === 1 || userNivel === 2))) && (
+                <div className="space-y-2">
+                  <Label>Meio de pagamento {(!editingAtendimento) && <span className="text-destructive">*</span>}</Label>
+                  <Select value={meioPagamentoEdit || undefined} onValueChange={(v) => setMeioPagamentoEdit(v as MeioPagamento)}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o meio de pagamento" /></SelectTrigger>
+                    <SelectContent>
+                      {MEIO_PAG_OPTIONS.map(m => (
+                        <SelectItem key={m} value={m}>{MEIO_PAG_LABEL[m]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="valor">Valor Total (R$)</Label>
@@ -1618,6 +1722,48 @@ function AtendimentosPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={!!finalizeDialog} onOpenChange={(open) => { if (!open) { setFinalizeDialog(null); setFinalizeMeio(''); } }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Finalizar atendimento</AlertDialogTitle>
+              <AlertDialogDescription>
+                Selecione o meio de pagamento utilizado para concluir este atendimento.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <RadioGroup value={finalizeMeio} onValueChange={(v) => setFinalizeMeio(v as MeioPagamento)} className="grid grid-cols-2 gap-3 py-2">
+              {MEIO_PAG_OPTIONS.map((m) => {
+                const Icon = MEIO_PAG_ICON[m];
+                return (
+                  <Label key={m} htmlFor={`fin-${m}`} className={cn(
+                    "flex items-center gap-2 border rounded-md p-3 cursor-pointer hover:bg-muted/50",
+                    finalizeMeio === m && "border-primary bg-primary/5"
+                  )}>
+                    <RadioGroupItem value={m} id={`fin-${m}`} />
+                    <Icon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{MEIO_PAG_LABEL[m]}</span>
+                  </Label>
+                );
+              })}
+            </RadioGroup>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={!finalizeMeio}
+                onClick={async () => {
+                  if (!finalizeDialog || !finalizeMeio) return;
+                  const id = finalizeDialog.id;
+                  const meio = finalizeMeio as MeioPagamento;
+                  setFinalizeDialog(null);
+                  setFinalizeMeio('');
+                  await updateStatus(id, 'Finalizado', meio);
+                }}
+              >
+                Confirmar finalização
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AdminLayout>
   );
