@@ -49,6 +49,7 @@ function ClientePage() {
   const [user, setUser] = useState<any>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [historico, setHistorico] = useState<any[]>([]);
+  const [detailsItem, setDetailsItem] = useState<any>(null);
   const [servicos, setServicos] = useState<any[]>([]);
   const [equipe, setEquipe] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
