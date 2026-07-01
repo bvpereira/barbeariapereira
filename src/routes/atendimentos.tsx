@@ -1562,11 +1562,13 @@ function AtendimentosPage() {
                               </Popover>
                             </div>
                             <div className="col-span-2">
-                              <Input type="number" step="0.001" className={cn("h-8 text-xs", excedeEstoque && "border-destructive text-destructive")} value={pv.quantidade}
+                              <Label className="text-[10px] text-muted-foreground">Quantidade</Label>
+                              <Input type="number" step="1" min="0" className={cn("h-8 text-xs", excedeEstoque && "border-destructive text-destructive")} value={pv.quantidade}
                                 onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, quantidade: parseFloat(e.target.value) || 0 } : p))} />
                             </div>
                             <div className="col-span-4">
-                              <Input type="number" step="0.01" className="h-8 text-xs" value={pv.valor_unitario}
+                              <Label className="text-[10px] text-muted-foreground">Preço unitário (R$)</Label>
+                              <Input type="number" step="1" min="0" className="h-8 text-xs" value={pv.valor_unitario}
                                 onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, valor_unitario: parseFloat(e.target.value) || 0 } : p))} />
                             </div>
                             <Button type="button" size="icon" variant="ghost" className="h-8 w-8 col-span-1"
