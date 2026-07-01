@@ -184,6 +184,7 @@ function AtendimentosPage() {
   const [meioPagamentoEdit, setMeioPagamentoEdit] = useState<MeioPagamento | ''>('');
   const [filtroMeioPag, setFiltroMeioPag] = useState<'Todos' | MeioPagamento>('Todos');
   const [resumoMeio, setResumoMeio] = useState<Record<string, { total: number; qtd: number }>>({});
+  const [detailsItem, setDetailsItem] = useState<Atendimento | null>(null);
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
