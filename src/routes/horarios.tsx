@@ -459,12 +459,14 @@ function HorariosPage() {
                 <div className="flex items-center gap-2">
                   <Input
                     type="time"
+                    className="bg-popover"
                     value={globalConfig.manha_inicio}
                     onChange={(e) => updateGlobalField("manha_inicio", e.target.value)}
                   />
                   <span>às</span>
                   <Input
                     type="time"
+                    className="bg-popover"
                     value={globalConfig.manha_fim}
                     onChange={(e) => updateGlobalField("manha_fim", e.target.value)}
                   />
@@ -475,12 +477,14 @@ function HorariosPage() {
                 <div className="flex items-center gap-2">
                   <Input
                     type="time"
+                    className="bg-popover"
                     value={globalConfig.tarde_inicio}
                     onChange={(e) => updateGlobalField("tarde_inicio", e.target.value)}
                   />
                   <span>às</span>
                   <Input
                     type="time"
+                    className="bg-popover"
                     value={globalConfig.tarde_fim}
                     onChange={(e) => updateGlobalField("tarde_fim", e.target.value)}
                   />
