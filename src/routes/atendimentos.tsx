@@ -56,9 +56,21 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { QrCode, Banknote, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { invalidateAppointmentCoupon } from "@/lib/coupons.functions";
+
+type MeioPagamento = 'pix' | 'dinheiro' | 'credito' | 'debito';
+const MEIO_PAG_LABEL: Record<MeioPagamento, string> = {
+  pix: 'Pix', dinheiro: 'Dinheiro', credito: 'Cartão de crédito', debito: 'Cartão de débito',
+};
+const MEIO_PAG_OPTIONS: MeioPagamento[] = ['pix', 'dinheiro', 'credito', 'debito'];
+const MEIO_PAG_ICON: Record<MeioPagamento, React.ComponentType<{ className?: string }>> = {
+  pix: QrCode, dinheiro: Banknote, credito: CreditCard, debito: CreditCard,
+};
 
 export const Route = createFileRoute("/atendimentos")({
   component: AtendimentosPage,
