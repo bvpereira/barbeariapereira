@@ -512,6 +512,7 @@ function AtendimentosPage() {
     setStatus('Finalizado');
     setColabServicosIds([]);
     setProdutosVenda([]);
+    setMeioPagamentoEdit('');
   };
 
   const handleSave = async (isScheduling: boolean, force: boolean = false) => {
