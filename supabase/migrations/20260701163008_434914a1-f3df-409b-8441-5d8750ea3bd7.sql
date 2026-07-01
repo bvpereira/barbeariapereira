@@ -1,0 +1,2 @@
+ALTER TABLE public.estoque ADD COLUMN IF NOT EXISTS is_categoria boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS idx_estoque_categorias ON public.estoque (barbearia_id) WHERE is_categoria = true;

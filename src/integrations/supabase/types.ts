@@ -1221,6 +1221,7 @@ export type Database = {
           custo_medio: number
           deleted_at: string | null
           id: string
+          is_categoria: boolean
           marca: string | null
           nome: string
           preco_revenda: number | null
@@ -1238,6 +1239,7 @@ export type Database = {
           custo_medio?: number
           deleted_at?: string | null
           id?: string
+          is_categoria?: boolean
           marca?: string | null
           nome: string
           preco_revenda?: number | null
@@ -1255,6 +1257,7 @@ export type Database = {
           custo_medio?: number
           deleted_at?: string | null
           id?: string
+          is_categoria?: boolean
           marca?: string | null
           nome?: string
           preco_revenda?: number | null
