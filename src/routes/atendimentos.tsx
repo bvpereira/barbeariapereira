@@ -15,8 +15,10 @@ import {
   Search,
   Filter,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  Info
 } from "lucide-react";
+import { AtendimentoDetailsDialog } from "@/components/AtendimentoDetailsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
