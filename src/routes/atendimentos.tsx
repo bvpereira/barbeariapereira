@@ -695,10 +695,12 @@ function AtendimentosPage() {
     }
   };
 
-  const updateStatus = async (id: string, newStatus: Atendimento['status']) => {
+  const updateStatus = async (id: string, newStatus: Atendimento['status'], meioPagamento?: MeioPagamento) => {
     if (!tenant?.id) return;
     try {
       const payload: any = { status: newStatus };
+      if (newStatus === 'Finalizado' && meioPagamento) payload.meio_pagamento = meioPagamento;
+      if (newStatus !== 'Finalizado') payload.meio_pagamento = null;
       
       // If finalizing and comissao is 0, we might want to calculate it
       // However, the requirement says "locked once finalized", so if we update via menu
