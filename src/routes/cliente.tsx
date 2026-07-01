@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
-import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save, Image as ImageIcon, AlertTriangle } from "lucide-react";
+import { Calendar, Clock, Scissors, User, LogOut, Trash2, Edit2, Bell, Settings, Lock, Save, Image as ImageIcon, AlertTriangle, Package, Info, QrCode, Banknote, CreditCard } from "lucide-react";
+import { AtendimentoDetailsDialog } from "@/components/AtendimentoDetailsDialog";
 import { format, parseISO, addMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ function ClientePage() {
   const [user, setUser] = useState<any>(null);
   const [agendamentos, setAgendamentos] = useState<any[]>([]);
   const [historico, setHistorico] = useState<any[]>([]);
+  const [detailsItem, setDetailsItem] = useState<any>(null);
   const [servicos, setServicos] = useState<any[]>([]);
   const [equipe, setEquipe] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -202,13 +204,19 @@ function ClientePage() {
       .select(`
         *,
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servicos(id, name))
+        atendimento_servicos(servicos(id, name, price)),
+        atendimento_produtos(id, nome_produto, quantidade, valor_unitario)
       `)
       .eq('cliente_id', userId)
       .in('status', ['Finalizado', 'Não compareceu'])
       .order('data', { ascending: false });
-    
-    setHistorico(data || []);
+
+    const formatted = (data || []).map((item: any) => ({
+      ...item,
+      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean),
+      produtos: item.atendimento_produtos || [],
+    }));
+    setHistorico(formatted);
     setLoadingHistorico(false);
   }, []);
 
@@ -926,53 +934,81 @@ function ClientePage() {
                 </p>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {historico.map((item) => (
-                    <Card key={item.id} className="bg-card hover:bg-accent/5 transition-colors border-border opacity-80">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <Badge 
-                            variant="outline" 
-                            className={
-                              item.status === 'Finalizado' 
-                                ? "bg-green-500/10 text-green-500 border-green-500/20" 
-                                : "bg-red-500/10 text-red-500 border-red-500/20"
-                            }
-                          >
-                            {item.status}
-                          </Badge>
-                          <span className="font-bold text-primary">
-                            R$ {Number(item.valor).toFixed(2).replace(".", ",")}
-                          </span>
-                        </div>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium">
-                              {format(parseISO(item.data), "dd 'de' MMMM", { locale: ptBR })}
-                            </span>
+                  {historico.map((item) => {
+                    const MEIO_LABEL: Record<string, string> = { pix: 'Pix', dinheiro: 'Dinheiro', credito: 'Cartão de crédito', debito: 'Cartão de débito' };
+                    const MEIO_ICON: Record<string, any> = { pix: QrCode, dinheiro: Banknote, credito: CreditCard, debito: CreditCard };
+                    const MeioIcon = item.meio_pagamento ? MEIO_ICON[item.meio_pagamento] : null;
+                    const valorFinal = Number(item.valor) || 0;
+                    const cashback = Number(item.cashback_usado) || 0;
+                    const clube = Number(item.clube_desconto_aplicado) || 0;
+                    const descontoTotal = Number(item.valor_desconto) || 0;
+                    const cupom = Math.max(0, descontoTotal - cashback - clube);
+                    const somaServicos = (item.servicos || []).reduce((s: number, sv: any) => s + (Number(sv?.price) || 0), 0);
+                    const somaProdutos = (item.produtos || []).reduce((s: number, p: any) => s + Number(p.quantidade) * Number(p.valor_unitario), 0);
+                    const valorOriginalDb = Number(item.valor_original) || 0;
+                    const original = valorOriginalDb > 0 ? valorOriginalDb : (somaServicos + somaProdutos > 0 ? somaServicos + somaProdutos : valorFinal + descontoTotal);
+                    const temDesconto = original > valorFinal + 0.001 || descontoTotal > 0;
+                    return (
+                      <Card key={item.id} className="bg-card hover:bg-accent/5 transition-colors">
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-muted-foreground" />
+                              <span className="font-bold">
+                                {format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
+                              <Badge variant="outline" className={item.status === 'Finalizado' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"}>
+                                {item.status}
+                              </Badge>
+                              {item.status === 'Finalizado' && item.meio_pagamento && MeioIcon && (
+                                <Badge variant="outline" className="gap-1">
+                                  <MeioIcon className="w-3 h-3" />{MEIO_LABEL[item.meio_pagamento]}
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium">
-                              {format(parseISO(item.data), "HH:mm")}
-                            </span>
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2"><User className="w-3 h-3" /><span>Profissional: {item.colaborador?.nome}</span></div>
+                            <div className="flex items-start gap-2">
+                              <Scissors className="w-3 h-3 mt-0.5 shrink-0" />
+                              <span>{(item.servicos || []).map((s: any) => s?.name).filter(Boolean).join(", ") || "Serviços não informados"}</span>
+                            </div>
+                            {item.produtos && item.produtos.length > 0 && (
+                              <div className="flex items-start gap-2">
+                                <Package className="w-3 h-3 mt-0.5 shrink-0" />
+                                <span>
+                                  {item.produtos.map((p: any) => `${p.nome_produto} (${p.quantidade}x R$ ${Number(p.valor_unitario).toFixed(2).replace(".", ",")})`).join(", ")}
+                                </span>
+                              </div>
+                            )}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <span>Profissional: {item.colaborador?.nome}</span>
+                          <div className="mt-3 pt-3 border-t flex justify-between items-start gap-2">
+                            <div className="flex flex-col">
+                              {temDesconto && (
+                                <span className="text-xs text-muted-foreground line-through">R$ {original.toFixed(2).replace(".", ",")}</span>
+                              )}
+                              <span className="font-bold text-primary">R$ {valorFinal.toFixed(2).replace(".", ",")}</span>
+                              {temDesconto && (
+                                <div className="text-[11px] text-muted-foreground space-y-0.5 mt-1">
+                                  {cashback > 0 && <div>Cashback: -R$ {cashback.toFixed(2).replace(".", ",")}</div>}
+                                  {clube > 0 && <div>Plano assinatura: -R$ {clube.toFixed(2).replace(".", ",")}</div>}
+                                  {cupom > 0 && <div>Cupom{item.cupom_nome ? ` (${item.cupom_nome})` : item.cupom_codigo ? ` (${item.cupom_codigo})` : ""}: -R$ {cupom.toFixed(2).replace(".", ",")}</div>}
+                                </div>
+                              )}
+                            </div>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailsItem(item)} title="Ver detalhes">
+                              <Info className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Scissors className="w-4 h-4 text-muted-foreground" />
-                            <span className="line-clamp-1">
-                              {item.atendimento_servicos.map((s: any) => s.servicos?.name).join(", ")}
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
+
             </CardContent>
           </Card>
 
@@ -1174,6 +1210,7 @@ function ClientePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AtendimentoDetailsDialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)} item={detailsItem} />
     </div>
   );
 }

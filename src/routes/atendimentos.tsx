@@ -15,8 +15,10 @@ import {
   Search,
   Filter,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  Info
 } from "lucide-react";
+import { AtendimentoDetailsDialog } from "@/components/AtendimentoDetailsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { toast } from "sonner";
@@ -182,6 +184,7 @@ function AtendimentosPage() {
   const [meioPagamentoEdit, setMeioPagamentoEdit] = useState<MeioPagamento | ''>('');
   const [filtroMeioPag, setFiltroMeioPag] = useState<'Todos' | MeioPagamento>('Todos');
   const [resumoMeio, setResumoMeio] = useState<Record<string, { total: number; qtd: number }>>({});
+  const [detailsItem, setDetailsItem] = useState<Atendimento | null>(null);
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
@@ -958,6 +961,9 @@ function AtendimentosPage() {
           })()}
 
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailsItem(item)} title="Ver detalhes">
+               <Info className="h-4 w-4" />
+             </Button>
              <BookingButton 
               onSuccess={fetchAgendados} 
               variant="ghost" 
@@ -1778,6 +1784,7 @@ function AtendimentosPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <AtendimentoDetailsDialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)} item={detailsItem as any} />
       </div>
     </AdminLayout>
   );
