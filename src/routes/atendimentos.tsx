@@ -1612,6 +1612,20 @@ function AtendimentosPage() {
                   </Select>
                 </div>
               )}
+
+              {((!editingAtendimento) || (status === 'Finalizado' && (userNivel === 1 || userNivel === 2))) && (
+                <div className="space-y-2">
+                  <Label>Meio de pagamento {(!editingAtendimento) && <span className="text-destructive">*</span>}</Label>
+                  <Select value={meioPagamentoEdit || undefined} onValueChange={(v) => setMeioPagamentoEdit(v as MeioPagamento)}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o meio de pagamento" /></SelectTrigger>
+                    <SelectContent>
+                      {MEIO_PAG_OPTIONS.map(m => (
+                        <SelectItem key={m} value={m}>{MEIO_PAG_LABEL[m]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="valor">Valor Total (R$)</Label>
