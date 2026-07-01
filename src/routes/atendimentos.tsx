@@ -175,6 +175,12 @@ function AtendimentosPage() {
   const [produtosRevendaCatalog, setProdutosRevendaCatalog] = useState<{ id: string; nome: string; preco_revenda: number; quantidade_atual: number; unidade_medida: string }[]>([]);
   const [produtosVenda, setProdutosVenda] = useState<{ id?: string; estoque_id: string; nome_produto: string; quantidade: number; valor_unitario: number }[]>([]);
   const [userNivel, setUserNivel] = useState<number | null>(null);
+  // Meio de pagamento
+  const [finalizeDialog, setFinalizeDialog] = useState<{ id: string } | null>(null);
+  const [finalizeMeio, setFinalizeMeio] = useState<MeioPagamento | ''>('');
+  const [meioPagamentoEdit, setMeioPagamentoEdit] = useState<MeioPagamento | ''>('');
+  const [filtroMeioPag, setFiltroMeioPag] = useState<'Todos' | MeioPagamento>('Todos');
+  const [resumoMeio, setResumoMeio] = useState<Record<string, { total: number; qtd: number }>>({});
 
   const fetchAgendados = useCallback(async () => {
     if (!tenant?.id) return;
