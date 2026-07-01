@@ -167,7 +167,7 @@ function EstoquePage() {
   };
 
   const handleDelete = async (p: Produto) => {
-    const { error } = await supabase.from("estoque" as any).update({ deleted_at: new Date().toISOString() }).eq("id", p.id);
+    const { error } = await supabase.from("estoque" as any).delete().eq("id", p.id);
     if (error) return toast.error(error.message);
     toast.success("Excluído"); fetchAll();
   };
