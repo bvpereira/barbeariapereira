@@ -528,7 +528,7 @@ function HorariosPage() {
                         .map(c => {
                           const h = horariosColaboradores.find(hc => hc.colaborador_id === c.id && hc.data === dia.data);
                           return (
-                            <div key={c.id} className="text-[9px] md:text-[10px] bg-secondary/30 px-1.5 py-0.5 rounded border border-secondary/50 flex items-center gap-1">
+                            <div key={c.id} className="text-[9px] md:text-[10px] bg-popover text-popover-foreground px-1.5 py-0.5 rounded border border-border flex items-center gap-1">
                               <span className="font-bold whitespace-nowrap">{c.nome}:</span>
                               <span className="text-muted-foreground whitespace-nowrap">
                                 {h?.manha_inicio && h?.manha_fim ? `${h.manha_inicio.substring(0, 5)}-${h.manha_fim.substring(0, 5)}` : ""}
