@@ -402,7 +402,7 @@ function HorariosPage() {
             {dias.length > 0 && (
               <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="gap-2 text-destructive border-destructive hover:bg-destructive/10 w-full sm:w-auto">
+                  <Button variant="destructive" className="gap-2 w-full sm:w-auto">
                     <Trash2 className="w-4 h-4" />
                     Excluir último dia
                   </Button>
