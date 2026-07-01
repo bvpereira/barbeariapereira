@@ -587,6 +587,8 @@ function AtendimentosPage() {
         clube_id: null,
         comissao: parseFloat(comissaoFinal),
         status: isManualNew ? 'Finalizado' : (isScheduling ? 'Agendado' : status),
+        ...(((isManualNew || status === 'Finalizado') && meioPagamentoEdit) ? { meio_pagamento: meioPagamentoEdit } : {}),
+        ...((!isManualNew && status !== 'Finalizado') ? { meio_pagamento: null } : {}),
         ...(isManualNew ? { manual: true } : {})
       };
       
