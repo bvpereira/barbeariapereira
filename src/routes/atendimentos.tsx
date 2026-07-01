@@ -909,6 +909,14 @@ function AtendimentosPage() {
           <div className="flex items-center gap-2"><CalendarIcon className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
           <div className="flex items-center gap-2"><User className="w-3 h-3" /><span>Colaborador: {item.colaborador.nome}</span></div>
           <div className="flex items-center gap-2"><Scissors className="w-3 h-3" /><span>{item.servicos.length > 0 ? item.servicos.map(s => s.name).join(", ") : (item.servicos_atendimento || "Serviços não informados")}</span></div>
+          {item.produtos && item.produtos.length > 0 && (
+            <div className="flex items-start gap-2">
+              <Package className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>
+                {item.produtos.map(p => `${p.nome_produto} (${p.quantidade}x R$ ${Number(p.valor_unitario).toFixed(2).replace(".", ",")})`).join(", ")}
+              </span>
+            </div>
+          )}
         </div>
         <div className="mt-3 pt-3 border-t flex justify-between items-start gap-2">
           {(() => {
