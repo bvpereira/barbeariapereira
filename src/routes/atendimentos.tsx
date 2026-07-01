@@ -227,6 +227,7 @@ function AtendimentosPage() {
       .in('status', ['Finalizado', 'Não compareceu']);
 
     if (filtroConcluidos !== 'Todos') query = query.eq('status', filtroConcluidos);
+    if (filtroMeioPag !== 'Todos') query = query.eq('meio_pagamento', filtroMeioPag);
     if (dataInicioConcluidos) query = query.gte('data', `${dataInicioConcluidos}T00:00:00`);
     if (dataFimConcluidos) query = query.lte('data', `${dataFimConcluidos}T23:59:59`);
 
@@ -239,7 +240,25 @@ function AtendimentosPage() {
     setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
     setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
-  }, [pageConcluidos, filtroConcluidos, dataInicioConcluidos, dataFimConcluidos, tenant]);
+
+    // Resumo por meio de pagamento (mesmos filtros, sem paginação)
+    let rq = supabase
+      .from('atendimentos')
+      .select('valor, meio_pagamento')
+      .eq('barbearia_id', tenant.id)
+      .eq('status', 'Finalizado');
+    if (dataInicioConcluidos) rq = rq.gte('data', `${dataInicioConcluidos}T00:00:00`);
+    if (dataFimConcluidos) rq = rq.lte('data', `${dataFimConcluidos}T23:59:59`);
+    const { data: rd } = await rq.limit(1000);
+    const agg: Record<string, { total: number; qtd: number }> = {};
+    (rd || []).forEach((r: any) => {
+      const k = r.meio_pagamento || 'nao_informado';
+      if (!agg[k]) agg[k] = { total: 0, qtd: 0 };
+      agg[k].total += Number(r.valor) || 0;
+      agg[k].qtd += 1;
+    });
+    setResumoMeio(agg);
+  }, [pageConcluidos, filtroConcluidos, filtroMeioPag, dataInicioConcluidos, dataFimConcluidos, tenant]);
 
   const fetchPedidosExclusao = useCallback(async () => {
     if (!tenant?.id) return;
