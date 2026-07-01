@@ -648,14 +648,14 @@ function HorariosPage() {
                                   <div className="flex items-center gap-1">
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-24 text-xs bg-popover"
                                       value={horario?.manha_inicio || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_inicio", e.target.value)}
                                     />
                                     <span className="text-muted-foreground">-</span>
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-24 text-xs bg-popover"
                                       value={horario?.manha_fim || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_fim", e.target.value)}
                                     />
@@ -665,14 +665,14 @@ function HorariosPage() {
                                   <div className="flex items-center gap-1">
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-24 text-xs bg-popover"
                                       value={horario?.tarde_inicio || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_inicio", e.target.value)}
                                     />
                                     <span className="text-muted-foreground">-</span>
                                     <Input 
                                       type="time" 
-                                      className="h-8 w-24 text-xs"
+                                      className="h-8 w-24 text-xs bg-popover"
                                       value={horario?.tarde_fim || ""}
                                       onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_fim", e.target.value)}
                                     />
@@ -755,14 +755,14 @@ function HorariosPage() {
                                 <div className="flex items-center gap-2 flex-1">
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2 flex-1"
+                                    className="h-8 text-xs px-2 flex-1 bg-popover"
                                     value={horario?.manha_inicio || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_inicio", e.target.value)}
                                   />
                                   <span className="text-muted-foreground text-xs">às</span>
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2 flex-1"
+                                    className="h-8 text-xs px-2 flex-1 bg-popover"
                                     value={horario?.manha_fim || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "manha_fim", e.target.value)}
                                   />
@@ -773,14 +773,14 @@ function HorariosPage() {
                                 <div className="flex items-center gap-2 flex-1">
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2 flex-1"
+                                    className="h-8 text-xs px-2 flex-1 bg-popover"
                                     value={horario?.tarde_inicio || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_inicio", e.target.value)}
                                   />
                                   <span className="text-muted-foreground text-xs">às</span>
                                   <Input 
                                     type="time" 
-                                    className="h-8 text-xs px-2 flex-1"
+                                    className="h-8 text-xs px-2 flex-1 bg-popover"
                                     value={horario?.tarde_fim || ""}
                                     onChange={(e) => updateIndividualHorario(colab.id, dia.data, "tarde_fim", e.target.value)}
                                   />
