@@ -1432,39 +1432,66 @@ function AtendimentosPage() {
                     <p className="text-xs text-muted-foreground">Nenhum produto adicionado.</p>
                   ) : (
                     <div className="space-y-2">
-                      {produtosVenda.map((pv, idx) => (
-                        <div key={idx} className="grid grid-cols-12 gap-1 items-end">
-                          <div className="col-span-5">
-                            <Select value={pv.estoque_id} onValueChange={(v) => {
-                              const prod = produtosRevendaCatalog.find(x => x.id === v);
-                              setProdutosVenda(arr => arr.map((p, i) => i === idx ? {
-                                ...p, estoque_id: v,
-                                nome_produto: prod?.nome || p.nome_produto,
-                                valor_unitario: prod?.preco_revenda ?? p.valor_unitario,
-                              } : p));
-                            }}>
-                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Produto" /></SelectTrigger>
-                              <SelectContent>
-                                {produtosRevendaCatalog.map(p => (
-                                  <SelectItem key={p.id} value={p.id}>{p.nome} ({Number(p.quantidade_atual)} {p.unidade_medida})</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                      {produtosVenda.map((pv, idx) => {
+                        const prodSel = produtosRevendaCatalog.find(x => x.id === pv.estoque_id);
+                        const excedeEstoque = !!prodSel && pv.quantidade > Number(prodSel.quantidade_atual);
+                        return (
+                        <div key={idx} className="space-y-1">
+                          <div className="grid grid-cols-12 gap-1 items-end">
+                            <div className="col-span-5">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button type="button" variant="outline" className="h-8 w-full justify-between text-xs font-normal">
+                                    <span className="truncate">
+                                      {prodSel ? `${prodSel.nome} (${Number(prodSel.quantidade_atual)} ${prodSel.unidade_medida})` : (pv.nome_produto || "Produto")}
+                                    </span>
+                                    <ChevronDown className="h-3 w-3 opacity-50 shrink-0" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-0 w-[280px]" align="start">
+                                  <Command>
+                                    <CommandInput placeholder="Buscar produto..." className="h-8" />
+                                    <CommandList>
+                                      <CommandEmpty>Nenhum produto.</CommandEmpty>
+                                      <CommandGroup>
+                                        {produtosRevendaCatalog.map(p => (
+                                          <CommandItem key={p.id} value={p.nome} onSelect={() => {
+                                            setProdutosVenda(arr => arr.map((x, i) => i === idx ? {
+                                              ...x, estoque_id: p.id, nome_produto: p.nome,
+                                              valor_unitario: Number(p.preco_revenda) || x.valor_unitario,
+                                            } : x));
+                                          }}>
+                                            <span className="flex-1 truncate">{p.nome}</span>
+                                            <span className="text-xs text-muted-foreground ml-2">{Number(p.quantidade_atual)} {p.unidade_medida}</span>
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                            <div className="col-span-2">
+                              <Input type="number" step="0.001" className={cn("h-8 text-xs", excedeEstoque && "border-destructive text-destructive")} value={pv.quantidade}
+                                onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, quantidade: parseFloat(e.target.value) || 0 } : p))} />
+                            </div>
+                            <div className="col-span-4">
+                              <Input type="number" step="0.01" className="h-8 text-xs" value={pv.valor_unitario}
+                                onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, valor_unitario: parseFloat(e.target.value) || 0 } : p))} />
+                            </div>
+                            <Button type="button" size="icon" variant="ghost" className="h-8 w-8 col-span-1"
+                              onClick={() => setProdutosVenda(arr => arr.filter((_, i) => i !== idx))}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
                           </div>
-                          <div className="col-span-2">
-                            <Input type="number" step="0.001" className="h-8 text-xs" value={pv.quantidade}
-                              onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, quantidade: parseFloat(e.target.value) || 0 } : p))} />
-                          </div>
-                          <div className="col-span-4">
-                            <Input type="number" step="0.01" className="h-8 text-xs" value={pv.valor_unitario}
-                              onChange={(e) => setProdutosVenda(arr => arr.map((p, i) => i === idx ? { ...p, valor_unitario: parseFloat(e.target.value) || 0 } : p))} />
-                          </div>
-                          <Button type="button" size="icon" variant="ghost" className="h-8 w-8 col-span-1"
-                            onClick={() => setProdutosVenda(arr => arr.filter((_, i) => i !== idx))}>
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                          {excedeEstoque && (
+                            <p className="text-[11px] text-destructive flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              Quantidade acima do estoque atual ({Number(prodSel!.quantidade_atual)} {prodSel!.unidade_medida}).
+                            </p>
+                          )}
                         </div>
-                      ))}
+                      );})}
                       <p className="text-xs text-muted-foreground text-right">
                         Total produtos: R$ {produtosVenda.reduce((s, p) => s + (p.quantidade * p.valor_unitario), 0).toFixed(2)}
                       </p>
