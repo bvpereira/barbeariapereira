@@ -891,6 +891,14 @@ function AtendimentosPage() {
           <div className="flex items-center gap-2">
             {item.manual && <Badge variant="outline" className="border-blue-500 text-blue-600">Manual</Badge>}
             {getStatusBadge(item.status)}
+            {item.status === 'Finalizado' && item.meio_pagamento && (() => {
+              const Icon = MEIO_PAG_ICON[item.meio_pagamento];
+              return (
+                <Badge variant="outline" className="gap-1">
+                  <Icon className="w-3 h-3" />{MEIO_PAG_LABEL[item.meio_pagamento]}
+                </Badge>
+              );
+            })()}
           </div>
         </div>
         <div className="space-y-1 text-sm text-muted-foreground">
