@@ -202,13 +202,19 @@ function ClientePage() {
       .select(`
         *,
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servicos(id, name))
+        atendimento_servicos(servicos(id, name, price)),
+        atendimento_produtos(id, nome_produto, quantidade, valor_unitario)
       `)
       .eq('cliente_id', userId)
       .in('status', ['Finalizado', 'Não compareceu'])
       .order('data', { ascending: false });
-    
-    setHistorico(data || []);
+
+    const formatted = (data || []).map((item: any) => ({
+      ...item,
+      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean),
+      produtos: item.atendimento_produtos || [],
+    }));
+    setHistorico(formatted);
     setLoadingHistorico(false);
   }, []);
 
