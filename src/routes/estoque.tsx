@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit2, Trash2, AlertTriangle, Search, Settings2, Package, Boxes, History, Download } from "lucide-react";
+import { Plus, Edit2, Trash2, AlertTriangle, Search, Settings2, Package, Boxes, History, Download, Tag } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/estoque")({ component: EstoquePage });
@@ -30,15 +31,24 @@ interface Produto {
   marca: string | null;
   unidade_medida: string | null;
   ativo: boolean;
+  is_categoria?: boolean;
+}
+
+interface Categoria {
+  id: string;
+  nome: string;
+  categoria: string | null; // usada como descrição
 }
 
 const fmtMoney = (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v || 0);
+const SEM_CATEGORIA = "__sem__";
 
 function EstoquePage() {
   const { tenant, loading: tenantLoading } = useTenant();
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"consumivel" | "revenda">("consumivel");
+  const [tab, setTab] = useState<"consumivel" | "revenda" | "categorias">("consumivel");
   const [search, setSearch] = useState("");
   const [soAlerta, setSoAlerta] = useState(false);
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>("todas");
@@ -47,8 +57,12 @@ function EstoquePage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState<Produto | null>(null);
   const [createType, setCreateType] = useState<"consumivel" | "revenda">("consumivel");
-  const [form, setForm] = useState({ nome: "", quantidade_atual: "0", alerta_estoque: "0", preco_revenda: "", categoria: "", marca: "", unidade_medida: "un" });
+  const [form, setForm] = useState({ nome: "", quantidade_atual: "0", alerta_estoque: "0", preco_revenda: "", categoria: "", unidade_medida: "un" });
 
+  // Dialog categoria
+  const [catOpen, setCatOpen] = useState(false);
+  const [editingCat, setEditingCat] = useState<Categoria | null>(null);
+  const [catForm, setCatForm] = useState({ nome: "", descricao: "" });
 
   // Ajuste manual
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -61,38 +75,50 @@ function EstoquePage() {
   const [histTarget, setHistTarget] = useState<Produto | null>(null);
   const [historico, setHistorico] = useState<any[]>([]);
 
-  const fetchProdutos = async () => {
+  // Delete
+  const [deleteTarget, setDeleteTarget] = useState<Produto | null>(null);
+  const [deleteCatTarget, setDeleteCatTarget] = useState<Categoria | null>(null);
+
+  const fetchAll = async () => {
     if (!tenant?.id) return;
     setLoading(true);
     const { data, error } = await supabase.from("estoque" as any)
       .select("*").eq("barbearia_id", tenant.id).is("deleted_at", null).order("nome", { ascending: true });
     if (error) toast.error("Erro: " + error.message);
-    else setProdutos(((data as any) || []) as Produto[]);
+    else {
+      const all = ((data as any) || []) as Produto[];
+      setProdutos(all.filter(p => !p.is_categoria));
+      setCategorias(all.filter(p => p.is_categoria).map(c => ({ id: c.id, nome: c.nome, categoria: c.categoria })));
+    }
     setLoading(false);
   };
 
-  useEffect(() => { if (!tenantLoading && tenant) fetchProdutos(); }, [tenant, tenantLoading]);
+  useEffect(() => { if (!tenantLoading && tenant) fetchAll(); }, [tenant, tenantLoading]);
 
   const filtered = useMemo(() => {
+    if (tab === "categorias") return [];
     let list = produtos.filter(p => p.tipo === tab);
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter(p => p.nome.toLowerCase().includes(s));
     }
-    if (categoriaFiltro !== "todas") list = list.filter(p => (p.categoria || "") === categoriaFiltro);
+    if (categoriaFiltro !== "todas") {
+      if (categoriaFiltro === SEM_CATEGORIA) list = list.filter(p => !p.categoria);
+      else list = list.filter(p => (p.categoria || "") === categoriaFiltro);
+    }
     if (soAlerta) list = list.filter(p => Number(p.quantidade_atual) <= Number(p.alerta_estoque));
     return list;
   }, [produtos, tab, search, soAlerta, categoriaFiltro]);
 
-  const categorias = useMemo(() => {
-    const set = new Set<string>();
-    produtos.filter(p => p.tipo === tab).forEach(p => p.categoria && set.add(p.categoria));
-    return Array.from(set).sort();
-  }, [produtos, tab]);
+  const produtosPorCategoria = useMemo(() => {
+    const map: Record<string, number> = {};
+    produtos.forEach(p => { const k = p.categoria || ""; map[k] = (map[k] || 0) + 1; });
+    return map;
+  }, [produtos]);
 
   const resetForm = () => {
     setEditing(null);
-    setForm({ nome: "", quantidade_atual: "0", alerta_estoque: "0", preco_revenda: "", categoria: "", marca: "", unidade_medida: "un" });
+    setForm({ nome: "", quantidade_atual: "0", alerta_estoque: "0", preco_revenda: "", categoria: "", unidade_medida: "un" });
   };
 
   const openCreate = (tipo: "consumivel" | "revenda") => { resetForm(); setCreateType(tipo); setIsOpen(true); };
@@ -101,12 +127,11 @@ function EstoquePage() {
     setCreateType(p.tipo);
     setForm({
       nome: p.nome, quantidade_atual: String(p.quantidade_atual), alerta_estoque: String(p.alerta_estoque),
-      preco_revenda: p.preco_revenda?.toString() || "", categoria: p.categoria || "", marca: p.marca || "",
+      preco_revenda: p.preco_revenda?.toString() || "", categoria: p.categoria || "",
       unidade_medida: p.unidade_medida || "un",
     });
     setIsOpen(true);
   };
-
 
   const handleSave = async () => {
     if (!tenant?.id) return;
@@ -116,8 +141,9 @@ function EstoquePage() {
       barbearia_id: tenant.id, nome: form.nome.trim(), tipo: tipoProduto,
       alerta_estoque: parseFloat(form.alerta_estoque) || 0,
       preco_revenda: tipoProduto === "revenda" ? (parseFloat(form.preco_revenda) || 0) : null,
-      categoria: form.categoria.trim() || null, marca: form.marca.trim() || null,
+      categoria: form.categoria.trim() || null,
       unidade_medida: form.unidade_medida || "un",
+      is_categoria: false,
     };
 
     if (editing) {
@@ -128,7 +154,6 @@ function EstoquePage() {
       payload.quantidade_atual = parseFloat(form.quantidade_atual) || 0;
       const { data, error } = await supabase.from("estoque" as any).insert([payload]).select().single();
       if (error) return toast.error(error.message);
-      // movimento inicial
       if (payload.quantidade_atual > 0) {
         await supabase.from("estoque_movimentos" as any).insert({
           barbearia_id: tenant.id, estoque_id: (data as any).id, tipo: "entrada",
@@ -138,16 +163,61 @@ function EstoquePage() {
       }
       toast.success("Produto criado");
     }
-    setIsOpen(false); resetForm(); fetchProdutos();
+    setIsOpen(false); resetForm(); fetchAll();
   };
 
-  const [deleteTarget, setDeleteTarget] = useState<Produto | null>(null);
   const handleDelete = async (p: Produto) => {
     const { error } = await supabase.from("estoque" as any).update({ deleted_at: new Date().toISOString() }).eq("id", p.id);
     if (error) return toast.error(error.message);
-    toast.success("Excluído"); fetchProdutos();
+    toast.success("Excluído"); fetchAll();
   };
 
+  // Categorias
+  const openCreateCat = () => { setEditingCat(null); setCatForm({ nome: "", descricao: "" }); setCatOpen(true); };
+  const openEditCat = (c: Categoria) => { setEditingCat(c); setCatForm({ nome: c.nome, descricao: c.categoria || "" }); setCatOpen(true); };
+
+  const handleSaveCat = async () => {
+    if (!tenant?.id) return;
+    if (!catForm.nome.trim()) return toast.error("Informe o nome");
+    const nome = catForm.nome.trim();
+    const descricao = catForm.descricao.trim() || null;
+
+    if (editingCat) {
+      const nomeAntigo = editingCat.nome;
+      const { error } = await supabase.from("estoque" as any)
+        .update({ nome, categoria: descricao }).eq("id", editingCat.id);
+      if (error) return toast.error(error.message);
+      // propaga renomeação nos produtos
+      if (nomeAntigo !== nome) {
+        await supabase.from("estoque" as any).update({ categoria: nome })
+          .eq("barbearia_id", tenant.id).eq("is_categoria", false).eq("categoria", nomeAntigo);
+      }
+      toast.success("Categoria atualizada");
+    } else {
+      const { error } = await supabase.from("estoque" as any).insert([{
+        barbearia_id: tenant.id, nome, categoria: descricao,
+        tipo: "consumivel", is_categoria: true,
+        quantidade_atual: 0, alerta_estoque: 0,
+      }]);
+      if (error) return toast.error(error.message);
+      toast.success("Categoria criada");
+    }
+    setCatOpen(false); fetchAll();
+  };
+
+  const handleDeleteCat = async (c: Categoria) => {
+    const emUso = produtosPorCategoria[c.nome] || 0;
+    if (emUso > 0) {
+      // Move produtos para "Sem categoria"
+      await supabase.from("estoque" as any).update({ categoria: null })
+        .eq("barbearia_id", tenant!.id).eq("is_categoria", false).eq("categoria", c.nome);
+    }
+    const { error } = await supabase.from("estoque" as any)
+      .update({ deleted_at: new Date().toISOString() }).eq("id", c.id);
+    if (error) return toast.error(error.message);
+    toast.success(emUso > 0 ? `Categoria excluída. ${emUso} produto(s) movidos para "Sem categoria".` : "Categoria excluída");
+    fetchAll();
+  };
 
   const openAdjust = (p: Produto) => { setAdjustTarget(p); setAdjustQtd(String(p.quantidade_atual)); setAdjustMotivo(""); setAdjustOpen(true); };
   const handleAdjust = async () => {
@@ -156,7 +226,7 @@ function EstoquePage() {
       p_estoque_id: adjustTarget.id, p_novo_saldo: parseFloat(adjustQtd) || 0, p_motivo: adjustMotivo || "Ajuste manual",
     });
     if (error) return toast.error(error.message);
-    toast.success("Saldo ajustado"); setAdjustOpen(false); fetchProdutos();
+    toast.success("Saldo ajustado"); setAdjustOpen(false); fetchAll();
   };
 
   const openHistorico = async (p: Produto) => {
@@ -183,20 +253,26 @@ function EstoquePage() {
         <div className="flex flex-col md:flex-row justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><Boxes className="w-7 h-7" /> Estoque</h1>
-            <p className="text-muted-foreground text-sm mt-1">Gerencie produtos consumíveis e de revenda</p>
+            <p className="text-muted-foreground text-sm mt-1">Gerencie produtos consumíveis, de revenda e categorias</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={exportarAlertas} className="gap-2"><Download className="w-4 h-4" />Exportar alertas</Button>
-            <Button onClick={() => openCreate("consumivel")} className="gap-2"><Plus className="w-4 h-4" /><Package className="w-4 h-4" />Novo consumível</Button>
-            <Button onClick={() => openCreate("revenda")} className="gap-2"><Plus className="w-4 h-4" /><Boxes className="w-4 h-4" />Novo revenda</Button>
+            {tab === "categorias" ? (
+              <Button onClick={openCreateCat} className="gap-2"><Plus className="w-4 h-4" /><Tag className="w-4 h-4" />Nova categoria</Button>
+            ) : (
+              <>
+                <Button variant="outline" onClick={exportarAlertas} className="gap-2"><Download className="w-4 h-4" />Exportar alertas</Button>
+                <Button onClick={() => openCreate("consumivel")} className="gap-2"><Plus className="w-4 h-4" /><Package className="w-4 h-4" />Novo consumível</Button>
+                <Button onClick={() => openCreate("revenda")} className="gap-2"><Plus className="w-4 h-4" /><Boxes className="w-4 h-4" />Novo revenda</Button>
+              </>
+            )}
           </div>
-
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
           <TabsList>
             <TabsTrigger value="consumivel" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Package className="w-4 h-4" />Consumíveis</TabsTrigger>
             <TabsTrigger value="revenda" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Boxes className="w-4 h-4" />Revenda</TabsTrigger>
+            <TabsTrigger value="categorias" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Tag className="w-4 h-4" />Categorias</TabsTrigger>
           </TabsList>
 
           {(["consumivel", "revenda"] as const).map(t => (
@@ -211,7 +287,8 @@ function EstoquePage() {
                     <SelectTrigger className="w-full sm:w-48"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="todas">Todas categorias</SelectItem>
-                      {categorias.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      <SelectItem value={SEM_CATEGORIA}>Sem categoria</SelectItem>
+                      {categorias.map(c => <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 )}
@@ -237,8 +314,8 @@ function EstoquePage() {
                                 <h3 className="font-semibold truncate">{p.nome}</h3>
                                 {emAlerta && <Badge variant="destructive" className="text-[10px]">Em alerta</Badge>}
                               </div>
-                              {(p.categoria || p.marca) && (
-                                <p className="text-xs text-muted-foreground mt-0.5">{[p.marca, p.categoria].filter(Boolean).join(" · ")}</p>
+                              {p.categoria && (
+                                <p className="text-xs text-muted-foreground mt-0.5">{p.categoria}</p>
                               )}
                             </div>
                           </div>
@@ -278,17 +355,65 @@ function EstoquePage() {
               )}
             </TabsContent>
           ))}
+
+          <TabsContent value="categorias" className="space-y-4 mt-4">
+            {loading ? (
+              <div className="text-center py-12 text-muted-foreground">Carregando...</div>
+            ) : categorias.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">Nenhuma categoria cadastrada.</div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {categorias.map(c => {
+                  const count = produtosPorCategoria[c.nome] || 0;
+                  return (
+                    <Card key={c.id}>
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Tag className="w-4 h-4 text-muted-foreground" />
+                              <h3 className="font-semibold truncate">{c.nome}</h3>
+                              <Badge variant="secondary" className="text-[10px]">{count} produto{count !== 1 ? "s" : ""}</Badge>
+                            </div>
+                            {c.categoria && (
+                              <p className="text-sm text-muted-foreground mt-1">{c.categoria}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-1 pt-2 border-t">
+                          <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => openEditCat(c)}><Edit2 className="w-3.5 h-3.5" /></Button>
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive" onClick={() => setDeleteCatTarget(c)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
-        {/* Dialog Criar/Editar */}
+        {/* Dialog Criar/Editar produto */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent>
             <DialogHeader><DialogTitle>{editing ? "Editar produto" : `Novo produto ${createType === "consumivel" ? "consumível" : "de revenda"}`}</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div><Label>Nome *</Label><Input value={form.nome} onChange={(e) => setForm(f => ({ ...f, nome: e.target.value }))} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>Categoria</Label><Input value={form.categoria} onChange={(e) => setForm(f => ({ ...f, categoria: e.target.value }))} placeholder="Ex: shampoo" /></div>
-                <div><Label>Marca</Label><Input value={form.marca} onChange={(e) => setForm(f => ({ ...f, marca: e.target.value }))} /></div>
+              <div>
+                <Label>Categoria</Label>
+                <Select
+                  value={form.categoria || SEM_CATEGORIA}
+                  onValueChange={(v) => setForm(f => ({ ...f, categoria: v === SEM_CATEGORIA ? "" : v }))}
+                >
+                  <SelectTrigger><SelectValue placeholder="Sem categoria" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SEM_CATEGORIA}>Sem categoria</SelectItem>
+                    {categorias.map(c => <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {categorias.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">Crie categorias na aba "Categorias".</p>
+                )}
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {!editing && (
@@ -316,6 +441,21 @@ function EstoquePage() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button>
               <Button onClick={handleSave}>Salvar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Categoria */}
+        <Dialog open={catOpen} onOpenChange={setCatOpen}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{editingCat ? "Editar categoria" : "Nova categoria"}</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div><Label>Nome *</Label><Input value={catForm.nome} onChange={(e) => setCatForm(f => ({ ...f, nome: e.target.value }))} placeholder="Ex: Shampoos" /></div>
+              <div><Label>Descrição</Label><Textarea value={catForm.descricao} onChange={(e) => setCatForm(f => ({ ...f, descricao: e.target.value }))} placeholder="Breve descrição da categoria" rows={3} /></div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCatOpen(false)}>Cancelar</Button>
+              <Button onClick={handleSaveCat}>Salvar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -372,6 +512,28 @@ function EstoquePage() {
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={() => { const t = deleteTarget; setDeleteTarget(null); if (t) handleDelete(t); }}
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={!!deleteCatTarget} onOpenChange={(o) => !o && setDeleteCatTarget(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir categoria?</AlertDialogTitle>
+              <AlertDialogDescription>
+                {deleteCatTarget && (produtosPorCategoria[deleteCatTarget.nome] || 0) > 0
+                  ? `"${deleteCatTarget.nome}" tem ${produtosPorCategoria[deleteCatTarget.nome]} produto(s) vinculado(s). Eles serão movidos para "Sem categoria".`
+                  : `"${deleteCatTarget?.nome}" será removida permanentemente.`}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={() => { const t = deleteCatTarget; setDeleteCatTarget(null); if (t) handleDeleteCat(t); }}
               >
                 Excluir
               </AlertDialogAction>
