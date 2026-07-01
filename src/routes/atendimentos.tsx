@@ -94,6 +94,7 @@ interface Atendimento {
   servicos_atendimento?: string | null;
   cupom_codigo?: string | null;
   cupom_nome?: string | null;
+  meio_pagamento?: MeioPagamento | null;
 }
 
 interface Cliente {
