@@ -58,7 +58,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { QrCode, Banknote, CreditCard } from "lucide-react";
+import { QrCode, Banknote, CreditCard, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { invalidateAppointmentCoupon } from "@/lib/coupons.functions";
@@ -91,6 +91,7 @@ interface Atendimento {
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
+  produtos?: { id: string; nome_produto: string; quantidade: number; valor_unitario: number }[];
   servicos_atendimento?: string | null;
   cupom_codigo?: string | null;
   cupom_nome?: string | null;
@@ -191,7 +192,8 @@ function AtendimentosPage() {
         *,
         cliente:usuarios!cliente_id(id, nome, login),
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servico_id, servicos(id, name, price, duration))
+        atendimento_servicos(servico_id, servicos(id, name, price, duration)),
+        atendimento_produtos(id, nome_produto, quantidade, valor_unitario)
       `, { count: 'exact' })
       .eq('barbearia_id', tenant.id)
       .eq('status', 'Agendado')
@@ -202,7 +204,7 @@ function AtendimentosPage() {
 
     const formatted = (data as any[]).map(item => ({
       ...item,
-      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean)
+      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean), produtos: item.atendimento_produtos || []
     }));
 
     const now = new Date();
@@ -221,7 +223,8 @@ function AtendimentosPage() {
         *,
         cliente:usuarios!cliente_id(id, nome, login),
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servico_id, servicos(id, name, price, duration))
+        atendimento_servicos(servico_id, servicos(id, name, price, duration)),
+        atendimento_produtos(id, nome_produto, quantidade, valor_unitario)
       `, { count: 'exact' })
       .eq('barbearia_id', tenant.id)
       .in('status', ['Finalizado', 'Não compareceu']);
@@ -237,7 +240,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar concluídos"); return; }
 
-    setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
+    setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean), produtos: item.atendimento_produtos || [] })));
     setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
 
@@ -269,7 +272,8 @@ function AtendimentosPage() {
         *,
         cliente:usuarios!cliente_id(id, nome, login),
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servico_id, servicos(id, name, price, duration))
+        atendimento_servicos(servico_id, servicos(id, name, price, duration)),
+        atendimento_produtos(id, nome_produto, quantidade, valor_unitario)
       `)
       .eq('barbearia_id', tenant?.id)
       .eq('pedido_exclusao', true)
@@ -277,7 +281,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar pedidos de exclusão"); return; }
 
-    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
+    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean), produtos: item.atendimento_produtos || [] })));
     setLoadingExclusao(false);
   }, [tenant]);
 
@@ -905,6 +909,14 @@ function AtendimentosPage() {
           <div className="flex items-center gap-2"><CalendarIcon className="w-3 h-3" /><span>{format(parseISO(item.data), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}</span></div>
           <div className="flex items-center gap-2"><User className="w-3 h-3" /><span>Colaborador: {item.colaborador.nome}</span></div>
           <div className="flex items-center gap-2"><Scissors className="w-3 h-3" /><span>{item.servicos.length > 0 ? item.servicos.map(s => s.name).join(", ") : (item.servicos_atendimento || "Serviços não informados")}</span></div>
+          {item.produtos && item.produtos.length > 0 && (
+            <div className="flex items-start gap-2">
+              <Package className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>
+                {item.produtos.map(p => `${p.nome_produto} (${p.quantidade}x R$ ${Number(p.valor_unitario).toFixed(2).replace(".", ",")})`).join(", ")}
+              </span>
+            </div>
+          )}
         </div>
         <div className="mt-3 pt-3 border-t flex justify-between items-start gap-2">
           {(() => {
