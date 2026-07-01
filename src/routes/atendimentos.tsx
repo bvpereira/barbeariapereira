@@ -962,7 +962,7 @@ function AtendimentosPage() {
                 <DropdownMenuItem onClick={() => updateStatus(item.id, 'Agendado')}>
                   <Clock className="w-4 h-4 mr-2" /> Agendado
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => updateStatus(item.id, 'Finalizado')}>
+                <DropdownMenuItem onClick={() => { setFinalizeMeio(''); setFinalizeDialog({ id: item.id }); }}>
                   <CheckCircle2 className="w-4 h-4 mr-2" /> Finalizado
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => updateStatus(item.id, 'Não compareceu')}>
