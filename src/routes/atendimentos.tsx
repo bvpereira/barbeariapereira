@@ -91,6 +91,7 @@ interface Atendimento {
   cliente: { id: string; nome: string; login: string };
   colaborador: { id: string; nome: string };
   servicos: { id: string; name: string; price: number; duration: number }[];
+  produtos?: { id: string; nome_produto: string; quantidade: number; valor_unitario: number }[];
   servicos_atendimento?: string | null;
   cupom_codigo?: string | null;
   cupom_nome?: string | null;
