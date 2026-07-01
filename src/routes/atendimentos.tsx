@@ -1722,6 +1722,48 @@ function AtendimentosPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <AlertDialog open={!!finalizeDialog} onOpenChange={(open) => { if (!open) { setFinalizeDialog(null); setFinalizeMeio(''); } }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Finalizar atendimento</AlertDialogTitle>
+              <AlertDialogDescription>
+                Selecione o meio de pagamento utilizado para concluir este atendimento.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <RadioGroup value={finalizeMeio} onValueChange={(v) => setFinalizeMeio(v as MeioPagamento)} className="grid grid-cols-2 gap-3 py-2">
+              {MEIO_PAG_OPTIONS.map((m) => {
+                const Icon = MEIO_PAG_ICON[m];
+                return (
+                  <Label key={m} htmlFor={`fin-${m}`} className={cn(
+                    "flex items-center gap-2 border rounded-md p-3 cursor-pointer hover:bg-muted/50",
+                    finalizeMeio === m && "border-primary bg-primary/5"
+                  )}>
+                    <RadioGroupItem value={m} id={`fin-${m}`} />
+                    <Icon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{MEIO_PAG_LABEL[m]}</span>
+                  </Label>
+                );
+              })}
+            </RadioGroup>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                disabled={!finalizeMeio}
+                onClick={async () => {
+                  if (!finalizeDialog || !finalizeMeio) return;
+                  const id = finalizeDialog.id;
+                  const meio = finalizeMeio as MeioPagamento;
+                  setFinalizeDialog(null);
+                  setFinalizeMeio('');
+                  await updateStatus(id, 'Finalizado', meio);
+                }}
+              >
+                Confirmar finalização
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AdminLayout>
   );
