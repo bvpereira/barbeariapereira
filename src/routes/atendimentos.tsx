@@ -192,7 +192,8 @@ function AtendimentosPage() {
         *,
         cliente:usuarios!cliente_id(id, nome, login),
         colaborador:colaboradores(id, nome),
-        atendimento_servicos(servico_id, servicos(id, name, price, duration))
+        atendimento_servicos(servico_id, servicos(id, name, price, duration)),
+        atendimento_produtos(id, nome_produto, quantidade, valor_unitario)
       `, { count: 'exact' })
       .eq('barbearia_id', tenant.id)
       .eq('status', 'Agendado')
