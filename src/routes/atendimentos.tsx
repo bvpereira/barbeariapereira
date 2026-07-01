@@ -1784,6 +1784,7 @@ function AtendimentosPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <AtendimentoDetailsDialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)} item={detailsItem as any} />
       </div>
     </AdminLayout>
   );
