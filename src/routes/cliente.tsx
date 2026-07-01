@@ -1210,6 +1210,7 @@ function ClientePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AtendimentoDetailsDialog open={!!detailsItem} onOpenChange={(o) => !o && setDetailsItem(null)} item={detailsItem} />
     </div>
   );
 }
