@@ -204,7 +204,7 @@ function AtendimentosPage() {
 
     const formatted = (data as any[]).map(item => ({
       ...item,
-      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean)
+      servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean), produtos: item.atendimento_produtos || []
     }));
 
     const now = new Date();
@@ -240,7 +240,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar concluídos"); return; }
 
-    setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
+    setConcluidos((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean), produtos: item.atendimento_produtos || [] })));
     setTotalConcluidos(count || 0);
     setLoadingConcluidos(false);
 
@@ -281,7 +281,7 @@ function AtendimentosPage() {
 
     if (error) { toast.error("Erro ao carregar pedidos de exclusão"); return; }
 
-    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean) })));
+    setPedidosExclusao((data as any[]).map(item => ({ ...item, servicos: (item.atendimento_servicos || []).map((as: any) => as.servicos).filter(Boolean), produtos: item.atendimento_produtos || [] })));
     setLoadingExclusao(false);
   }, [tenant]);
 
