@@ -213,7 +213,7 @@ function EstoquePage() {
         .eq("barbearia_id", tenant!.id).eq("is_categoria", false).eq("categoria", c.nome);
     }
     const { error } = await supabase.from("estoque" as any)
-      .update({ deleted_at: new Date().toISOString() }).eq("id", c.id);
+      .delete().eq("id", c.id);
     if (error) return toast.error(error.message);
     toast.success(emUso > 0 ? `Categoria excluída. ${emUso} produto(s) movidos para "Sem categoria".` : "Categoria excluída");
     fetchAll();
