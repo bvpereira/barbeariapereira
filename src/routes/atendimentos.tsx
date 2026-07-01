@@ -961,6 +961,9 @@ function AtendimentosPage() {
           })()}
 
           <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailsItem(item)} title="Ver detalhes">
+               <Info className="h-4 w-4" />
+             </Button>
              <BookingButton 
               onSuccess={fetchAgendados} 
               variant="ghost" 
