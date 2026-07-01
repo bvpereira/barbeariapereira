@@ -1125,16 +1125,54 @@ function AtendimentosPage() {
                   </SelectContent>
                 </Select>
               </div>
-              {(dataInicioConcluidos || dataFimConcluidos || filtroConcluidos !== 'Todos') && (
+              <div className="space-y-1">
+                <Label className="text-xs">Meio de pagamento</Label>
+                <Select value={filtroMeioPag} onValueChange={(v) => { setFiltroMeioPag(v as any); setPageConcluidos(0); }}>
+                  <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Todos">Todos</SelectItem>
+                    {MEIO_PAG_OPTIONS.map(m => (
+                      <SelectItem key={m} value={m}>{MEIO_PAG_LABEL[m]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {(dataInicioConcluidos || dataFimConcluidos || filtroConcluidos !== 'Todos' || filtroMeioPag !== 'Todos') && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => { setDataInicioConcluidos(""); setDataFimConcluidos(""); setFiltroConcluidos('Todos'); setPageConcluidos(0); }}
+                  onClick={() => { setDataInicioConcluidos(""); setDataFimConcluidos(""); setFiltroConcluidos('Todos'); setFiltroMeioPag('Todos'); setPageConcluidos(0); }}
                 >
                   Limpar filtros
                 </Button>
               )}
             </div>
+
+            {/* Resumo por meio de pagamento */}
+            {Object.keys(resumoMeio).length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {[...MEIO_PAG_OPTIONS, 'nao_informado'].map((k) => {
+                  const r = resumoMeio[k];
+                  if (!r) return null;
+                  const label = k === 'nao_informado' ? 'Não informado' : MEIO_PAG_LABEL[k as MeioPagamento];
+                  const Icon = k === 'nao_informado' ? Banknote : MEIO_PAG_ICON[k as MeioPagamento];
+                  return (
+                    <Card key={k}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Icon className="w-3.5 h-3.5" />
+                          <span>{label}</span>
+                        </div>
+                        <div className="text-lg font-bold mt-1">
+                          R$ {r.total.toFixed(2).replace('.', ',')}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">{r.qtd} atend.</div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
 
             {loadingConcluidos ? (
               <p>Carregando...</p>
