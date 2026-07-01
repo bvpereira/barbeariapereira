@@ -869,6 +869,7 @@ function AtendimentosPage() {
         setValorFinal(item.valor.toString());
         setComissaoFinal(item.comissao?.toString() || "0");
         setStatus(item.status);
+        setMeioPagamentoEdit((item.meio_pagamento as MeioPagamento) || '');
         fetchColabServicos(item.colaborador.id);
         // Carregar produtos vendidos do atendimento
         supabase.from('atendimento_produtos' as any)
